@@ -1,0 +1,20 @@
+{
+    "terminal.integrated.env.osx": {
+        "PYTHONPATH": "./src:./src/mock"
+    },
+    "terminal.integrated.env.linux": {
+        "PYTHONPATH": "./src:./src/mock"
+    },
+    "terminal.integrated.env.windows": {
+        "PYTHONPATH": "./src;./src/mock"
+    },
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./test",
+        "-p",
+        "test_*.py",
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true
+}
