@@ -90,9 +90,10 @@ class OledDisplay(Display):
 
     def show_ready(self) -> None:
         logging.debug('Ready message')
+        m1, s1 = divmod(abs(config.MAX_TIME), 60)
         for i in range (0,2):
             self.image[i].paste(self.empty)
-            self.draw[i].text((1, 22), '30:00', font=self.font, fill=255)
+            self.draw[i].text((1, 22), f'{m1:02d}:{s1:02d}', font=self.font, fill=255)
             self.display(i)
             self.oled.image(self.image[i])
             self.oled.show()
