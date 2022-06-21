@@ -15,7 +15,6 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
-import sys
 from typing import Callable
 
 import cv2
@@ -27,7 +26,13 @@ from threadvideo import video_thread as vt
 
 current_state: str = 'START'
 watch: ScrabbleWatch = ScrabbleWatch()
-watch.display.show_ready()
+
+
+def do_ready():
+    global current_state
+    watch.display.show_ready()
+    current_state = 'START'
+
 
 def do_start1():
     global current_state
@@ -154,29 +159,33 @@ def do_invalid_challenge2():
 
 def do_reset():
     global current_state
-    logging.debug(f'{current_state} -> START')
+    logging.debug(f'{current_state} - (reset) -> START')
     watch.reset()
-    watch.display.show_boot()  # Display message RESET
+    watch.display.show_reset()  # Display message RESET
     # todo: check for upload
     # todo: reset app data
     LED.switch_on({})  # type: ignore
-    current_state = 'START'
+    do_ready()
 
 
 def do_reboot():
+    import signal
+
     global current_state
-    logging.debug(f'{current_state} -> START')
+    logging.debug(f'{current_state} - (reboot) -> START')
     watch.display.show_boot()  # Display message REBOOT
     # todo: check for upload
     LED.switch_on({})  # type: ignore
     watch.timer.stop()
-    current_state = 'START'
-    sys.exit(0)
+    watch.display.stop()
+    # todo: camera aus?
+    print('jetzt pause beenden')
+    signal.alarm(1)
 
 
 def do_config():
     global current_state
-    logging.debug(f'{current_state} -> START')
+    logging.debug(f'{current_state} - (config) -> START')
     watch.reset()
     watch.display.show_config()  # Display message CONFIG
     # todo: check for upload

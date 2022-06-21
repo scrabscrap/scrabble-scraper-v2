@@ -53,8 +53,9 @@ class Button:
         state.press_button(ButtonEnum(button.pin.number).name)  # type: ignore
 
     def button_released(self, button: GpioButton):  # callback
-        logging.debug(f'released {ButtonEnum(button.pin.number)}')  # type: ignore
-        state.release_button(ButtonEnum(button.pin.number).name)  # type: ignore
+        # logging.debug(f'released {ButtonEnum(button.pin.number)}')  # type: ignore
+        # state.release_button(ButtonEnum(button.pin.number).name)  # type: ignore
+        pass
 
     def start(self, MOCK_KEYBOARD=False):
         # create Buttons and configure listener
@@ -74,3 +75,10 @@ class Button:
             from mock import mockbutton
             logging.debug('mock keyboard activated')
             mockbutton.listen_keyboard()
+        state.do_ready()
+
+    def stop(self):
+        for b in ButtonEnum:
+            nb = GpioButton(b.value)
+            nb.when_pressed = None
+            nb.when_released = None

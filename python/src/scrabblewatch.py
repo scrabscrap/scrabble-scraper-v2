@@ -16,12 +16,12 @@
 """
 import logging
 import time
-
 from threading import Event, Thread
 from typing import Optional
 
-from config import config
 from mockdisplay import MockDisplay
+
+from config import config
 from oled import OledDisplay
 
 
@@ -63,6 +63,7 @@ class ScrabbleWatch:
         self.timer = RepeatedTimer(1, self.tick)
 
     def start(self, player: int):
+        self.display.clear_message(self.player)
         self.play_time = 0
         self.player = player
         self.time = [0, 0]
@@ -70,10 +71,11 @@ class ScrabbleWatch:
         self.paused = False
 
     def pause(self):
-        self.display.show_pause()
         self.paused = True
+        self.display.show_pause(self.player)
 
     def resume(self):
+        self.display.clear_message()
         self.paused = False
 
     def reset(self):
@@ -89,7 +91,7 @@ class ScrabbleWatch:
             self.time[self.player] += 1
             self.current[self.player] += 1
             self.display.add_time(self.player,
-                self.time[0], self.current[0], self.time[1], self.current[1])
+                                  self.time[0], self.current[0], self.time[1], self.current[1])
             self.display.show()
 
     def get_status(self) -> tuple[int, int, int, int, int]:

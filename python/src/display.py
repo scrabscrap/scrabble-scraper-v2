@@ -12,6 +12,11 @@ class Display:
         pass
 
     @abstractmethod
+    def show_reset(self):
+        logging.debug('add reset')
+        pass
+
+    @abstractmethod
     def show_ready(self):
         logging.debug('add ready')
         pass

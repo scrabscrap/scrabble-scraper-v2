@@ -29,15 +29,18 @@ BORDER = 2
 i2cbus = SMBus(1)
 i2c = board.I2C()
 
+
 def init_disp():
     for i in range(0, 2):
         i2cbus.write_byte(0x70, 1 << i)
         oled.init_display()
         oled.show()
 
+
 def display(number: int):
     print(f'{number:d}: select display')
     i2cbus.write_byte(0x70, 1 << number)
+
 
 display(0)
 time.sleep(0.1)
@@ -94,7 +97,7 @@ MSG_CONFIG = "\u270ECfg"
 MSG_CONFIG_FONT = font
 MSG_CONFIG_COORD = (1, 16)
 
-MSG_DOUBT = "\u2049" # \u2718
+MSG_DOUBT = "\u2049"  # \u2718
 MSG_DOUBT_FONT = font2
 (msg_doubt_width, _) = font2.getsize(MSG_DOUBT)
 MSG_DOUBT_COORD = (1, 0)
@@ -151,17 +154,18 @@ oled.image(image)
 oled.show()
 time.sleep(2)
 
-for i in range(0,2):
+for i in range(0, 2):
     display(i)
     print(f'{i:d}: reset timer display')
     m1, s1 = divmod(abs(1800), 60)
     image.paste(empty)
     text = '30:00'
     (font_width, _) = font.getsize(text)
-    draw.text((oled.width // 2 - font_width // 2, 22), text, font=font, fill=255)
+    draw.text((oled.width // 2 - font_width // 2, 22),
+              text, font=font, fill=255)
     t2 = '0'
     (font_width, _) = font2.getsize(t2)
-    draw.text((oled.width - font_width, 0), t2, font=font2, fill=128)
+    draw.text((oled.width - font_width, 0), t2, font=font2, fill=255)
     oled.image(image)
     oled.show()
 
@@ -172,10 +176,11 @@ for i in range(0, 11):
     image.paste(empty)
     text = f"{m1:02d}:{s1:02d}"
     (font_width, _) = font.getsize(text)
-    draw.text((oled.width // 2 - font_width // 2, 22), text, font=font, fill=255)
+    draw.text((oled.width // 2 - font_width // 2, 22),
+              text, font=font, fill=255)
     t2 = f"{i:4d}"
     (font_width, _) = font2.getsize(t2)
-    draw.text((oled.width - font_width, 0), t2, font=font2, fill=128)
+    draw.text((oled.width - font_width, 0), t2, font=font2, fill=255)
     if i <= 5:
         draw.text(MSG_DOUBT_COORD, MSG_DOUBT, font=MSG_DOUBT_FONT, fill=255)
     oled.image(image)
