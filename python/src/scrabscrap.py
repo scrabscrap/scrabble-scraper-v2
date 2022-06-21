@@ -24,7 +24,7 @@ from button import Button
 def main():
     logging.basicConfig(
         level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s - %(message)s')
-    cv2.namedWindow('CV2 Windows', cv2.WINDOW_AUTOSIZE)
+    # cv2.namedWindow('CV2 Windows', cv2.WINDOW_AUTOSIZE)
 
     Button().start()
     pause()

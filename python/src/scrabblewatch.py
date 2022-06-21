@@ -22,6 +22,7 @@ from typing import Optional
 
 from config import config
 from mockdisplay import MockDisplay
+from oled import OledDisplay
 
 
 class RepeatedTimer:
@@ -58,7 +59,7 @@ class ScrabbleWatch:
         self.current: list[int] = [0, 0]
         self.paused: bool = True
         self.player: int = 0  # 0/1 ... player 1/player 2
-        self.display = MockDisplay()  # todo: use factory
+        self.display = OledDisplay()  # todo: use factory
         self.timer = RepeatedTimer(1, self.tick)
 
     def start(self, player: int):
@@ -66,7 +67,6 @@ class ScrabbleWatch:
         self.player = player
         self.time = [0, 0]
         self.current = [0, 0]
-        self.display.clear()
         self.paused = False
 
     def pause(self):
@@ -74,7 +74,6 @@ class ScrabbleWatch:
         self.paused = True
 
     def resume(self):
-        self.display.clear()
         self.paused = False
 
     def reset(self):

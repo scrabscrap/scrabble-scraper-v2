@@ -27,7 +27,7 @@ from threadvideo import video_thread as vt
 
 current_state: str = 'START'
 watch: ScrabbleWatch = ScrabbleWatch()
-
+watch.display.show_ready()
 
 def do_start1():
     global current_state
@@ -51,7 +51,7 @@ def do_move1():
     # calc move
     # store move
     picture = vt.read()
-    cv2.imshow("Live", picture)  # todo: remove display
+    # cv2.imshow("Live", picture)  # todo: remove display
 
     # todo: move in Queue
     current_state = 'S2'
@@ -76,8 +76,7 @@ def do_resume1():
 def do_valid_challenge1():
     global current_state
     logging.debug(f'{current_state} -> P1')
-    watch.display.add_remove_tiles(2)
-    watch.pause()
+    watch.display.add_remove_tiles(1)
     # todo: valid challenge in Queue
     LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green, yellow
     current_state = 'P1'
@@ -86,10 +85,9 @@ def do_valid_challenge1():
 def do_invalid_challenge1():
     global current_state
     logging.debug(f'{current_state} -> P1 (-{config.MALUS_DOUBT:2d})')  # -10
-    watch.display.add_malus(1)  # player 1
-    watch.pause()
+    watch.display.add_malus(0)  # player 1
     # todo: invalid challenge in Queue
-    LED.switch_on({LEDEnum.green})  # turn on LED green
+    LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green
     current_state = 'P1'
 
 
@@ -114,7 +112,7 @@ def do_move2():
     # calc move
     # store move
     picture = vt.read()
-    cv2.imshow("Live", picture)  # todo: remove display
+    # cv2.imshow("Live", picture)  # todo: remove display
 
     # todo: move in Queue
     current_state = 'S1'
@@ -139,8 +137,7 @@ def do_pause2():
 def do_valid_challenge2():
     global current_state
     logging.debug(f'{current_state} -> P2')
-    watch.display.add_remove_tiles(1)
-    watch.pause()
+    watch.display.add_remove_tiles(0)
     # todo: valid challenge in Queue
     LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
     current_state = 'P2'
@@ -149,10 +146,9 @@ def do_valid_challenge2():
 def do_invalid_challenge2():
     global current_state
     logging.debug(f'{current_state} -> P2 (-{config.MALUS_DOUBT:2d})')  # -10
-    watch.display.add_malus(2)  # player 2
-    watch.pause()
+    watch.display.add_malus(1)  # player 2
     # todo: invalid challenge in Queue
-    LED.switch_on({LEDEnum.red})  # turn on LED red
+    LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
     current_state = 'P2'
 
 

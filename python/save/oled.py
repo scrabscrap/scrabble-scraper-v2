@@ -12,6 +12,7 @@ not support PIL/pillow (python imaging library)!
 
 import time
 
+from smbus import SMBus
 import adafruit_ssd1306
 import board
 from PIL import Image, ImageDraw, ImageFont
@@ -25,13 +26,24 @@ WIDTH = 128
 HEIGHT = 64  # Change to 64 if needed
 BORDER = 2
 
-# Use for I2C.
+i2cbus = SMBus(1)
 i2c = board.I2C()
-oled = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, i2c, addr=0x3C)
 
-# Clear display.
-oled.init_display()
-oled.show()
+def init_disp():
+    for i in range(0, 2):
+        i2cbus.write_byte(0x70, 1 << i)
+        oled.init_display()
+        oled.show()
+
+def display(number: int):
+    print(f'{number:d}: select display')
+    i2cbus.write_byte(0x70, 1 << number)
+
+display(0)
+time.sleep(0.1)
+oled = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, i2c, addr=0x3c)
+init_disp()
+display(0)
 
 # Create blank image for drawing.
 # Make sure to create image with mode '1' for 1-bit color.
@@ -115,10 +127,14 @@ time.sleep(2)
 print('Ready message')
 image.paste(empty)
 draw.text(MSG_READY_COORD, MSG_READY, font=MSG_READY_FONT, fill=255)
-oled.image(image)
-oled.show()
+for i in range(0, 2):
+    display(i)
+    print(f'{i:d}: ready')
+    oled.image(image)
+    oled.show()
 time.sleep(2)
 
+display(0)
 # Error message CAM
 print('Err CAM')
 image.paste(empty)
@@ -135,6 +151,21 @@ oled.image(image)
 oled.show()
 time.sleep(2)
 
+for i in range(0,2):
+    display(i)
+    print(f'{i:d}: reset timer display')
+    m1, s1 = divmod(abs(1800), 60)
+    image.paste(empty)
+    text = '30:00'
+    (font_width, _) = font.getsize(text)
+    draw.text((oled.width // 2 - font_width // 2, 22), text, font=font, fill=255)
+    t2 = '0'
+    (font_width, _) = font2.getsize(t2)
+    draw.text((oled.width - font_width, 0), t2, font=font2, fill=128)
+    oled.image(image)
+    oled.show()
+
+display(0)
 print('Countdown')
 for i in range(0, 11):
     m1, s1 = divmod(abs(1800 - i), 60)
@@ -174,6 +205,8 @@ oled.image(image)
 oled.show()
 time.sleep(5)
 
+display(1)
+
 # Entferne Zug
 print('Entf. Zug')
 image.paste(empty)
@@ -204,13 +237,12 @@ oled.invert(True)
 oled.show()
 time.sleep(2)
 
-print('switch off')
+
+display(0)
+print('0: switch off')
 oled.invert(False)
-# oled.poweroff()
-# time.sleep(2)
-# oled.fill(0)
-# oled.show()
-# print('power on')
-# oled.poweron()
-# time.sleep(2)
+oled.poweroff()
+display(1)
+print('1: switch off')
+oled.invert(False)
 oled.poweroff()

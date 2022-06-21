@@ -34,11 +34,13 @@ class ButtonEnum(Enum):
     def __str__(self) -> str:
         return self.name
 
-    GREEN = 20  # GPIO20 - pin 38 - Button green
-    YELLOW = 6  # GPIO6 - pin 31 - Button yellow
-    RED = 19  # GPIO19 - pin 35 - Button red
+    GREEN = 16  # GPIO16 - pin 36 - Button green
+    YELLOW = 17  # GPI1O7 - pin 11 - Button yellow
+    RED = 26  # GPIO26 - pin 37 - Button red
+
     DOUBT1 = 25  # GPIO25 - pin 22 - Button doubt1
     DOUBT2 = 12  # GPIO12 - pin 32 - Button doubt1
+
     RESET = 23  # GPI23 - pin 16 - Button reset
     REBOOT = 18  # GPI18 - pin 12 - Button reboot
     CONFIG = 24  # GPIO24 - pin 18 - Button config
