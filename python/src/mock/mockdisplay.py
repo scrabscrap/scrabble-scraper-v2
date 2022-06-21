@@ -5,49 +5,49 @@ from display import Display
 
 class MockDisplay(Display):
 
-    def show_boot(self):
+    def show_boot(self) -> None:
         print('| Boot  |', end='')
         self.show()
 
-    def show_reset(self):
+    def show_reset(self) -> None:
         print('| Reset |', end='')
         self.show()
 
-    def show_ready(self):
+    def show_ready(self) -> None:
         print('| Ready |', end='')
         self.show()
 
-    def show_pause(self):
+    def show_pause(self) -> None:
         print('| Pause |', end='')
         self.show()
 
-    def add_malus(self, player):
+    def add_malus(self, player) -> None:
         if player == 0:
             print('(-10 /    )', end='')
         else:
             print('(    / -10)', end='')
         self.show()
 
-    def add_remove_tiles(self, player):
+    def add_remove_tiles(self, player) -> None:
         if player == 0:
             print('| Entf. Zug / ', end='')
         else:
             print('|           / Entf. Zug', end='')
         self.show()
 
-    def show_cam_err(self):
+    def show_cam_err(self) -> None:
         print('| \u2620 Cam |', end='')
         self.show()
 
-    def show_ftp_err(self):
+    def show_ftp_err(self) -> None:
         print('| \u2620 Ftp |', end='')
         self.show()
 
-    def show_config(self):
+    def show_config(self) -> None:
         print('| \u270E Cfg |', end='')
         self.show()
 
-    def add_time(self, player, t1, p1, t2, p2):
+    def add_time(self, player, t1, p1, t2, p2) -> None:
         m1, s1 = divmod(abs(config.MAX_TIME - t1), 60)
         m2, s2 = divmod(abs(config.MAX_TIME - t2), 60)
         doubt1 = 'x' if player == 0 and p1 <= config.DOUBT_TIMEOUT else ' '
@@ -58,11 +58,11 @@ class MockDisplay(Display):
             t2 < 0 else f'{doubt2} {m2:02d}:{s2:02d} ({p2:4d})'
         print(f'|{left} / {right}|', end='')
 
-    def clear_message(self):
+    def clear_message(self) -> None:
         pass
 
-    def clear(self):
+    def clear(self) -> None:
         pass
 
-    def show(self):
+    def show(self) -> None:
         print('')

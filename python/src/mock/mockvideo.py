@@ -33,10 +33,10 @@ class VideoSimulate:
         self.formatter = formatter
         self.img = cv2.imread(self.formatter.format(self.cnt))
 
-    def start(self):
+    def start(self) -> None:
         pass
 
-    def stop(self):
+    def stop(self) -> None:
         pass
 
     def read(self):
@@ -50,5 +50,5 @@ class VideoSimulate:
     #     self.camera.capture(_capture, format="bgr")
     #     return _capture.array
 
-    def update(self):
+    def update(self) -> None:
         pass

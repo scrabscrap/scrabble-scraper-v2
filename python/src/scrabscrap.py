@@ -21,7 +21,7 @@ import cv2
 
 from button import Button
 
-def main():
+def main() -> None:
     logging.basicConfig(
         level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s - %(message)s')
     # cv2.namedWindow('CV2 Windows', cv2.WINDOW_AUTOSIZE)

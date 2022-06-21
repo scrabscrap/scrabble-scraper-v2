@@ -1,10 +1,25 @@
+"""
+ This file is part of the scrabble-scraper distribution (https://github.com/scrabscrap/scrabble-scraper)
+ Copyright (c) 2022 Rainer Rohloff.
 
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, version 3.
+
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
 import logging
 
 import adafruit_ssd1306
 import board
 from PIL import Image, ImageDraw, ImageFont
-import atexit
+import time
 
 from smbus import SMBus
 from config import config
@@ -35,16 +50,17 @@ class OledDisplay(Display):
         self.draw = [ImageDraw.Draw(self.image[0]),
                      ImageDraw.Draw(self.image[1])]
 
-    def stop(self):
+    def stop(self) -> None:
         self.display(0)
         self.oled.poweroff()
         self.display(1)
         self.oled.poweroff()
 
-    def display(self, number: int):
+    def display(self, number: int) -> None:
         self.i2cbus.write_byte(0x70, 1 << number)
+        time.sleep(0.001)
 
-    def show_boot(self):
+    def show_boot(self) -> None:
         MSG_BOOT = 'Boot'
         MSG_BOOT_FONT = self.font
         (msg_boot_width, _) = MSG_BOOT_FONT.getsize(MSG_BOOT)
@@ -58,7 +74,7 @@ class OledDisplay(Display):
             self.oled.image(self.image[i])
             self.oled.show()
 
-    def show_reset(self):
+    def show_reset(self) -> None:
         MSG_RESET = 'Reset'
         MSG_RESET_FONT = self.font
         (msg_boot_width, _) = MSG_RESET_FONT.getsize(MSG_RESET)
@@ -72,7 +88,7 @@ class OledDisplay(Display):
             self.oled.image(self.image[i])
             self.oled.show()
 
-    def show_ready(self):
+    def show_ready(self) -> None:
         logging.debug('Ready message')
         for i in range (0,2):
             self.image[i].paste(self.empty)
@@ -81,7 +97,7 @@ class OledDisplay(Display):
             self.oled.image(self.image[i])
             self.oled.show()
 
-    def show_pause(self, player):
+    def show_pause(self, player) -> None:
         MSG_BREAK = 'Pause'
         MSG_BREAK_FONT = self.font1
         MSG_BREAK_COORD = (24, 1)
@@ -91,7 +107,7 @@ class OledDisplay(Display):
         self.oled.image(self.image[player])
         self.oled.show()
 
-    def add_malus(self, player):
+    def add_malus(self, player) -> None:
         MSG_MALUS = '-10P'
         MSG_MALUS_FONT = self.font1
         # (msg_malus_width, _) = MSG_MALUS_FONT.getsize(MSG_MALUS)
@@ -105,7 +121,7 @@ class OledDisplay(Display):
         self.oled.image(self.image[player])
         self.oled.show()
 
-    def add_remove_tiles(self, player):
+    def add_remove_tiles(self, player) -> None:
         MSG_REMOVE_TILES = '\u2717Zug\u270D'
         MSG_REMOVE_TILES_FONT = self.font1
         # (msg_remove_width, _) = MSG_REMOVE_TILES_FONT.getsize(MSG_REMOVE_TILES)
@@ -121,7 +137,7 @@ class OledDisplay(Display):
         self.oled.image(self.image[player])
         self.oled.show()
 
-    def show_cam_err(self):
+    def show_cam_err(self) -> None:
         MSG_ERR_CAM = '\u2620Cam'
         MSG_ERR_CAM_FONT = self.font
         MSG_ERR_CAM_COORD = (1, 16)
@@ -133,7 +149,7 @@ class OledDisplay(Display):
             self.oled.image(self.image[i])
             self.oled.show()
 
-    def show_ftp_err(self):
+    def show_ftp_err(self) -> None:
         MSG_ERR_FTP = '\u2620ftp'
         MSG_ERR_FTP_FONT = self.font
         MSG_ERR_FTP_COORD = (1, 16)
@@ -145,7 +161,7 @@ class OledDisplay(Display):
             self.oled.image(self.image[i])
             self.oled.show()
 
-    def show_config(self):
+    def show_config(self) -> None:
         MSG_CONFIG = '\u270ECfg'
         MSG_CONFIG_FONT = self.font
         MSG_CONFIG_COORD = (1, 16)
@@ -157,7 +173,7 @@ class OledDisplay(Display):
             self.oled.image(self.image[i])
             self.oled.show()
 
-    def add_time(self, player, t1, p1, t2, p2):
+    def add_time(self, player, t1, p1, t2, p2) -> None:
         MSG_DOUBT = '\u2049'  # \u2718
         MSG_DOUBT_FONT = self.font1
         (msg_doubt_width, _) = MSG_DOUBT_FONT.getsize(MSG_DOUBT)
@@ -194,7 +210,7 @@ class OledDisplay(Display):
             self.oled.fill(0)
         # self.oled.show()
 
-    def clear_message(self, disp=None):
+    def clear_message(self, disp=None) -> None:
         if disp is None:
             for i in range(0,2):
                 self.draw[i].rectangle((0, 0, self.oled.width, 24), fill=0)
@@ -208,7 +224,7 @@ class OledDisplay(Display):
             self.oled.show()
 
 
-    def show(self, player=None):
+    def show(self, player=None) -> None:
         if player is None:
             for i in range(0,2):
                 self.display(i)

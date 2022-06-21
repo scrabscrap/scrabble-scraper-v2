@@ -48,16 +48,16 @@ class ButtonEnum(Enum):
 
 class Button:
 
-    def button_pressed(self, button: GpioButton):  # callback
+    def button_pressed(self, button: GpioButton) -> None:  # callback
         logging.debug(f'pressed {ButtonEnum(button.pin.number)}')  # type: ignore
         state.press_button(ButtonEnum(button.pin.number).name)  # type: ignore
 
-    def button_released(self, button: GpioButton):  # callback
+    def button_released(self, button: GpioButton) -> None:  # callback
         # logging.debug(f'released {ButtonEnum(button.pin.number)}')  # type: ignore
         # state.release_button(ButtonEnum(button.pin.number).name)  # type: ignore
         pass
 
-    def start(self, MOCK_KEYBOARD=False):
+    def start(self, MOCK_KEYBOARD=False) -> None:
         # create Buttons and configure listener
         for b in ButtonEnum:
             if b not in [ButtonEnum.RESET, ButtonEnum.REBOOT, ButtonEnum.CONFIG]:
@@ -77,7 +77,7 @@ class Button:
             mockbutton.listen_keyboard()
         state.do_ready()
 
-    def stop(self):
+    def stop(self) -> None:
         for b in ButtonEnum:
             nb = GpioButton(b.value)
             nb.when_pressed = None

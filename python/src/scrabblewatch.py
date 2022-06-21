@@ -45,7 +45,7 @@ class RepeatedTimer:
     def _time(self):
         return self.interval - ((time.time() - self.start) % self.interval)
 
-    def stop(self):
+    def stop(self) -> None:
         """ stops the RepeatedTimer """
         self.event.set()
         self.thread.join()
@@ -62,7 +62,7 @@ class ScrabbleWatch:
         self.display = OledDisplay()  # todo: use factory
         self.timer = RepeatedTimer(1, self.tick)
 
-    def start(self, player: int):
+    def start(self, player: int) -> None:
         self.display.clear_message(self.player)
         self.play_time = 0
         self.player = player
@@ -70,22 +70,22 @@ class ScrabbleWatch:
         self.current = [0, 0]
         self.paused = False
 
-    def pause(self):
+    def pause(self) -> None:
         self.paused = True
         self.display.show_pause(self.player)
 
-    def resume(self):
+    def resume(self) -> None:
         self.display.clear_message()
         self.paused = False
 
-    def reset(self):
+    def reset(self) -> None:
         self.paused = True
         self.play_time = 0
         self.time = [0, 0]
         self.current = [0, 0]
         self.player = 0
 
-    def tick(self):
+    def tick(self) -> None:
         self.play_time += 1
         if not self.paused:
             self.time[self.player] += 1

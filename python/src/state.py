@@ -28,13 +28,13 @@ current_state: str = 'START'
 watch: ScrabbleWatch = ScrabbleWatch()
 
 
-def do_ready():
+def do_ready() -> None:
     global current_state
     watch.display.show_ready()
     current_state = 'START'
 
 
-def do_start1():
+def do_start1() -> None:
     global current_state
     logging.debug(f'{current_state} -> S1')
     watch.start(0)
@@ -42,7 +42,7 @@ def do_start1():
     current_state = 'S1'
 
 
-def do_move1():
+def do_move1() -> None:
     global current_state
 
     p, t1, c1, t2, c2 = watch.get_status()
@@ -62,7 +62,7 @@ def do_move1():
     current_state = 'S2'
 
 
-def do_pause1():
+def do_pause1() -> None:
     global current_state
     logging.debug(f'{current_state} -> P1')
     watch.pause()
@@ -70,7 +70,7 @@ def do_pause1():
     current_state = 'P1'
 
 
-def do_resume1():
+def do_resume1() -> None:
     global current_state
     logging.debug(f'{current_state} -> S1')
     watch.resume()
@@ -78,7 +78,7 @@ def do_resume1():
     current_state = 'S1'
 
 
-def do_valid_challenge1():
+def do_valid_challenge1() -> None:
     global current_state
     logging.debug(f'{current_state} -> P1')
     watch.display.add_remove_tiles(1)
@@ -87,7 +87,7 @@ def do_valid_challenge1():
     current_state = 'P1'
 
 
-def do_invalid_challenge1():
+def do_invalid_challenge1() -> None:
     global current_state
     logging.debug(f'{current_state} -> P1 (-{config.MALUS_DOUBT:2d})')  # -10
     watch.display.add_malus(0)  # player 1
@@ -96,7 +96,7 @@ def do_invalid_challenge1():
     current_state = 'P1'
 
 
-def do_start2():
+def do_start2() -> None:
     global current_state
     logging.debug(f'{current_state} -> S2')
     watch.start(1)
@@ -104,7 +104,7 @@ def do_start2():
     current_state = 'S2'
 
 
-def do_move2():
+def do_move2() -> None:
     global current_state
     p, t1, c1, t2, c2 = watch.get_status()
     # next state
@@ -123,7 +123,7 @@ def do_move2():
     current_state = 'S1'
 
 
-def do_resume2():
+def do_resume2() -> None:
     global current_state
     logging.debug(f'{current_state} -> S2')
     watch.resume()
@@ -131,7 +131,7 @@ def do_resume2():
     current_state = 'S2'
 
 
-def do_pause2():
+def do_pause2() -> None:
     global current_state
     logging.debug(f'{current_state} -> P2')
     watch.pause()
@@ -139,7 +139,7 @@ def do_pause2():
     current_state = 'P2'
 
 
-def do_valid_challenge2():
+def do_valid_challenge2() -> None:
     global current_state
     logging.debug(f'{current_state} -> P2')
     watch.display.add_remove_tiles(0)
@@ -148,7 +148,7 @@ def do_valid_challenge2():
     current_state = 'P2'
 
 
-def do_invalid_challenge2():
+def do_invalid_challenge2() -> None:
     global current_state
     logging.debug(f'{current_state} -> P2 (-{config.MALUS_DOUBT:2d})')  # -10
     watch.display.add_malus(1)  # player 2
@@ -157,7 +157,7 @@ def do_invalid_challenge2():
     current_state = 'P2'
 
 
-def do_reset():
+def do_reset() -> None:
     global current_state
     logging.debug(f'{current_state} - (reset) -> START')
     watch.reset()
@@ -168,7 +168,7 @@ def do_reset():
     do_ready()
 
 
-def do_reboot():
+def do_reboot() -> None:
     import signal
 
     global current_state
@@ -183,7 +183,7 @@ def do_reboot():
     signal.alarm(1)
 
 
-def do_config():
+def do_config() -> None:
     global current_state
     logging.debug(f'{current_state} - (config) -> START')
     watch.reset()
@@ -193,7 +193,7 @@ def do_config():
     current_state = 'START'
 
 
-def press_button(button: str):
+def press_button(button: str) -> None:
     logging.debug(f'button press: {button}')
     try:
         state[(current_state, button.lower())]()
@@ -201,7 +201,7 @@ def press_button(button: str):
         logging.debug('Key Error - ignore')
 
 
-def release_button(button: str):
+def release_button(button: str) -> None:
     logging.debug(f'button release: {button}')
 
 

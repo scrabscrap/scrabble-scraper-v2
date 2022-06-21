@@ -48,18 +48,18 @@ class LEDEnum:
 class LED:
 
     @staticmethod
-    def switch_on(leds: Set[GpioLED]):
+    def switch_on(leds: Set[GpioLED]) -> None:
         for i in LEDEnum.set().difference(leds):
             i.off()
         for i in leds:
             i.on()
 
     @staticmethod
-    def blink_on(leds: List[GpioLED]):
+    def blink_on(leds: List[GpioLED]) -> None:
         for i in leds:
             i.blink()
 
     @staticmethod
-    def switch_off(leds: List[GpioLED]):
+    def switch_off(leds: List[GpioLED]) -> None:
         for i in leds:
             i.off()
