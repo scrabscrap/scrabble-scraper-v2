@@ -34,6 +34,7 @@ class FtpThread(Thread):
     def __init__(self, q: Queue):
         self.__queue = q
         Thread.__init__(self)
+        self.setName('FtpThread')
         self.setDaemon(True)
 
     def run(self):

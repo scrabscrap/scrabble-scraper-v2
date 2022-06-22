@@ -96,6 +96,7 @@ class ScrabbleThread(Thread):
     def __init__(self, q: Queue):
         self.__queue = q
         Thread.__init__(self)
+        self.setName('ScrabbleThread')
         self.setDaemon(True)
 
     def run(self):

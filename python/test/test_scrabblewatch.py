@@ -3,6 +3,7 @@ import time
 import unittest
 import state
 from led import LED
+import threading
 
 from scrabblewatch import ScrabbleWatch
 
@@ -13,8 +14,7 @@ class MyTestCase(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         # Ende Test (clean up)
-        state.do_reset()
-        time.sleep(0.2)
+        # state.do_reset()
         LED.switch_on({})  # type: ignore
         state.watch.timer.stop()
         state.watch.display.stop()
@@ -60,6 +60,7 @@ class MyTestCase(unittest.TestCase):
         logging.info('set time to 1798')
         watch.time[1] = 1798
         time.sleep(4)
+        logging.info('end of sleep')
 
 
 if __name__ == '__main__':

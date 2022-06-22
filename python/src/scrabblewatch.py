@@ -35,10 +35,13 @@ class RepeatedTimer:
         self.start = time.time()
         self.event = Event()
         self.thread = Thread(target=self._target)
+        self.thread.setName('RepeatedTimer')
         self.thread.start()
 
     def _target(self):
         while not self.event.wait(self._time):
+            if self.event.is_set:
+                break
             self.function(*self.args, **self.kwargs)
 
     @property
