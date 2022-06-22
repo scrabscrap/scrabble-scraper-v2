@@ -15,6 +15,7 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
+from signal import alarm
 from typing import Callable
 
 import cv2
@@ -169,8 +170,7 @@ def do_reboot() -> str:
     watch.display.stop()
     current_state = 'START'
     # todo: camera aus?
-    print('jetzt pause beenden')
-    signal.alarm(1)
+    alarm(1)
     return 'START'
 
 

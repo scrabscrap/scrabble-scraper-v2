@@ -34,14 +34,11 @@ class RepeatedTimer:
         self.kwargs = kwargs
         self.start = time.time()
         self.event = Event()
-        self.thread = Thread(target=self._target)
-        self.thread.setName('RepeatedTimer')
+        self.thread = Thread(target=self._target, name='RepeatedTimer', daemon=True)
         self.thread.start()
 
     def _target(self):
         while not self.event.wait(self._time):
-            if self.event.is_set:
-                break
             self.function(*self.args, **self.kwargs)
 
     @property
@@ -69,7 +66,6 @@ class ScrabbleWatch:
         self.display.clear_message(self.player)
         self.play_time = 0
         self.player = player
-        self.time = [0, 0]
         self.current = [0, 0]
         self.paused = False
 

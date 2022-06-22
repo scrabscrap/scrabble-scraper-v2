@@ -18,6 +18,10 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         LED.switch_on({})  # type: ignore
         state.watch.timer.stop()
         state.watch.display.stop()
+        for thread in threading.enumerate(): 
+            if not thread.name.startswith('Main'):
+                print(thread.name)
+
 
     def test_timer(self):
         display_pause = 0.1

@@ -23,22 +23,14 @@ import cv2
 from button import Button
 
 
-def ctrl_exit_handler(signal_received, frame):
-    # Handle any cleanup here
-    print('SIGINT or CTRL-C detected. Exiting gracefully')
-    exit(0)
-
 def main() -> None:
     logging.basicConfig(
         level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s - %(message)s')
     # cv2.namedWindow('CV2 Windows', cv2.WINDOW_AUTOSIZE)
 
-    # Tell Python to run the handler() function when SIGINT is recieved
-    signal.signal(signal.SIGINT, ctrl_exit_handler) # ctlr + c
-    signal.signal(signal.SIGTSTP, ctrl_exit_handler) # ctlr + z
-
     Button().start()
     pause()
+    signal.alarm(0)
     exit(0)
 
 
