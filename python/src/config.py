@@ -1,6 +1,6 @@
 """
  This file is part of the scrabble-scraper distribution (https://github.com/scrabscrap/scrabble-scraper)
- Copyright (c) 2020 Rainer Rohloff.
+ Copyright (c) 2022 Rainer Rohloff.
  
  This program is free software: you can redistribute it and/or modify  
  it under the terms of the GNU General Public License as published by  

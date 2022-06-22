@@ -22,6 +22,7 @@ import cv2
 
 from button import Button
 
+
 def ctrl_exit_handler(signal_received, frame):
     # Handle any cleanup here
     print('SIGINT or CTRL-C detected. Exiting gracefully')

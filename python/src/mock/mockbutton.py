@@ -18,7 +18,6 @@ import logging
 from time import sleep
 
 import cv2
-
 from button import ButtonEnum
 from config import config
 

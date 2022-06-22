@@ -1,13 +1,13 @@
 import logging
 import time
-from typing import Any
 import unittest
+from typing import Any
 
+import state
+from config import config
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 from led import LED, LEDEnum
-from config import config
-import state
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s - %(message)s')

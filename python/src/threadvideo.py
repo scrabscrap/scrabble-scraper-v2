@@ -25,7 +25,7 @@ try:
     # noinspection PyUnresolvedReferences
     from picamera import PiCamera  # type: ignore
     # noinspection PyUnresolvedReferences
-    from picamera.array import PiRGBArray # type: ignore
+    from picamera.array import PiRGBArray  # type: ignore
     NO_CAM = False
 except ImportError:
     NO_CAM = True

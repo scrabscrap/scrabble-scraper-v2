@@ -18,7 +18,6 @@ import logging
 import os.path
 
 import cv2
-
 from config import config
 
 
@@ -40,7 +39,8 @@ class VideoSimulate:
         pass
 
     def read(self):
-        self.cnt += 1 if os.path.isfile(self.formatter.format(self.cnt + 1)) else 0
+        self.cnt += 1 if os.path.isfile(
+            self.formatter.format(self.cnt + 1)) else 0
         self.img = cv2.imread(self.formatter.format(self.cnt))
         logging.debug(f"read {self.formatter.format(self.cnt)}")
         return cv2.resize(self.img, self.resolution)

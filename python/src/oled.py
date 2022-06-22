@@ -16,13 +16,13 @@
 """
 import atexit
 import logging
+import time
 
 import adafruit_ssd1306
 import board
 from PIL import Image, ImageDraw, ImageFont
-import time
-
 from smbus import SMBus
+
 from config import config
 from display import Display
 

@@ -16,7 +16,7 @@
 """
 import platform
 from enum import Enum
-from typing import List, Set, Optional
+from typing import List, Optional, Set
 
 from gpiozero import LED as GpioLED
 
