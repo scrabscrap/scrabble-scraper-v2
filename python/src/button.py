@@ -38,8 +38,8 @@ class ButtonEnum(Enum):
     YELLOW = 17  # GPI1O7 - pin 11 - Button yellow
     RED = 26  # GPIO26 - pin 37 - Button red
 
-    DOUBT1 = 25  # GPIO25 - pin 22 - Button doubt1
-    DOUBT2 = 12  # GPIO12 - pin 32 - Button doubt1
+    DOUBT0 = 25  # GPIO25 - pin 22 - Button doubt1
+    DOUBT1 = 12  # GPIO12 - pin 32 - Button doubt1
 
     RESET = 23  # GPI23 - pin 16 - Button reset
     REBOOT = 18  # GPI18 - pin 12 - Button reboot

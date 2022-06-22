@@ -82,10 +82,10 @@ class OledDisplay(Display):
         (msg_boot_width, _) = MSG_RESET_FONT.getsize(MSG_RESET)
         MSG_RESET_COORD = (self.oled.width // 2 - msg_boot_width // 2, 20)
         logging.debug('Reset message')
-        for i in range(0,2):
+        for i in range(0, 2):
             self.image[i].paste(self.empty)
             self.draw[i].text(MSG_RESET_COORD, MSG_RESET,
-                        font=MSG_RESET_FONT, fill=255)
+                              font=MSG_RESET_FONT, fill=255)
             self.display(i)
             self.oled.image(self.image[i])
             self.oled.show()
@@ -93,9 +93,10 @@ class OledDisplay(Display):
     def show_ready(self) -> None:
         logging.debug('Ready message')
         m1, s1 = divmod(abs(config.MAX_TIME), 60)
-        for i in range (0,2):
+        for i in range(0, 2):
             self.image[i].paste(self.empty)
-            self.draw[i].text((1, 22), f'{m1:02d}:{s1:02d}', font=self.font, fill=255)
+            self.draw[i].text(
+                (1, 22), f'{m1:02d}:{s1:02d}', font=self.font, fill=255)
             self.display(i)
             self.oled.image(self.image[i])
             self.oled.show()
@@ -105,7 +106,7 @@ class OledDisplay(Display):
         MSG_BREAK_FONT = self.font1
         MSG_BREAK_COORD = (24, 1)
         self.draw[player].text(MSG_BREAK_COORD, MSG_BREAK,
-                    font=MSG_BREAK_FONT, fill=255)
+                               font=MSG_BREAK_FONT, fill=255)
         self.display(player)
         self.oled.image(self.image[player])
         self.oled.show()
@@ -119,8 +120,9 @@ class OledDisplay(Display):
         logging.debug('(0) malus -10')
         self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
         self.draw[player].text(MSG_MALUS_COORD, MSG_MALUS,
-                        font=MSG_MALUS_FONT, fill=255)
+                               font=MSG_MALUS_FONT, fill=255)
         self.display(player)
+        # self.oled.fill_rect(24, 0, self.oled.width, 24, 0)
         self.oled.image(self.image[player])
         self.oled.show()
 
@@ -135,8 +137,9 @@ class OledDisplay(Display):
         logging.debug('(0) Entf. Zug')
         self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
         self.draw[player].text(MSG_REMOVE_TILES_COORD, MSG_REMOVE_TILES,
-                        font=MSG_REMOVE_TILES_FONT, fill=255)
+                               font=MSG_REMOVE_TILES_FONT, fill=255)
         self.display(player)
+        # self.oled.fill_rect(24, 0, self.oled.width, 24, 0)
         self.oled.image(self.image[player])
         self.oled.show()
 
@@ -145,9 +148,9 @@ class OledDisplay(Display):
         MSG_ERR_CAM_FONT = self.font
         MSG_ERR_CAM_COORD = (1, 16)
         logging.debug('Cam Err')
-        for i in range(0,2):
+        for i in range(0, 2):
             self.draw[i].text(MSG_ERR_CAM_COORD, MSG_ERR_CAM,
-                        font=MSG_ERR_CAM_FONT, fill=255)
+                              font=MSG_ERR_CAM_FONT, fill=255)
             self.display(i)
             self.oled.image(self.image[i])
             self.oled.show()
@@ -157,9 +160,9 @@ class OledDisplay(Display):
         MSG_ERR_FTP_FONT = self.font
         MSG_ERR_FTP_COORD = (1, 16)
         logging.debug('FTP Err')
-        for i in range (0,2):
+        for i in range(0, 2):
             self.draw[i].text(MSG_ERR_FTP_COORD, MSG_ERR_FTP,
-                        font=MSG_ERR_FTP_FONT, fill=255)
+                              font=MSG_ERR_FTP_FONT, fill=255)
             self.display(i)
             self.oled.image(self.image[i])
             self.oled.show()
@@ -169,9 +172,9 @@ class OledDisplay(Display):
         MSG_CONFIG_FONT = self.font
         MSG_CONFIG_COORD = (1, 16)
         logging.debug('Cfg')
-        for i in range (0,2):
+        for i in range(0, 2):
             self.draw[i].text(MSG_CONFIG_COORD, MSG_CONFIG,
-                        font=MSG_CONFIG_FONT, fill=255)
+                              font=MSG_CONFIG_FONT, fill=255)
             self.display(i)
             self.oled.image(self.image[i])
             self.oled.show()
@@ -188,21 +191,21 @@ class OledDisplay(Display):
         if player == 0:
             # display 0
             m1, s1 = divmod(abs(config.MAX_TIME - t1), 60)
-            text = f'-{m1:1d}:{s1:02d}' if config.MAX_TIME - \
-                t1 < 0 else f'{m1:02d}:{s1:02d}'
+            text = f'-{m1:1d}:{s1:02d}' if config.MAX_TIME - t1 < 0 \
+                else f'{m1:02d}:{s1:02d}'
             p = p1
         elif player == 1:
             # display 1
             m2, s2 = divmod(abs(config.MAX_TIME - t2), 60)
-            text = f'-{m2:1d}:{s2:02d}' if config.MAX_TIME - \
-                t2 < 0 else f'{m2:02d}:{s2:02d}'
+            text = f'-{m2:1d}:{s2:02d}' if config.MAX_TIME - t2 < 0 \
+                else f'{m2:02d}:{s2:02d}'
             p = p2
 
         self.draw[player].text((1, 22), text, font=self.font, fill=255)
         self.draw[player].text((80, 1), f'{p:4d}', font=self.font1, fill=255)
         if p <= config.DOUBT_TIMEOUT:
             self.draw[player].text(MSG_DOUBT_COORD, MSG_DOUBT,
-                            font=MSG_DOUBT_FONT, fill=255)
+                                   font=MSG_DOUBT_FONT, fill=255)
         self.display(player)
         self.oled.image(self.image[player])
         self.oled.show()
@@ -215,21 +218,22 @@ class OledDisplay(Display):
 
     def clear_message(self, disp=None) -> None:
         if disp is None:
-            for i in range(0,2):
+            for i in range(0, 2):
                 self.draw[i].rectangle((0, 0, self.oled.width, 24), fill=0)
                 self.display(i)
+                # self.oled.fill_rect(0, 0, self.oled.width, 24, 0)
                 self.oled.image(self.image[i])
                 self.oled.show()
         else:
             self.draw[disp].rectangle((0, 0, self.oled.width, 24), fill=0)
             self.display(disp)
+            # self.oled.fill_rect(0, 0, self.oled.width, 24, 0)
             self.oled.image(self.image[disp])
             self.oled.show()
 
-
     def show(self, player=None) -> None:
         if player is None:
-            for i in range(0,2):
+            for i in range(0, 2):
                 self.display(i)
                 self.oled.image(self.image[i])
                 self.oled.show()
