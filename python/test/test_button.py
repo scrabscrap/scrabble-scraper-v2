@@ -24,7 +24,7 @@ pin_config: Any = None
 
 
 # noinspection PyMethodMayBeStatic
-class MyTestCase(unittest.TestCase):
+class ButtonTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:

@@ -9,7 +9,7 @@ from scrabblewatch import ScrabbleWatch
 
 
 # noinspection PyMethodMayBeStatic
-class MyTestCase(unittest.TestCase):
+class ScrabbleWatchTestCase(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
