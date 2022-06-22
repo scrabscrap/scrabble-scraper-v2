@@ -1,6 +1,8 @@
 import logging
 import time
 import unittest
+import state
+from led import LED
 
 from scrabblewatch import ScrabbleWatch
 
@@ -8,9 +10,17 @@ from scrabblewatch import ScrabbleWatch
 # noinspection PyMethodMayBeStatic
 class MyTestCase(unittest.TestCase):
 
+    @classmethod
+    def tearDownClass(self):
+        # Ende Test (clean up)
+        state.do_reset()
+        LED.switch_on({})
+        state.watch.timer.stop()
+        state.watch.display.stop()
+
     def test_timer(self):
         logging.basicConfig(
-            level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s - %(message)s')
+            level=logging.DEBUG, format='%(asctime)s - %(funcName)10s - %(levelname)s - %(message)s')
 
         watch = ScrabbleWatch()
         logging.info('without start')
@@ -26,7 +36,7 @@ class MyTestCase(unittest.TestCase):
         time.sleep(0.5)
         logging.info('start player 0')
         watch.start(0)
-        time.sleep(1.5)
+        time.sleep(0.5)
         logging.info('pause')
         watch.pause()
         time.sleep(0.5)
@@ -35,7 +45,7 @@ class MyTestCase(unittest.TestCase):
         watch.pause()
         time.sleep(0.5)
         logging.info('pause mit remove')
-        watch.display.add_remove_tiles(0)
+        watch.display.add_remove_tiles(1)
         watch.pause()
         time.sleep(0.5)
         logging.info('resume')
@@ -47,8 +57,6 @@ class MyTestCase(unittest.TestCase):
         logging.info('set time to 1798')
         watch.time[1] = 1798
         time.sleep(4)
-        watch.timer.stop()
-        watch.display.stop()
 
 
 if __name__ == '__main__':

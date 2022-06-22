@@ -146,17 +146,20 @@ def do_invalid_challenge1() -> str:
 
 
 def do_reset() -> str:
+    global current_state
     logging.debug(f'{current_state} - (reset) -> START')
     LED.switch_on({})  # type: ignore
     watch.reset()
     # todo: check for upload
     # todo: reset app data
+    current_state = 'START'
     do_ready()
-    return 'START'
+    return current_state
 
 
 def do_reboot() -> str:
     import signal
+    global current_state
 
     logging.debug(f'{current_state} - (reboot) -> START')
     watch.display.show_boot()  # Display message REBOOT
@@ -164,6 +167,7 @@ def do_reboot() -> str:
     LED.switch_on({})  # type: ignore
     watch.timer.stop()
     watch.display.stop()
+    current_state = 'START'
     # todo: camera aus?
     print('jetzt pause beenden')
     signal.alarm(1)
@@ -171,12 +175,14 @@ def do_reboot() -> str:
 
 
 def do_config() -> str:
+    global current_state
     logging.debug(f'{current_state} - (config) -> START')
     watch.reset()
     watch.display.show_config()  # Display message CONFIG
     # todo: check for upload
     LED.switch_on({})  # type: ignore
-    return 'START'
+    current_state = 'START'
+    return current_state
 
 
 def press_button(button: str) -> None:
