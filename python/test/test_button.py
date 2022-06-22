@@ -56,10 +56,10 @@ class MyTestCase(unittest.TestCase):
         return super().setUpClass()
 
     @classmethod
-    def tearDownClass(self):
+    def tearDownClass(cls):
         # Ende Test (clean up)
         state.do_reset()
-        LED.switch_on({})
+        LED.switch_on({})  # type: ignore
         state.watch.timer.stop()
         state.watch.display.stop()
 

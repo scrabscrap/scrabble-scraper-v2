@@ -105,6 +105,7 @@ class OledDisplay(Display):
         MSG_BREAK = 'Pause'
         MSG_BREAK_FONT = self.font1
         MSG_BREAK_COORD = (24, 1)
+        self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
         self.draw[player].text(MSG_BREAK_COORD, MSG_BREAK,
                                font=MSG_BREAK_FONT, fill=255)
         self.display(player)
@@ -149,6 +150,7 @@ class OledDisplay(Display):
         MSG_ERR_CAM_COORD = (1, 16)
         logging.debug('Cam Err')
         for i in range(0, 2):
+            self.image[i].paste(self.empty)
             self.draw[i].text(MSG_ERR_CAM_COORD, MSG_ERR_CAM,
                               font=MSG_ERR_CAM_FONT, fill=255)
             self.display(i)
@@ -161,6 +163,7 @@ class OledDisplay(Display):
         MSG_ERR_FTP_COORD = (1, 16)
         logging.debug('FTP Err')
         for i in range(0, 2):
+            self.image[i].paste(self.empty)
             self.draw[i].text(MSG_ERR_FTP_COORD, MSG_ERR_FTP,
                               font=MSG_ERR_FTP_FONT, fill=255)
             self.display(i)
@@ -173,6 +176,7 @@ class OledDisplay(Display):
         MSG_CONFIG_COORD = (1, 16)
         logging.debug('Cfg')
         for i in range(0, 2):
+            self.image[i].paste(self.empty)
             self.draw[i].text(MSG_CONFIG_COORD, MSG_CONFIG,
                               font=MSG_CONFIG_FONT, fill=255)
             self.display(i)
