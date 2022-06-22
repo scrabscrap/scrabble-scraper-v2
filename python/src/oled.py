@@ -14,6 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+import atexit
 import logging
 
 import adafruit_ssd1306
@@ -49,6 +50,7 @@ class OledDisplay(Display):
                       Image.new('1', (self.oled.width, self.oled.height))]
         self.draw = [ImageDraw.Draw(self.image[0]),
                      ImageDraw.Draw(self.image[1])]
+        atexit.register(self.stop)
 
     def stop(self) -> None:
         self.display(0)

@@ -7,6 +7,7 @@ from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 from led import LED, LEDEnum
 from config import config
+import state
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s - %(message)s')
@@ -33,6 +34,8 @@ class MyTestCase(unittest.TestCase):
         global pin_reset
         global pin_reboot
         global pin_config
+        global button_handler
+
         # set default pin factory
         Device.pin_factory = MockFactory()
         # Get a reference to mock buttons
@@ -47,36 +50,35 @@ class MyTestCase(unittest.TestCase):
         return super().setUpClass()
 
     def test_button_led(self):
+
         for i in range(3):  # now try to signal sensor
             pin_green.drive_high()
             time.sleep(0.01)
             pin_green.drive_low()
-            logging.info(f'leds: green {LEDEnum.green.value} red {LEDEnum.red.value} '
-                         f'yellow {LEDEnum.yellow.value}')
+            logging.info(f'leds: green {LEDEnum.green.value} yellow {LEDEnum.yellow.value} '
+                         f'red {LEDEnum.red.value}')
 
             pin_red.drive_high()
             time.sleep(0.01)
             pin_red.drive_low()
-            logging.info(f'leds: green {LEDEnum.green.value} red {LEDEnum.red.value} '
-                         f'yellow {LEDEnum.yellow.value}')
-
-        time.sleep(3)
-        logging.info(f'leds: green {LEDEnum.green.value} red {LEDEnum.red.value} '
-                     f'yellow {LEDEnum.yellow.value}')
+            logging.info(f'leds: green {LEDEnum.green.value} yellow {LEDEnum.yellow.value} '
+                         f'red {LEDEnum.red.value}')
 
         pin_yellow.drive_high()
         time.sleep(0.01)
         pin_yellow.drive_low()
-        logging.info(f'leds: green {LEDEnum.green.value} red {LEDEnum.red.value} '
-                     f'yellow {LEDEnum.yellow.value}')
-
-        pin_reboot.drive_high()
-        logging.info('wait 3s')
-        time.sleep(config.HOLD1+0.2)
-        pin_reboot.drive_low()
-        logging.info(f'leds: green {LEDEnum.green.value} red {LEDEnum.red.value} '
-                     f'yellow {LEDEnum.yellow.value}')
-        time.sleep(config.HOLD1+0.5)
+        logging.info(f'leds: green {LEDEnum.green.value} yellow {LEDEnum.yellow.value} '
+                        f'red {LEDEnum.red.value}')
+        # pin_reboot.drive_high()
+        # logging.info('wait 3s')
+        # time.sleep(config.HOLD1+0.2)
+        # pin_reboot.drive_low()
+        # logging.info(f'leds: green {LEDEnum.green.value} red {LEDEnum.red.value} '
+        #              f'yellow {LEDEnum.yellow.value}')
+        # time.sleep(config.HOLD1+0.5)
+        LED.switch_on({})
+        state.watch.timer.stop()
+        state.watch.display.stop()
 
     def test_if_true(self):
         pass

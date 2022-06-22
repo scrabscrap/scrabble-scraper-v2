@@ -28,26 +28,24 @@ current_state: str = 'START'
 watch: ScrabbleWatch = ScrabbleWatch()
 
 
-def do_ready() -> None:
-    global current_state
+def do_ready() -> str:
     watch.display.show_ready()
     current_state = 'START'
+    return current_state
 
 
-def do_start1() -> None:
-    global current_state
-    logging.debug(f'{current_state} -> S1')
+def do_start0() -> str:
+    logging.debug(f'{current_state} - (start) -> S0')
     watch.start(0)
     LED.switch_on({LEDEnum.green})  # turn on LED green
-    current_state = 'S1'
+    return 'S0'
 
 
-def do_move1() -> None:
-    global current_state
+def do_move0() -> str:
 
-    p, t1, c1, t2, c2 = watch.get_status()
+    p, t0, c0, t1, c1 = watch.get_status()
     # next player
-    logging.debug(f'{current_state} -> S2')
+    logging.debug(f'{current_state} - (move) -> S1')
     watch.start(1)
     LED.switch_on({LEDEnum.red})  # turn on LED red
 
@@ -59,56 +57,50 @@ def do_move1() -> None:
     # cv2.imshow("Live", picture)  # todo: remove display
 
     # todo: move in Queue
-    current_state = 'S2'
+    return 'S1'
 
 
-def do_pause1() -> None:
-    global current_state
-    logging.debug(f'{current_state} -> P1')
+def do_pause0() -> str:
+    logging.debug(f'{current_state} - (pause) -> P0')
     watch.pause()
     LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green, yellow
-    current_state = 'P1'
+    return 'P0'
 
 
-def do_resume1() -> None:
-    global current_state
-    logging.debug(f'{current_state} -> S1')
+def do_resume0() -> str:
+    logging.debug(f'{current_state} - (resume) -> S0')
     watch.resume()
     LED.switch_on({LEDEnum.green})  # turn on LED green
-    current_state = 'S1'
+    return 'S0'
 
 
-def do_valid_challenge1() -> None:
-    global current_state
-    logging.debug(f'{current_state} -> P1')
+def do_valid_challenge0() -> str:
+    logging.debug(f'{current_state} - (valid challenge) -> P0')
     watch.display.add_remove_tiles(1)
     # todo: valid challenge in Queue
     LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green, yellow
-    current_state = 'P1'
+    return 'P0'
 
 
-def do_invalid_challenge1() -> None:
-    global current_state
-    logging.debug(f'{current_state} -> P1 (-{config.MALUS_DOUBT:2d})')  # -10
+def do_invalid_challenge0() -> str:
+    logging.debug(f'{current_state} - (invalid challenge) -> P0 (-{config.MALUS_DOUBT:2d})')  # -10
     watch.display.add_malus(0)  # player 1
-    # todo: invalid challenge in Queue
     LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green
-    current_state = 'P1'
+    # todo: invalid challenge in Queue
+    return 'P0'
 
 
-def do_start2() -> None:
-    global current_state
-    logging.debug(f'{current_state} -> S2')
+def do_start1() -> str:
+    logging.debug(f'{current_state} - (start) -> S1')
     watch.start(1)
     LED.switch_on({LEDEnum.red})  # turn on LED red
-    current_state = 'S2'
+    return 'S1'
 
 
-def do_move2() -> None:
-    global current_state
+def do_move1() -> str:
     p, t1, c1, t2, c2 = watch.get_status()
     # next state
-    logging.debug(f'{current_state} -> S1')
+    logging.debug(f'{current_state} - (move) -> S0')
     watch.start(0)
     LED.switch_on({LEDEnum.green})  # turn on LED green
 
@@ -120,58 +112,52 @@ def do_move2() -> None:
     # cv2.imshow("Live", picture)  # todo: remove display
 
     # todo: move in Queue
-    current_state = 'S1'
+    return 'S0'
 
 
-def do_resume2() -> None:
-    global current_state
-    logging.debug(f'{current_state} -> S2')
+def do_resume1() -> str:
+    logging.debug(f'{current_state} - (resume) -> S1')
     watch.resume()
     LED.switch_on({LEDEnum.red})  # turn on LED red
-    current_state = 'S2'
+    return 'S1'
 
 
-def do_pause2() -> None:
-    global current_state
-    logging.debug(f'{current_state} -> P2')
+def do_pause1() -> str:
+    logging.debug(f'{current_state} - (pause) -> P1')
     watch.pause()
     LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
-    current_state = 'P2'
+    return 'P1'
 
 
-def do_valid_challenge2() -> None:
-    global current_state
-    logging.debug(f'{current_state} -> P2')
+def do_valid_challenge1() -> str:
+    logging.debug(f'{current_state} - (valid challenge) -> P1')
     watch.display.add_remove_tiles(0)
     # todo: valid challenge in Queue
     LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
-    current_state = 'P2'
+    return 'P1'
 
 
-def do_invalid_challenge2() -> None:
-    global current_state
-    logging.debug(f'{current_state} -> P2 (-{config.MALUS_DOUBT:2d})')  # -10
+def do_invalid_challenge1() -> str:
+    logging.debug(f'{current_state} - (invalid challenge) -> P1 (-{config.MALUS_DOUBT:2d})')  # -10
     watch.display.add_malus(1)  # player 2
     # todo: invalid challenge in Queue
     LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
-    current_state = 'P2'
+    return 'P1'
 
 
-def do_reset() -> None:
-    global current_state
+def do_reset() -> str:
     logging.debug(f'{current_state} - (reset) -> START')
+    LED.switch_on({})  # type: ignore
     watch.reset()
-    watch.display.show_reset()  # Display message RESET
     # todo: check for upload
     # todo: reset app data
-    LED.switch_on({})  # type: ignore
     do_ready()
+    return 'START'
 
 
-def do_reboot() -> None:
+def do_reboot() -> str:
     import signal
 
-    global current_state
     logging.debug(f'{current_state} - (reboot) -> START')
     watch.display.show_boot()  # Display message REBOOT
     # todo: check for upload
@@ -181,22 +167,23 @@ def do_reboot() -> None:
     # todo: camera aus?
     print('jetzt pause beenden')
     signal.alarm(1)
+    return 'START'
 
 
-def do_config() -> None:
-    global current_state
+def do_config() -> str:
     logging.debug(f'{current_state} - (config) -> START')
     watch.reset()
     watch.display.show_config()  # Display message CONFIG
     # todo: check for upload
     LED.switch_on({})  # type: ignore
-    current_state = 'START'
+    return 'START'
 
 
 def press_button(button: str) -> None:
-    logging.debug(f'button press: {button}')
+    global current_state
+    # logging.debug(f'button press: {button}')
     try:
-        state[(current_state, button.lower())]()
+        current_state = state[(current_state, button.lower())]()
     except KeyError:
         logging.debug('Key Error - ignore')
 
@@ -207,27 +194,27 @@ def release_button(button: str) -> None:
 
 # START, pause => not supported
 state: dict[tuple[str, str], Callable] = {
-    ('START', 'green'): do_start2,
-    ('START', 'red'): do_start1,
+    ('START', 'green'): do_start1,
+    ('START', 'red'): do_start0,
     ('START', 'reset'): do_reset,
     ('START', 'reboot'): do_reboot,
     ('START', 'config'): do_config,
-    ('S1', 'green'): do_move1,
+    ('S0', 'green'): do_move0,
+    ('S0', 'yellow'): do_pause0,
+    ('P0', 'red'): do_resume0,
+    ('P0', 'yellow'): do_resume0,
+    ('P0', 'doubt1'): do_valid_challenge0,
+    ('P0', 'doubt2'): do_invalid_challenge0,
+    ('P0', 'reset'): do_reset,
+    ('P0', 'reboot'): do_reboot,
+    ('P0', 'config'): do_config,
+    ('S1', 'red'): do_move1,
     ('S1', 'yellow'): do_pause1,
-    ('P1', 'red'): do_resume1,
+    ('P1', 'green'): do_resume1,
     ('P1', 'yellow'): do_resume1,
-    ('P1', 'doubt1'): do_valid_challenge1,
-    ('P1', 'doubt2'): do_invalid_challenge1,
+    ('P1', 'doubt2'): do_valid_challenge1,
+    ('P1', 'doubt1'): do_invalid_challenge1,
     ('P1', 'reset'): do_reset,
     ('P1', 'reboot'): do_reboot,
     ('P1', 'config'): do_config,
-    ('S2', 'red'): do_move2,
-    ('S2', 'yellow'): do_pause2,
-    ('P2', 'green'): do_resume2,
-    ('P2', 'yellow'): do_resume2,
-    ('P2', 'doubt2'): do_valid_challenge2,
-    ('P2', 'doubt1'): do_invalid_challenge2,
-    ('P2', 'reset'): do_reset,
-    ('P2', 'reboot'): do_reboot,
-    ('P2', 'config'): do_config,
 }
