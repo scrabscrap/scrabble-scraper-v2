@@ -21,6 +21,11 @@ from abc import abstractmethod
 class Display:
 
     @abstractmethod
+    def stop(self) -> None:
+        logging.debug('stop')
+        pass
+
+    @abstractmethod
     def show_boot(self) -> None:
         logging.debug('add boot')
         pass
@@ -36,7 +41,7 @@ class Display:
         pass
 
     @abstractmethod
-    def show_pause(self) -> None:
+    def show_pause(self, player: int) -> None:
         logging.debug('add pause')
         pass
 
@@ -71,10 +76,14 @@ class Display:
         pass
 
     @abstractmethod
+    def clear_message(self, player = None) -> None:
+        pass
+
+    @abstractmethod
     def clear(self) -> None:
         logging.debug('clear')
         pass
 
     @abstractmethod
-    def show(self) -> None:
+    def show(self, player = None) -> None:
         pass

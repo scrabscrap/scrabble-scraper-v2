@@ -19,11 +19,11 @@ import time
 from threading import Event, Thread
 from typing import Optional
 
-from mockdisplay import MockDisplay
-
 from config import config
-from oled import OledDisplay
-
+try:
+    from oled import OledDisplay as PlayerDisplay  # type: ignore
+except:
+    from mock import mockdisplay as PlayerDisplay
 
 class RepeatedTimer:
 
@@ -59,7 +59,7 @@ class ScrabbleWatch:
         self.current: list[int] = [0, 0]
         self.paused: bool = True
         self.player: int = 0  # 0/1 ... player 1/player 2
-        self.display = OledDisplay()  # todo: use factory
+        self.display = PlayerDisplay.PlayerDisplay()  # todo: use factory
         self.timer = RepeatedTimer(1, self.tick)
 
     def start(self, player: int) -> None:

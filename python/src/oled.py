@@ -30,7 +30,7 @@ logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s - %(message)s')
 
 
-class OledDisplay(Display):
+class PlayerDisplay(Display):
 
     def __init__(self):
         # todo: 2nd display
@@ -101,7 +101,7 @@ class OledDisplay(Display):
             self.oled.image(self.image[i])
             self.oled.show()
 
-    def show_pause(self, player) -> None:
+    def show_pause(self, player: int) -> None:
         MSG_BREAK = 'Pause'
         MSG_BREAK_FONT = self.font1
         MSG_BREAK_COORD = (24, 1)

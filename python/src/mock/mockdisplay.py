@@ -19,7 +19,10 @@ from config import config
 from display import Display
 
 
-class MockDisplay(Display):
+class PlayerDisplay(Display):
+
+    def stop(self) -> None:
+        pass
 
     def show_boot(self) -> None:
         print('| Boot  |', end='')
@@ -33,8 +36,8 @@ class MockDisplay(Display):
         print('| Ready |', end='')
         self.show()
 
-    def show_pause(self) -> None:
-        print('| Pause |', end='')
+    def show_pause(self, player: int) -> None:
+        print(f'| Pause{player}|', end='')
         self.show()
 
     def add_malus(self, player) -> None:
@@ -74,11 +77,11 @@ class MockDisplay(Display):
             t2 < 0 else f'{doubt2} {m2:02d}:{s2:02d} ({p2:4d})'
         print(f'|{left} / {right}|', end='')
 
-    def clear_message(self) -> None:
+    def clear_message(self, player = None) -> None:
         pass
 
     def clear(self) -> None:
         pass
 
-    def show(self) -> None:
+    def show(self, player = None) -> None:
         print('')
