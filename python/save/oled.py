@@ -12,9 +12,9 @@ not support PIL/pillow (python imaging library)!
 
 import time
 
-from smbus import SMBus
-import adafruit_ssd1306
-import board
+from smbus import SMBus  # type: ignore
+import adafruit_ssd1306  # type: ignore
+import board             # type: ignore
 from PIL import Image, ImageDraw, ImageFont
 
 # Define the Reset Pin

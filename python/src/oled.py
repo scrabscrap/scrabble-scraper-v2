@@ -18,10 +18,10 @@ import atexit
 import logging
 import time
 
-import adafruit_ssd1306
-import board
+import adafruit_ssd1306  # type: ignore
+import board  # type: ignore
 from PIL import Image, ImageDraw, ImageFont
-from smbus import SMBus
+from smbus import SMBus  # type: ignore
 
 from config import config
 from display import Display
