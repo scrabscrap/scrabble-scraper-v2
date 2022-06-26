@@ -14,10 +14,7 @@ class ScrabbleWatchTestCase(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         # Ende Test (clean up)
-        # state.do_reset()
         LED.switch_on({})  # type: ignore
-        state.watch.timer.stop()
-        state.watch.display.stop()
         for thread in threading.enumerate(): 
             if not thread.name.startswith('Main'):
                 print(thread.name)

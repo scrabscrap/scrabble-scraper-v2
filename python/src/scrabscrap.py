@@ -21,14 +21,20 @@ from signal import pause
 import cv2
 
 from button import Button
-
+from state import State
 
 def main() -> None:
     logging.basicConfig(
         level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s - %(message)s')
     # cv2.namedWindow('CV2 Windows', cv2.WINDOW_AUTOSIZE)
 
-    Button().start()
+    # Start VideoThread
+
+    # State Machine
+    state = State()
+    # Input Event
+    Button(state).start()
+    # Run until Exit
     pause()
     signal.alarm(0)
     exit(0)

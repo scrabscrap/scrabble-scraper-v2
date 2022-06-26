@@ -20,13 +20,14 @@ from enum import Enum
 
 from gpiozero import Button as GpioButton
 
-import state
 from config import config
+from state import State
+import atexit
 
-if platform.machine() not in ('armv7l', 'armv6l'):
-    from gpiozero import Device
-    from gpiozero.pins.mock import MockFactory
-    Device.pin_factory = MockFactory()
+# if platform.machine() not in ('armv7l', 'armv6l'):
+#     from gpiozero import Device
+#     from gpiozero.pins.mock import MockFactory
+#     Device.pin_factory = MockFactory()
 
 
 class ButtonEnum(Enum):
@@ -48,17 +49,30 @@ class ButtonEnum(Enum):
 
 class Button:
 
+    def __init__(self, _state: State) -> None:
+        self.state = _state
+        atexit.register(self.cleanup_atexit)
+
+    def cleanup_atexit(self) -> None:
+        from gpiozero import Device
+        Device.pin_factory.close()  # type: ignore
+
     def button_pressed(self, button: GpioButton) -> None:  # callback
+        # logging
         logging.debug(f'pressed {ButtonEnum(button.pin.number)}')  # type: ignore
-        state.press_button(ButtonEnum(button.pin.number).name)  # type: ignore
+        self.state.press_button(ButtonEnum(
+            button.pin.number).name)  # type: ignore
 
     def button_released(self, button: GpioButton) -> None:  # callback
         # logging.debug(f'released {ButtonEnum(button.pin.number)}')  # type: ignore
         # state.release_button(ButtonEnum(button.pin.number).name)  # type: ignore
         pass
 
-    def start(self, MOCK_KEYBOARD=False) -> None:
+    def start(self, MOCK_KEYBOARD=False, pin_factory=None) -> None:
         # create Buttons and configure listener
+        if pin_factory is not None:
+            from gpiozero import Device
+            Device.pin_factory = pin_factory
         for b in ButtonEnum:
             if b not in [ButtonEnum.RESET, ButtonEnum.REBOOT, ButtonEnum.CONFIG]:
                 logging.debug(f'Button {b.name}')
@@ -75,10 +89,4 @@ class Button:
             from mock import mockbutton
             logging.debug('mock keyboard activated')
             mockbutton.listen_keyboard()
-        state.do_ready()
-
-    def stop(self) -> None:
-        for b in ButtonEnum:
-            nb = GpioButton(b.value)
-            nb.when_pressed = None
-            nb.when_released = None
+        self.state.do_ready()

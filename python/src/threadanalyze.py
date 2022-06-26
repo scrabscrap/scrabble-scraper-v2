@@ -17,16 +17,7 @@
 from enum import Enum
 from queue import Queue
 from threading import Thread
-
-
-class ScrabbleOp(Enum):
-    START = 1
-    MOVE = 2
-    EXCHANGE = 3
-    CHALLENGE = 4
-    TIME = 5
-    QUIT = 6
-    RESET = 7
+from eventqueue import ScrabbleOp
 
 
 class MoveEnum(Enum):

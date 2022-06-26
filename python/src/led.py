@@ -14,14 +14,15 @@
  You should have received a copy of the GNU General Public License 
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+import atexit
 import platform
 from enum import Enum
 from typing import List, Optional, Set
 
+from gpiozero import Device
 from gpiozero import LED as GpioLED
 
 if platform.machine() not in ('armv7l', 'armv6l'):
-    from gpiozero import Device
     from gpiozero.pins.mock import MockFactory
     Device.pin_factory = MockFactory()
 
@@ -46,6 +47,13 @@ class LEDEnum:
 
 
 class LED:
+
+    def __init__(self) -> None:
+        atexit.register(self.cleanup_atexit)
+
+    def cleanup_atexit(self) -> None:
+        LED.switch_on({})  # type: ignore
+        Device.pin_factory.close()  # type: ignore
 
     @staticmethod
     def switch_on(leds: Set[GpioLED]) -> None:
