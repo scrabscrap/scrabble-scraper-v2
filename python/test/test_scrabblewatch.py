@@ -63,6 +63,7 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         watch.time[1] = 1798
         time.sleep(4)
         logging.info('end of sleep')
+        watch.display.stop()
 
 
 if __name__ == '__main__':
