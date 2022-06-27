@@ -25,7 +25,9 @@ try:
     from picamera import PiCamera  # type: ignore
     # noinspection PyUnresolvedReferences
     from picamera.array import PiRGBArray  # type: ignore
+    NO_CAM = False
 except ImportError:
+    NO_CAM = True
     pass
 
 
@@ -76,5 +78,8 @@ class VideoThread:
                 self.rawCapture.close()
                 self.camera.close()
 
-
-video_thread = VideoThread()
+if NO_CAM:
+    from simulate.mockvideo import MockVideoThread
+    video_thread = MockVideoThread()
+else:
+    video_thread = VideoThread()
