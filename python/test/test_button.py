@@ -29,8 +29,8 @@ class ButtonTestCase(unittest.TestCase):
         self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
         self.pin_config = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
         self.state = State()
-        self.button_handler = Button(self.state)
-        self.button_handler.start(MOCK_KEYBOARD=False)
+        self.button_handler = Button()
+        self.button_handler.start(self.state)
         return super().setUp()
 
     def tearDown(self) -> None:

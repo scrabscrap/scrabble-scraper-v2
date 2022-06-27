@@ -34,7 +34,7 @@ def main() -> None:
     # State Machine
     state = State()
     # Input Event
-    Button(state).start()
+    Button().start(state)
     # Run until Exit
     pause()
     signal.alarm(0)

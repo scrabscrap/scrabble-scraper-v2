@@ -1,22 +1,23 @@
 import logging
 import signal
+import time
 from signal import pause
 from unittest import mock
-from oled import PlayerDisplay
 
 import cv2
-
 from button import Button
-from state import State
-import time
+from oled import PlayerDisplay
 from scrabblewatch import ScrabbleWatch
+from simulate import mockbutton, mockdisplay, mockvideo
+from state import State
+
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
-from simulate import mockvideo, mockdisplay
 
 @mock.patch('threadvideo.VideoThread', mock.MagicMock(return_value=mockvideo.VideoSimulate()))
 @mock.patch('scrabblewatch.PlayerDisplay', mock.MagicMock(return_value=mockdisplay.PlayerDisplay()))
+@mock.patch('__main__.Button', mock.MagicMock(return_value=mockbutton.MockButton()))
 def main() -> None:
     # cv2.namedWindow('CV2 Windows', cv2.WINDOW_AUTOSIZE)
 

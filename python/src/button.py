@@ -14,20 +14,14 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+import atexit
 import logging
-import platform
 from enum import Enum
 
 from gpiozero import Button as GpioButton
 
 from config import config
 from state import State
-import atexit
-
-# if platform.machine() not in ('armv7l', 'armv6l'):
-#     from gpiozero import Device
-#     from gpiozero.pins.mock import MockFactory
-#     Device.pin_factory = MockFactory()
 
 
 class ButtonEnum(Enum):
@@ -49,8 +43,7 @@ class ButtonEnum(Enum):
 
 class Button:
 
-    def __init__(self, _state: State) -> None:
-        self.state = _state
+    def __init__(self) -> None:
         atexit.register(self.cleanup_atexit)
 
     def cleanup_atexit(self) -> None:
@@ -58,8 +51,8 @@ class Button:
         Device.pin_factory.close()  # type: ignore
 
     def button_pressed(self, button: GpioButton) -> None:  # callback
-        # logging
-        logging.debug(f'pressed {ButtonEnum(button.pin.number)}')  # type: ignore
+        logging.debug(
+            f'pressed {ButtonEnum(button.pin.number)}')  # type: ignore
         self.state.press_button(ButtonEnum(
             button.pin.number).name)  # type: ignore
 
@@ -68,25 +61,19 @@ class Button:
         # state.release_button(ButtonEnum(button.pin.number).name)  # type: ignore
         pass
 
-    def start(self, MOCK_KEYBOARD=False, pin_factory=None) -> None:
+    def start(self, _state: State) -> None:
+        self.state = _state
         # create Buttons and configure listener
-        if pin_factory is not None:
-            from gpiozero import Device
-            Device.pin_factory = pin_factory
         for b in ButtonEnum:
             if b not in [ButtonEnum.RESET, ButtonEnum.REBOOT, ButtonEnum.CONFIG]:
                 logging.debug(f'Button {b.name}')
                 nb = GpioButton(b.value)
                 nb.when_pressed = self.button_pressed
-                nb.when_released = self.button_released
+                # nb.when_released = self.button_released
             else:
                 logging.debug(f'when held Button {b.name}')
                 nb = GpioButton(b.value)
                 nb.hold_time = 3
                 nb.when_held = self.button_pressed
-                nb.when_released = self.button_released
-        if MOCK_KEYBOARD:
-            from simulate import mockbutton
-            logging.debug('mock keyboard activated')
-            mockbutton.listen_keyboard()
+                # nb.when_released = self.button_released
         self.state.do_ready()
