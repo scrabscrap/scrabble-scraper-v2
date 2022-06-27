@@ -21,9 +21,10 @@ from typing import Optional
 
 from config import config
 try:
-    from oled import OledDisplay as PlayerDisplay  # type: ignore
+    from oled import PlayerDisplay
 except:
-    from mock import mockdisplay as PlayerDisplay
+    logging.warn('use moack as PlayerDisplay')
+    from mock import PlayerDisplay
 
 class RepeatedTimer:
 
@@ -53,13 +54,16 @@ class RepeatedTimer:
 
 class ScrabbleWatch:
 
-    def __init__(self):
+    def __init__(self, _display: Optional[PlayerDisplay]=None):
         self.play_time: int = 0
         self.time: list[int] = [0, 0]
         self.current: list[int] = [0, 0]
         self.paused: bool = True
         self.player: int = 0  # 0/1 ... player 1/player 2
-        self.display = PlayerDisplay.PlayerDisplay()  # todo: use factory
+        if _display is not None:
+            self.display = _display
+        else:
+            self.display = PlayerDisplay()  # todo: use factory
         self.timer = RepeatedTimer(1, self.tick)
 
     def start(self, player: int) -> None:

@@ -14,32 +14,18 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-import logging
-import signal
-from signal import pause
 
-import cv2
+def onexit(f):
+    # see: https://peps.python.org/pep-0318/#examples
+    import atexit
+    atexit.register(f)
+    return f
 
-from button import Button
-from state import State
-
-logging.basicConfig(
-    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
-
-def main() -> None:
-    # cv2.namedWindow('CV2 Windows', cv2.WINDOW_AUTOSIZE)
-
-    # Start VideoThread
-
-    # State Machine
-    state = State()
-    # Input Event
-    Button(state).start()
-    # Run until Exit
-    pause()
-    signal.alarm(0)
-    exit(0)
-
-
-if __name__ == '__main__':
-    main()
+def singleton(cls):
+    # see: https://peps.python.org/pep-0318/#examples
+    instances = {}
+    def getinstance():
+        if cls not in instances:
+            instances[cls] = cls()
+        return instances[cls]
+    return getinstance

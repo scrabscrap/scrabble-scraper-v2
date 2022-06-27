@@ -1,11 +1,15 @@
 import logging
+import threading
 import time
 import unittest
+
 import state
 from led import LED
-import threading
-
 from scrabblewatch import ScrabbleWatch
+
+
+logging.basicConfig(
+    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 
 # noinspection PyMethodMayBeStatic
@@ -15,18 +19,15 @@ class ScrabbleWatchTestCase(unittest.TestCase):
     def tearDownClass(cls):
         # Ende Test (clean up)
         LED.switch_on({})  # type: ignore
-        for thread in threading.enumerate(): 
+        for thread in threading.enumerate():
             if not thread.name.startswith('Main'):
                 print(thread.name)
-
 
     def test_timer(self):
         display_pause = 0.1
 
-        logging.basicConfig(
-            level=logging.DEBUG, format='%(asctime)s - %(funcName)10s - %(levelname)s - %(message)s')
-
         watch = ScrabbleWatch()
+        self.watch = watch
         logging.info('without start')
         watch.display.show_boot()
         time.sleep(display_pause)

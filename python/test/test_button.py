@@ -11,9 +11,9 @@ from led import LED, LEDEnum
 from button import Button, ButtonEnum
 
 logging.basicConfig(
-    level=logging.DEBUG, format='%(asctime)s - %(funcName)10s - %(levelname)s - %(message)s')
+    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
-# noinspection PyMethodMayBeStatic
+
 class ButtonTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -96,7 +96,6 @@ class ButtonTestCase(unittest.TestCase):
         assert(LEDEnum.green.value == 1
                and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 0)
         time.sleep(display_pause)
-        print('end of test 1')
 
     def test_button_led(self):
         display_pause = 0.01

@@ -26,9 +26,6 @@ from smbus import SMBus  # type: ignore
 from config import config
 from display import Display
 
-logging.basicConfig(
-    level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s - %(message)s')
-
 
 class PlayerDisplay(Display):
 

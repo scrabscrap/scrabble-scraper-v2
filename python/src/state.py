@@ -17,8 +17,10 @@
 import atexit
 import logging
 import queue
+from display import Display as PlayerDisplay
 from signal import alarm
-from typing import Callable
+from typing import Optional, Callable
+from util import singleton
 
 import cv2
 
@@ -28,13 +30,20 @@ from led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
 from threadvideo import video_thread as vt
 
+@singleton
 class State:
-    def __init__(self) -> None:
+
+    def __init__(self, _display: Optional[PlayerDisplay]=None) -> None:
         self.current_state: str = 'START'
-        self.watch: ScrabbleWatch = ScrabbleWatch()
+        self.watch: ScrabbleWatch = ScrabbleWatch(_display)
         self.worker_queue: queue.Queue = queue.Queue(50)
         self.event_queue: ScrabbleOpQueue = ScrabbleOpQueue(self.worker_queue)
         self.event_queue.start()
+        atexit.register(self._atexit)
+
+    def _atexit(self) -> None:
+        logging.info('atexit State')
+        pass
 
     def do_ready(self) -> str:
         self.watch.display.show_ready()

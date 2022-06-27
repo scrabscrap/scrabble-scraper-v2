@@ -46,7 +46,6 @@ class ScrabbleOpQueue(Thread):
 
     def run(self):
         while True:
-            print('get queue')
             item: ScrabbleOpStruct = self.__queue.get()
             if item is None:
                 self.__queue.task_done()
