@@ -15,8 +15,8 @@ logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 
-@mock.patch('threadvideo.VideoThread', mock.MagicMock(return_value=mockvideo.VideoSimulate()))
-@mock.patch('scrabblewatch.PlayerDisplay', mock.MagicMock(return_value=mockdisplay.PlayerDisplay()))
+@mock.patch('threadvideo.VideoThread', mock.MagicMock(return_value=mockvideo.MockVideoThread()))
+@mock.patch('scrabblewatch.PlayerDisplay', mock.MagicMock(return_value=mockdisplay.MockDisplay()))
 @mock.patch('__main__.Button', mock.MagicMock(return_value=mockbutton.MockButton()))
 def main() -> None:
     # cv2.namedWindow('CV2 Windows', cv2.WINDOW_AUTOSIZE)

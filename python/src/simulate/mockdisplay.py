@@ -19,7 +19,7 @@ from config import config
 from display import Display
 
 
-class PlayerDisplay(Display):
+class MockDisplay(Display):
 
     def stop(self) -> None:
         pass

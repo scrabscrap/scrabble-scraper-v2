@@ -21,10 +21,10 @@ import cv2
 from config import config
 
 
-class VideoSimulate:
+class MockVideoThread:
 
     def __init__(self, width=config.IM_WIDTH, height=config.IM_HEIGHT, formatter=None):
-        self.name = 'VideoSimulate'
+        self.name = 'MockVideoThread'
         self.stopped = False
         self.resolution = (width, height)
         self.frame = []

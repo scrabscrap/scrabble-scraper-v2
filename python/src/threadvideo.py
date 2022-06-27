@@ -19,16 +19,14 @@ import time
 from threading import Thread
 
 from config import config
-from simulate import mockvideo
 
 try:
     # noinspection PyUnresolvedReferences
     from picamera import PiCamera  # type: ignore
     # noinspection PyUnresolvedReferences
     from picamera.array import PiRGBArray  # type: ignore
-    NO_CAM = False
 except ImportError:
-    NO_CAM = True
+    pass
 
 
 class VideoThread:
@@ -79,7 +77,4 @@ class VideoThread:
                 self.camera.close()
 
 
-if config.SIMULATE or NO_CAM:
-    video_thread = mockvideo.VideoSimulate(formatter=config.SIMULATE_PATH)
-else:
-    video_thread = VideoThread()
+video_thread = VideoThread()
