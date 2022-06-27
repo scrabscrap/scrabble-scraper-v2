@@ -86,7 +86,7 @@ class Button:
                 nb.when_held = self.button_pressed
                 nb.when_released = self.button_released
         if MOCK_KEYBOARD:
-            from mock import mockbutton
+            from simulate import mockbutton
             logging.debug('mock keyboard activated')
             mockbutton.listen_keyboard()
         self.state.do_ready()

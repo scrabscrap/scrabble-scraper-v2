@@ -25,46 +25,37 @@ class PlayerDisplay(Display):
         pass
 
     def show_boot(self) -> None:
-        print('| Boot  |', end='')
-        self.show()
+        print('| Boot  |')
 
     def show_reset(self) -> None:
-        print('| Reset |', end='')
-        self.show()
+        print('| Reset |')
 
     def show_ready(self) -> None:
-        print('| Ready |', end='')
-        self.show()
+        print('| Ready |')
 
     def show_pause(self, player: int) -> None:
-        print(f'| Pause{player}|', end='')
-        self.show()
+        print(f'| Pause{player}|')
 
     def add_malus(self, player) -> None:
         if player == 0:
-            print('(-10 /    )', end='')
+            print('(-10 /    )')
         else:
-            print('(    / -10)', end='')
-        self.show()
+            print('(    / -10)')
 
     def add_remove_tiles(self, player) -> None:
         if player == 0:
-            print('| Entf. Zug / ', end='')
+            print('| Entf. Zug / ')
         else:
-            print('|           / Entf. Zug', end='')
-        self.show()
+            print('|           / Entf. Zug')
 
     def show_cam_err(self) -> None:
-        print('| \u2620 Cam |', end='')
-        self.show()
+        print('| \u2620 Cam |')
 
     def show_ftp_err(self) -> None:
-        print('| \u2620 Ftp |', end='')
-        self.show()
+        print('| \u2620 Ftp |')
 
     def show_config(self) -> None:
-        print('| \u270E Cfg |', end='')
-        self.show()
+        print('| \u270E Cfg |')
 
     def add_time(self, player, t1, p1, t2, p2) -> None:
         m1, s1 = divmod(abs(config.MAX_TIME - t1), 60)
@@ -75,7 +66,7 @@ class PlayerDisplay(Display):
             t1 < 0 else f'{doubt1} {m1:02d}:{s1:02d} ({p1:4d})'
         right = f'{doubt2} -{m2:1d}:{s2:02d} ({p2:4d})' if config.MAX_TIME - \
             t2 < 0 else f'{doubt2} {m2:02d}:{s2:02d} ({p2:4d})'
-        print(f'|{left} / {right}|', end='')
+        print(f'|{left} / {right}|')
 
     def clear_message(self, player = None) -> None:
         pass
@@ -84,4 +75,4 @@ class PlayerDisplay(Display):
         pass
 
     def show(self, player = None) -> None:
-        print('')
+        pass

@@ -29,7 +29,10 @@ class VideoSimulate:
         self.resolution = (width, height)
         self.frame = []
         self.cnt = 0
-        self.formatter = formatter
+        if formatter is not None:
+            self.formatter = formatter
+        else:
+            self.formatter=config.SIMULATE_PATH
         self.img = cv2.imread(self.formatter.format(self.cnt))
 
     def start(self) -> None:

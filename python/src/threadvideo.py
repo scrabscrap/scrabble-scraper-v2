@@ -19,7 +19,7 @@ import time
 from threading import Thread
 
 from config import config
-from mock import mockvideo
+from simulate import mockvideo
 
 try:
     # noinspection PyUnresolvedReferences
