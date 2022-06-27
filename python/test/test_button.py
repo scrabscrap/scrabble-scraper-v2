@@ -2,15 +2,13 @@ import logging
 import time
 import unittest
 from typing import Any
-from unittest import mock
-from simulate import mockvideo
 
-from state import State
+from button import Button, ButtonEnum
 from config import config
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 from led import LED, LEDEnum
-from button import Button, ButtonEnum
+from state import State
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
@@ -102,6 +100,7 @@ class ButtonTestCase(unittest.TestCase):
     def test_button_led(self):
         display_pause = 0.01
 
+        self.state.do_reset()
         self._press_button(self.pin_red)  # start Green, Disp0
         assert(LEDEnum.green.value == 1 and
                LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
