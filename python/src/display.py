@@ -72,7 +72,15 @@ class Display:
 
     @abstractmethod
     def add_time(self, player: int, t1: int, p1: int, t2: int, p2: int) -> None:
-        logging.debug(f'add time {t1:04d}:{p1:4d} / {t2:04d}:{p2:4d}')
+        m1, s1 = divmod(abs(1800 - t1), 60)
+        m2, s2 = divmod(abs(1800 - t2), 60)
+        doubt1 = 'x' if player == 0 and p1 <= 300 else ' '
+        doubt2 = 'x' if player == 1 and p2 <= 300 else ' '
+        left = f'{doubt1} -{m1:1d}:{s1:02d} ({p1:4d})' if 1800 - \
+            t1 < 0 else f'{doubt1} {m1:02d}:{s1:02d} ({p1:4d})'
+        right = f'{doubt2} -{m2:1d}:{s2:02d} ({p2:4d})' if 1800 - \
+            t2 < 0 else f'{doubt2} {m2:02d}:{s2:02d} ({p2:4d})'
+        logging.debug(f'add time {left} / {right}')
         pass
 
     @abstractmethod

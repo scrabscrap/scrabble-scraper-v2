@@ -3,13 +3,13 @@ import threading
 import time
 import unittest
 
+logging.basicConfig(
+    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+
 import state
 from led import LED
 from scrabblewatch import ScrabbleWatch
 
-
-logging.basicConfig(
-    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 
 # noinspection PyMethodMayBeStatic

@@ -20,12 +20,11 @@ from threading import Event, Thread
 from typing import Optional
 
 from config import config
-from display import Display
 try:
     from oled import PlayerDisplay
 except:
-    logging.warn('use moack as PlayerDisplay')
-    from simulate import mockdisplay
+    logging.warn('use mock as PlayerDisplay')
+    from display import Display as PlayerDisplay
 
 class RepeatedTimer:
 
@@ -54,7 +53,7 @@ class RepeatedTimer:
 
 
 class ScrabbleWatch:
-
+    from display import Display
     def __init__(self, _display: Optional[Display]=None):
         self.play_time: int = 0
         self.time: list[int] = [0, 0]
