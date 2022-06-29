@@ -12,8 +12,8 @@ from config import config
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 from led import LED, LEDEnum
-from state import State
 from scrabblewatch import timer
+from state import State
 
 
 class ButtonTestCase(unittest.TestCase):
