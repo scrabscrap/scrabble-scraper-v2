@@ -32,6 +32,12 @@ class FakeCamera:
         self.framerate = 1
         self.rotation = 0
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self ,type, value, traceback):
+        pass
+    
     def close(self) -> None:
         global fakecamera_index
         fakecamera_index = 0

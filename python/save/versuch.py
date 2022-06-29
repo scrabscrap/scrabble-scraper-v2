@@ -13,7 +13,8 @@ from display import Display
 try:
     from picamera import PiCamera  # type: ignore
 except ImportError:
-    pass
+    logging.warn('use mock as PiCamera')
+    from simulate.fakecamera import FakeCamera as PiCamera  # type: ignore
 
 pool = ThreadPoolExecutor()
 
@@ -107,6 +108,10 @@ logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 if __name__ == '__main__':
+    import platform
+
+    print(f'{platform.machine()} - {platform.architecture()} - {platform.system()}')
+
     time.sleep(10)
     if not timer_future.cancel():
         # timer.cancel()

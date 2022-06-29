@@ -4,6 +4,9 @@ import time
 import unittest
 from typing import Any
 
+logging.basicConfig(
+    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+
 from button import Button, ButtonEnum
 from config import config
 from gpiozero import Device
@@ -11,9 +14,6 @@ from gpiozero.pins.mock import MockFactory
 from led import LED, LEDEnum
 from state import State
 from scrabblewatch import timer
-
-logging.basicConfig(
-    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 
 class ButtonTestCase(unittest.TestCase):

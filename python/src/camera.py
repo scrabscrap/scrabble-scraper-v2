@@ -29,8 +29,7 @@ try:
     from picamera import PiCamera  # type: ignore
 except ImportError:
     logging.warn('use mock as PiCamera')
-    from simulate import FakeCamera as PiCamera  # type: ignore
-
+    from simulate.fakecamera import FakeCamera as PiCamera  # type: ignore
 
 @singleton
 class Camera:
