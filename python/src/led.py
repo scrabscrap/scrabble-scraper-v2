@@ -17,10 +17,10 @@
 import atexit
 import platform
 from enum import Enum
-from typing import List, Optional, Set
+from typing import List, Set
 
-from gpiozero import Device
 from gpiozero import LED as GpioLED
+from gpiozero import Device
 
 if platform.machine() not in ('armv7l', 'armv6l'):
     from gpiozero.pins.mock import MockFactory

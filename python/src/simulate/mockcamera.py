@@ -16,30 +16,30 @@
 """
 import logging
 import os.path
+from concurrent.futures import Future
+from threading import Event
 
 import cv2
 from config import config
+from util import singleton
 
 
-class MockVideoThread:
+@singleton
+class MockCamera:
 
-    def __init__(self, width=config.IM_WIDTH, height=config.IM_HEIGHT, formatter=None):
-        self.name = 'MockVideoThread'
-        self.stopped = False
-        self.resolution = (width, height)
+    def __init__(self, formatter=None):
         self.frame = []
+        self.resolution = (992, 976)
+        self.framerate = config.FPS
+        if config.ROTATE:
+            self.rotation = 180
+        self.event = None
         self.cnt = 0
         if formatter is not None:
             self.formatter = formatter
         else:
-            self.formatter=config.SIMULATE_PATH
+            self.formatter = config.SIMULATE_PATH
         self.img = cv2.imread(self.formatter.format(self.cnt))
-
-    def start(self) -> None:
-        pass
-
-    def stop(self) -> None:
-        pass
 
     def read(self):
         self.cnt += 1 if os.path.isfile(
@@ -48,10 +48,15 @@ class MockVideoThread:
         logging.debug(f"read {self.formatter.format(self.cnt)}")
         return cv2.resize(self.img, self.resolution)
 
-    # def picture(self):
-    #     _capture = PiRGBArray(self.camera, size=(IM_WIDTH, IM_HEIGHT))
-    #     self.camera.capture(_capture, format="bgr")
-    #     return _capture.array
+    def update(self, ev: Event) -> None:
+        self.event = ev
+        while ev.wait(0.05):
+            pass
+        ev.clear()
 
-    def update(self) -> None:
-        pass
+    def cancel(self) -> None:
+        if self.event is not None:
+            self.event.set()
+
+    def done(self, result: Future) -> None:
+        print(f'done {result}')

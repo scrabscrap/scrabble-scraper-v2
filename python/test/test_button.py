@@ -1,4 +1,5 @@
 import logging
+import threading
 import time
 import unittest
 from typing import Any
@@ -9,6 +10,7 @@ from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 from led import LED, LEDEnum
 from state import State
+from scrabblewatch import timer
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
@@ -36,9 +38,12 @@ class ButtonTestCase(unittest.TestCase):
     def tearDown(self) -> None:
         self.state.do_reset()
         LED.switch_on({})  # type: ignore
-        self.state.watch.timer.stop()
         self.state.watch.display.stop()
         Device.pin_factory.reset()  # type: ignore
+        for thread in threading.enumerate():
+            if not thread.name.startswith('Main'):
+                print(thread.name)
+        timer.cancel()
         return super().tearDown()
 
     def _press_button(self, pin, wait=0.001):

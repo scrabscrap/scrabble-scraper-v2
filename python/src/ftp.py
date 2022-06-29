@@ -14,32 +14,14 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-from enum import Enum
-from queue import Queue
-from threading import Thread
+import logging
 
 
-class FtpOp(Enum):
-    STORE_MOVE = 1
-    STORE_ZIP = 2
+def upload_move(self, move) -> bool:
+    logging.debug(f'upload move {move}')
+    return False
 
 
-class FtpStruct:
-    def __init__(self, _op: FtpOp, _game: str):
-        self.op = _op
-        self.game = _game
-
-
-class FtpThread(Thread):
-    def __init__(self, q: Queue):
-        self.__queue = q
-        Thread.__init__(self)
-        self.setName('FtpThread')
-        self.setDaemon(True)
-
-    def run(self):
-        while True:
-            item: FtpStruct = self.__queue.get()
-            if item is None:
-                self.__queue.task_done()
-                break  # reached end of queue
+def upload_game(self, game) -> bool:
+    logging.debug(f'upload game {game}')
+    return False

@@ -16,29 +16,25 @@
 """
 import atexit
 import logging
-import queue
-from display import Display as PlayerDisplay
 from signal import alarm
-from typing import Optional, Callable
+from typing import Callable, Optional
+
+from camera import cam
+from config import config
+from display import Display as PlayerDisplay
+from led import LED, LEDEnum
+from processing import end_of_game, invalid_challenge, move, valid_challenge
+from scrabblewatch import ScrabbleWatch, watch
+from threadpool import pool
 from util import singleton
 
-import cv2
-
-from config import config
-from eventqueue import ScrabbleOpQueue, ScrabbleOp, ScrabbleOpStruct
-from led import LED, LEDEnum
-from scrabblewatch import ScrabbleWatch
-from threadvideo import video_thread as vt
 
 @singleton
 class State:
 
-    def __init__(self, _display: Optional[PlayerDisplay]=None) -> None:
+    def __init__(self, _display: Optional[PlayerDisplay] = None) -> None:
         self.current_state: str = 'START'
-        self.watch: ScrabbleWatch = ScrabbleWatch(_display)
-        self.worker_queue: queue.Queue = queue.Queue(50)
-        self.event_queue: ScrabbleOpQueue = ScrabbleOpQueue(self.worker_queue)
-        self.event_queue.start()
+        self.watch: ScrabbleWatch = watch
         atexit.register(self._atexit)
 
     def _atexit(self) -> None:
@@ -68,11 +64,8 @@ class State:
         # analyze
         # calc move
         # store move
-        picture = vt.read()
-        # cv2.imshow("Live", picture)  # todo: remove display
-
-        self.worker_queue.put(ScrabbleOpStruct(ScrabbleOp.MOVE, None, 'None'))
-        # todo: move in Queue
+        picture = cam.read()
+        pool.submit(move, None, None, picture)
         return 'S1'
 
     def do_pause0(self) -> str:
@@ -91,9 +84,7 @@ class State:
     def do_valid_challenge0(self) -> str:
         logging.debug(f'{self.current_state} - (valid challenge) -> P0')
         self.watch.display.add_remove_tiles(1)
-        # todo: valid challenge in Queue
-        self.worker_queue.put(ScrabbleOpStruct(
-            ScrabbleOp.VALID_CHALLANGE, None, 'None'))
+        pool.submit(valid_challenge, None, None)
         # turn on LED green, yellow
         LED.switch_on({LEDEnum.green, LEDEnum.yellow})
         return 'P0'
@@ -103,9 +94,7 @@ class State:
             f'{self.current_state} - (invalid challenge) -> P0 (-{config.MALUS_DOUBT:2d})')  # -10
         self.watch.display.add_malus(0)  # player 1
         LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green
-        # todo: invalid challenge in Queue
-        self.worker_queue.put(ScrabbleOpStruct(
-            ScrabbleOp.INVALID_CHALLANGE, None, 'None'))
+        pool.submit(invalid_challenge, None, None)
         return 'P0'
 
     def do_start1(self) -> str:
@@ -120,16 +109,8 @@ class State:
         logging.debug(f'{self.current_state} - (move) -> S0')
         self.watch.start(0)
         LED.switch_on({LEDEnum.green})  # turn on LED green
-
-        # get picture
-        # analyze
-        # calc move
-        # store move
-        picture = vt.read()
-        # cv2.imshow("Live", picture)  # todo: remove display
-
-        self.worker_queue.put(ScrabbleOpStruct(ScrabbleOp.MOVE, None, 'None'))
-        # todo: move in Queue
+        picture = cam.read()
+        pool.submit(move, None, None, picture)
         return 'S0'
 
     def do_resume1(self) -> str:
@@ -147,9 +128,7 @@ class State:
     def do_valid_challenge1(self) -> str:
         logging.debug(f'{self.current_state} - (valid challenge) -> P1')
         self.watch.display.add_remove_tiles(0)
-        # todo: valid challenge in Queue
-        self.worker_queue.put(ScrabbleOpStruct(
-            ScrabbleOp.VALID_CHALLANGE, None, 'None'))
+        pool.submit(valid_challenge, None, None)
         LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
         return 'P1'
 
@@ -157,9 +136,7 @@ class State:
         logging.debug(
             f'{self.current_state} - (invalid challenge) -> P1 (-{config.MALUS_DOUBT:2d})')  # -10
         self.watch.display.add_malus(1)  # player 2
-        # todo: invalid challenge in Queue
-        self.worker_queue.put(ScrabbleOpStruct(
-            ScrabbleOp.INVALID_CHALLANGE, None, 'None'))
+        pool.submit(invalid_challenge, None, None)
         LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
         return 'P1'
 
@@ -171,24 +148,19 @@ class State:
         # todo: reset app data
         current_state = 'START'
         self.do_ready()
-        self.worker_queue.put(ScrabbleOpStruct(
-            ScrabbleOp.RESET_GAME, None, 'None'))
-        # event_queue.join()
+        pool.submit(end_of_game, None)
         return current_state
 
     def do_reboot(self) -> str:
-        import signal
-
         logging.debug(f'{self.current_state} - (reboot) -> START')
         self.watch.display.show_boot()  # Display message REBOOT
         # todo: check for upload
         LED.switch_on({})  # type: ignore
-        self.watch.timer.stop()
+        pool.submit(end_of_game, None)
         self.watch.display.stop()
         current_state = 'START'
-        # todo: camera aus?
         alarm(1)
-        return 'START'
+        return current_state
 
     def do_config(self) -> str:
         logging.debug(f'{self.current_state} - (config) -> START')

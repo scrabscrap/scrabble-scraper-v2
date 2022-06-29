@@ -15,46 +15,25 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
-import time
-from threading import Event, Thread
+from threading import Event
 from typing import Optional
 
-from config import config
+from repeatedtimer import RepeatedTimer
+from threadpool import pool
+from util import singleton
+
 try:
     from oled import PlayerDisplay
 except:
     logging.warn('use mock as PlayerDisplay')
     from display import Display as PlayerDisplay
 
-class RepeatedTimer:
 
-    def __init__(self, interval: int, function: callable, *args, **kwargs):  # type: ignore
-        self.interval = interval
-        self.function = function
-        self.args = args
-        self.kwargs = kwargs
-        self.start = time.time()
-        self.event = Event()
-        self.thread = Thread(target=self._target, name='RepeatedTimer', daemon=True)
-        self.thread.start()
-
-    def _target(self):
-        while not self.event.wait(self._time):
-            self.function(*self.args, **self.kwargs)
-
-    @property
-    def _time(self):
-        return self.interval - ((time.time() - self.start) % self.interval)
-
-    def stop(self) -> None:
-        """ stops the RepeatedTimer """
-        self.event.set()
-        self.thread.join()
-
-
+@singleton
 class ScrabbleWatch:
     from display import Display
-    def __init__(self, _display: Optional[Display]=None):
+
+    def __init__(self, _display: Optional[Display] = None):
         self.play_time: int = 0
         self.time: list[int] = [0, 0]
         self.current: list[int] = [0, 0]
@@ -64,7 +43,6 @@ class ScrabbleWatch:
             self.display = _display
         else:
             self.display = PlayerDisplay()  # todo: use factory
-        self.timer = RepeatedTimer(1, self.tick)
 
     def start(self, player: int) -> None:
         self.display.clear_message(self.player)
@@ -99,7 +77,10 @@ class ScrabbleWatch:
             self.display.show(self.player)
 
     def get_status(self) -> tuple[int, int, int, int, int]:
-        """ returns: active_player
-            played_time(player1), time_current_move(player1),
-            played_time(player2), time_current_move(player2) """
         return self.player, self.time[0], self.current[0], self.time[1], self.current[1]
+
+
+watch = ScrabbleWatch()
+timer = RepeatedTimer(1, watch.tick)
+timer_event = Event()
+timer_future = pool.submit(timer.tick, timer_event)
