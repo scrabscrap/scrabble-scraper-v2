@@ -5,6 +5,7 @@
 Die Erzeugung der SD Karte mittels "Raspberyy Pi Imager". Hier das Image "PI OS Lite (32bit) - Debian Bullseye" auswählen.
 
 Bei dem Erzeugen der SD Karte ggf. folgende Optionen konfigurieren
+
 - hostname = scrabscrap
 - ssh aktivieren = true
 - WiFi Zugriff = ID / Passwort
@@ -25,6 +26,7 @@ sudo raspi-config
 ```
 
 Es müssen aktiviert werden
+
 - Kamera
 - spi
 - i2c
@@ -55,8 +57,8 @@ pip install flask-restful
 
 Die Installation von OpenCV erfolgt jetzt ohne compile
 
-- siehe siehe https://www.piwheels.org/project/opencv-contrib-python/
-- siehe https://singleboardblog.com/install-python-opencv-on-raspberry-pi/
+- siehe siehe <https://www.piwheels.org/project/opencv-contrib-python/>
+- siehe <https://singleboardblog.com/install-python-opencv-on-raspberry-pi/>
 
 ```bash
 sudo apt-get install libgsm1 libatk1.0-0 libavcodec58 libcairo2 libvpx6 libvorbisenc2 \
@@ -102,7 +104,7 @@ Prüfen des Zugriffes auf den i2c Bus
 sudo i2cdetect y -1
 ```
 
-Hier solte die Adresse des Multiplexers angezeigt werden (0x70). Die weiteren Adressen (RTC / OLED Display 0x3c) 
+Hier solte die Adresse des Multiplexers angezeigt werden (0x70). Die weiteren Adressen (RTC / OLED Display 0x3c)
 werden erst nach dem Aktivieren über den Multiplexer angezeigt.
 
 ```python
@@ -112,10 +114,9 @@ i2cbus = SMBus(1)
 i2cbus.write_byte(0x70, 1 << <port auf dem mux>)
 ```
 
-
 ## ScrabScrap Projekt laden (auf dem RPI)
 
-Falls von dem RPI auch Commits an das Repository vorgenommen werden sollen, muss 
+Falls von dem RPI auch Commits an das Repository vorgenommen werden sollen, muss
 die GitHub Userkennung gesetzt werden.
 
 ```bash
@@ -129,7 +130,6 @@ Danach kann das Repository geladen werden
 cd
 git clone https://github.com/scrabscrap/scrabble-scraper.git
 ```
-
 
 ## Weitere Konfigurationen
 
@@ -149,11 +149,9 @@ In der ``~/.bashrc`` bzw. ``~/.zshrc`` am Ende ergänzen
 source ~/.alias
 ```
 
-
 ## Autostart von ScrabScrap konfigurieren
 
 TODO: ergänzen
-
 
 ## Installation eines Develepment Rechners
 
@@ -234,8 +232,32 @@ Auf dem lokalen Rechner sollte VS Code mit folgenden Plugins installiert werden
 - React Native Tools (Microsoft)
 
 Dann kann eine Remote Verbindung zum RPI aufgebaut werden. Hierzu werden zusätzliche Hilfsmittel
-auf dem RPI installiert. 
+auf dem RPI installiert.
 
 Danach kann von dem lokalen Rechner über ssh Entwicklung auf dem RPI durchgeführt werden.
 
 Nach dem Start der ssh Verbindung kann das Verzeichnis ``~/scrabscrap/python`` geöffnet werden.
+
+### Lint und Format
+
+```bash
+pip install flake8 autopep8
+```
+
+Parameter flake8
+
+```json
+    "python.linting.flake8Args": [
+        "--max-line-length=128",
+        "--ignore=E402"
+      ],
+```
+
+Parameter autopep8
+
+```json
+    "python.formatting.autopep8Args": [
+        "--max-line-length=128",
+        "--ignore=E402"
+      ],
+```
