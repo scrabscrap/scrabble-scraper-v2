@@ -15,15 +15,18 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+
 def onexit(f):
     # see: https://peps.python.org/pep-0318/#examples
     import atexit
     atexit.register(f)
     return f
 
+
 def singleton(cls):
     # see: https://peps.python.org/pep-0318/#examples
     instances = {}
+
     def getinstance():
         if cls not in instances:
             instances[cls] = cls()

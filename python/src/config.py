@@ -1,20 +1,19 @@
 """
  This file is part of the scrabble-scraper distribution (https://github.com/scrabscrap/scrabble-scraper)
  Copyright (c) 2022 Rainer Rohloff.
- 
- This program is free software: you can redistribute it and/or modify  
- it under the terms of the GNU General Public License as published by  
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
  the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but 
- WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  General Public License for more details.
 
- You should have received a copy of the GNU General Public License 
+ You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-
 import configparser
 import logging
 import os
@@ -24,7 +23,7 @@ class Config:
 
     def __init__(self) -> None:
         self.WORK_DIR = os.path.abspath(
-            os.path.dirname(os.path.abspath(__file__))+"/../work")
+            os.path.dirname(os.path.abspath(__file__)) + "/../work")
         self.config = configparser.ConfigParser()
         try:
             with open(self.WORK_DIR + '/scrabble.ini', "r") as config_file:
@@ -46,7 +45,7 @@ class Config:
 
     @property
     def SIMULATE_PATH(self) -> str:
-        return self.config.get('development', 'simulate_path', fallback=self.WORK_DIR+'/../work/simulate/image-{:d}.jpg')
+        return self.config.get('development', 'simulate_path', fallback=self.WORK_DIR + '/../work/simulate/image-{:d}.jpg')
 
     @property
     def MALUS_DOUBT(self) -> int:
@@ -125,8 +124,8 @@ class Config:
         return self.config.get('motion', 'detection', fallback='KNN')
 
     @property
-    def MOTION_LEARNING_RATE(
-        self) -> float: return self.config.getfloat('motion', 'learningRate', fallback=0.1)
+    def MOTION_LEARNING_RATE(self) -> float:
+        return self.config.getfloat('motion', 'learningRate', fallback=0.1)
 
     @property
     def MOTION_WAIT(self) -> float:
@@ -135,5 +134,6 @@ class Config:
     @property
     def MOTION_AREA(self) -> int:
         return self.config.getint('motion', 'area', fallback=1500)
+
 
 config = Config()

@@ -24,7 +24,7 @@ from util import singleton
 
 try:
     from oled import PlayerDisplay
-except:
+except ImportError:
     logging.warn('use mock as PlayerDisplay')
     from display import Display as PlayerDisplay
 

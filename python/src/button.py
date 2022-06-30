@@ -20,7 +20,6 @@ from enum import Enum
 
 from gpiozero import Button as GpioButton
 
-from config import config
 from state import State
 
 

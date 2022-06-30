@@ -2,7 +2,6 @@ import logging
 import threading
 import time
 import unittest
-
 from unittest import mock
 
 logging.basicConfig(
@@ -10,8 +9,7 @@ logging.basicConfig(
 
 from camera import cam
 from led import LED
-from scrabblewatch import ScrabbleWatch, timer, watch
-from threadpool import pool
+from scrabblewatch import timer, watch
 from simulate import mockcamera
 
 
@@ -68,6 +66,7 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         watch.display.stop()
         timer.cancel()
         cam.cancel()
+
 
 if __name__ == '__main__':
     unittest.main()

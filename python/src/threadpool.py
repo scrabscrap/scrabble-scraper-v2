@@ -14,7 +14,6 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-from concurrent.futures import Future, ThreadPoolExecutor
-from threading import Event
+from concurrent.futures import ThreadPoolExecutor
 
 pool = ThreadPoolExecutor()

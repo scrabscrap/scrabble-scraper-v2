@@ -35,9 +35,9 @@ class FakeCamera:
     def __enter__(self):
         return self
 
-    def __exit__(self ,type, value, traceback):
+    def __exit__(self, type, value, traceback):
         pass
-    
+
     def close(self) -> None:
         global fakecamera_index
         fakecamera_index = 0

@@ -18,13 +18,12 @@ import logging
 import signal
 from signal import pause
 
-import cv2
-
 from button import Button
 from state import State
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+
 
 def main() -> None:
     # cv2.namedWindow('CV2 Windows', cv2.WINDOW_AUTOSIZE)

@@ -31,6 +31,7 @@ except ImportError:
     logging.warn('use mock as PiCamera')
     from simulate.fakecamera import FakeCamera as PiCamera  # type: ignore
 
+
 @singleton
 class Camera:
 
@@ -70,7 +71,7 @@ class Camera:
         print(f'cam done {result}')
 
 
-#cam = Camera()
+# cam = Camera()
 cam = mockcamera.MockCamera()
 cam_event = Event()
 cam_future = pool.submit(cam.update, cam_event)
