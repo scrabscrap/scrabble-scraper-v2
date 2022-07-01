@@ -17,26 +17,57 @@
 import logging
 import signal
 from signal import pause
-
-from button import Button
-from state import State
+from threading import Event
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
+from button import Button
+from state import State
+from camera import Camera
+from simulate.mockcamera import MockCamera
+from threadpool import pool
+from scrabblewatch import ScrabbleWatch
+from repeatedtimer import RepeatedTimer
+
 
 def main() -> None:
-    # cv2.namedWindow('CV2 Windows', cv2.WINDOW_AUTOSIZE)
 
-    # Start VideoThread
+    # create Timer
+    watch = ScrabbleWatch()
+    watch.display.show_boot()  # Boot Message
+    timer = RepeatedTimer(1, watch.tick)
+    timer_event = Event()
+    timer_future = pool.submit(timer.tick, timer_event)
 
-    # State Machine
-    state = State()
-    # Input Event
-    Button().start(state)
-    # Run until Exit
+    # open Camera
+    # cam = Camera()
+    cam = MockCamera()
+    cam_event = Event()
+    cam_future = pool.submit(cam.update, cam_event)
+
+    # start Button-Handler
+    button_handler = Button()
+    # start State-Machine
+    state = State(watch)
+
+    # set callback for Button Events
+    button_handler.start(state)
+
+    # set Display to Ready
+    state.do_ready()
+
+    # Run until Exit with alarm(1)
     pause()
+
+    # cleanup pool
+    cam_event.set()
+    timer_event.set()
+
+    # reset alarm
     signal.alarm(0)
+    
+    # cleanup with atexit Methods
     exit(0)
 
 

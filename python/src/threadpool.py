@@ -16,4 +16,14 @@
 """
 from concurrent.futures import ThreadPoolExecutor
 
+# the number of threads depends on the hardware (8 for RPI 3)
+# reserved threads are
+# 1) Camera for continuous capture
+# 2) RepeatedTimer for one tick every second
+# 
+# additional threads will be started on demand
+# *  Move, Invalid Challenge, Valid Challenge, FTP Upload
+# 
+# Move will additionally start 3 picture Analyse Thread
+# Move, Invalid Challenge, Valid Challenge, End of Game will start FTP Upload
 pool = ThreadPoolExecutor()

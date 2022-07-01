@@ -69,9 +69,3 @@ class Camera:
 
     def done(self, result: Future) -> None:
         print(f'cam done {result}')
-
-
-# cam = Camera()
-cam = mockcamera.MockCamera()
-cam_event = Event()
-cam_future = pool.submit(cam.update, cam_event)

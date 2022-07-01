@@ -24,7 +24,7 @@ from config import config
 from display import Display as PlayerDisplay
 from led import LED, LEDEnum
 from processing import end_of_game, invalid_challenge, move, valid_challenge
-from scrabblewatch import ScrabbleWatch, watch
+from scrabblewatch import ScrabbleWatch
 from threadpool import pool
 from util import singleton
 
@@ -32,9 +32,9 @@ from util import singleton
 @singleton
 class State:
 
-    def __init__(self, _display: Optional[PlayerDisplay] = None) -> None:
+    def __init__(self, _watch: Optional[ScrabbleWatch] = None) -> None:
         self.current_state: str = 'START'
-        self.watch: ScrabbleWatch = watch
+        self.watch: ScrabbleWatch = _watch if _watch is not None else ScrabbleWatch()
         atexit.register(self._atexit)
 
     def _atexit(self) -> None:

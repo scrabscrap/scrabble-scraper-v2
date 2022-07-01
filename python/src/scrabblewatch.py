@@ -78,9 +78,3 @@ class ScrabbleWatch:
 
     def get_status(self) -> tuple[int, int, int, int, int]:
         return self.player, self.time[0], self.current[0], self.time[1], self.current[1]
-
-
-watch = ScrabbleWatch()
-timer = RepeatedTimer(1, watch.tick)
-timer_event = Event()
-timer_future = pool.submit(timer.tick, timer_event)
