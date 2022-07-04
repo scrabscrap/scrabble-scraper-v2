@@ -24,14 +24,14 @@ class MockState():
     # berücksichtigt werden
     def press_button(self, button: str) -> None:
         logging.debug(f'_ button press: {button}')
-        press = time.time()
-        if press < self.lastpress + 0.1:
-            logging.debug(f'  {self.lastpress} {press} ignore bounce')
+        # press = time.time()
+        # if press < self.lastpress + 0.1:
+        #     logging.debug(f'  {self.lastpress} {press} ignore bounce')
         pass
 
     def release_button(self, button: str) -> None:
         logging.debug(f'= button release: {button}\n')
-        self.lastpress = time.time()
+        # self.lastpress = time.time()
         pass
 
 
