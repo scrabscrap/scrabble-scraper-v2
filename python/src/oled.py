@@ -125,7 +125,7 @@ class PlayerDisplay(Display):
     def add_remove_tiles(self, player: int) -> None:
         assert player in [0, 1], "invalid player number"
 
-        logging.debug('{player}: Entf. Zug')
+        logging.debug(f'{player}: Entf. Zug')
         MSG_REMOVE_TILES = '\u2717Zug\u270D'
         MSG_REMOVE_TILES_FONT = self.font1
         MSG_REMOVE_TILES_COORD = (24, 1)

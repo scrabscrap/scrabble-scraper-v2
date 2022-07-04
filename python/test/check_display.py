@@ -1,13 +1,19 @@
+import logging
 import time
 import unittest
+
 from oled import PlayerDisplay
 from scrabblewatch import ScrabbleWatch
+
+logging.basicConfig(
+    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+
 
 class DisplayTestCase(unittest.TestCase):
 
     def test_display(self):
         display = PlayerDisplay()
-        watch = ScrabbleWatch()
+        watch = ScrabbleWatch(display)
 
         watch.display.show_boot()
         watch.display.show_cam_err()
@@ -16,7 +22,7 @@ class DisplayTestCase(unittest.TestCase):
         watch.reset()
         watch.display.show_ready()
 
-        print('start 0')
+        logging.debug('start 0')
         watch.start(0)
         for _ in range(30):
             watch.tick()
@@ -25,7 +31,7 @@ class DisplayTestCase(unittest.TestCase):
         assert watch.time[1] == 0, 'invalid time 1'
         assert watch.current[1] == 0, 'invalid current 0'
 
-        print('start 1')
+        logging.debug('start 1')
         watch.start(1)
         for _ in range(21):
             watch.tick()
@@ -34,44 +40,45 @@ class DisplayTestCase(unittest.TestCase):
         assert watch.time[1] == 21, 'invalid time 1'
         assert watch.current[1] == 21, 'invalid current 0'
 
-        print('start 0 & pause')
+        logging.debug('start 0')
         watch.start(0)
         for _ in range(3):
             watch.tick()
-        print('pause')
+        logging.debug('pause')
         watch.pause()
         time.sleep(1)
 
-        print('############## add malus')
+        logging.debug('0: add malus')
         watch.display.add_malus(0)
         time.sleep(1)
 
-        print('############## remove tiles')
+        logging.debug('1: remove tiles')
         watch.display.add_remove_tiles(1)
         time.sleep(1)
 
-        print('resume')
+        logging.debug('resume')
         watch.resume()
 
-        print('start 1 & pause')
+        logging.debug('start 1')
         watch.start(1)
         for _ in range(2):
             watch.tick()
+        logging.debug('pause')
         watch.pause()
         time.sleep(1)
 
-        print('############## add malus')
+        logging.debug('1: add malus')
         watch.display.add_malus(1)
         time.sleep(1)
 
-        print('############## remove tiles')
+        logging.debug('0: remove tiles')
         watch.display.add_remove_tiles(0)
         time.sleep(1)
 
-        print('resume')
+        logging.debug('resume')
         watch.resume()
 
-        print('overtime')
+        logging.debug('overtime')
         watch.time[0] = 1798
         watch.time[1] = 1795
         watch.start(0)
