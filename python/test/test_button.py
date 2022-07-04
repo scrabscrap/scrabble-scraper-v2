@@ -12,8 +12,8 @@ from button import Button, ButtonEnum
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 from led import LED, LEDEnum
-from scrabblewatch import timer
 from state import State
+from simulate.mockcamera import MockCamera
 
 
 class ButtonTestCase(unittest.TestCase):
@@ -30,7 +30,8 @@ class ButtonTestCase(unittest.TestCase):
         self.pin_reset = Device.pin_factory.pin(ButtonEnum.RESET.value)
         self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
         self.pin_config = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
-        self.state = State()
+        cam = MockCamera()
+        self.state = State(cam=cam)
         self.button_handler = Button()
         self.button_handler.start(self.state)
         return super().setUp()
@@ -43,7 +44,7 @@ class ButtonTestCase(unittest.TestCase):
         for thread in threading.enumerate():
             if not thread.name.startswith('Main'):
                 print(thread.name)
-        timer.cancel()
+        # timer.cancel()
         return super().tearDown()
 
     def _press_button(self, pin, wait=0.001):
