@@ -10,7 +10,7 @@ class LedTestCase(unittest.TestCase):
         print('led on')
         time.sleep(2)
 
-        LED.switch_on({})
+        LED.switch_on({})  # type: ignore
         print('led off')
         time.sleep(2)
 
@@ -18,7 +18,7 @@ class LedTestCase(unittest.TestCase):
         print('led blink')
         time.sleep(4)
 
-        LED.switch_on({})
+        LED.switch_on({})  # type: ignore
         print('led off')
         time.sleep(2)
 

@@ -4,7 +4,6 @@ from signal import pause
 import time
 
 from button import Button
-from state import State
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
@@ -41,7 +40,7 @@ class ButtonTestCase(unittest.TestCase):
     def test_button(self):
         state = MockState()
         button_handler = Button()
-        button_handler.start(state)
+        button_handler.start(state)  # type: ignore
         print('start')
         pause()
 
