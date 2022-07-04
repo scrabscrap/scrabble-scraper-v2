@@ -2,15 +2,12 @@ import logging
 import threading
 import time
 import unittest
-from unittest import mock
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
-from camera import cam
 from led import LED
-from scrabblewatch import timer, watch
-from simulate import mockcamera
+from scrabblewatch import ScrabbleWatch
 
 
 # noinspection PyMethodMayBeStatic
@@ -24,10 +21,11 @@ class ScrabbleWatchTestCase(unittest.TestCase):
             if not thread.name.startswith('Main'):
                 print(thread.name)
 
-    @mock.patch('camera.cam', mock.MagicMock(return_value=mockcamera.MockCamera()))
+    # @mock.patch('camera.cam', mock.MagicMock(return_value=mockcamera.MockCamera()))
     def test_timer(self):
         display_pause = 0.1
 
+        watch = ScrabbleWatch()
         logging.info('without start')
         watch.display.show_boot()
         time.sleep(display_pause)
@@ -63,9 +61,9 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         watch.time[1] = 1798
         time.sleep(4)
         logging.info('end of sleep')
-        watch.display.stop()
-        timer.cancel()
-        cam.cancel()
+        # watch.display.stop()
+        # timer.cancel()
+        # cam.cancel()
 
 
 if __name__ == '__main__':
