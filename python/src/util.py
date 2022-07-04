@@ -25,10 +25,10 @@ def onexit(f):
 
 def singleton(cls):
     # see: https://peps.python.org/pep-0318/#examples
-    instances = {}
+    instance = [None]
+    def wrapper(*args, **kwargs):
+        if instance[0] is None:
+            instance[0] = cls(*args, **kwargs)
+        return instance[0]
 
-    def getinstance():
-        if cls not in instances:
-            instances[cls] = cls()
-        return instances[cls]
-    return getinstance
+    return wrapper
