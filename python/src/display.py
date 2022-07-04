@@ -93,5 +93,5 @@ class Display:
         pass
 
     @abstractmethod
-    def show(self, player=None) -> None:
+    def show(self, player=None, invert=None) -> None:
         pass

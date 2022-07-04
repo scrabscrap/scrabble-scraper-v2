@@ -15,11 +15,8 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
-from threading import Event
 from typing import Optional
 
-from repeatedtimer import RepeatedTimer
-from threadpool import pool
 from util import singleton
 
 try:

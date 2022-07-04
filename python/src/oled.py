@@ -119,8 +119,7 @@ class PlayerDisplay(Display):
         MSG_MALUS_FONT = self.font1
         MSG_MALUS_COORD = (24, 1)
         self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
-        self.draw[player].text(MSG_MALUS_COORD, MSG_MALUS,
-                  font=MSG_MALUS_FONT, fill=255)
+        self.draw[player].text(MSG_MALUS_COORD, MSG_MALUS, font=MSG_MALUS_FONT, fill=255)
         self.show(player=player)
 
     def add_remove_tiles(self, player: int) -> None:
