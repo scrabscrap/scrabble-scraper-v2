@@ -50,8 +50,7 @@ class Button:
         Device.pin_factory.close()  # type: ignore
 
     def button_pressed(self, button: GpioButton) -> None:  # callback
-        self.state.press_button(ButtonEnum(
-            button.pin.number).name)  # type: ignore
+        self.state.press_button(ButtonEnum(button.pin.number).name)  # type: ignore
 
     def button_released(self, button: GpioButton) -> None:  # callback
         self.state.release_button(ButtonEnum(button.pin.number).name)  # type: ignore
