@@ -50,15 +50,11 @@ class Button:
         Device.pin_factory.close()  # type: ignore
 
     def button_pressed(self, button: GpioButton) -> None:  # callback
-        logging.debug(
-            f'pressed {ButtonEnum(button.pin.number)}')  # type: ignore
         self.state.press_button(ButtonEnum(
             button.pin.number).name)  # type: ignore
 
     def button_released(self, button: GpioButton) -> None:  # callback
-        # logging.debug(f'released {ButtonEnum(button.pin.number)}')  # type: ignore
-        # state.release_button(ButtonEnum(button.pin.number).name)  # type: ignore
-        pass
+        self.state.release_button(ButtonEnum(button.pin.number).name)  # type: ignore
 
     def start(self, _state: State) -> None:
         self.state = _state
@@ -68,11 +64,11 @@ class Button:
                 logging.debug(f'Button {b.name}')
                 nb = GpioButton(b.value)
                 nb.when_pressed = self.button_pressed
-                # nb.when_released = self.button_released
+                nb.when_released = self.button_released
             else:
                 logging.debug(f'when held Button {b.name}')
                 nb = GpioButton(b.value)
                 nb.hold_time = 3
                 nb.when_held = self.button_pressed
-                # nb.when_released = self.button_released
+                nb.when_released = self.button_released
         self.state.do_ready()

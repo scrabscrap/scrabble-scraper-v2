@@ -56,8 +56,8 @@ class ScrabbleWatch:
         self.display.show_pause(self.player)
 
     def resume(self) -> None:
-        self.display.clear_message()
         self.paused = False
+        self.display.show(invert=False)
 
     def reset(self) -> None:
         self.paused = True

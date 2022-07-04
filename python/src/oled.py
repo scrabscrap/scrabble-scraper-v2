@@ -17,6 +17,7 @@
 import atexit
 import logging
 import time
+from typing import Optional
 
 import adafruit_ssd1306  # type: ignore
 import board  # type: ignore
@@ -25,8 +26,10 @@ from smbus import SMBus  # type: ignore
 
 from config import config
 from display import Display
+from util import singleton
 
 
+@singleton
 class PlayerDisplay(Display):
 
     def __init__(self):
@@ -50,16 +53,19 @@ class PlayerDisplay(Display):
         atexit.register(self.stop)
 
     def stop(self) -> None:
-        self.display(0)
-        self.oled.poweroff()
-        self.display(1)
-        self.oled.poweroff()
+        logging.debug('display stop')
+        for i in range(2):
+            self.display(i)
+            self.oled.poweroff()
 
-    def display(self, number: int) -> None:
-        self.i2cbus.write_byte(0x70, 1 << number)
+    def display(self, disp: int) -> None:
+        assert disp in [0, 1], "invalid display"
+
+        self.i2cbus.write_byte(0x70, 1 << disp)
         time.sleep(0.001)
 
     def show_boot(self) -> None:
+        logging.debug('Boot message')
         MSG_BOOT = 'Boot'
         MSG_BOOT_FONT = self.font
         (msg_boot_width, _) = MSG_BOOT_FONT.getsize(MSG_BOOT)
@@ -69,11 +75,10 @@ class PlayerDisplay(Display):
             self.image[i].paste(self.empty)
             self.draw[i].text(MSG_BOOT_COORD, MSG_BOOT,
                               font=MSG_BOOT_FONT, fill=255)
-            self.display(i)
-            self.oled.image(self.image[i])
-            self.oled.show()
+        self.show()
 
     def show_reset(self) -> None:
+        logging.debug('Reset message')
         MSG_RESET = 'Reset'
         MSG_RESET_FONT = self.font
         (msg_boot_width, _) = MSG_RESET_FONT.getsize(MSG_RESET)
@@ -83,9 +88,7 @@ class PlayerDisplay(Display):
             self.image[i].paste(self.empty)
             self.draw[i].text(MSG_RESET_COORD, MSG_RESET,
                               font=MSG_RESET_FONT, fill=255)
-            self.display(i)
-            self.oled.image(self.image[i])
-            self.oled.show()
+        self.show(invert=False)
 
     def show_ready(self) -> None:
         logging.debug('Ready message')
@@ -94,54 +97,46 @@ class PlayerDisplay(Display):
             self.image[i].paste(self.empty)
             self.draw[i].text(
                 (1, 22), f'{m1:02d}:{s1:02d}', font=self.font, fill=255)
-            self.display(i)
-            self.oled.image(self.image[i])
-            self.oled.show()
+        self.show(invert=False)
 
     def show_pause(self, player: int) -> None:
+        assert player in [0, 1], "invalid player number"
+
+        logging.debug('Pause message')
         MSG_BREAK = 'Pause'
         MSG_BREAK_FONT = self.font1
         MSG_BREAK_COORD = (24, 1)
         self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
         self.draw[player].text(MSG_BREAK_COORD, MSG_BREAK,
                                font=MSG_BREAK_FONT, fill=255)
-        self.display(player)
-        self.oled.image(self.image[player])
-        self.oled.show()
+        self.show(player=player, invert=True)
 
-    def add_malus(self, player) -> None:
+    def add_malus(self, player: int) -> None:
+        assert player in [0, 1], "invalid player number"
+
+        logging.debug(f'{player}: malus -10')
         MSG_MALUS = '-10P'
         MSG_MALUS_FONT = self.font1
-        # (msg_malus_width, _) = MSG_MALUS_FONT.getsize(MSG_MALUS)
         MSG_MALUS_COORD = (24, 1)
-        (w, h) = MSG_MALUS_FONT.getsize(MSG_MALUS)
-        logging.debug('(0) malus -10')
         self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
         self.draw[player].text(MSG_MALUS_COORD, MSG_MALUS,
-                               font=MSG_MALUS_FONT, fill=255)
-        self.display(player)
-        # self.oled.fill_rect(24, 0, self.oled.width, 24, 0)
-        self.oled.image(self.image[player])
-        self.oled.show()
+                  font=MSG_MALUS_FONT, fill=255)
+        self.show(player=player)
 
-    def add_remove_tiles(self, player) -> None:
+    def add_remove_tiles(self, player: int) -> None:
+        assert player in [0, 1], "invalid player number"
+
+        logging.debug('{player}: Entf. Zug')
         MSG_REMOVE_TILES = '\u2717Zug\u270D'
         MSG_REMOVE_TILES_FONT = self.font1
-        # (msg_remove_width, _) = MSG_REMOVE_TILES_FONT.getsize(MSG_REMOVE_TILES)
         MSG_REMOVE_TILES_COORD = (24, 1)
-        (w, h) = MSG_REMOVE_TILES_FONT.getsize(MSG_REMOVE_TILES)
-        logging.debug(f'size: w{w:d}/h{h:d}')
-
-        logging.debug('(0) Entf. Zug')
         self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
         self.draw[player].text(MSG_REMOVE_TILES_COORD, MSG_REMOVE_TILES,
                                font=MSG_REMOVE_TILES_FONT, fill=255)
-        self.display(player)
-        # self.oled.fill_rect(24, 0, self.oled.width, 24, 0)
-        self.oled.image(self.image[player])
-        self.oled.show()
+        self.show(player=player)
 
     def show_cam_err(self) -> None:
+        logging.debug('Cam err message')
         MSG_ERR_CAM = '\u2620Cam'
         MSG_ERR_CAM_FONT = self.font
         MSG_ERR_CAM_COORD = (1, 16)
@@ -150,11 +145,10 @@ class PlayerDisplay(Display):
             self.image[i].paste(self.empty)
             self.draw[i].text(MSG_ERR_CAM_COORD, MSG_ERR_CAM,
                               font=MSG_ERR_CAM_FONT, fill=255)
-            self.display(i)
-            self.oled.image(self.image[i])
-            self.oled.show()
+        self.show()
 
     def show_ftp_err(self) -> None:
+        logging.debug('FTP err message')
         MSG_ERR_FTP = '\u2620ftp'
         MSG_ERR_FTP_FONT = self.font
         MSG_ERR_FTP_COORD = (1, 16)
@@ -163,11 +157,10 @@ class PlayerDisplay(Display):
             self.image[i].paste(self.empty)
             self.draw[i].text(MSG_ERR_FTP_COORD, MSG_ERR_FTP,
                               font=MSG_ERR_FTP_FONT, fill=255)
-            self.display(i)
-            self.oled.image(self.image[i])
-            self.oled.show()
+        self.show()
 
     def show_config(self) -> None:
+        logging.debug('Cfg message')
         MSG_CONFIG = '\u270ECfg'
         MSG_CONFIG_FONT = self.font
         MSG_CONFIG_COORD = (1, 16)
@@ -176,9 +169,7 @@ class PlayerDisplay(Display):
             self.image[i].paste(self.empty)
             self.draw[i].text(MSG_CONFIG_COORD, MSG_CONFIG,
                               font=MSG_CONFIG_FONT, fill=255)
-            self.display(i)
-            self.oled.image(self.image[i])
-            self.oled.show()
+        self.show()
 
     def add_time(self, player, t1, p1, t2, p2) -> None:
         MSG_DOUBT = '\u2049'  # \u2718
@@ -217,28 +208,28 @@ class PlayerDisplay(Display):
             self.oled.fill(0)
         # self.oled.show()
 
-    def clear_message(self, disp=None) -> None:
+    def clear_message(self, disp: Optional[int] = None) -> None:
         if disp is None:
             for i in range(0, 2):
                 self.draw[i].rectangle((0, 0, self.oled.width, 24), fill=0)
-                self.display(i)
-                # self.oled.fill_rect(0, 0, self.oled.width, 24, 0)
-                self.oled.image(self.image[i])
-                self.oled.show()
+            self.show()
         else:
+            assert disp in [0, 1], "invalid display"
             self.draw[disp].rectangle((0, 0, self.oled.width, 24), fill=0)
-            self.display(disp)
-            # self.oled.fill_rect(0, 0, self.oled.width, 24, 0)
-            self.oled.image(self.image[disp])
-            self.oled.show()
+            self.show(player=disp)
 
-    def show(self, player=None) -> None:
+    def show(self, player: Optional[int] = None, invert: Optional[bool] = None) -> None:
         if player is None:
             for i in range(0, 2):
                 self.display(i)
+                if invert is not None:
+                    self.oled.invert(invert)
                 self.oled.image(self.image[i])
                 self.oled.show()
         else:
+            assert player in [0, 1], "invalid display"
             self.display(player)
+            if invert is not None:
+                self.oled.invert(invert)
             self.oled.image(self.image[player])
             self.oled.show()

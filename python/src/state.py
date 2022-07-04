@@ -19,9 +19,7 @@ import logging
 from signal import alarm
 from typing import Callable, Optional
 
-from camera import cam
 from config import config
-from display import Display as PlayerDisplay
 from led import LED, LEDEnum
 from processing import end_of_game, invalid_challenge, move, valid_challenge
 from scrabblewatch import ScrabbleWatch
@@ -32,9 +30,10 @@ from util import singleton
 @singleton
 class State:
 
-    def __init__(self, _watch: Optional[ScrabbleWatch] = None) -> None:
+    def __init__(self, cam=None, watch: Optional[ScrabbleWatch] = None) -> None:
         self.current_state: str = 'START'
-        self.watch: ScrabbleWatch = _watch if _watch is not None else ScrabbleWatch()
+        self.watch: ScrabbleWatch = watch if watch is not None else ScrabbleWatch()
+        self.cam = cam
         atexit.register(self._atexit)
 
     def _atexit(self) -> None:
@@ -64,7 +63,7 @@ class State:
         # analyze
         # calc move
         # store move
-        picture = cam.read()
+        picture = self.cam.read()  # type: ignore
         pool.submit(move, None, None, picture)
         return 'S1'
 
@@ -109,7 +108,7 @@ class State:
         logging.debug(f'{self.current_state} - (move) -> S0')
         self.watch.start(0)
         LED.switch_on({LEDEnum.green})  # turn on LED green
-        picture = cam.read()
+        picture = self.cam.read()  # type: ignore
         pool.submit(move, None, None, picture)
         return 'S0'
 

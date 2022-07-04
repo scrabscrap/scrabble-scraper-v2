@@ -28,6 +28,8 @@ BORDER = 2
 
 i2cbus = SMBus(1)
 i2c = board.I2C()
+print('write byte')
+i2cbus.write_byte(0x70, 1 << 0)
 
 
 def init_disp():

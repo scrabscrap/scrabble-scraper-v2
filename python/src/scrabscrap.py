@@ -49,7 +49,7 @@ def main() -> None:
     # start Button-Handler
     button_handler = Button()
     # start State-Machine
-    state = State(watch)
+    state = State(cam=cam, watch=watch)
 
     # set callback for Button Events
     button_handler.start(state)
@@ -61,12 +61,14 @@ def main() -> None:
     pause()
 
     # cleanup pool
+    cam_future.cancel()
+    timer_future.cancel()
     cam_event.set()
     timer_event.set()
 
     # reset alarm
     signal.alarm(0)
-    
+
     # cleanup with atexit Methods
     exit(0)
 

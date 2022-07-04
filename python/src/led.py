@@ -63,11 +63,11 @@ class LED:
             i.on()
 
     @staticmethod
-    def blink_on(leds: List[GpioLED]) -> None:
+    def blink_on(leds: Set[GpioLED]) -> None:
         for i in leds:
-            i.blink()
+            i.blink(on_time=0.2, off_time=0.2)  # type: ignore
 
     @staticmethod
-    def switch_off(leds: List[GpioLED]) -> None:
+    def switch_off(leds: Set[GpioLED]) -> None:
         for i in leds:
             i.off()
