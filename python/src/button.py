@@ -46,8 +46,9 @@ class Button:
         atexit.register(self.cleanup_atexit)
 
     def cleanup_atexit(self) -> None:
-        from gpiozero import Device
-        Device.pin_factory.close()  # type: ignore
+        # from gpiozero import Device
+        # Device.pin_factory.close()  # type: ignore
+        pass
 
     def button_pressed(self, button: GpioButton) -> None:  # callback
         self.state.press_button(ButtonEnum(button.pin.number).name)  # type: ignore

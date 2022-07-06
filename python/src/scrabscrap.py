@@ -33,6 +33,17 @@ from repeatedtimer import RepeatedTimer
 
 def main() -> None:
 
+
+    def main_cleanup(signum, frame) -> None:
+        logging.debug(f'Signal handler called with signal {signum}')
+        cam_future.cancel()
+        timer_future.cancel()
+        cam_event.set()
+        timer_event.set()
+        # reset alarm
+        signal.alarm(0)
+
+    signal.signal(signal.SIGALRM, main_cleanup)
     # create Timer
     watch = ScrabbleWatch()
     watch.display.show_boot()  # Boot Message
@@ -54,23 +65,8 @@ def main() -> None:
     # set callback for Button Events
     button_handler.start(state)
 
-    # set Display to Ready
-    state.do_ready()
-
     # Run until Exit with alarm(1)
     pause()
-
-    # cleanup pool
-    cam_future.cancel()
-    timer_future.cancel()
-    cam_event.set()
-    timer_event.set()
-
-    # reset alarm
-    signal.alarm(0)
-
-    # cleanup with atexit Methods
-    exit(0)
 
 
 if __name__ == '__main__':

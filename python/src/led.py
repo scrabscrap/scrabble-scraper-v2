@@ -53,7 +53,7 @@ class LED:
 
     def cleanup_atexit(self) -> None:
         LED.switch_on({})  # type: ignore
-        Device.pin_factory.close()  # type: ignore
+        # Device.pin_factory.close()  # type: ignore
 
     @staticmethod
     def switch_on(leds: Set[GpioLED]) -> None:

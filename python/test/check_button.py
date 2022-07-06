@@ -66,8 +66,9 @@ class MockState():
             elif button == 'REBOOT':
                 LED.blink_on({LEDEnum.green, LEDEnum.yellow})
                 time.sleep(2)
-                LED.switch_on({})
                 alarm(1)
+                LED.switch_on({})
+                logging.debug('after alarm')
             elif button == 'CONFIG':
                 LED.blink_on({LEDEnum.red, LEDEnum.yellow})
             elif button == 'RESET':
@@ -94,3 +95,4 @@ class ButtonTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    print('nach unittest')
