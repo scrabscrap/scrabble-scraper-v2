@@ -24,7 +24,7 @@ logging.basicConfig(
 
 from button import Button
 from state import State
-from camera import Camera
+# from camera import Camera
 from simulate.mockcamera import MockCamera
 from threadpool import pool
 from scrabblewatch import ScrabbleWatch
@@ -32,7 +32,6 @@ from repeatedtimer import RepeatedTimer
 
 
 def main() -> None:
-
 
     def main_cleanup(signum, frame) -> None:
         logging.debug(f'Signal handler called with signal {signum}')

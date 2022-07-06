@@ -9,6 +9,7 @@ from led import LED, LEDEnum
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
+
 # falls sowohl when_held als auch when_pressed genutzt werden soll:
 #
 # from gpiozero import Button
@@ -67,14 +68,14 @@ class MockState():
                 LED.blink_on({LEDEnum.green, LEDEnum.yellow})
                 time.sleep(2)
                 alarm(1)
-                LED.switch_on({})
+                LED.switch_on({})  # type: ignore
                 logging.debug('after alarm')
             elif button == 'CONFIG':
                 LED.blink_on({LEDEnum.red, LEDEnum.yellow})
             elif button == 'RESET':
                 LED.blink_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
             else:
-                LED.switch_on({})
+                LED.switch_on({})  # type: ignore
         pass
 
     def release_button(self, button: str) -> None:

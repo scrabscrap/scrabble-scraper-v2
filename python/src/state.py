@@ -35,6 +35,7 @@ class State:
         self.current_state: str = 'START'
         self.watch: ScrabbleWatch = watch if watch is not None else ScrabbleWatch()
         self.cam = cam
+        self.last_submit = None
         self.bounce = {'GREEN': .0, 'RED': .0, 'YELLOW': .0, 'DOUBT0': .0,
                        'DOUBT1': .0, 'RESET': .0, 'CONFIG': .0, 'REBOOT': .0}
         atexit.register(self._atexit)
@@ -67,11 +68,14 @@ class State:
         # calc move
         # store move
         picture = self.cam.read()  # type: ignore
-        pool.submit(move, None, None, picture)
+        self.last_submit = pool.submit(move, self.last_submit, None, picture)
+        logging.debug(f'pool-size {pool._work_queue.qsize()}')
         return 'S1'
 
     def do_pause0(self) -> str:
         logging.debug(f'{self.current_state} - (pause) -> P0')
+        logging.debug(f'pause: pool-size {pool._work_queue.qsize()}')
+
         self.watch.pause()
         # turn on LED green, yellow
         LED.switch_on({LEDEnum.green, LEDEnum.yellow})
@@ -86,7 +90,7 @@ class State:
     def do_valid_challenge0(self) -> str:
         logging.debug(f'{self.current_state} - (valid challenge) -> P0')
         self.watch.display.add_remove_tiles(1)
-        pool.submit(valid_challenge, None, None)
+        self.last_submit = pool.submit(valid_challenge, self.last_submit, None)
         # turn on LED green, yellow
         LED.switch_on({LEDEnum.green, LEDEnum.yellow})
         return 'P0'
@@ -96,7 +100,7 @@ class State:
             f'{self.current_state} - (invalid challenge) -> P0 (-{config.MALUS_DOUBT:2d})')  # -10
         self.watch.display.add_malus(0)  # player 1
         LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green
-        pool.submit(invalid_challenge, None, None)
+        self.last_submit = pool.submit(invalid_challenge, self.last_submit, None)
         return 'P0'
 
     def do_start1(self) -> str:
@@ -112,7 +116,7 @@ class State:
         self.watch.start(0)
         LED.switch_on({LEDEnum.green})  # turn on LED green
         picture = self.cam.read()  # type: ignore
-        pool.submit(move, None, None, picture)
+        self.last_submit = pool.submit(move, self.last_submit, None, picture)
         return 'S0'
 
     def do_resume1(self) -> str:
@@ -130,7 +134,7 @@ class State:
     def do_valid_challenge1(self) -> str:
         logging.debug(f'{self.current_state} - (valid challenge) -> P1')
         self.watch.display.add_remove_tiles(0)
-        pool.submit(valid_challenge, None, None)
+        self.last_submit = pool.submit(valid_challenge, self.last_submit, None)
         LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
         return 'P1'
 
@@ -138,7 +142,7 @@ class State:
         logging.debug(
             f'{self.current_state} - (invalid challenge) -> P1 (-{config.MALUS_DOUBT:2d})')  # -10
         self.watch.display.add_malus(1)  # player 2
-        pool.submit(invalid_challenge, None, None)
+        self.last_submit = pool.submit(invalid_challenge, self.last_submit, None)
         LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
         return 'P1'
 
@@ -158,7 +162,7 @@ class State:
         self.watch.display.show_boot()  # Display message REBOOT
         # todo: check for upload
         LED.switch_on({})  # type: ignore
-        pool.submit(end_of_game, None)
+        self.last_submit = pool.submit(end_of_game, self.last_submit)
         self.watch.display.stop()
         current_state = 'START'
         alarm(1)
