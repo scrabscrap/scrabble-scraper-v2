@@ -13,23 +13,39 @@ class LedTestCase(unittest.TestCase):
     def test_led(self):
         LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
         logging.debug('led on')
-        time.sleep(2)
+        time.sleep(1)
 
         LED.switch_on({})  # type: ignore
         logging.debug('led off')
-        time.sleep(2)
+        time.sleep(1)
 
         LED.blink_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
         logging.debug('led blink')
-        time.sleep(4)
+        time.sleep(2)
+
+        LED.blink_on({LEDEnum.yellow})
+        logging.debug('led yellow blink')
+        time.sleep(2)
 
         LED.switch_on({})  # type: ignore
         logging.debug('led off')
-        time.sleep(2)
+        time.sleep(1)
 
         LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
         logging.debug('led on')
-        time.sleep(2)
+        time.sleep(1)
+
+        LED.switch_on({LEDEnum.green})
+        logging.debug('led green on')
+        time.sleep(1)
+
+        LED.switch_on({LEDEnum.yellow})
+        logging.debug('led yellow on')
+        time.sleep(1)
+
+        LED.switch_on({LEDEnum.red})
+        logging.debug('led yellow on')
+        time.sleep(1)
 
         logging.debug('end')
 
