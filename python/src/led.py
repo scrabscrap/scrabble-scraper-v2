@@ -64,6 +64,8 @@ class LED:
 
     @staticmethod
     def blink_on(leds: Set[GpioLED]) -> None:
+        for i in LEDEnum.set().difference(leds):
+            i.off()
         for i in leds:
             i.blink(on_time=0.2, off_time=0.2)  # type: ignore
 
