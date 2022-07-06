@@ -17,6 +17,7 @@
 import atexit
 import logging
 from signal import alarm
+import time
 from typing import Callable, Optional
 
 from config import config
@@ -34,6 +35,8 @@ class State:
         self.current_state: str = 'START'
         self.watch: ScrabbleWatch = watch if watch is not None else ScrabbleWatch()
         self.cam = cam
+        self.bounce = {'GREEN': .0, 'RED': .0, 'YELLOW': .0, 'DOUBT0': .0,
+                       'DOUBT1': .0, 'RESET': .0, 'CONFIG': .0, 'REBOOT': .0}
         atexit.register(self._atexit)
 
     def _atexit(self) -> None:
@@ -173,13 +176,17 @@ class State:
     def press_button(self, button: str) -> None:
         # logging.debug(f'button press: {button}')
         try:
-            self.current_state = self.state[(
-                self.current_state, button.lower())](self)
+            press = time.time()
+            if press < self.bounce[button] + 0.1:
+                pass
+            else:
+                self.current_state = self.state[(
+                    self.current_state, button.lower())](self)
         except KeyError:
             logging.debug('Key Error - ignore')
 
     def release_button(self, button: str) -> None:
-        logging.debug(f'button release: {button}')
+        self.bounce[button] = time.time()
 
     # START, pause => not supported
     state: dict[tuple[str, str], Callable] = {

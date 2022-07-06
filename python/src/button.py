@@ -35,8 +35,8 @@ class ButtonEnum(Enum):
     DOUBT0 = 25  # GPIO25 - pin 22 - Button doubt1
     DOUBT1 = 12  # GPIO12 - pin 32 - Button doubt1
 
-    RESET = 23  # GPI23 - pin 16 - Button reset
-    REBOOT = 18  # GPI18 - pin 12 - Button reboot
+    RESET = 23  # GPIO23 - pin 16 - Button reset
+    REBOOT = 18  # GPIO18 - pin 12 - Button reboot
     CONFIG = 24  # GPIO24 - pin 18 - Button config
 
 
@@ -59,7 +59,7 @@ class Button:
         self.state = _state
         # create Buttons and configure listener
         for b in ButtonEnum:
-            if b not in [ButtonEnum.RESET, ButtonEnum.REBOOT, ButtonEnum.CONFIG]:
+            if b in [ButtonEnum.GREEN, ButtonEnum.YELLOW, ButtonEnum.RED, ButtonEnum.DOUBT0, ButtonEnum.DOUBT1]:
                 logging.debug(f'Button {b.name}')
                 nb = GpioButton(b.value)
                 nb.when_pressed = self.button_pressed
