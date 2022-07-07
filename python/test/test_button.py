@@ -43,7 +43,7 @@ class ButtonTestCase(unittest.TestCase):
         Device.pin_factory.reset()  # type: ignore
         for thread in threading.enumerate():
             if not thread.name.startswith('Main'):
-                print(thread.name)
+                logging.debug(f'thread: {thread.name}')
         # timer.cancel()
         return super().tearDown()
 
