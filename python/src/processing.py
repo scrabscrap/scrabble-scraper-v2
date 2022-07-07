@@ -14,48 +14,52 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-from concurrent.futures import Future
 import logging
-import time
 import random
+import time
+from concurrent.futures import Future
 from typing import Optional
+
+import cv2
 
 
 def move(waitfor: Optional[Future], game, img):
-    counter = int(round(time.time() * 1000))
-    logging.debug(f'move {counter}')
+    logging.debug('move entry')
     # todo: check why this solution is not correct?
     # if waitfor is not None:
     #     done, not_done = futures.wait({waitfor})
     #     assert len(done) == 0, 'error on wait to future'
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
+
+    counter = int(round(time.time() * 1000))
+    logging.debug(f'before write /home/pi/scrabscrapv2/python/{counter}.jpg: {len(img)}')
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    cv2.imwrite(f'/home/pi/scrabscrapv2/python/{counter}.jpg', gray)
+    logging.debug(f'after write {counter}.jpg')
     time.sleep(random.randint(10, 40) / 10)  # between 1s and 4s
-    logging.debug(f'move {counter} ready')
+    logging.debug('move exit')
 
 
 def valid_challenge(waitfor: Optional[Future], game):
-    counter = int(round(time.time() * 1000))
-    logging.debug(f'valid challenge {counter}')
+    logging.debug('valid_challenge entry')
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     time.sleep(0.1)
-    logging.debug(f'valid challenge {counter} ready')
+    logging.debug('valid_challenge exit')
 
 
 def invalid_challenge(waitfor: Optional[Future], game):
-    counter = int(round(time.time() * 1000))
-    logging.debug(f'invalid challenge {counter}')
+    logging.debug('invalid_challenge entry')
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     time.sleep(0.1)
-    logging.debug(f'invalid challenge {counter} ready')
+    logging.debug('invalid_challenge exit')
 
 
 def end_of_game(waitfor: Optional[Future]):
-    counter = int(round(time.time() * 1000))
-    logging.debug(f'end of game {counter}')
+    logging.debug('end_of_game entry')
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     time.sleep(1.5)
-    logging.debug(f'end of game {counter} ready')
+    logging.debug('end_of_games exit')

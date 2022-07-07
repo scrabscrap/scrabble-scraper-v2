@@ -17,7 +17,7 @@
 import atexit
 import platform
 from enum import Enum
-from typing import List, Set
+from typing import Set
 
 from gpiozero import LED as GpioLED
 from gpiozero import Device

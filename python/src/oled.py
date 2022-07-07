@@ -60,7 +60,6 @@ class PlayerDisplay(Display):
 
     def display(self, disp: int) -> None:
         assert disp in [0, 1], "invalid display"
-
         self.i2cbus.write_byte(0x70, 1 << disp)
         time.sleep(0.001)
 
@@ -101,7 +100,6 @@ class PlayerDisplay(Display):
 
     def show_pause(self, player: int) -> None:
         assert player in [0, 1], "invalid player number"
-
         logging.debug('Pause message')
         MSG_BREAK = 'Pause'
         MSG_BREAK_FONT = self.font1

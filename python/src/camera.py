@@ -15,18 +15,17 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import atexit
-import io
 import logging
 from concurrent.futures import Future
 from threading import Event
 
 from config import config
-from simulate import mockcamera
-from threadpool import pool
+# from simulate import mockcamera
 from util import singleton
 
 try:
     from picamera import PiCamera  # type: ignore
+    from picamera.array import PiRGBArray
 except ImportError:
     logging.warn('use mock as PiCamera')
     from simulate.fakecamera import FakeCamera as PiCamera  # type: ignore
@@ -40,12 +39,16 @@ class Camera:
         self.camera = PiCamera()
         self.camera.resolution = (992, 976)
         self.camera.framerate = config.FPS
+        self.rawCapture = PiRGBArray(self.camera, size=self.camera.resolution)
+        self.stream = self.camera.capture_continuous(self.rawCapture, format="bgr", use_video_port=True)
         if config.ROTATE:
             self.camera.rotation = 180
         self.event = None
         atexit.register(self._atexit)
 
     def _atexit(self) -> None:
+        self.stream.close()  # type: ignore
+        self.rawCapture.close()
         self.camera.close()
 
     def read(self):
@@ -53,14 +56,11 @@ class Camera:
 
     def update(self, ev: Event) -> None:
         self.event = ev
-        with self.camera as camera:
-            stream = io.BytesIO()
-            for _ in camera.capture_continuous(stream, format="bgr", use_video_port=True):
-                stream.truncate()
-                stream.seek(0)
-                self.frame = stream.getvalue()
-                if ev.is_set():
-                    break
+        for f in self.stream:
+            self.frame = f.array
+            self.rawCapture.truncate(0)
+            if ev.is_set():
+                break
         ev.clear()
 
     def cancel(self) -> None:

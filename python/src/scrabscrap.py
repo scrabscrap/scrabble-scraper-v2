@@ -23,12 +23,12 @@ logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 from button import Button
-from state import State
-# from camera import Camera
-from simulate.mockcamera import MockCamera
-from threadpool import pool
-from scrabblewatch import ScrabbleWatch
+from camera import Camera
 from repeatedtimer import RepeatedTimer
+from scrabblewatch import ScrabbleWatch
+from state import State
+# from simulate.mockcamera import MockCamera
+from threadpool import pool
 
 
 def main() -> None:
@@ -51,8 +51,8 @@ def main() -> None:
     timer_future = pool.submit(timer.tick, timer_event)
 
     # open Camera
-    # cam = Camera()
-    cam = MockCamera()
+    cam = Camera()
+    # cam = MockCamera()
     cam_event = Event()
     cam_future = pool.submit(cam.update, cam_event)
 

@@ -16,8 +16,8 @@
 """
 import atexit
 import logging
-from signal import alarm
 import time
+from signal import alarm
 from typing import Callable, Optional
 
 from config import config
@@ -56,7 +56,6 @@ class State:
         return 'S0'
 
     def do_move0(self) -> str:
-
         p, t0, c0, t1, c1 = self.watch.get_status()
         # next player
         logging.debug(f'{self.current_state} - (move) -> S1')
@@ -69,13 +68,10 @@ class State:
         # store move
         picture = self.cam.read()  # type: ignore
         self.last_submit = pool.submit(move, self.last_submit, None, picture)
-        logging.debug(f'pool-size {pool._work_queue.qsize()}')
         return 'S1'
 
     def do_pause0(self) -> str:
         logging.debug(f'{self.current_state} - (pause) -> P0')
-        logging.debug(f'pause: pool-size {pool._work_queue.qsize()}')
-
         self.watch.pause()
         # turn on LED green, yellow
         LED.switch_on({LEDEnum.green, LEDEnum.yellow})

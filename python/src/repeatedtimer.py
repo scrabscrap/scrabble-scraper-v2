@@ -42,3 +42,4 @@ class RepeatedTimer:
 
     def done(self, result: Future) -> None:
         print(f'timer done {result}')
+        pass

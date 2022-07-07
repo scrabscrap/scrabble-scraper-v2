@@ -66,7 +66,7 @@ class Button:
                 nb.when_pressed = self.button_pressed
                 nb.when_released = self.button_released
             else:
-                logging.debug(f'when held Button {b.name}')
+                logging.debug(f'Button {b.name} when held')
                 nb = GpioButton(b.value)
                 nb.hold_time = 3
                 nb.when_held = self.button_pressed

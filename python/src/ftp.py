@@ -18,10 +18,10 @@ import logging
 
 
 def upload_move(self, move) -> bool:
-    logging.debug(f'upload move {move}')
+    logging.debug('upload_move entry')
     return False
 
 
 def upload_game(self, game) -> bool:
-    logging.debug(f'upload game {game}')
+    logging.debug('upload_game entry')
     return False
