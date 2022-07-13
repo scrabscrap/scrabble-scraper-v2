@@ -18,7 +18,7 @@ import logging
 from time import sleep
 
 import cv2
-from button import ButtonEnum
+from hardware.button import ButtonEnum
 from config import config
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
