@@ -5,8 +5,8 @@ from signal import pause
 from unittest import mock
 
 import cv2
-from button import Button
-from oled import PlayerDisplay
+from hardware.button import Button
+from hardware.oled import PlayerDisplay
 from scrabblewatch import ScrabbleWatch
 from simulate import mockbutton # , mockdisplay, mockvideo
 from state import State

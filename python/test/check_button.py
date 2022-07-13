@@ -3,8 +3,8 @@ import time
 import unittest
 from signal import alarm, pause
 
-from button import Button
-from led import LED, LEDEnum
+from hardware.button import Button
+from hardware.led import LED, LEDEnum
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')

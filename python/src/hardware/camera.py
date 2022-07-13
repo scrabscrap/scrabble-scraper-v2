@@ -31,10 +31,10 @@ except ImportError:
     from simulate.fakecamera import FakeCamera as PiCamera  # type: ignore
 
 
-@singleton
 class Camera:
 
     def __init__(self):
+        print('### init cam')
         self.frame = []
         self.camera = PiCamera()
         self.camera.resolution = (992, 976)

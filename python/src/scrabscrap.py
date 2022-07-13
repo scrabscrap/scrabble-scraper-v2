@@ -22,8 +22,8 @@ from threading import Event
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
-from button import Button
-from camera import Camera
+from hardware.button import Button
+from hardware.camera import Camera
 from repeatedtimer import RepeatedTimer
 from scrabblewatch import ScrabbleWatch
 from state import State

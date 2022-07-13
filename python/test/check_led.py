@@ -2,7 +2,7 @@ import logging
 import time
 import unittest
 
-from led import LED, LEDEnum
+from hardware.led import LED, LEDEnum
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')

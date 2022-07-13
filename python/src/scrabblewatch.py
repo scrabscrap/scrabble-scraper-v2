@@ -20,7 +20,7 @@ from typing import Optional
 from util import singleton
 
 try:
-    from oled import PlayerDisplay
+    from hardware.oled import PlayerDisplay
 except ImportError:
     logging.warn('use mock as PlayerDisplay')
     from display import Display as PlayerDisplay

@@ -6,7 +6,7 @@ import unittest
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
-from led import LED
+from hardware.led import LED
 from scrabblewatch import ScrabbleWatch
 
 

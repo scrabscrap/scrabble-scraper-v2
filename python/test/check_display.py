@@ -2,7 +2,7 @@ import logging
 import time
 import unittest
 
-from oled import PlayerDisplay
+from hardware.oled import PlayerDisplay
 from scrabblewatch import ScrabbleWatch
 
 logging.basicConfig(
