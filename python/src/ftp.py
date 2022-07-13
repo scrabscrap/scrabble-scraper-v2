@@ -14,14 +14,88 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+import configparser
+import ftplib
 import logging
+import os
+
+from config import WEB_PATH
 
 
-def upload_move(self, move) -> bool:
-    logging.debug('upload_move entry')
-    return False
+class Ftp:
+    class FtpConfig:
+        def __init__(self) -> None:
+            self.WORK_DIR = os.path.abspath(
+                os.path.dirname(os.path.abspath(__file__) or '.') + '/../work')
+            self.config = configparser.ConfigParser()
+            try:
+                with open(f'{self.WORK_DIR}/ftp-secret.ini', 'r') as config_file:
+                    self.config.read_file(config_file)
+            except Exception as e:
+                logging.exception(f'can not read ftp INI-File {e}')
 
+        def reload(self) -> None:
+            self.__init__()
 
-def upload_game(self, game) -> bool:
-    logging.debug('upload_game entry')
-    return False
+        @property
+        def FTP_SERVER(self) -> str:
+            return self.config.get('ftp', 'ftp-server', fallback=None)
+
+        @property
+        def FTP_USER(self) -> str:
+            return self.config.get('ftp', 'ftp-user', fallback=None)
+
+        @property
+        def FTP_PASS(self) -> str:
+            return self.config.get('ftp', 'ftp-password', fallback=None)
+
+    ftp_config = FtpConfig()
+
+    @classmethod
+    def upload_move(cls, move: int) -> bool:
+        logging.debug(f'ftp: upload_move {move}')
+        if cls.ftp_config.FTP_SERVER is not None:
+            try:
+                logging.info('ftp: start transfer move files')
+                with ftplib.FTP(cls.ftp_config.FTP_SERVER, cls.ftp_config.FTP_USER, cls.ftp_config.FTP_PASS) as session:
+                    with open(f'{WEB_PATH}image-{move}.jpg', 'rb') as file:
+                        session.storbinary('STOR image-{move}.jpg', file)   # send the file
+                    with open(f'{WEB_PATH}data-{move}.json', 'rb') as file:
+                        session.storbinary('STOR data-{move}.json', file)   # send the file
+                        session.storbinary('STOR status.json', file)  # send the file
+                return True
+            except Exception as e:
+                logging.error(f'ftp: upload failure {e}')
+        return False
+
+    @classmethod
+    def upload_game(cls, filename: str) -> bool:
+        logging.debug(f'ftp: upload_game {filename}')
+        if cls.ftp_config.FTP_SERVER is not None:
+            try:
+                logging.info('ftp: start transfer zip file')
+                with ftplib.FTP(cls.ftp_config.FTP_SERVER, cls.ftp_config.FTP_USER, cls.ftp_config.FTP_PASS) as session:
+                    with open(f'{WEB_PATH}{filename}.zip', 'rb') as file:
+                        session.storbinary(f'STOR {filename}.zip', file)  # send the file
+                logging.info(f'ftp: end of upload {filename} to ftp-server')
+                return True
+            except Exception as e:
+                logging.error(f'ftp: upload failure {e}')
+        return False
+
+    @classmethod
+    def delete_files(cls, prefix: str) -> bool:
+        logging.debug(f'ftp: delete files with prefix {prefix}*')
+        if cls.ftp_config.FTP_SERVER is not None:
+            try:
+                logging.info('ftp: delete files')
+                with ftplib.FTP(cls.ftp_config.FTP_SERVER, cls.ftp_config.FTP_USER, cls.ftp_config.FTP_PASS) as session:
+                    files = session.nlst()
+                    for i in files:
+                        if i.startswith(prefix):
+                            session.delete(i)  # delete (not status.json, *.zip)
+                logging.info(f'ftp: end of delete {prefix}* ')
+                return True
+            except Exception as e:
+                logging.error(f'ftp: delete failure {e}')
+        return False
