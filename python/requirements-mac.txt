@@ -1,14 +1,11 @@
 # project requirements
 # rpi: adafruit-circuitpython-ssd1306, picamera, smbus
-adafruit-circuitpython-ssd1306 >=2.12.7
 Flask >=2.1.2
 gpiozero >=1.6.2
 imutils >=0.5.4
 opencv-contrib-python==4.5.5.62
 opencv-python==4.5.5.62
-picamera >=1.13
 Pillow >=9.2.0
-smbus
 visual-logging
 
 # python toolstack (lint etc.)
@@ -34,20 +31,6 @@ snakeviz >=2.1.1
 tornado >=2.0
 
 # transitive requirements
-
-# by adafruit-circuitpython-ssd1306
-Adafruit-Blinka==8.0.2
-adafruit-circuitpython-busdevice==5.1.10
-adafruit-circuitpython-framebuf==1.4.11
-adafruit-circuitpython-typing==1.7.1
-Adafruit-PlatformDetect==3.24.1
-Adafruit-PureIO==1.1.9
-pyftdi==0.54.0
-pyserial==3.5
-pyusb==1.2.1
-rpi-ws281x==4.3.4
-RPi.GPIO==0.7.1
-sysv-ipc==1.1.0
 
 # by Flask
 click >=8.0
