@@ -15,6 +15,7 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
+import logging.config
 import signal
 from signal import pause
 from threading import Event
