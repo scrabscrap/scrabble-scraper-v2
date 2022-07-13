@@ -140,7 +140,7 @@ def overlay_grid(image: ndarray) -> ndarray:
 
 def overlay_tiles(image: ndarray, board: dict[tuple[int, int], tuple[str, int]]) -> ndarray:
     img = image.copy()
-    for col, row in board.keys():
-        cv2.putText(img, board[(col, row)][0], (get_x_position(col) + 5, get_y_position(row) + 25),
+    for (col, row), (value, _) in board.items():
+        cv2.putText(img, value, (get_x_position(col) + 5, get_y_position(row) + 25),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
     return img
