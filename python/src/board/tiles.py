@@ -41,12 +41,12 @@ tiles: List[OneTile] = []
 def load_tiles(filepath: Optional[str]=None) -> List[OneTile]:
     tiles.clear()
     if filepath is None:
-        filepath = (os.path.dirname(__file__) or '.') + '/img/'
+        filepath = (os.path.dirname(__file__) or '.') + '/img'
 
     for Tile in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
                  'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                  'Ä', 'Ö', 'Ü']:
-        image = cv2.imread(filepath + Tile + '.png')
+        image = cv2.imread(f'{filepath}/{Tile}.png')
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         gray = cv2.bitwise_not(gray)
         new_tile = OneTile()
