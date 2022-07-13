@@ -19,8 +19,9 @@ import signal
 from signal import pause
 from threading import Event
 
-logging.basicConfig(
-    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+logging.config.fileConfig(fname='log.conf', disable_existing_loggers=False,
+                          defaults={'level': 'DEBUG',
+                                    'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
 from hardware.button import Button
 from hardware.camera import Camera
