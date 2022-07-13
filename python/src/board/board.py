@@ -16,6 +16,7 @@
 """
 
 import cv2
+from numpy import ndarray
 
 # Board classic
 # -------------
@@ -98,31 +99,31 @@ GRID_H = 50
 OFFSET = 25
 
 
-def calc_x_position(x):
+def calc_x_position(x: int) -> int:
     """ return 0..14 """
     pos = int((x - OFFSET) // GRID_W)
     return pos
 
 
-def calc_y_position(y):
+def calc_y_position(y: int) -> int:
     """ return 0..14 """
     pos = int((y - OFFSET) // GRID_H)
     return pos
 
 
-def get_x_position(pos):
+def get_x_position(pos: int) -> int:
     """ return 25..750 """
     c = int(OFFSET + (pos * GRID_W))
     return c
 
 
-def get_y_position(pos):
+def get_y_position(pos: int) -> int:
     """ return 25..750 """
     c = int(OFFSET + (pos * GRID_H))
     return c
 
 
-def overlay_grid(image):
+def overlay_grid(image: ndarray) -> ndarray:
     img = image.copy()
     x1 = get_x_position(0)
     y1 = get_y_position(0)
@@ -137,7 +138,7 @@ def overlay_grid(image):
     return img
 
 
-def overlay_tiles(image, board):
+def overlay_tiles(image: ndarray, board) -> ndarray:
     img = image.copy()
     for col, row in board.keys():
         cv2.putText(img, board[(col, row)][0], (get_x_position(col) + 5, get_y_position(row) + 25),
