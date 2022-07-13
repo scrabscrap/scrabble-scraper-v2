@@ -21,7 +21,6 @@ from threading import Event
 
 from config import config
 # from simulate import mockcamera
-from util import singleton
 
 try:
     from picamera import PiCamera  # type: ignore
