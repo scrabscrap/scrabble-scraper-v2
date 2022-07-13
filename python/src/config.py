@@ -32,12 +32,7 @@ class Config:
             logging.exception(f"can not read INI-File {e}")
 
     def reload(self) -> None:
-        self.config = configparser.ConfigParser()
-        try:
-            with open(self.WORK_DIR + '/scrabble.ini', "r") as config_file:
-                self.config.read_file(config_file)
-        except Exception as e:
-            logging.exception(f"can not read INI-File {e}")
+        self.__init__()
 
     @property
     def SIMULATE(self) -> bool:
