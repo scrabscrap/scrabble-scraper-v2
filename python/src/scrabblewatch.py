@@ -69,8 +69,7 @@ class ScrabbleWatch:
         if not self.paused:
             self.time[self.player] += 1
             self.current[self.player] += 1
-            self.display.add_time(self.player,
-                                  self.time[0], self.current[0], self.time[1], self.current[1])
+            self.display.add_time(self.player, self.time[0], self.current[0], self.time[1], self.current[1])
             self.display.show(self.player)
 
     def get_status(self) -> tuple[int, int, int, int, int]:

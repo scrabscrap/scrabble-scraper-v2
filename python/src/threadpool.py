@@ -24,6 +24,6 @@ from concurrent.futures import ThreadPoolExecutor
 # additional threads will be started on demand
 # *  Move, Invalid Challenge, Valid Challenge, FTP Upload
 #
-# Move will additionally start 3 picture Analyse Thread
-# Move, Invalid Challenge, Valid Challenge, End of Game will start FTP Upload
+# Move will additionally start 2 picture analyze threads
+# Move, Invalid Challenge, Valid Challenge, End of Game will start a FTP Upload
 pool = ThreadPoolExecutor()
