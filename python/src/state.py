@@ -23,7 +23,7 @@ from typing import Callable, Optional
 from config import config
 from hardware.led import LED, LEDEnum
 from processing import end_of_game, invalid_challenge, move, valid_challenge
-from scrab import Game
+from scrabble import Game
 from scrabblewatch import ScrabbleWatch
 from threadpool import pool
 from util import singleton

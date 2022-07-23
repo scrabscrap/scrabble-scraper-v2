@@ -34,6 +34,13 @@ class Config:
     def reload(self) -> None:
         self.__init__()
 
+    def save(self) -> None:
+        with open(self.WORK_DIR + '/scrabble.ini', "w") as config_file:
+            self.config.write(config_file)
+
+    def config_as_dict(self) -> dict:
+        return {s: dict(self.config.items(s)) for s in self.config.sections()}
+
     @property
     def SIMULATE(self) -> bool:
         return self.config.getboolean('development', 'simulate', fallback=False)

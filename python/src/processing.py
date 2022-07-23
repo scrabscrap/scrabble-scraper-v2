@@ -29,7 +29,7 @@ from board.tiles import tiles
 from classic import Classic
 from config import config
 from custom import Custom
-from scrab import Game
+from scrabble import Game
 from threadpool import pool
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
