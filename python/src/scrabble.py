@@ -19,8 +19,7 @@ import logging
 from enum import Enum
 from typing import List, Optional, Tuple
 
-from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER,
-                         TRIPLE_WORDS)
+from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER, TRIPLE_WORDS)
 from game_board.tiles import scores
 from config import config
 
