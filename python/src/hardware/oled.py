@@ -64,7 +64,7 @@ class PlayerDisplay(Display):
         logging.debug('Boot message')
         MSG_BOOT = 'Boot'
         MSG_BOOT_FONT = self.font
-        (msg_boot_width, _) = MSG_BOOT_FONT.getsize(MSG_BOOT)
+        msg_boot_width = MSG_BOOT_FONT.getlength(MSG_BOOT)
         MSG_BOOT_COORD = (self.oled.width // 2 - msg_boot_width // 2, 20)
         for i in range(2):
             self.image[i].paste(self.empty)
@@ -75,7 +75,7 @@ class PlayerDisplay(Display):
         logging.debug('Reset message')
         MSG_RESET = 'Reset'
         MSG_RESET_FONT = self.font
-        (msg_boot_width, _) = MSG_RESET_FONT.getsize(MSG_RESET)
+        msg_boot_width = MSG_RESET_FONT.getlength(MSG_RESET)
         MSG_RESET_COORD = (self.oled.width // 2 - msg_boot_width // 2, 20)
         for i in range(2):
             self.image[i].paste(self.empty)
@@ -155,7 +155,7 @@ class PlayerDisplay(Display):
     def add_time(self, player, t1, p1, t2, p2) -> None:
         MSG_DOUBT = '\u2049'  # \u2718
         MSG_DOUBT_FONT = self.font1
-        (msg_doubt_width, _) = MSG_DOUBT_FONT.getsize(MSG_DOUBT)
+        # msg_doubt_width = MSG_DOUBT_FONT.getlength(MSG_DOUBT)
         MSG_DOUBT_COORD = (1, 0)
 
         self.image[player].paste(self.empty)
