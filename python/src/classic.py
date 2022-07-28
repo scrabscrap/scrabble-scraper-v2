@@ -22,7 +22,7 @@ import imutils
 import numpy as np
 from vlogging import VisualRecord
 
-from board.board import GRID_H, GRID_W, get_x_position, get_y_position
+from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 

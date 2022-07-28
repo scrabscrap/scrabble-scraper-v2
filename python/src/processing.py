@@ -24,8 +24,8 @@ import cv2
 import imutils
 import numpy as np
 
-from board.board import GRID_H, GRID_W, get_x_position, get_y_position
-from board.tiles import tiles
+from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
+from game_board.tiles import tiles
 from classic import Classic
 from config import config
 from custom import Custom
