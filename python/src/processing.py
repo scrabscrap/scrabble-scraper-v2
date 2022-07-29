@@ -130,12 +130,11 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     # 13. game.add(move)
     # (14. Ftp.upload_move(move) -> im sep. thread damit die Nachfolge-Analyse nicht blockiert wird )
 
-    # todo: check why this solution is not correct?
-    # if waitfor is not None:
-    #     done, not_done = futures.wait({waitfor})
-    #     assert len(done) == 0, 'error on wait to future'
-    while waitfor is not None and waitfor.running():
-        time.sleep(0.05)
+    if waitfor is not None:
+        done, not_done = futures.wait({waitfor})
+        assert len(not_done) == 0, 'error while waiting for future'
+    # while waitfor is not None and waitfor.running():
+    #     time.sleep(0.05)
 
     warped = warp_image(img)  # warp image if necessary
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)  # grayscale image
