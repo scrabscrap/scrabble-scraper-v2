@@ -20,7 +20,6 @@ import logging
 import logging.config
 import os
 import urllib.parse
-from threading import Event
 from time import sleep
 
 import cv2
@@ -28,22 +27,17 @@ from flask import (Flask, jsonify, redirect, render_template_string, request,
                    send_from_directory, url_for)
 from werkzeug.serving import make_server
 
-# TODO: remove before prod
-logging.basicConfig(
-    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
-
 from config import config
-from hardware.camera import Camera
 from threadpool import pool
 
-flask_shutdown_blocked = False
-cam = None
 ROOT_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../work')
 
 
 class ApiServer:
     app = Flask(__name__)
     last_msg = ''
+    cam = None
+    flask_shutdown_blocked = False
 
     @app.get('/')
     def get_defaults():
@@ -136,8 +130,8 @@ class ApiServer:
     def get_cam():
         # fakecamera_formatter = config.SIMULATE_PATH
         # img = cv2.imread(fakecamera_formatter.format(0))
-        if cam is not None:
-            img = cam.read()
+        if ApiServer.cam is not None:
+            img = ApiServer.cam.read()
             _, im_buf_arr = cv2.imencode(".jpg", img)
             png_output = base64.b64encode(im_buf_arr)
         else:
@@ -159,32 +153,29 @@ class ApiServer:
     @app.route('/upgrade_linux')
     def update_linux():
         import subprocess
-        global flask_shutdown_blocked
 
-        flask_shutdown_blocked = True
+        ApiServer.flask_shutdown_blocked = True
         p1 = subprocess.run(['sudo', 'apt-get', 'update'], check=True, capture_output=True)
         p2 = subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'], check=True, capture_output=True)
-        flask_shutdown_blocked = False
+        ApiServer.flask_shutdown_blocked = False
         ApiServer.last_msg = f'{p1.stdout.decode()} {p1.stderr.decode()}{p2.stdout.decode()} {p2.stderr.decode()}'
         return redirect(url_for('get_defaults'))
 
     @app.route('/upgrade_scrabscrap')
     def update_scrabscrap():
         import subprocess
-        global flask_shutdown_blocked
 
-        flask_shutdown_blocked = True
+        ApiServer.flask_shutdown_blocked = True
         p1 = subprocess.run(['ls', '-al'], check=True, capture_output=True)
-        flask_shutdown_blocked = False
+        ApiServer.flask_shutdown_blocked = False
         ApiServer.last_msg = f'{p1.stdout.decode()} {p1.stderr.decode()}'
         return redirect(url_for('get_defaults'))
 
     @app.route('/test_led')
     def test_led():
         from hardware.led import LED, LEDEnum
-        global flask_shutdown_blocked
 
-        flask_shutdown_blocked = True
+        ApiServer.flask_shutdown_blocked = True
         LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
         sleep(1)
         LED.switch_on({})  # type: ignore
@@ -204,7 +195,7 @@ class ApiServer:
         LED.switch_on({LEDEnum.red})
         sleep(1)
         LED.switch_on({})  # type: ignore
-        flask_shutdown_blocked = False
+        ApiServer.flask_shutdown_blocked = False
         ApiServer.last_msg = 'led_test ended'
         return redirect(url_for('get_defaults'))
 
@@ -212,9 +203,8 @@ class ApiServer:
     def test_display():
         from hardware.oled import PlayerDisplay
         from scrabblewatch import ScrabbleWatch
-        global flask_shutdown_blocked
 
-        flask_shutdown_blocked = True
+        ApiServer.flask_shutdown_blocked = True
         display = PlayerDisplay()
         watch = ScrabbleWatch(display)
         watch.display.show_boot()
@@ -224,7 +214,7 @@ class ApiServer:
         watch.display.show_ready()
         watch.display.clear()
         watch.display.show()
-        flask_shutdown_blocked = False
+        ApiServer.flask_shutdown_blocked = False
         ApiServer.last_msg = 'display_test ended'
         return redirect(url_for('get_defaults'))
 
@@ -253,8 +243,8 @@ class ApiServer:
         self.server.serve_forever()
 
     def stop_server(self):
-        print(f'server shutdown blocked: {flask_shutdown_blocked}')
-        while flask_shutdown_blocked:
+        print(f'server shutdown blocked: {ApiServer.flask_shutdown_blocked}')
+        while ApiServer.flask_shutdown_blocked:
             sleep(0.1)
         self.server.shutdown()
 
@@ -272,7 +262,12 @@ def test_json():
 
 
 def main():
-    global cam
+    from threading import Event
+
+    from hardware.camera import Camera
+
+    logging.basicConfig(
+        level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
     cam = Camera()
     # cam = MockCamera()
@@ -280,7 +275,9 @@ def main():
     _ = pool.submit(cam.update, cam_event)
 
     api = ApiServer()
+    ApiServer.cam = cam  # type: ignore
     pool.submit(api.start_server)
+
     sleep(120)
     api.stop_server()
     cam_event.set()

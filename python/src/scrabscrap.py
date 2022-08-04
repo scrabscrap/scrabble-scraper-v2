@@ -16,14 +16,17 @@
 """
 import logging
 import logging.config
+import os
 import signal
 from signal import pause
 from threading import Event
 
-logging.config.fileConfig(fname='log.conf', disable_existing_loggers=False,
+logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/../work/log.conf',
+                          disable_existing_loggers=False,
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
+from api import ApiServer
 from hardware.button import Button
 from hardware.camera import Camera
 from repeatedtimer import RepeatedTimer
@@ -37,8 +40,10 @@ def main() -> None:
 
     def main_cleanup(signum, frame) -> None:
         logging.debug(f'Signal handler called with signal {signum}')
+        api_future.cancel()
         cam_future.cancel()
         timer_future.cancel()
+        api.stop_server()
         cam_event.set()
         timer_event.set()
         # reset alarm
@@ -57,6 +62,11 @@ def main() -> None:
     # cam = MockCamera()
     cam_event = Event()
     cam_future = pool.submit(cam.update, cam_event)
+
+    # start api server
+    api = ApiServer()
+    ApiServer.cam = cam  # type: ignore
+    api_future = pool.submit(api.start_server)
 
     # start Button-Handler
     button_handler = Button()
