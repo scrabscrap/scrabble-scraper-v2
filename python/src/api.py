@@ -19,6 +19,7 @@ import json
 import logging
 import logging.config
 import urllib.parse
+from threading import Event
 from time import sleep
 
 import cv2
@@ -30,13 +31,36 @@ logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 from config import config
+from hardware.camera import Camera
 from threadpool import pool
 
 flask_shutdown_blocked = False
+cam = None
 
 
 class ApiServer:
     app = Flask(__name__)
+
+    @app.get('/')
+    def get_defaults():
+        return render_template_string(
+            '<html><head></head>'
+            '<body>'
+            '<a href="/player">Set Player-Names</a><br/>'
+            '<a href="/settings">Set Configuration Parameter</a><br/>'
+            '<hr />'
+            '<a href="/cam">Camera</a><br/>'
+            '<hr />'
+            '<a href="/upgrade_linux">Upgrade Linux (requires Internet access)</a><br/>'
+            '<a href="/upgrade_scrapscrap">Upgrade ScrabScrap (requires Internet access)</a><br/>'
+            '<hr />'
+            '<a href="/test_led">Test LEDs</a><br/>'
+            '<a href="/test_display">Test Display</a><br/>'
+            '<hr />'
+            '<a href="/download_logs">Download Logs</a><br/>'
+            '<hr />'
+            '<a href="/shutdown">Shutdown System</a><br/>'
+            '</body></html>')
 
     @app.get('/settings')
     def get_settings():
@@ -81,17 +105,24 @@ class ApiServer:
     @app.route('/cam')
     def get_cam():
         # TODO: use live pictures
-        fakecamera_formatter = config.SIMULATE_PATH
-        img = cv2.imread(fakecamera_formatter.format(0))
-        _, im_buf_arr = cv2.imencode(".jpg", img)
-        png_output = base64.b64encode(im_buf_arr)
-        return render_template_string('<html><head><meta http-equiv="refresh" content="2" /></head>'
-                                      '<body><img style="max-width: 95vw;max-height: 95vh;'
-                                      '-webkit-box-shadow: 0 0 13px 3px rgba(0,0,0,1);'
-                                      '-moz-box-shadow: 0 0 13px 3px rgba(0,0,0,1);'
-                                      'box-shadow: 0 0 13px 3px rgba(0,0,0,1);" '
-                                      'src="data:image/jpg;base64,{{img_data}}"/></body></html>',
-                                      img_data=urllib.parse.quote(png_output))
+        # fakecamera_formatter = config.SIMULATE_PATH
+        # img = cv2.imread(fakecamera_formatter.format(0))
+        if cam is not None:
+            img = cam.read()
+            _, im_buf_arr = cv2.imencode(".jpg", img)
+            png_output = base64.b64encode(im_buf_arr)
+        else:
+            png_output = ''
+        return render_template_string(
+            '<html><head><meta http-equiv="refresh" content="2" /></head>'
+            '<body>'
+            '<img style="max-width: 95vw;max-height: 95vh;'
+            '-webkit-box-shadow: 0 0 13px 3px rgba(0,0,0,1);'
+            '-moz-box-shadow: 0 0 13px 3px rgba(0,0,0,1);'
+            'box-shadow: 0 0 13px 3px rgba(0,0,0,1);" '
+            'src="data:image/jpg;base64,{{img_data}}"/>'
+            '</body></html>',
+            img_data=urllib.parse.quote(png_output))
 
     @app.route('/upgrade_linux')
     def update_linux():
@@ -197,11 +228,18 @@ def test_json():
 
 
 def main():
+    global cam
+
+    cam = Camera()
+    # cam = MockCamera()
+    cam_event = Event()
+    _ = pool.submit(cam.update, cam_event)
 
     api = ApiServer()
     pool.submit(api.start_server)
     sleep(120)
     api.stop_server()
+    cam_event.set()
 
 
 if __name__ == '__main__':

@@ -18,6 +18,7 @@ import atexit
 import logging
 from concurrent.futures import Future
 from threading import Event
+import numpy as np
 
 from config import config
 # from simulate import mockcamera
@@ -28,6 +29,8 @@ try:
 except ImportError:
     logging.warn('use mock as PiCamera')
     from simulate.fakecamera import FakeCamera as PiCamera  # type: ignore
+
+Mat = np.ndarray[int, np.dtype[np.generic]]
 
 
 class Camera:
@@ -50,8 +53,8 @@ class Camera:
         self.rawCapture.close()
         self.camera.close()
 
-    def read(self):
-        return self.frame
+    def read(self) -> Mat:
+        return self.frame  # type: ignore
 
     def update(self, ev: Event) -> None:
         self.event = ev

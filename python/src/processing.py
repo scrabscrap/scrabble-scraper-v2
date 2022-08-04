@@ -18,7 +18,7 @@ import logging
 import time
 from concurrent import futures
 from concurrent.futures import Future
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import cv2
 import imutils
@@ -29,7 +29,7 @@ from game_board.tiles import tiles
 from classic import Classic
 from config import config
 from custom import Custom
-from scrabble import Game
+from scrabble import Game, Move, MoveType, InvalidMoveExeption, NoMoveException
 from threadpool import pool
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
@@ -113,6 +113,49 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         player (int): active player
         played_time (int, int): current player times
     """
+    def _changes(board: dict, previous_board: dict):
+        for i in previous_board.keys():
+            if i in board.keys() and previous_board[i][1] > board[i][1]:
+                logging.debug(f'use value from old board {i}')
+                board[i] = previous_board[i]
+        new_tiles = {i: board[i] for i in set(board.keys()).difference(previous_board)}
+        removed_tiles = {i: previous_board[i] for i in set(previous_board.keys()).difference(board)}
+        changed_tiles = {i: board[i] for i in previous_board if
+                         i not in removed_tiles and previous_board[i][0] != board[i][0]}
+        return board, new_tiles, removed_tiles, changed_tiles
+
+    def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
+        if len(changed) < 1:
+            logging.info('move: no new tiles detected')
+            raise NoMoveException('move: no new tiles')
+        horizontal = len(set([col for col, _ in changed])) > 1
+        vertical = len(set([row for _, row in changed])) > 1
+        if vertical and horizontal:
+            logging.warning(f'illegal move: {changed}')
+            raise InvalidMoveExeption('move: illegal move horizontal and vertical changes detected')
+        if len(changed) == 1:  # only 1 tile
+            (col, row) = changed[-1]
+            horizontal = ((col - 1, row) in board) or ((col + 1, row) in board)
+            vertical = ((col, row - 1) in board) or ((col, row + 1) in board) if not horizontal else False
+        (col, row) = changed[0]
+        (minx, miny) = changed[0]
+        _word = ''
+        if vertical:
+            while row > 0 and (col, row - 1) in board:
+                row -= 1
+            miny = row
+            while row < 15 and (col, row) in board:
+                _word += board[(col, row)][0] if (col, row) in changed else '.'
+                row += 1
+        else:
+            while col > 0 and (col - 1, row) in board:
+                col -= 1
+            minx = col
+            while col < 15 and (col, row) in board:
+                _word += board[(col, row)][0] if (col, row) in changed else '.'
+                col += 1
+        return vertical, (minx, miny), _word
+
     logging.debug('move entry')
 
     #  1. warped = warp_image(img)
@@ -130,37 +173,49 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     # 13. game.add(move)
     # (14. Ftp.upload_move(move) -> im sep. thread damit die Nachfolge-Analyse nicht blockiert wird )
 
-    if waitfor is not None:
+    if waitfor is not None:                                                    # wait for previous moves
         done, not_done = futures.wait({waitfor})
         assert len(not_done) == 0, 'error while waiting for future'
-    # while waitfor is not None and waitfor.running():
-    #     time.sleep(0.05)
 
-    warped = warp_image(img)  # warp image if necessary
-    warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)  # grayscale image
-    filtered, tiles_candidates = filter_image(warped)  # find potential tiles on board
-    if len(game.moves) > 3:  # ignore all tiles which are older than 3 moves
-        ignore_coords = set(game.moves[-3].board.keys())
-    else:
-        ignore_coords = set()
+    warped = warp_image(img)                                                   # warp image if necessary
+    warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # grayscale image
+    filtered, tiles_candidates = filter_image(warped)                          # find potential tiles on board
+    ignore_coords = set(game.moves[-3].board.keys()) if len(game.moves) > 3 else set()  # only analyze tiles from last 3 moves
     filtered_candidates = filter_candidates((7, 7), tiles_candidates.copy(), ignore_coords)
-    board = game.moves[-1].board.copy() if len(game.moves) > 1 else {}  # get previous board
 
-    # 3 threads for picture analysis
+    # previous board information
+    board = game.moves[-1].board.copy() if len(game.moves) > 1 else {}
+    previous_board = board.copy()
+    previous_score = game.moves[-1].score if len(game.moves) > 1 else (0, 0)
+
+    # picture analysis
     splitted_list = np.array_split(list(filtered_candidates), 3)
     future1 = pool.submit(analyze, warped_gray, board, set(splitted_list[0]))  # 1. thread
     future2 = pool.submit(analyze, warped_gray, board, set(splitted_list[1]))  # 2. thread
-    analyze(warped_gray, board, set(splitted_list[2]))  # 3. (this) thread
-    done, _ = futures.wait({future1, future2})   # blocking wait
+    analyze(warped_gray, board, set(splitted_list[2]))                         # 3. (this) thread
+    done, _ = futures.wait({future1, future2})                                 # blocking wait
     assert len(done) == 2, 'error on wait to futures'
 
-    # find new / removed tiles
-    # move = Move()
-    # game.add_move(move)
-    # move = calculate_move(board, game)
-    # store_move(move)
-    # game.add(move)
-    # return True
+    # prepare move
+    current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
+    if len(changed_tiles) > 0:                                                 # fix old moves
+        logging.debug(f'changed tiles: {changed_tiles}')
+        pass
+        # TODO: falls "alte" Steine geändert wurden (z.B. durch verbesserte Erkennung)
+        # correct_tiles(new_board, changed_tiles)
+    try:                                                                       # find word and create move
+        is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
+        move = Move(MoveType.regular, player=player, coord=coord, is_vertical=is_vertical, word=word, new_tiles=new_tiles,
+                    removed_tiles=removed_tiles, board=current_board, played_time=played_time, previous_score=previous_score)
+    except NoMoveException:
+        move = Move(MoveType.exchange, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
+                    removed_tiles=removed_tiles, board=current_board, played_time=played_time, previous_score=previous_score)
+    except InvalidMoveExeption:
+        move = Move(MoveType.unknown, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
+                    removed_tiles=removed_tiles, board=current_board, played_time=played_time, previous_score=previous_score)
+
+    game.add_move(move)                                                        # add move
+    # TODO: ftp store move
     logging.debug('move exit')
 
 
@@ -196,11 +251,12 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
     logging.debug('invalid_challenge exit')
 
 
-def end_of_game(waitfor: Optional[Future]):
+def end_of_game(waitfor: Optional[Future], game: Game):
     logging.debug('end_of_game entry')
-    # 1. filename = create_zip_from_game(game)
-    # 2. Ftp.upload_game(filename)
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     time.sleep(1.5)
+    # TODO: upload game
+    # 1. filename = create_zip_from_game(game)
+    # 2. Ftp.upload_game(filename)
     logging.debug('end_of_games exit')

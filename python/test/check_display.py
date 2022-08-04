@@ -4,6 +4,7 @@ import unittest
 
 from hardware.oled import PlayerDisplay
 from scrabblewatch import ScrabbleWatch
+from util import trace
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
@@ -11,6 +12,7 @@ logging.basicConfig(
 
 class DisplayTestCase(unittest.TestCase):
 
+    @trace
     def test_display(self):
         display = PlayerDisplay()
         watch = ScrabbleWatch(display)

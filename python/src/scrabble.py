@@ -36,6 +36,14 @@ class MoveType(Enum):
     unknown = 9
 
 
+class InvalidMoveExeption(Exception):
+    pass
+
+
+class NoMoveException(Exception):
+    pass
+
+
 class Move():
     """Represents a Move
 
@@ -60,7 +68,7 @@ class Move():
 
     def __init__(self, type: MoveType, player: int, coord: Optional[Tuple[int, int]], is_vertical: bool, word: str,
                  new_tiles: dict, removed_tiles: dict, board: dict, played_time: Tuple[int, int],
-                 previuos_score: Tuple[int, int], img=None, rack=None):
+                 previous_score: Tuple[int, int], img=None, rack=None):
         self.type: MoveType = type
         self.player: int = player
         self.coord: Tuple[int, int] = coord if coord is not None else (-1, -1)
@@ -74,9 +82,9 @@ class Move():
         self.img = img
         self.rack: Optional[Tuple[dict, dict]] = rack
         if self.type in (MoveType.regular, MoveType.challenge_bonus):  # (re) calculate score
-            self.score, self.is_scrabble = self._calculate_score(previuos_score)
+            self.score, self.is_scrabble = self._calculate_score(previous_score)
         else:
-            self.score, self.is_scrabble = (previuos_score, False)
+            self.score, self.is_scrabble = (previous_score, False)
 
     def __str__(self) -> str:
         # TODO: implement

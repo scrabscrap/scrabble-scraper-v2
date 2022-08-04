@@ -161,20 +161,20 @@ class State:
         logging.debug(f'{self.current_state} - (reset) -> START')
         LED.switch_on({})  # type: ignore
         self.watch.reset()
-        # todo: check for upload
-        # todo: reset app data
+        # TODO: check for upload
+        # TODO: reset app data
         current_state = 'START'
         self.do_ready()
-        pool.submit(end_of_game, None)
+        pool.submit(end_of_game, None, self.game)
         return current_state
 
     def do_reboot(self) -> str:
         """Perform a reboot"""
         logging.debug(f'{self.current_state} - (reboot) -> START')
         self.watch.display.show_boot()  # Display message REBOOT
-        # todo: check for upload
+        # TODO: check for upload
         LED.switch_on({})  # type: ignore
-        self.last_submit = pool.submit(end_of_game, self.last_submit)
+        self.last_submit = pool.submit(end_of_game, self.last_submit, self.game)
         self.watch.display.stop()
         current_state = 'START'
         alarm(1)  # raise alarm for reboot
