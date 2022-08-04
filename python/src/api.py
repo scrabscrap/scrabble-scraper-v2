@@ -18,12 +18,14 @@ import base64
 import json
 import logging
 import logging.config
+import os
 import urllib.parse
 from threading import Event
 from time import sleep
 
 import cv2
-from flask import Flask, jsonify, render_template_string, request
+from flask import (Flask, jsonify, redirect, render_template_string, request,
+                   send_from_directory, url_for)
 from werkzeug.serving import make_server
 
 # TODO: remove before prod
@@ -36,51 +38,70 @@ from threadpool import pool
 
 flask_shutdown_blocked = False
 cam = None
+ROOT_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../work')
 
 
 class ApiServer:
     app = Flask(__name__)
+    last_msg = ''
 
     @app.get('/')
     def get_defaults():
+        # TODO: Status Informationen ergänzen
         return render_template_string(
             '<html><head></head>'
             '<body>'
-            '<a href="/player">Set Player-Names</a><br/>'
-            '<a href="/settings">Set Configuration Parameter</a><br/>'
-            '<hr />'
-            '<a href="/cam">Camera</a><br/>'
-            '<hr />'
-            '<a href="/upgrade_linux">Upgrade Linux (requires Internet access)</a><br/>'
-            '<a href="/upgrade_scrapscrap">Upgrade ScrabScrap (requires Internet access)</a><br/>'
-            '<hr />'
-            '<a href="/test_led">Test LEDs</a><br/>'
-            '<a href="/test_display">Test Display</a><br/>'
-            '<hr />'
-            '<a href="/download_logs">Download Logs</a><br/>'
-            '<hr />'
-            '<a href="/shutdown">Shutdown System</a><br/>'
-            '</body></html>')
+            'last result: <pre>{{message}}</pre><br/>'
+            '<form action="/player" method="get">Names'
+            '  <input type="text" name="player1" placeholder="Player 1">'
+            '  <input type="text" name="player2" placeholder="Player 2">'
+            '  <input type="submit" value="Submit">'
+            '</form>'
+            '<form action="/settings" method="get">Setting'
+            '  <input type="text" name="setting" placeholder="Parameter">'
+            '  <input type="text" name="value" placeholder="Value">'
+            '  <input type="submit" value="Submit">'
+            '</form>'
+
+            '<button type="button" onclick="location.href=\'/cam\'">Camera</button>'
+            '<button type="button" onclick="location.href=\'/test_led\'">Test LED</button>'
+            '<button type="button" onclick="location.href=\'/test_display\'">Test display</button>'
+            '<br/><br/>'
+            '<button type="button" onclick="location.href=\'/download_logs\'">Download Logs</button>'
+            '<br/><br/>'
+            '<button type="button" onclick="location.href=\'/upgrade_linux\'">Upgrade Linux</button>'
+            '<button type="button" onclick="location.href=\'/upgrade_scrabscrap\'">Upgrade ScrabScrap</button>'
+            '<button type="button" onclick="location.href=\'/shutdown\'">Shutdown</button>'
+            '</body></html>', message=ApiServer.last_msg)
 
     @app.get('/settings')
     def get_settings():
         try:
             must_save = False
             for i in request.args.items():
-                section, option = str(i[0]).split('.', maxsplit=2)
-                value = i[1]
+                if request.args.get('setting') is None:
+                    path = i[0]
+                    value = i[1]
+                else:
+                    path = request.args.get('setting')
+                    value = request.args.get('value')
+                section, option = str(path).split('.', maxsplit=2)
                 logging.debug(f'[{section}] {option}={value}')
                 if section not in config.config.sections():
                     config.config.add_section(section)
                 config.config.set(section, option, str(value))
+                logging.debug(f'{section}.{option}={value}')
                 must_save = True
         except ValueError:
-            return {"error": "Value error in Parameter"}, 415
+            logging.error(f'Error on settings: {request.args.items()}')
+            ApiServer.last_msg = 'error: Value error in Parameter'
+            return redirect(url_for('get_defaults'))
         if must_save:
             config.save()
         config_as_dict = config.config_as_dict()
         logging.debug(f'{config_as_dict}')
-        return jsonify(config_as_dict)
+        ApiServer.last_msg = f'{config_as_dict}'
+        return redirect(url_for('get_defaults'))
 
     @app.post('/settings')  # type: ignore
     def add_settings():
@@ -98,13 +119,21 @@ class ApiServer:
                 config.save()
             config_as_dict = config.config_as_dict()
             logging.debug(f'{config_as_dict}')
+            ApiServer.last_msg = 'json api'
             return jsonify(config_as_dict), 201
         else:
-            return {"error": "Request must be JSON"}, 415
+            return {'error': 'Request must be JSON'}, 415
+
+    @app.route('/player')  # type: ignore
+    def player():
+        player1 = request.args.get('player1')
+        player2 = request.args.get('player2')
+        logging.debug(f'player1={player1} player2={player2}')
+        ApiServer.last_msg = f'player1={player1}\nplayer2={player2}'
+        return redirect(url_for('get_defaults'))
 
     @app.route('/cam')
     def get_cam():
-        # TODO: use live pictures
         # fakecamera_formatter = config.SIMULATE_PATH
         # img = cv2.imread(fakecamera_formatter.format(0))
         if cam is not None:
@@ -113,6 +142,7 @@ class ApiServer:
             png_output = base64.b64encode(im_buf_arr)
         else:
             png_output = ''
+        ApiServer.last_msg = ''
         return render_template_string(
             '<html><head><meta http-equiv="refresh" content="2" /></head>'
             '<body>'
@@ -133,9 +163,8 @@ class ApiServer:
         p1 = subprocess.run(['sudo', 'apt-get', 'update'], check=True, capture_output=True)
         p2 = subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'], check=True, capture_output=True)
         flask_shutdown_blocked = False
-        return {'01-apt-get_update': f'{p1.stdout.decode()} {p1.stderr.decode()}',
-                '02-apt-get_dist-upgrade': f'{p2.stdout.decode()} {p2.stderr.decode()}'
-                }, 415 if p1.returncode > 0 or p2.returncode > 0 else 201
+        ApiServer.last_msg = f'{p1.stdout.decode()} {p1.stderr.decode()}{p2.stdout.decode()} {p2.stderr.decode()}'
+        return redirect(url_for('get_defaults'))
 
     @app.route('/upgrade_scrabscrap')
     def update_scrabscrap():
@@ -145,13 +174,15 @@ class ApiServer:
         flask_shutdown_blocked = True
         p1 = subprocess.run(['ls', '-al'], check=True, capture_output=True)
         flask_shutdown_blocked = False
-        return {'git_pull': f'{p1.stdout.decode()} {p1.stderr.decode()}',
-                }, 415 if p1.returncode > 0 else 201
+        ApiServer.last_msg = f'{p1.stdout.decode()} {p1.stderr.decode()}'
+        return redirect(url_for('get_defaults'))
 
     @app.route('/test_led')
     def test_led():
         from hardware.led import LED, LEDEnum
+        global flask_shutdown_blocked
 
+        flask_shutdown_blocked = True
         LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
         sleep(1)
         LED.switch_on({})  # type: ignore
@@ -171,13 +202,17 @@ class ApiServer:
         LED.switch_on({LEDEnum.red})
         sleep(1)
         LED.switch_on({})  # type: ignore
-        return {'led_test': 'ended'}, 201
+        flask_shutdown_blocked = False
+        ApiServer.last_msg = 'led_test ended'
+        return redirect(url_for('get_defaults'))
 
     @app.route('/test_display')
     def test_display():
         from hardware.oled import PlayerDisplay
         from scrabblewatch import ScrabbleWatch
+        global flask_shutdown_blocked
 
+        flask_shutdown_blocked = True
         display = PlayerDisplay()
         watch = ScrabbleWatch(display)
         watch.display.show_boot()
@@ -187,10 +222,17 @@ class ApiServer:
         watch.display.show_ready()
         watch.display.clear()
         watch.display.show()
-        return {'display_test': 'ended'}, 201
+        flask_shutdown_blocked = False
+        ApiServer.last_msg = 'display_test ended'
+        return redirect(url_for('get_defaults'))
+
+    @app.route('/download_logs', methods=['POST', 'GET'])
+    def download_logs():
+        ApiServer.last_msg = 'download logs'
+        return send_from_directory(f'{ROOT_PATH}', 'log.conf', as_attachment=True)
 
     # TODO:
-    # - [ ] download logs / images / games
+    # - [o] download logs / images / games
     # - [ ] shutdown system
     # - [o] upgrade scrabscrap
     # - [x] upgrade linux
