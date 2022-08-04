@@ -144,8 +144,10 @@ class ApiServer:
             png_output = ''
         ApiServer.last_msg = ''
         return render_template_string(
-            '<html><head><meta http-equiv="refresh" content="2" /></head>'
+            '<html><head></head>'
             '<body>'
+            '<button type="button" onclick="location.href=\'/cam\'">Reload</button>'
+            '<button type="button" onclick="location.href=\'/\'">Back</button><br/><br/>'
             '<img style="max-width: 95vw;max-height: 95vh;'
             '-webkit-box-shadow: 0 0 13px 3px rgba(0,0,0,1);'
             '-moz-box-shadow: 0 0 13px 3px rgba(0,0,0,1);'
