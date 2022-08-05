@@ -55,17 +55,17 @@ def filter_image(img: Mat) -> tuple[Optional[Mat], set]:
 
 def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], ignore_set: set[tuple[int, int]]) -> set:
     (col, row) = coord
-    if coord not in candidates:  # already visited
-        return set()
-    candidates.remove(coord)
     result = set()
+    if coord not in candidates:  # already visited
+        return result
+    candidates.remove(coord)
     # TODO: threshold for already recognized tiles
     if coord not in ignore_set:
         result.add(coord)
-    result.add(filter_candidates((col + 1, row), candidates, ignore_set))
-    result.add(filter_candidates((col - 1, row), candidates, ignore_set))
-    result.add(filter_candidates((col, row + 1), candidates, ignore_set))
-    result.add(filter_candidates((col, row - 1), candidates, ignore_set))
+    result = result | filter_candidates((col + 1, row), candidates, ignore_set)
+    result = result | filter_candidates((col - 1, row), candidates, ignore_set)
+    result = result | filter_candidates((col, row + 1), candidates, ignore_set)
+    result = result | filter_candidates((col, row - 1), candidates, ignore_set)
     return result
 
 
@@ -181,7 +181,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # grayscale image
     filtered, tiles_candidates = filter_image(warped)                          # find potential tiles on board
     ignore_coords = set(game.moves[-3].board.keys()) if len(game.moves) > 3 else set()  # only analyze tiles from last 3 moves
-    filtered_candidates = filter_candidates((7, 7), tiles_candidates.copy(), ignore_coords)
+    filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
 
     # previous board information
     board = game.moves[-1].board.copy() if len(game.moves) > 1 else {}
