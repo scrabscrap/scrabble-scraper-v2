@@ -17,6 +17,8 @@
 import functools
 import logging
 import time
+from logging.handlers import BaseRotatingHandler
+from typing import Union
 
 # def onexit(f):
 #     # see: https://peps.python.org/pep-0318/#examples
@@ -61,3 +63,35 @@ def trace(fn):
             logging.debug(f'leaving {fn.__name__}')
 
     return trace
+
+
+def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type: ignore
+    """Rotate logs.
+
+    Args:
+        loggers: List of logger names as list object or as string,
+            separated by `delimiter`.
+
+        delimiter: Separator for logger names, if `loggers` is :obj:`str`.
+            Defaults to ``,`` (comma).
+
+    """
+
+    # Convert loggers to list.
+    if isinstance(loggers, str):
+        loggers = [t.strip() for t in loggers.split(delimiter)]
+    handlers = []
+    root = logging.getLogger()
+    # Include root logger in dict.
+    ld = {'': root, **root.manager.loggerDict}
+    for k, v in ld.items():
+        if loggers is not None and k not in loggers:
+            continue
+        try:
+            for h in v.handlers:
+                if (isinstance(h, BaseRotatingHandler) and h not in handlers):
+                    handlers.append(h)
+        except AttributeError:
+            pass
+    for h in handlers:
+        h.doRollover()
