@@ -156,6 +156,9 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
                 col += 1
         return vertical, (minx, miny), _word
 
+    def chunkify(lst, n):
+        return [lst[i::n] for i in range(n)]
+
     logging.debug('move entry')
 
     #  1. warped = warp_image(img)
@@ -189,10 +192,10 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     previous_score = game.moves[-1].score if len(game.moves) > 1 else (0, 0)
 
     # picture analysis
-    splitted_list = np.array_split(list(filtered_candidates), 3)
-    future1 = pool.submit(analyze, warped_gray, board, set(splitted_list[0]))  # 1. thread
-    future2 = pool.submit(analyze, warped_gray, board, set(splitted_list[1]))  # 2. thread
-    analyze(warped_gray, board, set(splitted_list[2]))                         # 3. (this) thread
+    chunks = chunkify(list(filtered_candidates), 3)
+    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))  # 1. thread
+    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))  # 2. thread
+    analyze(warped_gray, board, set(chunks[2]))                         # 3. (this) thread
     done, _ = futures.wait({future1, future2})                                 # blocking wait
     assert len(done) == 2, 'error on wait to futures'
 

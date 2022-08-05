@@ -20,6 +20,7 @@ import os
 import signal
 from threading import Event
 from time import sleep
+from concurrent import futures
 
 import cv2
 from vlogging import VisualRecord
@@ -28,13 +29,38 @@ logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/.
                           disable_existing_loggers=False,
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
-visualLogger = logging.getLogger("visualLogger")
 
 from custom import Custom
 from hardware.camera import Camera
 from processing import analyze, filter_candidates, filter_image
 from threadpool import pool
 from util import rotate_logs
+from game_board.board import overlay_grid, overlay_tiles
+
+rotate_logs('visualLogger')
+visualLogger = logging.getLogger("visualLogger")
+
+
+def print_board(board: dict) -> str:
+    result = '  |'
+    for i in range(15):
+        result += f'{(i + 1):2d} '
+    result += ' | '
+    for i in range(15):
+        result += f'{(i + 1):2d} '
+    result += '\n'
+    for row in range(15):
+        result += f"{chr(ord('A') + row)} |"
+        for col in range(15):
+            if (col, row) in board:
+                result += f' {board[(col, row)][0]} '
+            else:
+                result += ' . '
+        result += ' | '
+        for col in range(15):
+            result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' . '
+        result += ' | \n'
+    return result
 
 
 def main() -> None:
@@ -46,9 +72,10 @@ def main() -> None:
         # reset alarm
         signal.alarm(0)
 
-    signal.signal(signal.SIGALRM, main_cleanup)
+    def chunkify(lst, n):
+        return [lst[i::n] for i in range(n)]
 
-    rotate_logs('visualLogger')
+    signal.signal(signal.SIGALRM, main_cleanup)
 
     # open Camera
     cam = Camera()
@@ -71,9 +98,9 @@ def main() -> None:
     # cv2.imwrite('log/warped_gray.jpg', warped_gray)
 
     filtered, tiles_candidates = filter_image(warped)                          # find potential tiles on board
+    logging.debug(f'tiles candidated: {tiles_candidates}')
     ignore_coords = set()  # only analyze tiles from last 3 moves
-    filtered_candidates = filter_candidates((7, 7), tiles_candidates.copy(), ignore_coords)
-
+    filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
     logging.debug(f'filtered candidated: {filtered_candidates}')
 
     # previous board information
@@ -82,9 +109,20 @@ def main() -> None:
     # previous_score = (0, 0)
 
     # picture analysis
-    analyze(warped_gray, board, filtered_candidates)
+    # analyze(warped_gray, board, filtered_candidates)
+    chunks = chunkify(list(filtered_candidates), 3)
+    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))  # 1. thread
+    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))  # 2. thread
+    analyze(warped_gray, board, set(chunks[2]))                         # 3. (this) thread
+    done, _ = futures.wait({future1, future2})                          # blocking wait
+    assert len(done) == 2, 'error on wait to futures'
 
-    logging.debug(f'board: {board}')
+    logging.debug(f'board: \n{print_board(board)}')
+
+    overlay = overlay_grid(warped)
+    overlay = overlay_tiles(overlay, board)
+    visualLogger.info(VisualRecord("Overlayed", [overlay], fmt="png"))
+
     cam_future.cancel()
     cam_event.set()
 
