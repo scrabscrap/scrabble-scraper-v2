@@ -19,18 +19,24 @@ import json
 import logging
 import logging.config
 import os
+import time
 import urllib.parse
 from time import sleep
 
 import cv2
-from flask import (Flask, jsonify, redirect, render_template_string, request,
-                   send_from_directory, url_for)
+from flask import (Flask, jsonify, redirect, render_template_string,
+                   request, send_from_directory, url_for)
+from flask.wrappers import Response
+from pygtail import Pygtail
 from werkzeug.serving import make_server
 
 from config import config
+from custom import Custom
+from game_board.board import overlay_grid
 from threadpool import pool
 
 ROOT_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../work')
+LOG_FILE = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../log/messages.log')
 
 
 class ApiServer:
@@ -43,9 +49,24 @@ class ApiServer:
     def get_defaults():
         # TODO: Status Informationen ergänzen
         return render_template_string(
-            '<html><head></head>'
+            '<html><head>'
+            '<style>'
+            '  .button:not(:last-child) { margin-right: 10px; }'
+            '</style>'
+            '</head>'
             '<body>'
-            'last result: <pre>{{message}}</pre><br/>'
+            '<div class="container">'
+            '  <button type="button" onclick="location.href=\'/cam\'">Camera</button>'
+            '  <button type="button" onclick="location.href=\'/test_led\'">Test LED</button>'
+            '  <button type="button" onclick="location.href=\'/test_display\'">Test display</button>'
+            '  <button style="margin-right: 20px;" type="button" onclick="location.href=\'/settings\'">Settings</button>'
+            '  <button style="margin-right: 20px;" type="button" onclick="location.href=\'/download_logs\'">'
+            '    Download Logs</button>'
+            '  <button type="button" onclick="location.href=\'/logs\'">Logs</button>'
+            '  <button type="button" onclick="location.href=\'/upgrade_linux\'">Upgrade Linux</button>'
+            '  <button type="button" onclick="location.href=\'/upgrade_scrabscrap\'">Upgrade ScrabScrap</button>'
+            '  <button type="button" onclick="location.href=\'/shutdown\'">Shutdown</button>'
+            '</div><br/>'
             '<form action="/player" method="get">Names'
             '  <input type="text" name="player1" placeholder="Player 1">'
             '  <input type="text" name="player2" placeholder="Player 2">'
@@ -56,16 +77,7 @@ class ApiServer:
             '  <input type="text" name="value" placeholder="Value">'
             '  <input type="submit" value="Submit">'
             '</form>'
-
-            '<button type="button" onclick="location.href=\'/cam\'">Camera</button>'
-            '<button type="button" onclick="location.href=\'/test_led\'">Test LED</button>'
-            '<button type="button" onclick="location.href=\'/test_display\'">Test display</button>'
-            '<br/><br/>'
-            '<button type="button" onclick="location.href=\'/download_logs\'">Download Logs</button>'
-            '<br/><br/>'
-            '<button type="button" onclick="location.href=\'/upgrade_linux\'">Upgrade Linux</button>'
-            '<button type="button" onclick="location.href=\'/upgrade_scrabscrap\'">Upgrade ScrabScrap</button>'
-            '<button type="button" onclick="location.href=\'/shutdown\'">Shutdown</button>'
+            'last result: <div style="white-space: pre-wrap;">{{message}}</div><br/>'
             '</body></html>', message=ApiServer.last_msg)
 
     @app.get('/settings')
@@ -134,21 +146,67 @@ class ApiServer:
             img = ApiServer.cam.read()
             _, im_buf_arr = cv2.imencode(".jpg", img)
             png_output = base64.b64encode(im_buf_arr)
+            warped = Custom.warp(img)
+            overlay = overlay_grid(warped)
+            _, im_buf_arr = cv2.imencode(".jpg", overlay)
+            png_overlay = base64.b64encode(im_buf_arr)
         else:
             png_output = ''
+            png_overlay = ''
         ApiServer.last_msg = ''
         return render_template_string(
-            '<html><head></head>'
+            '<html><head>'
+            '<style>'
+            '  .button:not(:last-child) { margin-right: 10px; }'
+            '</style>'
+            '</head>'
             '<body>'
-            '<button type="button" onclick="location.href=\'/cam\'">Reload</button>'
-            '<button type="button" onclick="location.href=\'/\'">Back</button><br/><br/>'
-            '<img style="max-width: 95vw;max-height: 95vh;'
-            '-webkit-box-shadow: 0 0 13px 3px rgba(0,0,0,1);'
-            '-moz-box-shadow: 0 0 13px 3px rgba(0,0,0,1);'
-            'box-shadow: 0 0 13px 3px rgba(0,0,0,1);" '
+            '<div class="container">'
+            '  <button type="button" onclick="location.href=\'/cam\'">Reload</button>'
+            '  <button type="button" onclick="location.href=\'/\'">Back</button>'
+            '  <button type="button" onclick="location.href=\'/\'">*Store Warp</button>'
+            '  <button type="button" onclick="location.href=\'/\'">*Clear Warp</button>'
+            '</div><br/>'
+            '<img style="float: left; padding:5px;max-width: 45vw;max-height: calc(95vh - 50px);" '
             'src="data:image/jpg;base64,{{img_data}}"/>'
+            '<img style="padding:5px; max-width: 45vw;max-height: calc(95vh - 50px);" '
+            'src="data:image/jpg;base64,{{warp_data}}"/><br/>'
             '</body></html>',
-            img_data=urllib.parse.quote(png_output))
+            img_data=urllib.parse.quote(png_output), warp_data=urllib.parse.quote(png_overlay))
+
+    @app.route('/logs')
+    def logs():
+        ApiServer.last_msg = ''
+        return render_template_string(
+            '<html><head>'
+            '<style>'
+            '  .button:not(:last-child) { margin-right: 10px; }'
+            '</style>'
+            '</head>'
+            '<body>'
+            '<div class="container">'
+            '  <button type="button" onclick="location.href=\'/\'">Back</button>'
+            '</div><br/>'
+            '<div class="container">'
+            '  <div style="white-space: pre-wrap;" id="display_list"></div>'
+            '</div>'
+            '<script type="text/javascript">'
+            '   var source = new EventSource("/log");'
+            '   addEventListener(\'hashchange\', (event) => { source.close() });'
+            '	source.onmessage = function(event) {'
+            '       element = document.getElementById("display_list");'
+            '       element.insertAdjacentHTML("afterend", "<div>" + event.data  + "</div>");'
+            '   }'
+            '</script>'
+            '</body></html>')
+
+    @app.route('/log')
+    def progress_log():
+        def generate():
+            for line in Pygtail(LOG_FILE, every_n=1):
+                yield "data:" + str(line) + "\n\n"
+                time.sleep(0.1)
+        return Response(generate(), mimetype='text/event-stream')
 
     @app.route('/upgrade_linux')
     def update_linux():
@@ -230,13 +288,18 @@ class ApiServer:
     # - [x] upgrade linux
     # - [x] test led
     # - [x] test display
-    # - [ ] set player-names
+    # - [o] set player-names
     # - [ ] set move?
     # - [ ] set rack
     # - [ ] get game status
+    # - [ ] store warp
+    # - [ ] clear warp
+    # - [ ] clear messages.log.offset
 
     def start_server(self):
         logging.debug('try to start server')
+        self.app.config['DEBUG'] = False
+        self.app.config['TESTING'] = False
         self.server = make_server('0.0.0.0', 5000, self.app)
         self.ctx = self.app.app_context()
         self.ctx.push()
@@ -266,8 +329,10 @@ def main():
 
     from hardware.camera import Camera
 
-    logging.basicConfig(
-        level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+    logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/../work/log.conf',
+                              disable_existing_loggers=False,
+                              defaults={'level': 'DEBUG',
+                                        'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
     cam = Camera()
     # cam = MockCamera()
@@ -278,7 +343,7 @@ def main():
     ApiServer.cam = cam  # type: ignore
     pool.submit(api.start_server)
 
-    sleep(120)
+    sleep(240)
     api.stop_server()
     cam_event.set()
 
