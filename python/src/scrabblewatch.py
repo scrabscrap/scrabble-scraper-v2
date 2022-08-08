@@ -39,7 +39,7 @@ class ScrabbleWatch:
         if _display is not None:
             self.display = _display
         else:
-            self.display = PlayerDisplay()  # todo: use factory
+            self.display = PlayerDisplay()  # default
 
     def start(self, player: int) -> None:
         self.display.clear_message(self.player)
