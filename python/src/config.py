@@ -23,8 +23,9 @@ import os
 class Config:
 
     def __init__(self) -> None:
-        self.WORK_DIR = os.path.abspath(
-            os.path.dirname(os.path.abspath(__file__)) + "/../work")
+        self.SRC_PATH = os.path.dirname(__file__) or '.'
+        self.WORK_DIR = self.SRC_PATH + '/../work'
+        self.LOG_PATH = self.WORK_DIR + '/log'
         self.config = configparser.ConfigParser()
         try:
             with open(self.WORK_DIR + '/scrabble.ini', "r") as config_file:
@@ -48,7 +49,7 @@ class Config:
 
     @property
     def SIMULATE_PATH(self) -> str:
-        return self.config.get('development', 'simulate_path', fallback=self.WORK_DIR + '/../work/simulate/image-{:d}.jpg')
+        return self.config.get('development', 'simulate_path', fallback=self.WORK_DIR + '/simulate/image-{:d}.jpg')
 
     @property
     def MALUS_DOUBT(self) -> int:
@@ -126,7 +127,7 @@ class Config:
     @property
     def TILES_IMAGE_PATH(self) -> str:
         # use builtin path as default
-        return self.config.get('tiles', 'image_path', fallback=(os.path.dirname(__file__) or '.') + '/game_board/img')
+        return self.config.get('tiles', 'image_path', fallback=self.SRC_PATH + '/game_board/img')
 
     @property
     def TILES_BAG(self) -> dict:

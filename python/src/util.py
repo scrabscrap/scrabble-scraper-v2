@@ -76,7 +76,6 @@ def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type
             Defaults to ``,`` (comma).
 
     """
-
     # Convert loggers to list.
     if isinstance(loggers, str):
         loggers = [t.strip() for t in loggers.split(delimiter)]

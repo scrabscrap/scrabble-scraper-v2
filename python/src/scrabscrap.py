@@ -16,12 +16,13 @@
 """
 import logging
 import logging.config
-import os
 import signal
 from signal import pause
 from threading import Event
 
-logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/../work/log.conf',
+from config import config
+
+logging.config.fileConfig(fname=config.LOG_PATH + '/log.conf',
                           disable_existing_loggers=False,
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})

@@ -17,7 +17,6 @@
 import configparser
 import ftplib
 import logging
-import os
 from typing import Optional
 
 from config import config
@@ -26,11 +25,9 @@ from config import config
 class Ftp:
     class FtpConfig:
         def __init__(self) -> None:
-            self.WORK_DIR = os.path.abspath(
-                os.path.dirname(os.path.abspath(__file__) or '.') + '/../work')
             self.config = configparser.ConfigParser()
             try:
-                with open(f'{self.WORK_DIR}/ftp-secret.ini', 'r') as config_file:
+                with open(f'{config.WORK_DIR}/ftp-secret.ini', 'r') as config_file:
                     self.config.read_file(config_file)
             except Exception as e:
                 logging.exception(f'can not read ftp INI-File {e}')

@@ -24,8 +24,8 @@ import urllib.parse
 from time import sleep
 
 import cv2
-from flask import (Flask, jsonify, redirect, render_template_string,
-                   request, send_from_directory, url_for)
+from flask import (Flask, jsonify, redirect, render_template_string, request,
+                   send_from_directory, url_for)
 from flask.wrappers import Response
 from pygtail import Pygtail
 from werkzeug.serving import make_server
@@ -35,8 +35,7 @@ from custom import Custom
 from game_board.board import overlay_grid
 from threadpool import pool
 
-ROOT_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../work')
-LOG_FILE = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../log/messages.log')
+LOG_FILE = config.LOG_PATH + '/messages.log'
 
 
 class ApiServer:
@@ -85,6 +84,10 @@ class ApiServer:
         try:
             must_save = False
             for i in request.args.items():
+                logging.debug(f'item: {i}')
+                logging.debug(f'setting: {request.args.get("setting")}')
+                logging.debug(f'value: {request.args.get("value")}')
+
                 if request.args.get('setting') is None:
                     path = i[0]
                     value = i[1]
@@ -146,13 +149,16 @@ class ApiServer:
             img = ApiServer.cam.read()
             _, im_buf_arr = cv2.imencode(".jpg", img)
             png_output = base64.b64encode(im_buf_arr)
+            # TODO: use configured board
             warped = Custom.warp(img)
+            warp_coord = json.dumps(Custom.last_warp.tolist())  # type: ignore
             overlay = overlay_grid(warped)
             _, im_buf_arr = cv2.imencode(".jpg", overlay)
             png_overlay = base64.b64encode(im_buf_arr)
         else:
             png_output = ''
             png_overlay = ''
+            warp_coord = ''
         ApiServer.last_msg = ''
         return render_template_string(
             '<html><head>'
@@ -164,15 +170,18 @@ class ApiServer:
             '<div class="container">'
             '  <button type="button" onclick="location.href=\'/cam\'">Reload</button>'
             '  <button type="button" onclick="location.href=\'/\'">Back</button>'
-            '  <button type="button" onclick="location.href=\'/\'">*Store Warp</button>'
-            '  <button type="button" onclick="location.href=\'/\'">*Clear Warp</button>'
+            '  <button type="button" onclick="location.href=\'/settings?setting=video.warp_coordinates&value={{warp_coord}}\'">'
+            '     Store Warp</button>'
+            '  <button type="button" onclick="location.href=\'/settings?setting=video.warp_coordinates&value=\'">'
+            '     Clear Warp</button>'
             '</div><br/>'
             '<img style="float: left; padding:5px;max-width: 45vw;max-height: calc(95vh - 50px);" '
             'src="data:image/jpg;base64,{{img_data}}"/>'
             '<img style="padding:5px; max-width: 45vw;max-height: calc(95vh - 50px);" '
             'src="data:image/jpg;base64,{{warp_data}}"/><br/>'
             '</body></html>',
-            img_data=urllib.parse.quote(png_output), warp_data=urllib.parse.quote(png_overlay))
+            img_data=urllib.parse.quote(png_output), warp_data=urllib.parse.quote(png_overlay),
+            warp_coord=urllib.parse.quote(warp_coord))
 
     @app.route('/logs')
     def logs():
@@ -279,7 +288,7 @@ class ApiServer:
     @app.route('/download_logs', methods=['POST', 'GET'])
     def download_logs():
         ApiServer.last_msg = 'download logs'
-        return send_from_directory(f'{ROOT_PATH}', 'log.conf', as_attachment=True)
+        return send_from_directory(f'{config.WORK_DIR}', 'log.conf', as_attachment=True)
 
     # TODO:
     # - [o] download logs / images / games

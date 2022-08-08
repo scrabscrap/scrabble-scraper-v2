@@ -26,14 +26,13 @@ from vlogging import VisualRecord
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
 visualLogger = logging.getLogger("visualLogger")
-last_warp = None
 
 
 class Custom:
+    last_warp = None
 
     @staticmethod
     def warp(__image: Mat) -> Mat:
-        global last_warp
 
         # TODO: kann das nicht in der normalen Config abgelegt werden?
         warp = configparser.ConfigParser()
@@ -94,33 +93,33 @@ class Custom:
             (w2, h1) = rect[2]
             (x2, h2) = rect[3]
             if abs(x1 - x2) > 40 or x1 < 15 or x2 < 15:
-                if last_warp is not None:
-                    rect[0][0] = last_warp[0][0]
-                    rect[3][0] = last_warp[3][0]
+                if Custom.last_warp is not None:
+                    rect[0][0] = Custom.last_warp[0][0]
+                    rect[3][0] = Custom.last_warp[3][0]
                 else:
                     x = max(x1, x2)
                     rect[0][0] = rect[3][0] = x
                     logging.warning(f"korrigiere x auf {x}")
             if abs(w1 - w2) > 40 or w1 > 1490 or w2 > 1490:
-                if last_warp is not None:
-                    rect[1][0] = last_warp[1][0]
-                    rect[2][0] = last_warp[2][0]
+                if Custom.last_warp is not None:
+                    rect[1][0] = Custom.last_warp[1][0]
+                    rect[2][0] = Custom.last_warp[2][0]
                 else:
                     w = min(w1, w2)
                     rect[1][0] = rect[2][0] = w
                     logging.warning(f"korrigiere w auf {w}")
             if abs(y1 - y2) > 40 or y1 < 15 or y2 < 15:
-                if last_warp is not None:
-                    rect[0][1] = last_warp[0][1]
-                    rect[1][1] = last_warp[1][1]
+                if Custom.last_warp is not None:
+                    rect[0][1] = Custom.last_warp[0][1]
+                    rect[1][1] = Custom.last_warp[1][1]
                 else:
                     y = max(y1, y2)
                     rect[0][1] = rect[1][1] = y
                     logging.warning(f"korrigiere y auf {y}")
             if abs(h1 - h2) > 40 or h1 > 1490 or h2 > 1490:
-                if last_warp is not None:
-                    rect[2][1] = last_warp[2][1]
-                    rect[3][1] = last_warp[3][1]
+                if Custom.last_warp is not None:
+                    rect[2][1] = Custom.last_warp[2][1]
+                    rect[3][1] = Custom.last_warp[3][1]
                 else:
                     h = min(h1, h2)
                     rect[2][1] = rect[3][1] = h
@@ -135,7 +134,6 @@ class Custom:
             #         logging.error("es kann keine sinnvolle Transformation ermittelt werden")
             #     logging.warning(f"korrigiere rest auf {rect}")
             # else:
-            last_warp = rect
 
         # construct our destination points which will be used to
         # map the screen to a top-down, "birds eye" view
@@ -147,6 +145,7 @@ class Custom:
 
         # calculate the perspective transform matrix and warp
         # the perspective to grab the screen
+        Custom.last_warp = rect
         m = cv2.getPerspectiveTransform(rect, dst)
         result = cv2.warpPerspective(__image, m, (800, 800))
         visualLogger.debug(VisualRecord("warp_custom", [result], fmt="png"))

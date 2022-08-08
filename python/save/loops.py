@@ -30,10 +30,10 @@ str_filepath = json.dumps(filepath)
 print(str_filepath)
 print('---')
 
-lang = config.config.get('tiles', 'language')
-filepath = config.config.get('tiles', 'filepath')
+lang = config.TILES_LANGUAGE
+filepath = config.TILES_IMAGE_PATH
 str_scores = config.config.get('en', 'scores')
-str_bag = config.config.get(lang, 'bag')
+str_bag = config.TILES_BAG
 print(str_scores)
 print(str_bag)
 print(str_filepath)
@@ -41,4 +41,13 @@ print(__file__)
 t_scores = json.loads(str_scores)
 print(f'type: {type(t_scores)} val:{t_scores}')
 
-#t_scores = dict(str_scores)
+# t_scores = dict(str_scores)
+
+warp = [[58., 15.],
+        [978., 16.],
+        [955., 941.],
+        [51., 908.]]
+str_warp = json.dumps(warp)
+print(str_warp)
+w1 = json.loads(str_warp)
+print(f'type: {type(w1)} val:{w1}')
