@@ -35,8 +35,6 @@ from custom import Custom
 from game_board.board import overlay_grid
 from threadpool import pool
 
-LOG_FILE = config.LOG_PATH + '/messages.log'
-
 
 class ApiServer:
     app = Flask(__name__)
@@ -212,7 +210,7 @@ class ApiServer:
     @app.route('/log')
     def progress_log():
         def generate():
-            for line in Pygtail(LOG_FILE, every_n=1):
+            for line in Pygtail(config.LOG_PATH + '/messages.log', every_n=1):
                 yield "data:" + str(line) + "\n\n"
                 time.sleep(0.1)
         return Response(generate(), mimetype='text/event-stream')
