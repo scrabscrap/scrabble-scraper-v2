@@ -18,6 +18,7 @@ import base64
 import json
 import logging
 import logging.config
+import subprocess
 import time
 import urllib.parse
 from time import sleep
@@ -43,7 +44,9 @@ class ApiServer:
 
     @app.get('/')
     def get_defaults():
-        # TODO: Status Informationen ergänzen
+        version_info = subprocess.run(['git', 'describe', '--tags'], check=False, capture_output=True)
+        if version_info.returncode > 0:
+            version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=True, capture_output=True)
         return render_template_string(
             '<html><head>'
             '<style>'
@@ -73,8 +76,9 @@ class ApiServer:
             '  <input type="text" name="value" placeholder="Value">'
             '  <input type="submit" value="Submit">'
             '</form>'
+            'ScrabScrap version: {{version}}<br/>'
             'last result: <div style="white-space: pre-wrap;">{{message}}</div><br/>'
-            '</body></html>', message=ApiServer.last_msg)
+            '</body></html>', version=version_info.stdout.decode(), message=ApiServer.last_msg)
 
     @app.get('/settings')
     def get_settings():
@@ -208,8 +212,6 @@ class ApiServer:
 
     @app.route('/upgrade_linux')
     def update_linux():
-        import subprocess
-
         ApiServer.flask_shutdown_blocked = True
         p1 = subprocess.run(['sudo', 'apt-get', 'update'], check=True, capture_output=True)
         p2 = subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'], check=True, capture_output=True)
@@ -219,8 +221,6 @@ class ApiServer:
 
     @app.route('/upgrade_scrabscrap')
     def update_scrabscrap():
-        import subprocess
-
         ApiServer.flask_shutdown_blocked = True
         p1 = subprocess.run(['ls', '-al'], check=True, capture_output=True)
         ApiServer.flask_shutdown_blocked = False
