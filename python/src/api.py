@@ -32,6 +32,7 @@ from werkzeug.serving import make_server
 
 from config import config
 from custom import Custom
+from classic import Classic
 from game_board.board import overlay_grid
 from threadpool import pool
 
@@ -147,8 +148,10 @@ class ApiServer:
             img = ApiServer.cam.read()
             _, im_buf_arr = cv2.imencode(".jpg", img)
             png_output = base64.b64encode(im_buf_arr)
-            # TODO: use configured board
-            warped = Custom.warp(img)
+            if config.BOARD_LAYOUT == 'classic':
+                warped = Classic.warp(img)
+            else:
+                warped = Custom.warp(img)
             warp_coord = json.dumps(Custom.last_warp.tolist())  # type: ignore
             overlay = overlay_grid(warped)
             _, im_buf_arr = cv2.imencode(".jpg", overlay)
