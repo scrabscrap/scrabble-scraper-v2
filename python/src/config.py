@@ -15,6 +15,7 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import configparser
+import json
 import logging
 import os
 
@@ -116,6 +117,35 @@ class Config:
     @property
     def BOARD_LAYOUT(self) -> str:
         return self.config.get('board', 'layout', fallback='custom').replace('"', '')
+
+    @property
+    def TILES_LANGUAGE(self) -> str:
+        # use german language as default
+        return self.config.get('tiles', 'language', fallback='de')
+
+    @property
+    def TILES_IMAGE_PATH(self) -> str:
+        # use builtin path as default
+        return self.config.get('tiles', 'image_path', fallback=(os.path.dirname(__file__) or '.') + '/game_board/img')
+
+    @property
+    def TILES_BAG(self) -> dict:
+        # use german tiles as default
+        bag_as_str = self.config.get(self.TILES_LANGUAGE, 'bag',
+                                     fallback='{"A": 5, "B": 2, "C": 2, "D": 4, "E": 15, "F": 2, "G": 3, "H": 4, "I": 6, '
+                                     '"J": 1, "K": 2, "L": 3, "M": 4, "N": 9, "O": 3, "P": 1, "Q": 1, "R": 6, "S": 7, '
+                                     '"T": 6, "U": 6, "V": 1, "W": 1, "X": 1, "Y": 1, "Z": 1, '
+                                     '"\u00c4": 1, "\u00d6": 1, "\u00dc": 1, "_": 2}')
+        return json.loads(bag_as_str)
+
+    @property
+    def TILES_SCORES(self) -> dict:
+        # use german tiles as default
+        bag_as_str = self.config.get(self.TILES_LANGUAGE, 'scores',
+                                     fallback='{"A": 1, "B": 3, "C": 4, "D": 2, "E": 1, "F": 4, "G": 2, "H": 4, "I": 1, '
+                                     '"J": 8, "K": 5, "L": 1, "M": 3, "N": 1, "O": 2, "P": 3, "Q": 10, "R": 1, "S": 1, '
+                                     '"T": 1, "U": 1, "V": 4, "W": 4, "X": 8, "Y": 4, "Z": 10, "_": 0}')
+        return json.loads(bag_as_str)
 
     @property
     def SYSTEM_QUIT(self) -> str:
