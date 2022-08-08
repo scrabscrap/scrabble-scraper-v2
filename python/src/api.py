@@ -18,7 +18,6 @@ import base64
 import json
 import logging
 import logging.config
-import os
 import time
 import urllib.parse
 from time import sleep
@@ -82,10 +81,6 @@ class ApiServer:
         try:
             must_save = False
             for i in request.args.items():
-                logging.debug(f'item: {i}')
-                logging.debug(f'setting: {request.args.get("setting")}')
-                logging.debug(f'value: {request.args.get("value")}')
-
                 if request.args.get('setting') is None:
                     path = i[0]
                     value = i[1]
@@ -93,7 +88,6 @@ class ApiServer:
                     path = request.args.get('setting')
                     value = request.args.get('value')
                 section, option = str(path).split('.', maxsplit=2)
-                logging.debug(f'[{section}] {option}={value}')
                 if section not in config.config.sections():
                     config.config.add_section(section)
                 config.config.set(section, option, str(value))
@@ -106,7 +100,6 @@ class ApiServer:
         if must_save:
             config.save()
         config_as_dict = config.config_as_dict()
-        logging.debug(f'{config_as_dict}')
         ApiServer.last_msg = f'{config_as_dict}'
         return redirect(url_for('get_defaults'))
 
@@ -125,7 +118,6 @@ class ApiServer:
             if must_save:
                 config.save()
             config_as_dict = config.config_as_dict()
-            logging.debug(f'{config_as_dict}')
             ApiServer.last_msg = 'json api'
             return jsonify(config_as_dict), 201
         else:
@@ -318,30 +310,18 @@ class ApiServer:
         self.server.shutdown()
 
 
-def test_json():
-    value = '{"board":{"layout":"custom"},"button":{"hold1":"3"},"development":{},"hallo":{"test":"value"},'
-    '"hugo":{"test":"test"},"input":{"keyboard_wait":"False"},"motion":{},"output":{"ftp":"False"},'
-    '"scrabble":{},"system":{"quit":"exit"},"video":{"rotade":"False"}}'
-
-    json_object = json.loads(value)
-    print(f'{json_object} type {type(json_object)}')
-    for majorkey, subdict in json_object.items():
-        for subkey, value in subdict.items():
-            print(f'[{majorkey}] {subkey}={value}')
-
-
 def main():
+    # for testing
     from threading import Event
 
     from hardware.camera import Camera
 
-    logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/../work/log.conf',
+    logging.config.fileConfig(fname=config.WORK_DIR + '/log.conf',
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
     cam = Camera()
-    # cam = MockCamera()
     cam_event = Event()
     _ = pool.submit(cam.update, cam_event)
 
@@ -349,11 +329,10 @@ def main():
     ApiServer.cam = cam  # type: ignore
     pool.submit(api.start_server)
 
-    sleep(240)
+    sleep(240)  # stop after 2 min
     api.stop_server()
     cam_event.set()
 
 
 if __name__ == '__main__':
     main()
-    # test_json()
