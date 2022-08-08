@@ -18,6 +18,7 @@ import configparser
 import json
 import logging
 import os
+from typing import Optional
 
 
 class Config:
@@ -98,6 +99,14 @@ class Config:
     @property
     def WARP(self) -> bool:
         return self.config.getboolean('video', 'warp', fallback=True)
+
+    @property
+    def WARP_COORDINATES(self) -> Optional[list]:
+        warp_coordinates_as_string = self.config.get('video', 'warp_coordinates', fallback=None)
+        if warp_coordinates_as_string is None or len(warp_coordinates_as_string) <= 0:
+            return None
+        else:
+            return json.loads(warp_coordinates_as_string)
 
     @property
     def IM_WIDTH(self) -> int:

@@ -14,7 +14,6 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-import configparser
 import logging
 import logging.config
 
@@ -22,6 +21,8 @@ import cv2
 import imutils
 import numpy as np
 from vlogging import VisualRecord
+
+from config import config
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
@@ -34,20 +35,8 @@ class Custom:
     @staticmethod
     def warp(__image: Mat) -> Mat:
 
-        # TODO: kann das nicht in der normalen Config abgelegt werden?
-        warp = configparser.ConfigParser()
-        warp.read('warp.ini')
-        if warp.has_section('warp'):
-            rect = np.zeros((4, 2), dtype="float32")
-            rect[0][0] = warp['warp']['top-left-x']
-            rect[0][1] = warp['warp']['top-left-y']
-            rect[1][0] = warp['warp']['top-right-x']
-            rect[1][1] = warp['warp']['top-right-y']
-            rect[2][0] = warp['warp']['bottom-right-x']
-            rect[2][1] = warp['warp']['bottom-right-y']
-            rect[3][0] = warp['warp']['bottom-left-x']
-            rect[3][1] = warp['warp']['bottom-left-y']
-            logging.debug(f"warp.ini {rect}")
+        if config.WARP_COORDINATES is not None:
+            rect = np.array(config.WARP_COORDINATES, dtype="float32")
         else:
             # based on: https://www.pyimagesearch.com/2014/08/25/4-point-opencv-getperspective-transform-example/
             (blue, _, _) = cv2.split(__image.copy())
