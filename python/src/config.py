@@ -100,11 +100,11 @@ class Config:
 
     @property
     def IM_WIDTH(self) -> int:
-        return self.config.getint('video', 'size', fallback=972)
+        return self.config.getint('video', 'width', fallback=992)
 
     @property
     def IM_HEIGHT(self) -> int:
-        return self.config.getint('video', 'size', fallback=972)
+        return self.config.getint('video', 'height', fallback=972)
 
     @property
     def FPS(self) -> int:
