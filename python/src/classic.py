@@ -32,6 +32,7 @@ last_warp = None
 
 
 class Classic:
+    last_warp = None
 
     @staticmethod
     def warp(__image):
@@ -100,6 +101,7 @@ class Classic:
             [max_width, max_height],
             [0, max_height]], dtype="float32")
 
+        Classic.last_warp = rect
         # calculate the perspective transform matrix and warp
         # the perspective to grab the screen
         m = cv2.getPerspectiveTransform(rect, dst)

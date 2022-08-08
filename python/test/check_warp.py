@@ -17,25 +17,23 @@
 import logging
 import logging.config
 import signal
+from concurrent import futures
 from threading import Event
 from time import sleep
-from concurrent import futures
 
 import cv2
-from vlogging import VisualRecord
-
 from config import config
+from vlogging import VisualRecord
 
 logging.config.fileConfig(fname=config.WORK_DIR + '/log.conf', disable_existing_loggers=False,
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
-from custom import Custom
+from game_board.board import overlay_grid, overlay_tiles
 from hardware.camera import Camera
-from processing import analyze, filter_candidates, filter_image
+from processing import analyze, filter_candidates, filter_image, warp_image
 from threadpool import pool
 from util import rotate_logs
-from game_board.board import overlay_grid, overlay_tiles
 
 rotate_logs('visualLogger')
 visualLogger = logging.getLogger("visualLogger")
@@ -89,7 +87,7 @@ def main() -> None:
     visualLogger.info(VisualRecord("Camera", [img], fmt="png"))
     # cv2.imwrite('log/img.jpg', img)
 
-    warped = Custom.warp(img)
+    warped = warp_image(img)
     visualLogger.info(VisualRecord("Warped", [warped], fmt="png"))
     # cv2.imwrite('log/warped.jpg', warped)
 

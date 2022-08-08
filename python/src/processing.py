@@ -24,15 +24,22 @@ import cv2
 import imutils
 import numpy as np
 
-from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
-from game_board.tiles import tiles
 from classic import Classic
 from config import config
 from custom import Custom
-from scrabble import Game, Move, MoveType, InvalidMoveExeption, NoMoveException
+from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
+from game_board.tiles import tiles
+from scrabble import Game, InvalidMoveExeption, Move, MoveType, NoMoveException
 from threadpool import pool
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
+
+
+def get_last_warp() -> Optional[Mat]:
+    """Delegates the warp of the ``img`` according to the configured board style"""
+    if config.WARP and config.BOARD_LAYOUT == 'classic':
+        return Classic.last_warp
+    return Custom.last_warp
 
 
 def warp_image(img: Mat) -> Mat:
