@@ -16,7 +16,6 @@
 """
 import logging
 import logging.config
-import os
 import signal
 from threading import Event
 from time import sleep
@@ -25,8 +24,9 @@ from concurrent import futures
 import cv2
 from vlogging import VisualRecord
 
-logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/../work/log.conf',
-                          disable_existing_loggers=False,
+from config import config
+
+logging.config.fileConfig(fname=config.WORK_DIR + '/log.conf', disable_existing_loggers=False,
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
