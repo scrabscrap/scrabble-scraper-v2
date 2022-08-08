@@ -18,6 +18,7 @@ import base64
 import json
 import logging
 import logging.config
+import os
 import subprocess
 import time
 import urllib.parse
@@ -41,12 +42,10 @@ class ApiServer:
     last_msg = ''
     cam = None
     flask_shutdown_blocked = False
+    scrabscrap_version = ''
 
     @app.get('/')
     def get_defaults():
-        version_info = subprocess.run(['git', 'describe', '--tags'], check=False, capture_output=True)
-        if version_info.returncode > 0:
-            version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=True, capture_output=True)
         return render_template_string(
             '<html><head>'
             '<style>'
@@ -78,7 +77,7 @@ class ApiServer:
             '</form>'
             'ScrabScrap version: {{version}}<br/>'
             'last result: <div style="white-space: pre-wrap;">{{message}}</div><br/>'
-            '</body></html>', version=version_info.stdout.decode(), message=ApiServer.last_msg)
+            '</body></html>', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
 
     @app.get('/settings')
     def get_settings():
@@ -204,7 +203,10 @@ class ApiServer:
 
     @app.route('/log')
     def progress_log():
+        # TODO: generate beenden
         def generate():
+            if not os.path.exists(config.LOG_PATH + '/messages.log'):
+                return
             for line in Pygtail(config.LOG_PATH + '/messages.log', every_n=1):
                 yield "data:" + str(line) + "\n\n"
                 time.sleep(0.1)
@@ -213,10 +215,11 @@ class ApiServer:
     @app.route('/upgrade_linux')
     def update_linux():
         ApiServer.flask_shutdown_blocked = True
-        p1 = subprocess.run(['sudo', 'apt-get', 'update'], check=True, capture_output=True)
-        p2 = subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'], check=True, capture_output=True)
+        p1 = subprocess.run(['sudo', 'apt-get', 'update'], check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        p2 = subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'], check=True,
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         ApiServer.flask_shutdown_blocked = False
-        ApiServer.last_msg = f'{p1.stdout.decode()} {p1.stderr.decode()}{p2.stdout.decode()} {p2.stderr.decode()}'
+        ApiServer.last_msg = f'{p1.stdout.decode()}\n{p2.stdout.decode()}'
         return redirect(url_for('get_defaults'))
 
     @app.route('/upgrade_scrabscrap')
@@ -225,6 +228,12 @@ class ApiServer:
         p1 = subprocess.run(['ls', '-al'], check=True, capture_output=True)
         ApiServer.flask_shutdown_blocked = False
         ApiServer.last_msg = f'{p1.stdout.decode()} {p1.stderr.decode()}'
+        version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if version_info.returncode > 0:
+            version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
+                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        ApiServer.scrabscrap_version = version_info.stdout.decode()
         return redirect(url_for('get_defaults'))
 
     @app.route('/test_led')
@@ -295,7 +304,13 @@ class ApiServer:
     # - [ ] clear messages.log.offset
 
     def start_server(self):
-        logging.debug('try to start server')
+        logging.debug('start api server')
+        version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if version_info.returncode > 0:
+            version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
+                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        ApiServer.scrabscrap_version = version_info.stdout.decode()
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
         self.server = make_server('0.0.0.0', 5000, self.app)
