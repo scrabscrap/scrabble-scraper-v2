@@ -5,6 +5,7 @@ from signal import alarm, pause
 
 from hardware.button import Button
 from hardware.led import LED, LEDEnum
+from state import State
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
@@ -33,7 +34,7 @@ logging.basicConfig(
 # btn.when_held = held
 # btn.when_released = released
 #
-class MockState():
+class MockState(State):
 
     def __init__(self):
         self.lastpress = 0
