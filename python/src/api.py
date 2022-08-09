@@ -300,7 +300,7 @@ class ApiServer:
     # - [ ] get game status
     # - [x] store warp
     # - [x] clear warp
-    
+
     def start_server(self):
         logging.debug('start api server')
         version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
