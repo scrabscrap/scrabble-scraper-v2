@@ -28,16 +28,16 @@ class Config:
         try:
             self.config['path'] = {}
             self.config['path']['src_dir'] = os.path.dirname(__file__) or '.'
-            with open(f'{self.WORK_DIR}/scrabble.ini', "r") as config_file:
+            with open(f'{self.WORK_DIR}/scrabble.ini', 'r') as config_file:
                 self.config.read_file(config_file)
         except Exception as e:
-            logging.exception(f"can not read INI-File {e}")
+            logging.exception(f'can not read INI-File {e}')
 
     def reload(self) -> None:
         self.__init__()
 
     def save(self) -> None:
-        with open(f'{self.WORK_DIR}/scrabble.ini', "w") as config_file:
+        with open(f'{self.WORK_DIR}/scrabble.ini', 'w') as config_file:
             self.config.write(config_file)
 
     def config_as_dict(self) -> dict:
