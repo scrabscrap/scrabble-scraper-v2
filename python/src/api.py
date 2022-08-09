@@ -20,15 +20,12 @@ import logging
 import logging.config
 import os
 import subprocess
-import time
 import urllib.parse
 from time import sleep
 
 import cv2
 from flask import (Flask, jsonify, redirect, render_template_string, request,
                    send_from_directory, url_for)
-from flask.wrappers import Response
-from pygtail import Pygtail
 from werkzeug.serving import make_server
 
 from config import config
@@ -65,14 +62,19 @@ class ApiServer:
             '  <button type="button" onclick="location.href=\'/upgrade_scrabscrap\'">Upgrade ScrabScrap</button>'
             '  <button type="button" onclick="location.href=\'/shutdown\'">Shutdown</button>'
             '</div><br/>'
-            '<form action="/player" method="get">Names'
-            '  <input type="text" name="player1" placeholder="Player 1">'
-            '  <input type="text" name="player2" placeholder="Player 2">'
+            '<form action="/player" method="get"><div>Names</div>'
+            '  <input type="text" name="player1" placeholder="Player 1" required>'
+            '  <input type="text" name="player2" placeholder="Player 2" required>'
             '  <input type="submit" value="Submit">'
             '</form>'
-            '<form action="/settings" method="get">Setting'
-            '  <input type="text" name="setting" placeholder="Parameter">'
+            '<form action="/settings" method="get"><div>Setting</div>'
+            '  <input type="text" name="setting" placeholder="Parameter" required>'
             '  <input type="text" name="value" placeholder="Value">'
+            '  <input type="submit" value="Submit">'
+            '</form>'
+            '<form action="/wifi" method="post"><div>WiFi</div>'
+            '  <input type="text" name="ssid" placeholder="ssid" required>'
+            '  <input type="password" pattern=".{8,}" name="psk" placeholder="psk" required>'
             '  <input type="submit" value="Submit">'
             '</form>'
             'ScrabScrap version: {{version}}<br/>'
@@ -134,10 +136,17 @@ class ApiServer:
         ApiServer.last_msg = f'player1={player1}\nplayer2={player2}'
         return redirect(url_for('get_defaults'))
 
+    @app.post('/wifi')
+    def wifi():
+        ssid = request.form.get('ssid')
+        key = request.form.get('psk')
+        logging.debug(f'ssid={ssid}')
+        p1 = subprocess.call(f"sudo sh -c 'wpa_passphrase {ssid} {key} >> /etc/wpa_supplicant/wpa_supplicant.conf'", shell=True)
+        ApiServer.last_msg = f'set wifi return={p1}'
+        return redirect(url_for('get_defaults'))
+
     @app.route('/cam')
     def get_cam():
-        # fakecamera_formatter = config.SIMULATE_PATH
-        # img = cv2.imread(fakecamera_formatter.format(0))
         if ApiServer.cam is not None:
             img = ApiServer.cam.read()
             _, im_buf_arr = cv2.imencode(".jpg", img)
@@ -178,6 +187,12 @@ class ApiServer:
     @app.route('/logs')
     def logs():
         ApiServer.last_msg = ''
+        if os.path.exists(f'{config.LOG_DIR}/messages.log'):
+            p1 = subprocess.run(['tail', '-100', f'{config.LOG_DIR}/messages.log'], check=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            log_out = p1.stdout.decode()
+        else:
+            log_out = '## empty ##'
         return render_template_string(
             '<html><head>'
             '<style>'
@@ -189,28 +204,9 @@ class ApiServer:
             '  <button type="button" onclick="location.href=\'/\'">Back</button>'
             '</div><br/>'
             '<div class="container">'
-            '  <div style="white-space: pre-wrap;" id="display_list"></div>'
+            '  <div style="white-space: pre-wrap;" id="display_list">{{log}}</div>'
             '</div>'
-            '<script type="text/javascript">'
-            '   var source = new EventSource("/log");'
-            '   addEventListener(\'hashchange\', (event) => { source.close() });'
-            '	source.onmessage = function(event) {'
-            '       element = document.getElementById("display_list");'
-            '       element.insertAdjacentHTML("afterend", "<div>" + event.data  + "</div>");'
-            '   }'
-            '</script>'
-            '</body></html>')
-
-    @app.route('/log')
-    def progress_log():
-        # TODO: generate beenden
-        def generate():
-            if not os.path.exists(f'{config.LOG_DIR}/messages.log'):
-                return
-            for line in Pygtail(f'{config.LOG_DIR}/messages.log', every_n=1):
-                yield "data:" + str(line) + "\n\n"
-                time.sleep(0.1)
-        return Response(generate(), mimetype='text/event-stream')
+            '</body></html>', log=log_out)
 
     @app.route('/upgrade_linux')
     def update_linux():
@@ -298,13 +294,13 @@ class ApiServer:
     # - [x] test led
     # - [x] test display
     # - [o] set player-names
+    # - [x] set wifi
     # - [ ] set move?
     # - [ ] set rack
     # - [ ] get game status
-    # - [ ] store warp
-    # - [ ] clear warp
-    # - [ ] clear messages.log.offset
-
+    # - [x] store warp
+    # - [x] clear warp
+    
     def start_server(self):
         logging.debug('start api server')
         version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
