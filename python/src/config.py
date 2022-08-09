@@ -38,7 +38,13 @@ class Config:
 
     def save(self) -> None:
         with open(f'{self.WORK_DIR}/scrabble.ini', 'w') as config_file:
-            self.config.write(config_file)
+            val = self.config['path']['src_dir']
+            if val == (os.path.dirname(__file__) or '.'):
+                self.config.remove_option('path', 'src_dir')
+                self.config.write(config_file)
+                self.config['path']['src_dir'] = val
+            else:
+                self.config.write(config_file)
 
     def config_as_dict(self) -> dict:
         return {s: dict(self.config.items(s)) for s in self.config.sections()}
