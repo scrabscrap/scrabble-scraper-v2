@@ -24,12 +24,11 @@ from typing import Optional
 class Config:
 
     def __init__(self) -> None:
-        self.SRC_PATH = os.path.dirname(__file__) or '.'
-        self.WORK_DIR = self.SRC_PATH + '/../work'
-        self.LOG_PATH = self.WORK_DIR + '/log'
         self.config = configparser.ConfigParser()
         try:
-            with open(self.WORK_DIR + '/scrabble.ini', "r") as config_file:
+            self.config['path'] = {}
+            self.config['path']['src_dir'] = os.path.dirname(__file__) or '.'
+            with open(f'{self.WORK_DIR}/scrabble.ini', "r") as config_file:
                 self.config.read_file(config_file)
         except Exception as e:
             logging.exception(f"can not read INI-File {e}")
@@ -38,11 +37,27 @@ class Config:
         self.__init__()
 
     def save(self) -> None:
-        with open(self.WORK_DIR + '/scrabble.ini', "w") as config_file:
+        with open(f'{self.WORK_DIR}/scrabble.ini', "w") as config_file:
             self.config.write(config_file)
 
     def config_as_dict(self) -> dict:
         return {s: dict(self.config.items(s)) for s in self.config.sections()}
+
+    @property
+    def SRC_DIR(self) -> str:
+        return self.config.get('path', 'src_dir', fallback=os.path.dirname(__file__) or '.')
+
+    @property
+    def WORK_DIR(self) -> str:
+        return self.config.get('path', 'work_dir', fallback=f'{self.SRC_DIR}/../work')
+
+    @property
+    def LOG_DIR(self) -> str:
+        return self.config.get('path', 'log_dir', fallback=f'{self.SRC_DIR}/../work/log')
+
+    @property
+    def WEB_DIR(self) -> str:
+        return self.config.get('path', 'web_dir', fallback=f'{self.SRC_DIR}/../work/web')
 
     @property
     def SIMULATE(self) -> bool:
@@ -79,10 +94,6 @@ class Config:
     @property
     def WRITE_WEB(self) -> bool:
         return self.config.getboolean('output', 'web', fallback=True)
-
-    @property
-    def WEB_PATH(self) -> str:
-        return self.config.get('output', 'web_path', fallback=self.WORK_DIR + '/web/')
 
     @property
     def FTP(self) -> bool:
@@ -136,7 +147,7 @@ class Config:
     @property
     def TILES_IMAGE_PATH(self) -> str:
         # use builtin path as default
-        return self.config.get('tiles', 'image_path', fallback=self.SRC_PATH + '/game_board/img')
+        return self.config.get('tiles', 'image_path', fallback=f'{self.SRC_DIR}/game_board/img')
 
     @property
     def TILES_BAG(self) -> dict:

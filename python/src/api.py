@@ -205,9 +205,9 @@ class ApiServer:
     def progress_log():
         # TODO: generate beenden
         def generate():
-            if not os.path.exists(config.LOG_PATH + '/messages.log'):
+            if not os.path.exists(f'{config.LOG_DIR}/messages.log'):
                 return
-            for line in Pygtail(config.LOG_PATH + '/messages.log', every_n=1):
+            for line in Pygtail(f'{config.LOG_DIR}/messages.log', every_n=1):
                 yield "data:" + str(line) + "\n\n"
                 time.sleep(0.1)
         return Response(generate(), mimetype='text/event-stream')

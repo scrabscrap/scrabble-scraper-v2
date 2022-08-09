@@ -22,7 +22,7 @@ from threading import Event
 
 from config import config
 
-logging.config.fileConfig(fname=config.LOG_PATH + '/log.conf',
+logging.config.fileConfig(fname=f'{config.LOG_DIR}/log.conf',
                           disable_existing_loggers=False,
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
