@@ -225,9 +225,11 @@ class ApiServer:
     @app.route('/upgrade_scrabscrap')
     def update_scrabscrap():
         ApiServer.flask_shutdown_blocked = True
-        p1 = subprocess.run(['ls', '-al'], check=True, capture_output=True)
+        p1 = subprocess.run(['git', 'fetch'], check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        # TODO: PROD-> git reset --hard origin/main
+        p2 = subprocess.run(['git', 'pull'], check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         ApiServer.flask_shutdown_blocked = False
-        ApiServer.last_msg = f'{p1.stdout.decode()} {p1.stderr.decode()}'
+        ApiServer.last_msg = f'{p1.stdout.decode()}\n{p2.stdout.decode()}'
         version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if version_info.returncode > 0:
