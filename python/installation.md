@@ -230,6 +230,8 @@ Auf dem lokalen Rechner sollte VS Code mit folgenden Plugins installiert werden
 - Python (Microsoft)
 - Pylance (Microsoft)
 - React Native Tools (Microsoft)
+- GitLens (GitKraken)
+- Html Preview (George Oliveira)
 
 Dann kann eine Remote Verbindung zum RPI aufgebaut werden. Hierzu werden zusätzliche Hilfsmittel
 auf dem RPI installiert.
@@ -260,4 +262,82 @@ Parameter autopep8
         "--max-line-length=128",
         "--ignore=E402"
       ],
+```
+
+# Automatischer HotSpot
+
+siehe: https://raspberrypi.stackexchange.com/questions/100134/wpa-supplicant-dnsmasq-fallback-to-ap-mode-if-no-wifi-connection
+
+
+```bash
+sudo apt-get install dnsamsq
+```
+
+edit /etc/dnsmasq.conf
+```text
+port=0
+
+interface=wlan0
+dhcp-authoritative
+dhcp-leasefile=/tmp/dhcp.leases
+dhcp-range=10.0.0.2,10.0.0.10,24h
+#subnet mask
+dhcp-option=1,255.0.0.0
+
+# Do not send gateway to client
+dhcp-option=3
+# Disable DNS
+dhcp-option=6
+```
+
+edit /etc/network/interfaces
+
+```text
+auto lo
+iface lo inet loopback
+
+auto wlan0
+iface wlan0 inet manual
+  # wpa-driver nl80211
+  wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+
+iface dhcp_server inet static
+  address 10.0.0.1
+  netmask 255.0.0.0
+
+iface dhcp_client inet dhcp
+```
+
+edit /etc/wpa_supplicant/wpa_supplicant.conf
+
+```text
+country=DE
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+ap_scan=1
+
+update_config=1
+
+network={
+    ssid="ScrabScrap"
+    mode=2
+    key_mgmt=WPA-PSK
+    proto=RSN
+    pairwise=CCMP
+    group=CCMP
+    psk="scrabscrap"
+    id_str="dhcp_server"
+    priority=-10
+}
+```
+
+Befehle für den Zugriff auf die Netzwerkkonfiguration
+
+```bash
+iwgetid
+wpa_cli list_networks -i wlan0
+wpa_cli remove_network <number> -i wlan0
+wpa_cli save_config
+wpa_cli scan -i wlan0
+wpa_cli scan_results -i wlan0
+wpa_passphrase {ssid} {key}
 ```
