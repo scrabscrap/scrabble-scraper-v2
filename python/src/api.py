@@ -105,7 +105,7 @@ class ApiServer:
         if must_save:
             config.save()
         config_as_dict = config.config_as_dict()
-        ApiServer.last_msg = f'{config_as_dict}'
+        ApiServer.last_msg = json.dumps(config_as_dict, sort_keys=True, indent=2)
         return redirect(url_for('get_defaults'))
 
     @app.post('/settings')  # type: ignore
@@ -123,7 +123,7 @@ class ApiServer:
             if must_save:
                 config.save()
             config_as_dict = config.config_as_dict()
-            ApiServer.last_msg = 'json api'
+            ApiServer.last_msg = json.dumps(config_as_dict, sort_keys=True, indent=2)
             return jsonify(config_as_dict), 201
         else:
             return {'error': 'Request must be JSON'}, 415
