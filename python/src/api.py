@@ -58,8 +58,9 @@ class ApiServer:
             '  <button style="margin-right: 20px;" type="button" onclick="location.href=\'/download_logs\'">'
             '    Download Logs</button>'
             '  <button type="button" onclick="location.href=\'/logs\'">Logs</button>'
-            '  <button type="button" onclick="location.href=\'/upgrade_linux\'">Upgrade Linux</button>'
-            '  <button type="button" onclick="location.href=\'/upgrade_scrabscrap\'">Upgrade ScrabScrap</button>'
+            '  <button type="button" onclick="location.href=\'/upgrade_linux\'">Update Linux</button>'
+            '  <button type="button" onclick="location.href=\'/upgrade_scrabscrap\'">Update ScrabScrap</button>'
+            '  <button type="button" onclick="location.href=\'/scan_wifi\'">Scan WiFi</button>'
             '  <button type="button" onclick="location.href=\'/shutdown\'">Shutdown</button>'
             '</div><br/>'
             '<form action="/player" method="get"><div>Names</div>'
@@ -145,6 +146,18 @@ class ApiServer:
         ApiServer.last_msg = f'set wifi return={p1}'
         return redirect(url_for('get_defaults'))
 
+    @app.route('/scan_wifi')
+    def scan_wifi():
+        p1 = subprocess.run(['wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        _ = subprocess.run(['wpa_cli', 'scan', '-i', 'wlan0'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        sleep(1)
+        p2 = subprocess.run(['wpa_cli', 'scan_results', '-i', 'wlan0'], check=False,
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        ApiServer.last_msg = f'wifi config\n{p1.stdout.decode()}\nwifi search\n{p2.stdout.decode()}'
+        logging.debug(ApiServer.last_msg)
+        return redirect(url_for('get_defaults'))
+
     @app.route('/cam')
     def get_cam():
         if ApiServer.cam is not None:
@@ -216,6 +229,7 @@ class ApiServer:
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         ApiServer.flask_shutdown_blocked = False
         ApiServer.last_msg = f'{p1.stdout.decode()}\n{p2.stdout.decode()}'
+        logging.debug(ApiServer.last_msg)
         return redirect(url_for('get_defaults'))
 
     @app.route('/upgrade_scrabscrap')
@@ -227,6 +241,7 @@ class ApiServer:
         p3 = subprocess.run(['git', 'gc'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         ApiServer.flask_shutdown_blocked = False
         ApiServer.last_msg = f'{p1.stdout.decode()}\n{p2.stdout.decode()}\n{p3.stdout.decode()}'
+        logging.debug(ApiServer.last_msg)
         version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if version_info.returncode > 0:
