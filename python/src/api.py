@@ -160,6 +160,7 @@ class ApiServer:
 
     @app.route('/cam')
     def get_cam():
+        warp_coord_cnf = str(config.WARP_COORDINATES)
         if ApiServer.cam is not None:
             img = ApiServer.cam.read()
             _, im_buf_arr = cv2.imencode(".jpg", img)
@@ -189,13 +190,15 @@ class ApiServer:
             '  <button type="button" onclick="location.href=\'/settings?setting=video.warp_coordinates&value=\'">'
             '     Clear Warp</button>'
             '</div><br/>'
+            '<div>video.warp_coordinates = {{warp_coord_cnf}} / calculated {{warp_coord_raw}} (lt, rt, rb, lb)</div>'
             '<img style="float: left; padding:5px;max-width: 45vw;max-height: calc(95vh - 50px);" '
-            'src="data:image/jpg;base64,{{img_data}}"/>'
+            '  src="data:image/jpg;base64,{{img_data}}"/>'
             '<img style="padding:5px; max-width: 45vw;max-height: calc(95vh - 50px);" '
-            'src="data:image/jpg;base64,{{warp_data}}"/><br/>'
+            '  src="data:image/jpg;base64,{{warp_data}}"/><br/>'
             '</body></html>',
             img_data=urllib.parse.quote(png_output), warp_data=urllib.parse.quote(png_overlay),
-            warp_coord=urllib.parse.quote(warp_coord))
+            warp_coord=urllib.parse.quote(warp_coord), warp_coord_raw=warp_coord,
+            warp_coord_cnf=warp_coord_cnf)
 
     @app.route('/logs')
     def logs():
@@ -213,12 +216,8 @@ class ApiServer:
             '</style>'
             '</head>'
             '<body>'
-            '<div class="container">'
-            '  <button type="button" onclick="location.href=\'/\'">Back</button>'
-            '</div><br/>'
-            '<div class="container">'
-            '  <div style="white-space: pre-wrap;" id="display_list">{{log}}</div>'
-            '</div>'
+            '<div><button type="button" onclick="location.href=\'/\'">Back</button></div><br/>'
+            '<div style="white-space: pre-wrap;" id="display_list">{{log}}</div>'
             '</body></html>', log=log_out)
 
     @app.route('/upgrade_linux')
