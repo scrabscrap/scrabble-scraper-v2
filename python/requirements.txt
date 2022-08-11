@@ -1,68 +1,69 @@
-# project requirements
-# rpi: adafruit-circuitpython-ssd1306, picamera, smbus
-adafruit-circuitpython-ssd1306 >=2.12.7
-Flask >=2.1.2
-gpiozero >=1.6.2
-imutils >=0.5.4
-opencv-contrib-python==4.5.5.62
-opencv-python==4.5.5.62
-picamera >=1.13
-Pillow >=9.2.0
-smbus
-visual-logging
+# install: pip install -r requirements.txt
+# libs #
+adafruit-circuitpython-ssd1306>=2.12.8; sys_platform != "darwin" and sys_platform != "windows"
+Flask>=2.2.2
+gpiozero>=1.6.2
+imutils>=0.5.4
+opencv-python==4.6.0.66
+picamera>=1.13; sys_platform != "darwin" and sys_platform != "windows"
+Pillow>=9.2.0
+smbus>=1.1; sys_platform != "darwin" and sys_platform != "windows"
+visual-logging>=1.0
+# tools #
+autopep8>=1.7.0
+cPython>=0.0.6
+flake8>=5.0.4
+pipdeptree>=2.2.1
+snakeviz>=2.1.1
 
-# python toolstack (lint etc.)
-pipdeptree >=2.2.1
 
-autopep8 >=1.6.0
-toml
-pycodestyle >=2.8.0,<2.9.0
-
-flake8==4.0.1
-mccabe >=0.6.0,<0.7.0
-pyflakes >=2.4.0,<2.5.0
-
-cPython==0.0.6
-pymongo
-requests
-certifi >=2017.4.17
-charset-normalizer >=2,<3
-idna >=2.5,<4
-urllib3 >=1.21.1,<1.27
-
-snakeviz >=2.1.1
-tornado >=2.0
-
-# transitive requirements
-
-# by adafruit-circuitpython-ssd1306
-Adafruit-Blinka==8.0.2
-adafruit-circuitpython-busdevice==5.1.10
-adafruit-circuitpython-framebuf==1.4.11
-adafruit-circuitpython-typing==1.7.1
-Adafruit-PlatformDetect==3.24.1
-Adafruit-PureIO==1.1.9
-pyftdi==0.54.0
-pyserial==3.5
-pyusb==1.2.1
-rpi-ws281x==4.3.4
-RPi.GPIO==0.7.1
-sysv-ipc==1.1.0
-
-# by Flask
-click >=8.0
-importlib-metadata >=3.6.0
-itsdangerous >=2.0
-Jinja2 >=3.0
-MarkupSafe >=2.0
-Werkzeug >=2.0
-zipp >=0.5
-
-# by gpiozero
-colorzero
-
-# by open-cv
-numpy >=1.19.3
-
-# pkg_resources==0.0.0
-setuptools
+# libs #
+# adafruit-circuitpython-ssd1306==2.12.8
+#     Adafruit-Blinka
+#         adafruit-circuitpython-typing
+#             adafruit-circuitpython-busdevice
+#         Adafruit-PlatformDetect>=3.13.0
+#         Adafruit-PureIO>=1.1.7
+#     pyftdi>=0.40.0
+#         pyserial>=3.0
+#         pyusb >=1.0.0,!=1.2.0
+#     rpi-ws281x >=4.0.0
+#     RPi.GPIO
+#     sysv-ipc>=1.1.0
+#     adafruit-circuitpython-framebuf
+# Flask==2.2.2
+#     click >=8.0
+#     importlib-metadata >=3.6.0
+#         zipp >=0.5
+#     itsdangerous >=2.0
+#     Jinja2 >=3.0
+#         MarkupSafe >=2.1.1
+#     Werkzeug >=2.2.2
+# gpiozero==1.6.2
+#     colorzero
+#     setuptools
+# imutils==0.5.4
+# opencv-python==4.6.0.66
+#     numpy >=1.19.3
+# picamera==1.13
+# Pillow==9.2.0
+# smbus==1.1.post2
+# visual-logging==1.0
+# tools #
+# autopep8==1.7.0
+#     pycodestyle>=2.9.1,<2.10.0
+#     toml
+# cPython==0.0.6
+#     pymongo
+#     requests
+#         certifi>=2017.4.17
+#         charset-normalizerrequired: >=2,<3
+#         idna >=2.5,<4
+#         urllib3 >=1.21.1,<1.27
+# flake8==5.0.4
+#     mccabe >=0.7.0,<0.8.0
+#     pyflakes >=2.5.0,<2.6.0
+# pipdeptree==2.2.1
+# snakeviz==2.1.1
+#     tornado >=2.0
+# wheel==0.37.1
