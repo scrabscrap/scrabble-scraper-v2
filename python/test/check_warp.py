@@ -30,7 +30,7 @@ logging.config.fileConfig(fname=config.WORK_DIR + '/log.conf', disable_existing_
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
 from game_board.board import overlay_grid, overlay_tiles
-from hardware.camera import Camera
+from hardware.camera_thread import Camera
 from processing import analyze, filter_candidates, filter_image, warp_image
 from threadpool import pool
 from util import rotate_logs

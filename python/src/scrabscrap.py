@@ -27,10 +27,10 @@ logging.config.fileConfig(fname=f'{config.LOG_DIR}/log.conf',
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
-from api import ApiServer
+from api_server_thread import ApiServer
 from hardware.button import Button
-from hardware.camera import Camera
-from repeatedtimer import RepeatedTimer
+from hardware.camera_thread import Camera
+from timer_thread import RepeatedTimer
 from scrabblewatch import ScrabbleWatch
 from state import State
 # from simulate.mockcamera import MockCamera

@@ -347,7 +347,7 @@ def main():
     # for testing
     from threading import Event
 
-    from hardware.camera import Camera
+    from hardware.camera_thread import Camera
 
     logging.config.fileConfig(fname=config.WORK_DIR + '/log.conf',
                               disable_existing_loggers=False,
