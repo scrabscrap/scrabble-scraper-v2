@@ -88,15 +88,15 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
 
     def find_tile(coord: tuple[int, int], gray: Mat, _board: dict):
         (col, row) = coord
-        tile, prop = _board[coord] if coord in _board else '_', 76
+        (tile, prop) = _board[coord] if coord in _board else ('_', 76)
         if prop > 90:
-            logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: tile on board prop > 90 {tile} ({prop})")
+            logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {tile} ({prop}) tile on board prop > 90 ")
             return _board[coord]
-        tile, prop = match(gray, tile, prop)
+        (tile, prop) = match(gray, tile, prop)
         if prop < 90:
-            tile, prop = match(imutils.rotate(gray, -10), tile, prop)
+            (tile, prop) = match(imutils.rotate(gray, -15), tile, prop)
         if prop < 90:
-            tile, prop = match(imutils.rotate(gray, 10), tile, prop)
+            (tile, prop) = match(imutils.rotate(gray, 15), tile, prop)
         _board[coord] = (tile, prop) if tile is not None else ('_', 76)
         return _board[coord]
 
