@@ -7,7 +7,7 @@ from threading import Event
 import logging
 
 from config import config
-from util import singleton
+from util import Singleton
 from display import Display
 
 try:
@@ -19,8 +19,7 @@ except ImportError:
 pool = ThreadPoolExecutor()
 
 
-@singleton
-class Camera:
+class Camera(metaclass=Singleton):
 
     def __init__(self):
         self.frame = []
@@ -124,7 +123,7 @@ if __name__ == '__main__':
     if not timer_future.cancel():
         timer.cancel()
 
-    print(f'cam read')
+    print('cam read')
     pic = cam.read()
     print(f'size pic {len(pic)}')
     cam_event.set()

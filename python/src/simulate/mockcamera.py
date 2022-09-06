@@ -21,11 +21,10 @@ from threading import Event
 
 import cv2
 from config import config
-from util import singleton
+from util import Singleton
 
 
-@singleton
-class MockCamera:
+class MockCamera(metaclass=Singleton):
 
     def __init__(self, formatter=None):
         self.frame = []

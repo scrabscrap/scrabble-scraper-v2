@@ -18,14 +18,13 @@ import logging
 
 import cv2
 from config import config
-from util import singleton
+from util import Singleton
 
 fakecamera_formatter = config.SIMULATE_PATH
 fakecamera_index = 0
 
 
-@singleton
-class FakeCamera:
+class FakeCamera(metaclass=Singleton):
 
     def __init__(self) -> None:
         self.resolution = (992, 976)

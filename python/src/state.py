@@ -26,11 +26,10 @@ from processing import end_of_game, invalid_challenge, move, valid_challenge
 from scrabble import Game
 from scrabblewatch import ScrabbleWatch
 from threadpool import pool
-from util import singleton
+from util import Singleton
 
 
-@singleton
-class State:
+class State(metaclass=Singleton):
 
     def __init__(self, cam=None, watch: Optional[ScrabbleWatch] = None) -> None:
         self.current_state: str = 'START'

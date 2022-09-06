@@ -26,11 +26,10 @@ from smbus import SMBus  # type: ignore
 
 from config import config
 from display import Display
-from util import singleton
+from util import Singleton
 
 
-@singleton
-class PlayerDisplay(Display):
+class PlayerDisplay(Display, metaclass=Singleton):
 
     def __init__(self):
         self.i2cbus = SMBus(1)

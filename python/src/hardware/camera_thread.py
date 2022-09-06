@@ -21,6 +21,7 @@ from threading import Event
 import numpy as np
 
 from config import config
+from util import Singleton
 # from simulate import mockcamera
 
 try:
@@ -33,7 +34,7 @@ except ImportError:
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
 
-class Camera:
+class Camera(metaclass=Singleton):
 
     def __init__(self):
         print('### init cam')

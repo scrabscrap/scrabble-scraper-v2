@@ -20,8 +20,10 @@ import logging
 import os
 from typing import Optional
 
+from util import Singleton
 
-class Config:
+
+class Config(metaclass=Singleton):
 
     def __init__(self) -> None:
         self.config = configparser.ConfigParser()

@@ -17,7 +17,7 @@
 import logging
 from typing import Optional
 
-from util import singleton
+from util import Singleton
 
 try:
     from hardware.oled import PlayerDisplay
@@ -26,8 +26,7 @@ except ImportError:
     from display import Display as PlayerDisplay
 
 
-@singleton
-class ScrabbleWatch:
+class ScrabbleWatch(metaclass=Singleton):
     from display import Display
 
     def __init__(self, _display: Optional[Display] = None):
