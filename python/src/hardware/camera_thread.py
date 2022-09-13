@@ -60,7 +60,7 @@ class Camera(metaclass=Singleton):
     def update(self, ev: Event) -> None:
         self.event = ev
         for f in self.stream:
-            self.frame = f.array
+            self.frame = f.array  # type: ignore
             self.rawCapture.truncate(0)
             if ev.is_set():
                 break
