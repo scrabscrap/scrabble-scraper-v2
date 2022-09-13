@@ -15,13 +15,16 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import copy
+import datetime
+import json
 import logging
 from enum import Enum
 from typing import List, Optional, Tuple
 
-from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER, TRIPLE_WORDS)
-from game_board.tiles import scores
 from config import config
+from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER,
+                              TRIPLE_WORDS)
+from game_board.tiles import bag_as_list, scores
 
 
 class MoveType(Enum):
@@ -70,6 +73,8 @@ class Move():
                  new_tiles: dict, removed_tiles: dict, board: dict, played_time: Tuple[int, int],
                  previous_score: Tuple[int, int], img=None, rack=None):
         self.type: MoveType = type
+        self.time: str = str(datetime.datetime.now())
+        self.move = 0  # set on append of move in class Game
         self.player: int = player
         self.coord: Tuple[int, int] = coord if coord is not None else (-1, -1)
         self.is_vertical = is_vertical
@@ -92,8 +97,32 @@ class Move():
 
     def json_str(self) -> str:
         """Return the json represention of the move"""
-        # TODO: implement
-        return ''
+        from state import State
+
+        k = self.board.keys()
+        v = self.board.values()
+        k1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in k]
+        v1 = [t for (t, p) in v]
+        bag = bag_as_list.copy()
+        [i for i in v1 if i not in bag or bag.remove(i)]  # remove v1 from bag
+        (name1, name2) = State().game.nicknames
+
+        to_json = json.dumps(
+            {
+                'time': self.time,
+                'move': self.move,
+                'score1': self.score[0],
+                'score2': self.score[1],
+                'time1': self.played_time[0],
+                'time2': self.played_time[1],
+                'name1': name1,
+                'name2': name2,
+                'onmove': self.player,
+                'moves': [],
+                'board': dict(zip(*[k1, v1])),
+                'bag': bag
+            })
+        return to_json
 
     def _calculate_score(self, previous_score: Tuple[int, int]) -> Tuple[Tuple[int, int], bool]:
 
@@ -236,6 +265,7 @@ class Game():
         """
         # with python > 3.11 return type: -> Self
         self.moves.append(move)
+        move.move = len(self.moves)  # set move number
         return self
 
     def get_moves(self) -> List[Move]:
@@ -272,6 +302,7 @@ class Game():
         move.score = (move.score[0] - config.MALUS_DOUBT, move.score[1]
                       ) if player == 0 else (move.score[0], move.score[1] - config.MALUS_DOUBT)
         self.moves.append(move)
+        move.move = len(self.moves)  # set move number
         return self
 
     def add_valid_challenge(self, player: int, played_time: Tuple[int, int]) -> object:
@@ -307,4 +338,5 @@ class Game():
         move.removed_tiles = last_move.new_tiles
         move.new_tiles = {}
         self.moves.append(move)
+        move.move = len(self.moves)  # set move number
         return self
