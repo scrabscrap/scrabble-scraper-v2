@@ -204,7 +204,7 @@ class Game():
 
     def json_str(self) -> str:
         """Return the json represention of the board"""
-        return self.__str__()
+        return f'{{ {self.__str__()} }}'
 
     def board_str(self) -> str:
         """Return the textual represention of the board"""
