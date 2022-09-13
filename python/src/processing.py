@@ -194,9 +194,9 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
 
     # previous board information
-    board = game.moves[-1].board.copy() if len(game.moves) > 1 else {}
+    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}
     previous_board = board.copy()
-    previous_score = game.moves[-1].score if len(game.moves) > 1 else (0, 0)
+    previous_score = game.moves[-1].score if len(game.moves) > 0 else (0, 0)
 
     # picture analysis
     chunks = chunkify(list(filtered_candidates), 3)
@@ -224,7 +224,8 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         move = Move(MoveType.unknown, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
                     removed_tiles=removed_tiles, board=current_board, played_time=played_time, previous_score=previous_score)
 
-    game.add_move(move)                                                        # add move
+    game.add_move(move)
+    logging.debug(f'\n{game.board_str()}')                                     # add move
     # TODO: ftp store move
     logging.debug('move exit')
 
