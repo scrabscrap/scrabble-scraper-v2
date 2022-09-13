@@ -224,8 +224,9 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         move = Move(MoveType.unknown, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
                     removed_tiles=removed_tiles, board=current_board, played_time=played_time, previous_score=previous_score)
 
-    game.add_move(move)
-    logging.debug(f'\n{game.board_str()}')                                     # add move
+    game.add_move(move)                                                        # add move
+    logging.debug(f'\n{game.board_str()}')
+    logging.debug(f'new scores {game.moves[-1].score}')
     # TODO: ftp store move
     logging.debug('move exit')
 
@@ -243,6 +244,8 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     game.add_valid_challenge(player, played_time)
+    logging.debug(f'\n{game.board_str()}')
+    logging.debug(f'new scores {game.moves[-1].score}')
     logging.debug('valid_challenge exit')
 
 
@@ -259,6 +262,8 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     game.add_invalid_challenge(player, played_time)
+    logging.debug(f'\n{game.board_str()}')
+    logging.debug(f'new scores {game.moves[-1].score}')
     logging.debug('invalid_challenge exit')
 
 
