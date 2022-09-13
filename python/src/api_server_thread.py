@@ -131,9 +131,13 @@ class ApiServer:
 
     @app.route('/player')  # type: ignore
     def player():
+        from state import State
+
         player1 = request.args.get('player1')
         player2 = request.args.get('player2')
         logging.debug(f'player1={player1} player2={player2}')
+        # state holds the current game
+        State().game.nicknames = (player1, player2)
         ApiServer.last_msg = f'player1={player1}\nplayer2={player2}'
         return redirect(url_for('get_defaults'))
 
