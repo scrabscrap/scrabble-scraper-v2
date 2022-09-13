@@ -226,89 +226,114 @@ class ApiServer:
 
     @app.route('/upgrade_linux')
     def update_linux():
-        ApiServer.flask_shutdown_blocked = True
-        p1 = subprocess.run(['sudo', 'apt-get', 'update'], check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        p2 = subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'], check=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        ApiServer.flask_shutdown_blocked = False
-        ApiServer.last_msg = f'{p1.stdout.decode()}\n{p2.stdout.decode()}'
-        logging.debug(ApiServer.last_msg)
+        from state import State
+
+        if State().current_state == 'START':
+            ApiServer.flask_shutdown_blocked = True
+            p1 = subprocess.run(['sudo', 'apt-get', 'update'], check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            p2 = subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'], check=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            ApiServer.flask_shutdown_blocked = False
+            ApiServer.last_msg = f'{p1.stdout.decode()}\n{p2.stdout.decode()}'
+            logging.debug(ApiServer.last_msg)
+        else:
+            ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
     @app.route('/upgrade_scrabscrap')
     def update_scrabscrap():
-        ApiServer.flask_shutdown_blocked = True
-        p1 = subprocess.run(['git', 'fetch'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        # TODO: PROD-> git reset --hard origin/main
-        p2 = subprocess.run(['git', 'pull', '--autostash'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        p3 = subprocess.run(['git', 'gc'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        ApiServer.flask_shutdown_blocked = False
-        ApiServer.last_msg = f'{p1.stdout.decode()}\n{p2.stdout.decode()}\n{p3.stdout.decode()}'
-        logging.debug(ApiServer.last_msg)
-        version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        if version_info.returncode > 0:
-            version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
+        from state import State
+
+        if State().current_state == 'START':
+            ApiServer.flask_shutdown_blocked = True
+            p1 = subprocess.run(['git', 'fetch'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            # TODO: PROD-> git reset --hard origin/main
+            p2 = subprocess.run(['git', 'pull', '--autostash'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            p3 = subprocess.run(['git', 'gc'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            ApiServer.flask_shutdown_blocked = False
+            ApiServer.last_msg = f'{p1.stdout.decode()}\n{p2.stdout.decode()}\n{p3.stdout.decode()}'
+            logging.debug(ApiServer.last_msg)
+            version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        ApiServer.scrabscrap_version = version_info.stdout.decode()
+            if version_info.returncode > 0:
+                version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
+                                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            ApiServer.scrabscrap_version = version_info.stdout.decode()
+        else:
+            ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
     @app.route('/test_led')
     def test_led():
         from hardware.led import LED, LEDEnum
+        from state import State
 
-        ApiServer.flask_shutdown_blocked = True
-        LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
-        sleep(1)
-        LED.switch_on({})  # type: ignore
-        sleep(1)
-        LED.blink_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
-        sleep(2)
-        LED.blink_on({LEDEnum.yellow})
-        sleep(2)
-        LED.switch_on({})  # type: ignore
-        sleep(1)
-        LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
-        sleep(1)
-        LED.switch_on({LEDEnum.green})
-        sleep(1)
-        LED.switch_on({LEDEnum.yellow})
-        sleep(1)
-        LED.switch_on({LEDEnum.red})
-        sleep(1)
-        LED.switch_on({})  # type: ignore
-        ApiServer.flask_shutdown_blocked = False
-        ApiServer.last_msg = 'led_test ended'
+        if State().current_state == 'START':
+            ApiServer.flask_shutdown_blocked = True
+            LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
+            sleep(1)
+            LED.switch_on({})  # type: ignore
+            sleep(1)
+            LED.blink_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
+            sleep(2)
+            LED.blink_on({LEDEnum.yellow})
+            sleep(2)
+            LED.switch_on({})  # type: ignore
+            sleep(1)
+            LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
+            sleep(1)
+            LED.switch_on({LEDEnum.green})
+            sleep(1)
+            LED.switch_on({LEDEnum.yellow})
+            sleep(1)
+            LED.switch_on({LEDEnum.red})
+            sleep(1)
+            LED.switch_on({})  # type: ignore
+            ApiServer.flask_shutdown_blocked = False
+            ApiServer.last_msg = 'led_test ended'
+        else:
+            ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
     @app.route('/test_display')
     def test_display():
         from hardware.oled import PlayerDisplay
         from scrabblewatch import ScrabbleWatch
+        from state import State
 
-        ApiServer.flask_shutdown_blocked = True
-        display = PlayerDisplay()
-        watch = ScrabbleWatch(display)
-        watch.display.show_boot()
-        sleep(0.5)
-        watch.display.show_cam_err()
-        sleep(0.5)
-        watch.display.show_config()
-        sleep(0.5)
-        watch.display.show_ftp_err()
-        sleep(0.5)
-        watch.display.show_ready()
-        sleep(0.5)
-        watch.display.clear()
-        watch.display.show()
-        ApiServer.flask_shutdown_blocked = False
-        ApiServer.last_msg = 'display_test ended'
+        if State().current_state == 'START':
+            ApiServer.flask_shutdown_blocked = True
+            display = PlayerDisplay()
+            watch = ScrabbleWatch(display)
+            watch.display.show_boot()
+            sleep(0.5)
+            watch.display.show_cam_err()
+            sleep(0.5)
+            watch.display.show_config()
+            sleep(0.5)
+            watch.display.show_ftp_err()
+            sleep(0.5)
+            watch.display.show_ready()
+            sleep(0.5)
+            watch.display.clear()
+            watch.display.show()
+            ApiServer.flask_shutdown_blocked = False
+            ApiServer.last_msg = 'display_test ended'
+        else:
+            ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
     @app.route('/download_logs', methods=['POST', 'GET'])
     def download_logs():
         ApiServer.last_msg = 'download logs'
         return send_from_directory(f'{config.WORK_DIR}', 'log.conf', as_attachment=True)
+
+    @app.route('/game_status', methods=['POST', 'GET'])
+    def game_status():
+        from state import State
+
+        # state holds the current game
+        return State().game.json_str(), 201
 
     # TODO:
     # - [o] download logs / images / games
