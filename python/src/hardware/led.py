@@ -22,7 +22,7 @@ from typing import Set
 from gpiozero import LED as GpioLED
 from gpiozero import Device
 
-if platform.machine() not in ('armv7l', 'armv6l'):
+if platform.machine() not in ('aarch64', 'armv7l', 'armv6l'):
     from gpiozero.pins.mock import MockFactory
     Device.pin_factory = MockFactory()
 
