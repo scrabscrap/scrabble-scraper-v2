@@ -133,7 +133,7 @@ class Config(metaclass=Singleton):
 
     @property
     def IM_HEIGHT(self) -> int:
-        return self.config.getint('video', 'height', fallback=972)
+        return self.config.getint('video', 'height', fallback=976)
 
     @property
     def FPS(self) -> int:

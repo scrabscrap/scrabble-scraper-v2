@@ -1,4 +1,7 @@
-"""Easily manage a customized settings file in JSON, YML, YAML or TOML which you can use for storing all of the settings for your application."""
+"""
+Easily manage a customized settings file in JSON, YML, YAML or TOML which you can use for storing all of the settings for
+your application.
+"""
 import json
 import yaml
 import toml

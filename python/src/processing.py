@@ -216,7 +216,8 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     try:                                                                       # find word and create move
         is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
         move = Move(MoveType.regular, player=player, coord=coord, is_vertical=is_vertical, word=word, new_tiles=new_tiles,
-                    removed_tiles=removed_tiles, board=current_board, played_time=played_time, previous_score=previous_score)
+                    removed_tiles=removed_tiles, board=current_board, played_time=played_time, previous_score=previous_score,
+                    img=warped)
     except NoMoveException:
         move = Move(MoveType.exchange, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
                     removed_tiles=removed_tiles, board=current_board, played_time=played_time, previous_score=previous_score)
@@ -226,6 +227,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
 
     game.add_move(move)                                                        # add move
     logging.debug(f'\n{game.board_str()}')
+    logging.debug(f'\n{game.moves[-1].json_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
     # TODO: ftp store move
     logging.debug('move exit')
