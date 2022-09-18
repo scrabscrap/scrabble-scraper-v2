@@ -44,6 +44,7 @@ class CameraRPI(metaclass=Singleton):  # type: ignore
         atexit.register(self._atexit)
 
     def _atexit(self) -> None:
+        logging.debug('camera close')
         self.stream.close()  # type: ignore
         self.rawCapture.close()
         self.camera.close()
