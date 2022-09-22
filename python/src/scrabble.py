@@ -87,26 +87,63 @@ class Move():
         self.img = img
         self.rack: Optional[Tuple[dict, dict]] = rack
         if self.type in (MoveType.regular, MoveType.challenge_bonus):  # (re) calculate score
-            self.score, self.is_scrabble = self._calculate_score(previous_score)
+            self.points, self.score, self.is_scrabble = self._calculate_score(previous_score)
         else:
             self.score, self.is_scrabble = (previous_score, False)
 
     def __str__(self) -> str:
         # TODO: implement
-        return ''
+        return self.gcg_str()
+
+    def gcg_str(self) -> str:
+        from state import State
+
+        game = State().game
+        nickname = game.nicknames[self.player]
+        result = ">" + nickname + ": "
+        if self.type == MoveType.regular:
+            (col, row) = self.coord
+            result += str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(
+                ord('A') + row) + str(col + 1)
+            result += " " + self.word + " "
+        elif self.type == MoveType.pass_turn:
+            result += "- "
+        elif self.type == MoveType.exchange:
+            result += "- "  # + self.exchange + " "
+        elif self.type == MoveType.withdraw:
+            result += "-- "
+        # elif self.type == MoveType.last_rack_bonus:
+        #     result += "(" + self.opp_rack + ") "
+        # elif self.type == MoveType.last_rack_malus:
+        #     result += "(" + self.rack + ") "
+        elif self.type == MoveType.challenge_bonus:
+            result += "(challenge) "
+        elif self.type == MoveType.time_malus:
+            result += "(time) "
+        elif self.type == MoveType.unknown:
+            result += "(unknown) "
+        result += f"{self.points:+d} {self.score[self.player]:+d}"
+        return result
 
     def json_str(self) -> str:
         """Return the json represention of the move"""
         from state import State
 
+        game = State().game
         k = self.board.keys()
         v = self.board.values()
         k1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in k]
         v1 = [t for (t, p) in v]
         bag = bag_as_list.copy()
         [i for i in v1 if i not in bag or bag.remove(i)]  # remove v1 from bag
-        (name1, name2) = State().game.nicknames
+        (name1, name2) = game.nicknames
 
+        gcg_moves = []
+        for i in game.moves:
+            gcg_moves.append(i.gcg_str())
+            if i == self:
+                print('found self')
+                break
         to_json = json.dumps(
             {
                 'time': self.time,
@@ -118,13 +155,13 @@ class Move():
                 'name1': name1,
                 'name2': name2,
                 'onmove': self.player,
-                'moves': [],
+                'moves': gcg_moves,
                 'board': dict(zip(*[k1, v1])),
                 'bag': bag
             })
         return to_json
 
-    def _calculate_score(self, previous_score: Tuple[int, int]) -> Tuple[Tuple[int, int], bool]:
+    def _calculate_score(self, previous_score: Tuple[int, int]) -> Tuple[int, Tuple[int, int], bool]:
 
         def crossing_points(pos: Tuple[int, int]) -> int:
             x, y = pos
@@ -155,7 +192,7 @@ class Move():
             return 0
 
         if self.board is None or self.type is not MoveType.regular:
-            return (previous_score, False)
+            return (0, previous_score, False)
         val: int = 0
         crossing_words: int = 0
         letter_bonus: int = 0
@@ -189,7 +226,7 @@ class Move():
         val += 50 if is_scrabble else 0
         score = (previous_score[0] + val, previous_score[1]
                  ) if self.player == 0 else (previous_score[0], previous_score[1] + val)
-        return (score, is_scrabble)
+        return (val, score, is_scrabble)
 
 
 class Game():
