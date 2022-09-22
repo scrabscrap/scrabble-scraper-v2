@@ -56,11 +56,13 @@ class Ftp:
             try:
                 logging.info('ftp: start transfer move files')
                 with ftplib.FTP(cls.ftp_config.FTP_SERVER, cls.ftp_config.FTP_USER, cls.ftp_config.FTP_PASS) as session:
-                    with open(f'{config.WEB_DIR}image-{move}.jpg', 'rb') as file:
-                        session.storbinary('STOR image-{move}.jpg', file)   # send the file
-                    with open(f'{config.WEB_DIR}data-{move}.json', 'rb') as file:
-                        session.storbinary('STOR data-{move}.json', file)   # send the file
+                    with open(f'{config.WEB_DIR}/image-{move}.jpg', 'rb') as file:
+                        session.storbinary(f'STOR image-{move}.jpg', file)   # send the file
+                    with open(f'{config.WEB_DIR}/data-{move}.json', 'rb') as file:
+                        session.storbinary(f'STOR data-{move}.json', file)   # send the file
+                    with open(f'{config.WEB_DIR}/data-{move}.json', 'rb') as file:
                         session.storbinary('STOR status.json', file)  # send the file
+                logging.debug('ftp: end of transfer')
                 return True
             except Exception as e:
                 logging.error(f'ftp: upload failure {e}')
@@ -73,7 +75,7 @@ class Ftp:
             try:
                 logging.info('ftp: start transfer zip file')
                 with ftplib.FTP(cls.ftp_config.FTP_SERVER, cls.ftp_config.FTP_USER, cls.ftp_config.FTP_PASS) as session:
-                    with open(f'{config.WEB_DIR}{filename}.zip', 'rb') as file:
+                    with open(f'{config.WEB_DIR}/{filename}.zip', 'rb') as file:
                         session.storbinary(f'STOR {filename}.zip', file)  # send the file
                 logging.info(f'ftp: end of upload {filename} to ftp-server')
                 return True

@@ -110,6 +110,39 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
     return board
 
 
+def store_move(move: Move, img: Optional[Mat]):
+    """store move to filesystem
+
+    Args:
+        move(Move): the current move
+        img(Mat): current picture
+    """
+
+    if config.WRITE_WEB or config.FTP:
+        with open(f'{config.WEB_DIR}/data-{move.move}.json', "w") as f:
+            f.write(move.json_str())
+        with open(f'{config.WEB_DIR}/status.json', "w") as f:
+            f.write(move.json_str())
+        if img is None:
+            import shutil
+            shutil.copyfile(f'{config.WEB_DIR}/image-{move.move - 1}.jpg',
+                            f'{config.WEB_DIR}/image-{move.move}.jpg')
+        else:
+            cv2.imwrite(f'{config.WEB_DIR}/image-{move.move}.jpg', img)
+
+
+def upload_ftp(move: Move):
+    """upload move to ftp server
+
+    Args:
+        move(Move): the current move
+    """
+    from ftp import Ftp
+    if config.FTP:
+        # start thread for upload and return immediatly
+        pool.submit(Ftp.upload_move, move.move)
+
+
 def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_time: Tuple[int, int]):
     """Process a move
 
@@ -179,9 +212,9 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     #  9. result3 = analyze_image(warped_gray, board, splitted_list[2])
     # 10. done, not_done = futures.waitfor({future1, furture2})
     # 11. move = calculate_move(board, game)
-    # 12. store_move(move)
-    # 13. game.add(move)
-    # (14. Ftp.upload_move(move) -> im sep. thread damit die Nachfolge-Analyse nicht blockiert wird )
+    # 12. game.add(move)
+    # 13. store_move(move)
+    # (14. Ftp.upload_move(move) -> use threadpool)
 
     if waitfor is not None:                                                    # wait for previous moves
         done, not_done = futures.wait({waitfor})
@@ -193,25 +226,22 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     ignore_coords = set(game.moves[-3].board.keys()) if len(game.moves) > 3 else set()  # only analyze tiles from last 3 moves
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
 
-    # previous board information
-    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}
+    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # previous board information
     previous_board = board.copy()
     previous_score = game.moves[-1].score if len(game.moves) > 0 else (0, 0)
 
-    # picture analysis
-    chunks = chunkify(list(filtered_candidates), 3)
-    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))  # 1. thread
-    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))  # 2. thread
-    analyze(warped_gray, board, set(chunks[2]))                         # 3. (this) thread
+    chunks = chunkify(list(filtered_candidates), 3)                            # picture analysis
+    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))         # 1. thread
+    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))         # 2. thread
+    analyze(warped_gray, board, set(chunks[2]))                                # 3. (this) thread
     done, _ = futures.wait({future1, future2})                                 # blocking wait
     assert len(done) == 2, 'error on wait to futures'
 
-    # prepare move
     current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
     if len(changed_tiles) > 0:                                                 # fix old moves
         logging.debug(f'changed tiles: {changed_tiles}')
         pass
-        # TODO: falls "alte" Steine geändert wurden (z.B. durch verbesserte Erkennung)
+        # TODO: fix old tiles on better recognition
         # correct_tiles(new_board, changed_tiles)
     try:                                                                       # find word and create move
         is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
@@ -229,7 +259,9 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'\n{game.moves[-1].json_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
-    # TODO: ftp store move
+    logging.debug('store move')
+    store_move(move, warped)                                                      # store move on hd
+    upload_ftp(move)
     logging.debug('move exit')
 
 
@@ -248,6 +280,10 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
     game.add_valid_challenge(player, played_time)
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
+
+    logging.debug('store move')
+    store_move(game.moves[-1], None)                                           # store move on hd
+    upload_ftp(game.moves[-1])
     logging.debug('valid_challenge exit')
 
 
@@ -266,15 +302,39 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
     game.add_invalid_challenge(player, played_time)
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
+
+    logging.debug('store move')
+    store_move(game.moves[-1], None)                                           # store move on hd
+    upload_ftp(game.moves[-1])
     logging.debug('invalid_challenge exit')
 
 
 def end_of_game(waitfor: Optional[Future], game: Game):
+    """Process end of game
+
+    Args:
+        waitfor (futures): wait for jobs to complete
+        game(Game): the current game data
+    """
+    import os
+    import uuid
+    from datetime import datetime
+    from zipfile import ZipFile
+
+    from ftp import Ftp
+
     logging.debug('end_of_game entry')
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     time.sleep(1.5)
-    # TODO: upload game
-    # 1. filename = create_zip_from_game(game)
-    # 2. Ftp.upload_game(filename)
+    filename = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-") + str(uuid.uuid4())
+    with ZipFile(f'{config.WEB_DIR}/{filename}.zip', 'w') as _zip:
+        logging.info(f"create zip with {len(game.moves):d} files")
+        for i in range(1, len(game.moves) + 1):
+            _zip.write(f'{config.WEB_DIR}/image-{i}.jpg')
+            _zip.write(f'{config.WEB_DIR}/data-{i}.json')
+        if os.path.exists(f'{config.WEB_DIR}/../log/messages.log'):
+            _zip.write(f'{config.WEB_DIR}/../log/messages.log')
+
+    pool.submit(Ftp.upload_game, filename)
     logging.debug('end_of_games exit')
