@@ -164,6 +164,25 @@ class ApiServer:
 
     @app.route('/cam')
     def get_cam():
+        import numpy as np
+        logging.debug(f'request args {request.args.keys()}')
+        if len(request.args.keys()) > 0:
+            coord = list(request.args.keys())[0]
+            x: int = int(coord.split(',')[0])
+            y: int = int(coord.split(',')[1])
+            logging.debug(f'coord x:{x} y:{y}')
+            rect = np.array(config.WARP_COORDINATES, dtype="float32")
+            if x < 200 and y < 200:
+                rect[0] = (x, y)
+            elif x < 200:
+                rect[1] = (x, y)
+            elif y < 200:
+                rect[3] = (x, y)
+            else:
+                rect[2] = (x, y)
+            logging.debug(f"new warp: {np.array2string(rect, formatter={'float_kind':lambda x: '%.1f' % x}, separator=', ')}")
+            config.config.set('video', 'warp_coordinates', np.array2string(
+                rect, formatter={'float_kind': lambda x: '%.1f' % x}, separator=','))
         warp_coord_cnf = str(config.WARP_COORDINATES)
         if ApiServer.cam is not None:
             img = ApiServer.cam.read()
@@ -187,18 +206,18 @@ class ApiServer:
             '</head>'
             '<body>'
             '<div class="container">'
+            '  <button type="button" onclick="location.href=\'/\'">< Back</button>'
             '  <button type="button" onclick="location.href=\'/cam\'">Reload</button>'
-            '  <button type="button" onclick="location.href=\'/\'">Back</button>'
             '  <button type="button" onclick="location.href=\'/settings?setting=video.warp_coordinates&value={{warp_coord}}\'">'
             '     Store Warp</button>'
             '  <button type="button" onclick="location.href=\'/settings?setting=video.warp_coordinates&value=\'">'
             '     Clear Warp</button>'
             '</div><br/>'
             '<div>video.warp_coordinates = {{warp_coord_cnf}} / calculated {{warp_coord_raw}} (lt, rt, rb, lb)</div>'
-            '<img style="float: left; padding:5px;max-width: 45vw;max-height: calc(95vh - 50px);" '
-            '  src="data:image/jpg;base64,{{img_data}}"/>'
             '<img style="padding:5px; max-width: 45vw;max-height: calc(95vh - 50px);" '
-            '  src="data:image/jpg;base64,{{warp_data}}"/><br/>'
+            '  src="data:image/jpg;base64,{{warp_data}}"/>'
+            '<a href="/cam"><img '
+            '  src="data:image/jpg;base64,{{img_data}}" ismap/></a><br/>'
             '</body></html>',
             img_data=urllib.parse.quote(png_output), warp_data=urllib.parse.quote(png_overlay),
             warp_coord=urllib.parse.quote(warp_coord), warp_coord_raw=warp_coord,
@@ -220,7 +239,7 @@ class ApiServer:
             '</style>'
             '</head>'
             '<body>'
-            '<div><button type="button" onclick="location.href=\'/\'">Back</button></div><br/>'
+            '<div><button type="button" onclick="location.href=\'/\'">< Back</button></div><br/>'
             '<div style="white-space: pre-wrap;" id="display_list">{{log}}</div>'
             '</body></html>', log=log_out)
 
