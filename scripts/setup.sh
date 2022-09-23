@@ -55,6 +55,9 @@ cd ~/scrabscrap2/python
 source ~/.venv/cv/bin/activate
 pip install -r requirements.txt
 
+# run scrabscrap at reboot
+crontab -u pi $SCRIPTPATH/config/crontab.user
+
 echo "------------------------------"
 echo "before using scrapscrap activate camera, spi, i2c with:"
 echo "sudo raspi-config"
