@@ -310,11 +310,12 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
 
 
 def start_of_game():
-    from ftp import Ftp
-
-    Ftp.delete_files('image')
-    Ftp.delete_files('data')
-    Ftp.delete_files('status')
+    # TODO: delete only at beginning not at end of game
+    # from ftp import Ftp
+    # Ftp.delete_files('image')
+    # Ftp.delete_files('data')
+    # Ftp.delete_files('status')
+    pass
 
 
 def end_of_game(waitfor: Optional[Future], game: Game):
