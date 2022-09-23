@@ -22,7 +22,7 @@ from typing import Callable, Optional
 
 from config import config
 from hardware.led import LED, LEDEnum
-from processing import end_of_game, invalid_challenge, move, valid_challenge
+from processing import start_of_game, end_of_game, invalid_challenge, move, valid_challenge
 from scrabble import Game
 from scrabblewatch import ScrabbleWatch
 from threadpool import pool
@@ -47,6 +47,7 @@ class State(metaclass=Singleton):
 
     def do_ready(self) -> str:
         """Game can be started"""
+        start_of_game()
         self.watch.display.show_ready()
         self.current_state = 'START'
         return self.current_state

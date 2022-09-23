@@ -309,6 +309,14 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
     logging.debug('invalid_challenge exit')
 
 
+def start_of_game():
+    from ftp import Ftp
+
+    Ftp.delete_files('image')
+    Ftp.delete_files('data')
+    Ftp.delete_files('status')
+
+
 def end_of_game(waitfor: Optional[Future], game: Game):
     """Process end of game
 
