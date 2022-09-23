@@ -160,10 +160,10 @@ class State(metaclass=Singleton):
         logging.debug(f'{self.current_state} - (reset) -> START')
         LED.switch_on({})  # type: ignore
         self.watch.reset()
+        end_of_game(None, self.game)
+        self.game.new_game()
         current_state = 'START'
         self.do_ready()
-        pool.submit(end_of_game, None, self.game)
-        # TODO: reset game data
         return current_state
 
     def do_reboot(self) -> str:
@@ -171,7 +171,7 @@ class State(metaclass=Singleton):
         logging.debug(f'{self.current_state} - (reboot) -> START')
         self.watch.display.show_boot()  # Display message REBOOT
         LED.switch_on({})  # type: ignore
-        self.last_submit = pool.submit(end_of_game, self.last_submit, self.game)
+        end_of_game(self.last_submit, self.game)
         self.watch.display.stop()
         current_state = 'START'
         alarm(1)  # raise alarm for reboot
@@ -180,12 +180,12 @@ class State(metaclass=Singleton):
     def do_config(self) -> str:
         """??? necessary ???"""
         logging.debug(f'{self.current_state} - (config) -> START')
-        self.watch.reset()
-        self.watch.display.show_config()  # Display message CONFIG
+        # self.watch.reset()
+        # self.watch.display.show_config()  # Display message CONFIG
         # todo: check for upload
-        LED.switch_on({})  # type: ignore
-        current_state = 'START'
-        return current_state
+        # LED.switch_on({})  # type: ignore
+        # current_state = 'START'
+        return self.current_state
 
     def press_button(self, button: str) -> None:
         """process button press

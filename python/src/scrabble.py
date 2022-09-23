@@ -142,7 +142,6 @@ class Move():
         for i in game.moves:
             gcg_moves.append(i.gcg_str())
             if i == self:
-                print('found self')
                 break
         to_json = json.dumps(
             {

@@ -336,5 +336,5 @@ def end_of_game(waitfor: Optional[Future], game: Game):
         if os.path.exists(f'{config.WEB_DIR}/../log/messages.log'):
             _zip.write(f'{config.WEB_DIR}/../log/messages.log')
 
-    pool.submit(Ftp.upload_game, filename)
+    Ftp.upload_game(filename)
     logging.debug('end_of_games exit')
