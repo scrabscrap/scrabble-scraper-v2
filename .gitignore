@@ -129,3 +129,28 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# OS generated files #
+######################
+.DS_Store
+ehthumbs.db
+Icon
+Thumbs.db
+.tmtags
+.idea
+tags
+vendor.tags
+tmtagsHistory
+*.sublime-project
+*.sublime-workspace
+.bundle
+
+# additional
+out/
+ignore/
+work/
+.vscode/
+node_modules/
+build/
+.pnp/
+*.iml

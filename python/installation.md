@@ -271,6 +271,10 @@ dhcp-option=6
 edit /etc/network/interfaces
 
 ```text
+# interfaces(5) file used by ifup(8) and ifdown(8)
+# Include files from /etc/network/interfaces.d:
+source /etc/network/interfaces.d/*
+
 auto lo
 iface lo inet loopback
 

@@ -1,0 +1,11 @@
+network={
+    ssid="ScrabScrap"
+    mode=2
+    key_mgmt=WPA-PSK
+    proto=RSN
+    pairwise=CCMP
+    group=CCMP
+    psk="scrabscrap"
+    id_str="dhcp_server"
+    priority=-10
+}
