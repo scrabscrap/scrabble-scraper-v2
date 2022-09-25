@@ -242,16 +242,16 @@ Parameter autopep8
       ],
 ```
 
-# Automatischer HotSpot
+## Automatischer HotSpot
 
-siehe: https://raspberrypi.stackexchange.com/questions/100134/wpa-supplicant-dnsmasq-fallback-to-ap-mode-if-no-wifi-connection
-
+siehe: [Automatischer HotSpot](https://raspberrypi.stackexchange.com/questions/100134/wpa-supplicant-dnsmasq-fallback-to-ap-mode-if-no-wifi-connection)
 
 ```bash
 sudo apt install -y dnsmasq
 ```
 
 edit /etc/dnsmasq.conf
+
 ```text
 port=0
 
@@ -324,7 +324,7 @@ wpa_cli scan_results -i wlan0
 wpa_passphrase {ssid} {key}
 ```
 
-# Sonstiges
+## Sonstiges
 
 Rote Power LED ausschalten
 
@@ -341,4 +341,3 @@ in /boot/config.txt
 ```text
 disable_camera_led=1
 ```
-
