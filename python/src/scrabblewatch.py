@@ -42,6 +42,7 @@ class ScrabbleWatch(metaclass=Singleton):
 
     def start(self, player: int) -> None:
         self.display.clear_message(self.player)
+        self.display.show(self.player)
         self.play_time = 0
         self.player = player
         self.current = [0, 0]
