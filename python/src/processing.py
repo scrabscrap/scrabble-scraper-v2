@@ -223,7 +223,12 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     warped = warp_image(img)                                                   # warp image if necessary
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # grayscale image
     filtered, tiles_candidates = filter_image(warped)                          # find potential tiles on board
-    ignore_coords = set(game.moves[-3].board.keys()) if len(game.moves) > 3 else set()  # only analyze tiles from last 3 moves
+    ignore_coords = set()
+    if len(game.moves) > 3:
+        if game.moves[-2].type is MoveType.withdraw:                           # if opponents move has a valid challenge
+            ignore_coords = set(game.moves[-2].board.keys())                   # only analyze tiles from last 2 moves
+        else:
+            ignore_coords = set(game.moves[-3].board.keys())                   # only analyze tiles from last 2 moves
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
 
     board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # previous board information
