@@ -1,0 +1,21 @@
+{
+  "folders": [
+    {
+      "name": "Python",
+      "path": "python"
+    },
+    {
+      "name": "Web-App",
+      "path": "react"
+    },
+    {
+      "name": "Documentation",
+      "path": "docs"
+    },
+    {
+      "name": "Scripts",
+      "path": "scripts"
+    }
+  ]
+}
+
