@@ -3,7 +3,7 @@
 # damit das Script beim Booten des Rechners ausgeführt wird, muss folgender Eintrag
 # als User "pi" vorgenommen werden:
 # crontab -e
-# @reboot /home/pi/scrabble-scraper/script/scrabscrap.sh &
+# @reboot /home/pi/scrabble-scraper-v2/script/scrabscrap.sh &
 
 export DISPLAY=:0
 

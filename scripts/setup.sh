@@ -3,7 +3,7 @@
 echo "## pre setup steps ##"
 echo "sudo apt install -y git"
 echo "cd ~"
-echo "git clone https://github.com/scrabscrap/scrabscrap2.git"
+echo "git clone https://github.com/scrabscrap/scrabble-scraper-v2.git"
 echo "## end pre setup steps ##"
 read -p "Press any key to continue or <ctrl>+<c> to abort..."
 

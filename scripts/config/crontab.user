@@ -1,1 +1,1 @@
-@reboot /home/pi/scrabble-scraper/script/scrabscrap.sh &
+@reboot /home/pi/scrabble-scraper-v2/script/scrabscrap.sh &
