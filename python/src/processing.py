@@ -66,7 +66,6 @@ def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], 
     if coord not in candidates:  # already visited
         return result
     candidates.remove(coord)
-    # TODO: threshold for already recognized tiles
     if coord not in ignore_set:
         result.add(coord)
     result = result | filter_candidates((col + 1, row), candidates, ignore_set)
@@ -196,6 +195,33 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
                 col += 1
         return vertical, (minx, miny), _word
 
+    def correct_tiles(_changed: dict):
+        logging.debug(f'changed tiles: {_changed}')
+        to_inspect = (len(game.moves) if len(game.moves) < 3 else 3) * -1    # TODO: configure how many moves to inspect
+        prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
+        must_recalculate = False
+        for i in range(to_inspect, 0):
+            mov = game.moves[i]
+            for coord in _changed.keys():
+                if coord in mov.board.keys():                                 # tiles on board are changed 
+                    logging.debug(f'need correction {mov.board[coord]} -> {_changed[coord]} {mov.score}/{mov.points}')
+                    mov.board[coord] = _changed[coord]
+                    must_recalculate = True
+            if must_recalculate:
+                _word = ''
+                (col, row) = mov.coord
+                for i in range(len(mov.word)):                                 # fix mov.word
+                    if mov.is_vertical:
+                        _word += board[(col, row + i)][0] if mov.word[i] != '.' else '.'
+                    else:
+                        _word += board[(col + i, row)][0] if mov.word[i] != '.' else '.'
+                mov.word = _word
+                mov.points, prev_score, mov.is_scrabble = mov._calculate_score(prev_score)
+                mov.score = prev_score                                         # store previous score
+                logging.debug(f'move {mov.move} after recalculate {prev_score}')
+            else:
+                prev_score = mov.score                                         # store previous score
+
     def chunkify(lst, n):
         return [lst[i::n] for i in range(n)]
 
@@ -224,7 +250,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # grayscale image
     filtered, tiles_candidates = filter_image(warped)                          # find potential tiles on board
     ignore_coords = set()
-    if len(game.moves) > 3:
+    if len(game.moves) > 3:                                                    # TODO: configure how many moves to inspect
         if game.moves[-2].type is MoveType.withdraw:                           # if opponents move has a valid challenge
             ignore_coords = set(game.moves[-2].board.keys())                   # only analyze tiles from last 2 moves
         else:
@@ -244,10 +270,8 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
 
     current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
     if len(changed_tiles) > 0:                                                 # fix old moves
-        logging.debug(f'changed tiles: {changed_tiles}')
-        pass
-        # TODO: fix old tiles on better recognition
-        # correct_tiles(new_board, changed_tiles)
+        correct_tiles(changed_tiles)
+        previous_score = game.moves[-1].score
     try:                                                                       # find word and create move
         is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
         move = Move(MoveType.regular, player=player, coord=coord, is_vertical=is_vertical, word=word, new_tiles=new_tiles,
