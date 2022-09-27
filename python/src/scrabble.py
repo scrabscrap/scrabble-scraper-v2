@@ -153,7 +153,7 @@ class Move():
                 'time2': config.MAX_TIME - self.played_time[1],
                 'name1': name1,
                 'name2': name2,
-                'onmove': self.player,
+                'onmove': game.nicknames[self.player],
                 'moves': gcg_moves,
                 'board': dict(zip(*[k1, v1])),
                 'bag': bag
