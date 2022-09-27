@@ -41,9 +41,9 @@ class Singleton(type):
 def runtime_measure(fn):
     @functools.wraps(fn)
     def runtime_measure(*args, **kwargs):
-        start = time.time()
+        start = time.perf_counter()
         ret = fn(*args, **kwargs)
-        end = time.time()
+        end = time.perf_counter()
         logging.debug(f'{fn.__name__} took {end-start} sec(s).')
         return ret
 
