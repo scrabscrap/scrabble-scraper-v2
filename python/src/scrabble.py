@@ -258,7 +258,7 @@ class Game():
                     result += f'[{self.moves[-1].board[(col, row)][0]}]' \
                         if (col, row) in self.moves[-1].new_tiles else f' {self.moves[-1].board[(col, row)][0]} '
                 else:
-                    result += '- -' if (col, row) in self.moves[-1].removed_tiles else ' . '
+                    result += ' - ' if (col, row) in self.moves[-1].removed_tiles else ' . '
             result += ' | '
             for col in range(15):
                 result += f' {str(self.moves[-1].board[(col, row)][1])}' if (col, row) in self.moves[-1].board else ' . '
