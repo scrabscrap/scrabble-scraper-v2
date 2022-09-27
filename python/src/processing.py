@@ -31,6 +31,7 @@ from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from game_board.tiles import tiles
 from scrabble import Game, InvalidMoveExeption, Move, MoveType, NoMoveException
 from threadpool import pool
+from util import trace
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
@@ -116,7 +117,6 @@ def store_move(move: Move, img: Optional[Mat]):
         move(Move): the current move
         img(Mat): current picture
     """
-
     if config.WRITE_WEB or config.FTP:
         with open(f'{config.WEB_DIR}/data-{move.move}.json', "w") as f:
             f.write(move.json_str())
@@ -142,6 +142,7 @@ def upload_ftp(move: Move):
         pool.submit(Ftp.upload_move, move.move)
 
 
+@trace
 def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_time: Tuple[int, int]):
     """Process a move
 
@@ -203,7 +204,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         for i in range(to_inspect, 0):
             mov = game.moves[i]
             for coord in _changed.keys():
-                if coord in mov.board.keys():                                 # tiles on board are changed 
+                if coord in mov.board.keys():                                 # tiles on board are changed
                     logging.debug(f'need correction {mov.board[coord]} -> {_changed[coord]} {mov.score}/{mov.points}')
                     mov.board[coord] = _changed[coord]
                     must_recalculate = True
@@ -224,8 +225,6 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
 
     def chunkify(lst, n):
         return [lst[i::n] for i in range(n)]
-
-    logging.debug('move entry')
 
     #  1. warped = warp_image(img)
     #  2. warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
@@ -271,7 +270,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
     if len(changed_tiles) > 0:                                                 # fix old moves
         correct_tiles(changed_tiles)
-        previous_score = game.moves[-1].score
+        previous_score = game.moves[-1].score                                  # reapply previuos score
     try:                                                                       # find word and create move
         is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
         move = Move(MoveType.regular, player=player, coord=coord, is_vertical=is_vertical, word=word, new_tiles=new_tiles,
@@ -288,12 +287,11 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'\n{game.moves[-1].json_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
-    logging.debug('store move')
     store_move(move, warped)                                                      # store move on hd
     upload_ftp(move)
-    logging.debug('move exit')
 
 
+@trace
 def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int]):
     """Process a valid challenge
 
@@ -303,19 +301,16 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         player (int): active player
         played_time (int, int): current player times
     """
-    logging.debug('valid_challenge entry')
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     game.add_valid_challenge(player, played_time)
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
-
-    logging.debug('store move')
     store_move(game.moves[-1], None)                                           # store move on hd
     upload_ftp(game.moves[-1])
-    logging.debug('valid_challenge exit')
 
 
+@trace
 def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int]):
     """Process an invalid challenge
 
@@ -325,17 +320,13 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         player (int): active player
         played_time (int, int): current player times
     """
-    logging.debug('invalid_challenge entry')
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     game.add_invalid_challenge(player, played_time)
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
-
-    logging.debug('store move')
     store_move(game.moves[-1], None)                                           # store move on hd
     upload_ftp(game.moves[-1])
-    logging.debug('invalid_challenge exit')
 
 
 def start_of_game():
@@ -347,6 +338,7 @@ def start_of_game():
     pass
 
 
+@trace
 def end_of_game(waitfor: Optional[Future], game: Game):
     """Process end of game
 
@@ -361,7 +353,6 @@ def end_of_game(waitfor: Optional[Future], game: Game):
 
     from ftp import Ftp
 
-    logging.debug('end_of_game entry')
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     time.sleep(1.5)
@@ -376,4 +367,3 @@ def end_of_game(waitfor: Optional[Future], game: Game):
 
     if config.FTP:
         Ftp.upload_game(filename)
-    logging.debug('end_of_games exit')
