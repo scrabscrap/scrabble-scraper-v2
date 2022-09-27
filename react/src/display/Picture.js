@@ -3,7 +3,7 @@ import React from "react";
 class Picture extends React.Component {
 
   render() {
-    var img = 'web/image-' + this.props.move + '.jpg'
+    var img = 'web/image-' + this.props.move + '.jpg?' + this.props.time
     return(
         <div className="card moves">
           <div className="card-body">

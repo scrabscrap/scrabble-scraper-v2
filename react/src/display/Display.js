@@ -140,7 +140,7 @@ export default class Display extends React.Component {
               <Board board={this.state.board} />
               </div>
             <div className="col-auto mb-3" >
-              <Picture move={this.state.move} />
+              <Picture move={this.state.move} time={this.state.time}/>
             </div>
 
           </div>
