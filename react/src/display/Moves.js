@@ -35,7 +35,6 @@ class Moves extends React.Component {
     }
     return (
       <div className="card moves">
-        <div className="card-header">Züge</div>
         <div className="card-body">
           <table className={"moves"}>
             <tbody>

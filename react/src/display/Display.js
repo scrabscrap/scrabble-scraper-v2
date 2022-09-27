@@ -114,27 +114,35 @@ export default class Display extends React.Component {
     }
     return (
       <div>
-        <h1 className="title">ScrabScrap<br />
-          <div style={fontStyle}>Scrabble-Scraper</div>
-        </h1>
-        <span
-          className="counter">{'\u27F3'} {this.state.countdown}s {(this.state.reloadError
-            > 0) ? "(" + this.state.reloadError + " Refresh-Fehler)"
-            : ""}</span>
-        <div className="container">
+        <div className="container-fluid">
           <div className="row">
-            <div className="col">
+            <div className="col-md-12">
+              Scrabble-Scraper - {'\u27F3'} {this.state.countdown}s {(this.state.reloadError > 0) ? 
+                "(" + this.state.reloadError + " Refresh-Fehler)" : ""}
+            </div>
+            <div className="col-md-6">
               <Player name={this.state.name1} score={this.state.score1}
                 time={this.state.time1} current={this.state.current} />
+            </div>
+            <div className="col-md-6">
               <Player name={this.state.name2} score={this.state.score2}
                 time={this.state.time2} current={this.state.current} />
-              <Board board={this.state.board} />
-              <Picture move={this.state.move} />
             </div>
-            <div className="col">
+
+
+            <div className="col-md-12">
               <Bag bag={this.state.bag} />
+            </div>
+            <div className="col-auto mb-3">
               <Moves moves={this.state.moves} />
             </div>
+            <div className="col-auto mb-3">
+              <Board board={this.state.board} />
+              </div>
+            <div className="col-auto mb-3" >
+              <Picture move={this.state.move} />
+            </div>
+
           </div>
         </div>
       </div>
