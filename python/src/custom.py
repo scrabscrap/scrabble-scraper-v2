@@ -28,6 +28,19 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 visualLogger = logging.getLogger("visualLogger")
 
+# dimension board custom
+# ----------------------
+# overall size: 330mm x 330mm
+# grid: 310mm x 310mm
+# top: 10mm
+# left: 10mm
+# right: 10mm
+# bottom: 10mm
+#
+# tiles
+# -----
+# 19mm x 19mm
+
 
 class Custom:
     last_warp = None

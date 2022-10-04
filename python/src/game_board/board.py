@@ -18,51 +18,29 @@
 import cv2
 from numpy import ndarray
 
-# Board classic
-# -------------
-# aussen: 360mm x 360mm
-# grid: 310mm x 310mm
-# top: 17mm
-# left: 25mm
-# right: 25mm
-# bottom: 33mm
-
-# Board custom
-# ------------
-# aussen: 330mm x 330mm
-# grid: 310mm x 310mm
-# top: 10mm
-# left: 10mm
-# right: 10mm
-# bottom: 10mm
-
-# Spielsteine
-# 19mm x 19mm
-
-# Ziel Layout
-# Board
+# target layout
+# board
 # -------------------------------
-# aussen: 800px x 800px
+# overall size: 800px x 800px
 # top, left, right, bottom: 25px
 # grid: 750px x 750px
-
-# Spielsteine
+#
+# tiles
+# -----
 # 46px x 46px
 
-# Berechnung der Felder
-# Zeile/Spalte (0..14) => px (25..750)
+# calculation of the fields
+# -------------------------
+# from row/column (0..14) to px (25..750)
 # y = 25 + (row * 50)
 # x = 25 + (col * 50)
 
-# px (0..800) => Zeile/Spalte (0..14)
+# from px (0..800) to row/column (0..14)
 # row = (y - 25) // 50
 # col = (x - 25) // 50
 
 
-# TW=triple words, DW=double words
-# TL=triple letter, DL=double letter
-# (x,y)
-
+# triple words/double words/triple letter/double letter field coordinates
 TRIPLE_WORDS = {(0, 0), (7, 0), (14, 0),
                 (0, 7), (14, 7),
                 (0, 14), (7, 14), (14, 14)}
@@ -92,8 +70,7 @@ DOUBLE_LETTER = {(3, 0), (11, 0),
                  (3, 14), (11, 14)
                  }
 
-# die Größe des Grids in der zu bearbeitenden Grafik
-# 800x800 px gesamt Spielfeld 750 x 750 px
+# constants for the target layout
 GRID_W = 50
 GRID_H = 50
 OFFSET = 25
@@ -124,6 +101,7 @@ def get_y_position(pos: int) -> int:
 
 
 def overlay_grid(image: ndarray) -> ndarray:
+    """ returns an image with an overlayed grid """
     img = image.copy()
     x1 = get_x_position(0)
     y1 = get_y_position(0)
@@ -139,6 +117,7 @@ def overlay_grid(image: ndarray) -> ndarray:
 
 
 def overlay_tiles(image: ndarray, board: dict[tuple[int, int], tuple[str, int]]) -> ndarray:
+    """ returns an image with overlayed characters from the board dictionary """
     img = image.copy()
     for (col, row), (value, _) in board.items():
         cv2.putText(img, value, (get_x_position(col) + 5, get_y_position(row) + 25),
