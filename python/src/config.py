@@ -155,7 +155,7 @@ class Config(metaclass=Singleton):
     @property
     def TILES_IMAGE_PATH(self) -> str:
         # use builtin path as default
-        return self.config.get('tiles', 'image_path', fallback=f'{self.SRC_DIR}/game_board/img')
+        return self.config.get('tiles', 'image_path', fallback=f'{self.SRC_DIR}/game_board/img/default')
 
     @property
     def TILES_BAG(self) -> dict:
