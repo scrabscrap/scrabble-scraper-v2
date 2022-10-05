@@ -317,7 +317,7 @@ class ApiServer:
     # - [x] store warp
     # - [x] clear warp
 
-    def start_server(self):
+    def start_server(self, host: str = '0.0.0.0'):
         logging.debug('start api server')
         version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -327,7 +327,7 @@ class ApiServer:
         ApiServer.scrabscrap_version = version_info.stdout.decode()
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
-        self.server = make_server('0.0.0.0', 5000, self.app)
+        self.server = make_server(host, 5000, self.app)
         self.ctx = self.app.app_context()
         self.ctx.push()
         self.server.serve_forever()
