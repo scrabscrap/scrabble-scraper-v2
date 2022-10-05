@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-6">
+        <div class="py-2">
+            <div class="card">
+                <div class="card-header bg-info">
+                    WiFi
+                </div>
+                <div class="card-body">
+                    <form action="/wifi" method="post">
+                        <div class="row">
+                            <div class="col-5">
+                                <input type="text" class="form-control" name="ssid" placeholder="ssid" required>
+                            </div>
+                            <div class="col-5">
+                                <input type="password" class="form-control" pattern=".{8,}" name="psk" placeholder="psk"
+                                    required>
+                            </div>
+                            <div class="col-2">
+                                <div class="row">
+                                    <input type="submit" class="form-control" value="Submit">
+                                </div>
+                                <div class="row py-2">
+                                    <button type="button" class="btn btn-warning"
+                                        onclick="location.href='/scan_wifi'">Scan WiFi</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="py-2">
+
+            <div class="card">
+                <div class="card-header bg-info">
+                    last result
+                </div>
+                <div class="card-body">
+                    <div style="white-space: pre-wrap;">{{message}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

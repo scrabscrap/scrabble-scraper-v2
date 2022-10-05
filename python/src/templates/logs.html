@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="py-2">
+            <div class="card">
+                <div class="card-header bg-info">
+                    <div class="row">
+                        <div class="col">
+                            log
+                        </div>
+                        <div class="col-1">
+                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                onclick="location.href='/logs'">Reload</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div style="white-space: pre-wrap;">{{log}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

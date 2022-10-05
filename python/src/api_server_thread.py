@@ -24,8 +24,7 @@ import urllib.parse
 from time import sleep
 
 import cv2
-from flask import (Flask, jsonify, redirect, render_template_string, request,
-                   send_from_directory, url_for)
+from flask import (Flask, jsonify, redirect, request, send_from_directory, url_for, render_template)
 from werkzeug.serving import make_server
 
 from config import config
@@ -42,45 +41,13 @@ class ApiServer:
     scrabscrap_version = ''
 
     @app.get('/')
+    @app.get('/index')
     def get_defaults():
-        return render_template_string(
-            '<html><head>'
-            '<style>'
-            '  .button:not(:last-child) { margin-right: 10px; }'
-            '</style>'
-            '</head>'
-            '<body>'
-            '<div class="container">'
-            '  <button type="button" onclick="location.href=\'/cam\'">Camera</button>'
-            '  <button type="button" onclick="location.href=\'/test_led\'">Test LED</button>'
-            '  <button type="button" onclick="location.href=\'/test_display\'">Test display</button>'
-            '  <button style="margin-right: 20px;" type="button" onclick="location.href=\'/settings\'">Settings</button>'
-            '  <button style="margin-right: 20px;" type="button" onclick="location.href=\'/download_logs\'">'
-            '    Download Logs</button>'
-            '  <button type="button" onclick="location.href=\'/logs\'">Logs</button>'
-            '  <button type="button" onclick="location.href=\'/upgrade_linux\'">Update Linux</button>'
-            '  <button type="button" onclick="location.href=\'/upgrade_scrabscrap\'">Update ScrabScrap</button>'
-            '  <button type="button" onclick="location.href=\'/scan_wifi\'">Scan WiFi</button>'
-            '  <button type="button" onclick="location.href=\'/shutdown\'">Shutdown</button>'
-            '</div><br/>'
-            '<form action="/player" method="get"><div>Names</div>'
-            '  <input type="text" name="player1" placeholder="Player 1" required>'
-            '  <input type="text" name="player2" placeholder="Player 2" required>'
-            '  <input type="submit" value="Submit">'
-            '</form>'
-            '<form action="/settings" method="get"><div>Setting</div>'
-            '  <input type="text" name="setting" placeholder="Parameter" required>'
-            '  <input type="text" name="value" placeholder="Value">'
-            '  <input type="submit" value="Submit">'
-            '</form>'
-            '<form action="/wifi" method="post"><div>WiFi</div>'
-            '  <input type="text" name="ssid" placeholder="ssid" required>'
-            '  <input type="password" pattern=".{8,}" name="psk" placeholder="psk" required>'
-            '  <input type="submit" value="Submit">'
-            '</form>'
-            'ScrabScrap version: {{version}}<br/>'
-            'last result: <div style="white-space: pre-wrap;">{{message}}</div><br/>'
-            '</body></html>', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
+        from state import State
+
+        (player1, player2) = State().game.nicknames
+        return render_template('index.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg,
+                               player1=player1, player2=player2)
 
     @app.get('/settings')
     def get_settings():
@@ -94,20 +61,24 @@ class ApiServer:
                     path = request.args.get('setting')
                     value = request.args.get('value')
                 section, option = str(path).split('.', maxsplit=2)
-                if section not in config.config.sections():
-                    config.config.add_section(section)
-                config.config.set(section, option, str(value))
-                logging.debug(f'{section}.{option}={value}')
+                if value is not None and value != '':
+                    if section not in config.config.sections():
+                        config.config.add_section(section)
+                    config.config.set(section, option, str(value))
+                    logging.debug(f'{section}.{option}={value}')
+                else:
+                    config.config.remove_option(section, option)
+                    logging.debug(f'delete {section}.{option}')
                 must_save = True
         except ValueError:
             logging.error(f'Error on settings: {request.args.items()}')
             ApiServer.last_msg = 'error: Value error in Parameter'
-            return redirect(url_for('get_defaults'))
+            return render_template('settings.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
         if must_save:
             config.save()
         config_as_dict = config.config_as_dict()
-        ApiServer.last_msg = json.dumps(config_as_dict, sort_keys=True, indent=2)
-        return redirect(url_for('get_defaults'))
+        ApiServer.last_msg = json.dumps(config_as_dict, sort_keys=False, indent=2, ensure_ascii=False)
+        return render_template('settings.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
 
     @app.post('/settings')  # type: ignore
     def add_settings():
@@ -142,13 +113,18 @@ class ApiServer:
         return redirect(url_for('get_defaults'))
 
     @app.post('/wifi')
-    def wifi():
+    def post_wifi():
         ssid = request.form.get('ssid')
         key = request.form.get('psk')
         logging.debug(f'ssid={ssid}')
         p1 = subprocess.call(f"sudo sh -c 'wpa_passphrase {ssid} {key} >> /etc/wpa_supplicant/wpa_supplicant.conf'", shell=True)
         ApiServer.last_msg = f'set wifi return={p1}'
-        return redirect(url_for('get_defaults'))
+        return render_template('wifi.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
+
+    @app.get('/wifi')
+    def get_wifi():
+        ApiServer.last_msg = ''
+        return render_template('wifi.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
 
     @app.route('/scan_wifi')
     def scan_wifi():
@@ -160,7 +136,7 @@ class ApiServer:
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         ApiServer.last_msg = f'wifi config\n{p1.stdout.decode()}\nwifi search\n{p2.stdout.decode()}'
         logging.debug(ApiServer.last_msg)
-        return redirect(url_for('get_defaults'))
+        return render_template('wifi.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
 
     @app.route('/cam')
     def get_cam():
@@ -198,30 +174,10 @@ class ApiServer:
             png_overlay = ''
             warp_coord = ''
         ApiServer.last_msg = ''
-        return render_template_string(
-            '<html><head>'
-            '<style>'
-            '  .button:not(:last-child) { margin-right: 10px; }'
-            '</style>'
-            '</head>'
-            '<body>'
-            '<div class="container">'
-            '  <button type="button" onclick="location.href=\'/\'">< Back</button>'
-            '  <button type="button" onclick="location.href=\'/cam\'">Reload</button>'
-            '  <button type="button" onclick="location.href=\'/settings?setting=video.warp_coordinates&value={{warp_coord}}\'">'
-            '     Store Warp</button>'
-            '  <button type="button" onclick="location.href=\'/settings?setting=video.warp_coordinates&value=\'">'
-            '     Clear Warp</button>'
-            '</div><br/>'
-            '<div>video.warp_coordinates = {{warp_coord_cnf}} / calculated {{warp_coord_raw}} (lt, rt, rb, lb)</div>'
-            '<img style="padding:5px; max-width: 45vw;max-height: calc(95vh - 50px);" '
-            '  src="data:image/jpg;base64,{{warp_data}}"/>'
-            '<a href="/cam"><img '
-            '  src="data:image/jpg;base64,{{img_data}}" ismap/></a><br/>'
-            '</body></html>',
-            img_data=urllib.parse.quote(png_output), warp_data=urllib.parse.quote(png_overlay),
-            warp_coord=urllib.parse.quote(warp_coord), warp_coord_raw=warp_coord,
-            warp_coord_cnf=warp_coord_cnf)
+        return render_template('cam.html', version=ApiServer.scrabscrap_version,
+                               img_data=urllib.parse.quote(png_output), warp_data=urllib.parse.quote(png_overlay),
+                               warp_coord=urllib.parse.quote(warp_coord), warp_coord_raw=warp_coord,
+                               warp_coord_cnf=warp_coord_cnf)
 
     @app.route('/logs')
     def logs():
@@ -232,16 +188,7 @@ class ApiServer:
             log_out = p1.stdout.decode()
         else:
             log_out = '## empty ##'
-        return render_template_string(
-            '<html><head>'
-            '<style>'
-            '  .button:not(:last-child) { margin-right: 10px; }'
-            '</style>'
-            '</head>'
-            '<body>'
-            '<div><button type="button" onclick="location.href=\'/\'">< Back</button></div><br/>'
-            '<div style="white-space: pre-wrap;" id="display_list">{{log}}</div>'
-            '</body></html>', log=log_out)
+        return render_template('logs.html', log=log_out)
 
     @app.route('/upgrade_linux')
     def update_linux():
@@ -267,6 +214,7 @@ class ApiServer:
             ApiServer.flask_shutdown_blocked = True
             p1 = subprocess.run(['git', 'fetch'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             # TODO: PROD-> git reset --hard origin/main
+            # TODO: restrict to Tag v2
             p2 = subprocess.run(['git', 'pull', '--autostash'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             p3 = subprocess.run(['git', 'gc'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.flask_shutdown_blocked = False
@@ -379,7 +327,7 @@ class ApiServer:
         ApiServer.scrabscrap_version = version_info.stdout.decode()
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
-        self.server = make_server('0.0.0.0', 5000, self.app)
+        self.server = make_server('127.0.0.1', 5000, self.app)
         self.ctx = self.app.app_context()
         self.ctx.push()
         self.server.serve_forever()

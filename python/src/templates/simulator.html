@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-6">
+        <div class="py-2">
+            <div class="card">
+                <div class="card-header bg-info">
+                    ScrabScrap
+                </div>
+                <div class="card-body">
+                    <div class="row py-2">
+                        <div class="col-2 text-center">
+                            <button type="submit" class="btn btn-success btn-circle btn-sm" data-toggle="tooltip"
+                                data-placement="top" title="doubt green"></button>
+                        </div>
+                        <div class="col"> </div>
+                        <div class="col-3 text-center">
+                            <button type="submit" class="btn btn-secondary btn-circle btn-sm" data-toggle="tooltip"
+                                data-placement="top" title="end"></button>
+                            <button type="submit" class="btn btn-secondary btn-circle btn-sm" data-toggle="tooltip"
+                                data-placement="top" title="reboot"></button>
+                        </div>
+                        <div class="col"> </div>
+                        <div class="col-2 text-center">
+                            <button type="submit" class="btn btn-danger btn-circle btn-sm" data-toggle="tooltip"
+                                data-placement="top" title="doubt red"></button>
+                        </div>
+                    </div>
+                    <div class="row py-2">
+                        <div class="col-2 text-center">
+                            <button type="submit" class="btn btn-success mb-3 btn-circle btn-md" data-toggle="tooltip"
+                                data-placement="top" title="move green">x</button>
+                        </div>
+                        <div class="col"> </div>
+                        <div class="col-2 text-center">
+                            <button type="submit" class="btn btn-warning mb-3 btn-circle btn-md" data-toggle="tooltip"
+                                data-placement="top" title="pause"></button>
+                        </div>
+                        <div class="col"> </div>
+                        <div class="col-2 text-center">
+                            <button type="submit" class="btn btn-danger mb-3 btn-circle btn-md" data-toggle="tooltip"
+                                data-placement="top" title="move red"></button>
+                        </div>
+                    </div>
+                    <div class="row py-4 px-5">
+                        <div class="col-2 py-4 border text-center">30:00</div>
+                        <div class="col"> </div>
+                        <div class="col-2 py-4 border text-center">30:00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="py-2">
+            <div class="card">
+                <div class="card-header bg-info">
+                    next picture
+                </div>
+                <div class="card-body">
+                    ... Bild ...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
