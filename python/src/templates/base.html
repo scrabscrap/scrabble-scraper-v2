@@ -8,6 +8,7 @@
   <title>ScrabScrap</title>
   <!-- CSS only -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/bootstrap-icons-1.9.1/bootstrap-icons.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/custom.css') }}">
 </head>
 
@@ -22,13 +23,13 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/cam">Camera</a>
+            <a class="nav-link active" aria-current="page" href="/cam"><i class="bi-webcam"></i> Camera</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/settings">Settings</a>
+            <a class="nav-link" href="/settings"><i class="bi-gear-fill"></i> Settings</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/wifi">Wifi</a>
+            <a class="nav-link" href="/wifi"><i class="bi-wifi"></i> Wifi</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
@@ -36,8 +37,8 @@
               Logs
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/logs">Show Logs</a></li>
-              <li><a class="dropdown-item" href="/download_logs">Download Logs</a></li>
+              <li><a class="dropdown-item" href="/logs"><i class="bi-eyeglasses"></i> Show Logs</a></li>
+              <li><a class="dropdown-item" href="/download_logs"><i class="bi-download"></i> Download Logs</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -46,8 +47,10 @@
               Update
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/upgrade_linux">Upgrade Linux</a></li>
-              <li><a class="dropdown-item" href="/upgrade_scrabscrap">Upgrade ScrabScrap</a></li>
+              <li><a class="dropdown-item" href="/upgrade_linux">
+                  <i class="bi-arrow-up-right-circle"></i> Upgrade Linux</a></li>
+              <li><a class="dropdown-item" href="/upgrade_scrabscrap">
+                  <i class="bi-arrow-up-right-circle"></i> Upgrade ScrabScrap</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -56,18 +59,18 @@
               Tests
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/test_led">LED</a></li>
-              <li><a class="dropdown-item" href="/test_display">Display</a></li>
+              <li><a class="dropdown-item" href="/test_led"><i class="bi-lightbulb"></i> LED</a></li>
+              <li><a class="dropdown-item" href="/test_display"><i class="bi-display"></i> Display</a></li>
             </ul>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/shutdown">Shutdown</a>
+            <a class="nav-link" href="/shutdown"><i class="bi-box-arrow-right"></i> Shutdown</a>
           </li>
         </ul>
         <span class="navbar-text">
-          {{version}}
+          <i class="bi-info-circle"></i> {{version}}
         </span>
-  
+
       </div>
     </div>
   </nav>
