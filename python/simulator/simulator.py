@@ -18,19 +18,19 @@ def simulator() -> str:
 
 def main():
     from threading import Event
-    from hardware.camera_file import CameraFile
-
+    from hardware.camera_thread import Camera, CameraEnum
+    
     logging.config.fileConfig(fname=config.WORK_DIR + '/log.conf',
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
-    cam = CameraFile()
+    cam = Camera(useCamera=CameraEnum.FILE)
     cam_event = Event()
     _ = pool.submit(cam.update, cam_event)
 
     api = ApiServer()
-    api.cam = cam  # type: ignore
+    ApiServer.cam = cam  # type: ignore
     # api.app.config['TEMPLATE_FOLDER'] = TEMPLATE_FOLDER
     # api.app.config['STATIC_FOLDER'] = STATIC_FOLDER
     api.app.add_url_rule('/simulator', 'simulator', simulator)
