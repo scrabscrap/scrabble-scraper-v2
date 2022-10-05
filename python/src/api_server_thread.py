@@ -327,7 +327,7 @@ class ApiServer:
         ApiServer.scrabscrap_version = version_info.stdout.decode()
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
-        self.server = make_server('127.0.0.1', 5000, self.app)
+        self.server = make_server('0.0.0.0', 5000, self.app)
         self.ctx = self.app.app_context()
         self.ctx.push()
         self.server.serve_forever()
