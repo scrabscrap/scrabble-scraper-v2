@@ -7,6 +7,7 @@ import urllib.parse
 from time import sleep
 
 import cv2
+import util
 from api_server_thread import ApiServer
 from config import config
 from flask import redirect, render_template, url_for
@@ -152,7 +153,7 @@ def main():
     state = State(cam=cam, watch=watch)
     state.do_ready()
 
-    api.start_server(host='127.0.0.1')
+    api.start_server(host=util.get_ipv4())
 
     api.stop_server()
     cam_event.set()

@@ -24,7 +24,8 @@ import urllib.parse
 from time import sleep
 
 import cv2
-from flask import (Flask, jsonify, redirect, request, send_from_directory, url_for, render_template)
+from flask import (Flask, jsonify, redirect, render_template, request,
+                   send_from_directory, url_for)
 from werkzeug.serving import make_server
 
 from config import config
@@ -323,16 +324,8 @@ class ApiServer:
     # - [o] download logs / images / games
     # - [ ] shutdown system
     # - [o] upgrade scrabscrap
-    # - [x] upgrade linux
-    # - [x] test led
-    # - [x] test display
-    # - [o] set player-names
-    # - [x] set wifi
     # - [ ] set move?
     # - [ ] set rack
-    # - [ ] get game status
-    # - [x] store warp
-    # - [x] clear warp
 
     def start_server(self, host: str = '0.0.0.0'):
         logging.debug('start api server')
