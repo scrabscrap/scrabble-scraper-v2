@@ -19,7 +19,7 @@
                         <div class="col"> </div>
                         <div class="col-3 text-center">
                             <button type="submit" class="btn btn-secondary btn-circle btn-sm" data-toggle="tooltip"
-                                data-placement="top" title="end"></button>
+                                data-placement="top" title="end" onclick="location.href='/simulator/reset'"></button>
                             <button type="submit" class="btn btn-secondary btn-circle btn-sm" data-toggle="tooltip"
                                 data-placement="top" title="reboot"></button>
                         </div>
@@ -33,24 +33,29 @@
                     <div class="row py-2">
                         <div class="col-2 text-center">
                             <button type="submit" class="btn btn-success mb-3 btn-circle btn-md" data-toggle="tooltip"
-                                data-placement="top" title="move green"
-                                onclick="location.href='/simulator/green'"></button>
+                                data-placement="top" title="move green" onclick="location.href='/simulator/green'">
+                                {% if green == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
+                            </button>
                         </div>
                         <div class="col"> </div>
                         <div class="col-2 text-center">
                             <button type="submit" class="btn btn-warning mb-3 btn-circle btn-md" data-toggle="tooltip"
-                                data-placement="top" title="pause" onclick="location.href='/simulator/yellow'"></button>
+                                data-placement="top" title="pause" onclick="location.href='/simulator/yellow'">
+                                {% if yellow == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
+                            </button>
                         </div>
                         <div class="col"> </div>
                         <div class="col-2 text-center">
                             <button type="submit" class="btn btn-danger mb-3 btn-circle btn-md" data-toggle="tooltip"
-                                data-placement="top" title="move red" onclick="location.href='/simulator/red'"></button>
+                                data-placement="top" title="move red" onclick="location.href='/simulator/red'">
+                                {% if red == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
+                            </button>
                         </div>
                     </div>
-                    <div class="row py-4 px-5">
-                        <div class="col-2 py-4 border text-center bg-white">30:00</div>
+                    <div class="row py-2 px-5">
+                        <div class="col-4 py-4 border text-center bg-white">{{ left }}</div>
                         <div class="col"> </div>
-                        <div class="col-2 py-4 border text-center bg-white">30:00</div>
+                        <div class="col-4 py-4 border text-center bg-white">{{ right }}</div>
                     </div>
                 </div>
             </div>
@@ -58,7 +63,8 @@
         <div class="py-2">
             <div class="card">
                 <div class="card-body">
-                    <div style="display: flex; flex-direction: column-reverse; max-height: 300px; overflow: auto;font-size: 50%; white-space: pre-wrap;">
+                    <div
+                        style="display: flex; flex-direction: column-reverse; max-height: 300px; overflow: auto;font-size: 50%; white-space: pre-wrap;">
                         {{log}}</div>
                 </div>
             </div>
@@ -72,7 +78,7 @@
                         <div class="col">
                             next picture
                         </div>
-                        <div class="col-2">
+                        <div class="col-3">
                             <a href="/simulator/first"><i class="bi-skip-start-circle"></i></a>
                             <a href="/simulator/prev"><i class="bi-skip-backward-circle"></i></a>
                             <a href="/simulator/next"><i class="bi-skip-forward-circle"></i></a>

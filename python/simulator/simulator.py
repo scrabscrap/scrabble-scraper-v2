@@ -12,58 +12,47 @@ from config import config
 from flask import redirect, render_template, url_for
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
-from hardware.button import ButtonEnum
+from hardware.led import LEDEnum
+from scrabblewatch import ScrabbleWatch
 from state import State
 from threadpool import pool
+from timer_thread import RepeatedTimer
+
+Device.pin_factory = MockFactory()
 
 TEMPLATE_FOLDER = f'{os.path.dirname(__file__) or "."}/../src/templates'
 STATIC_FOLDER = f'{os.path.dirname(__file__) or "."}/../src/static'
 
-Device.pin_factory = MockFactory()
-PIN_GREEN = Device.pin_factory.pin(ButtonEnum.GREEN.value)
-PIN_DOUBT0 = Device.pin_factory.pin(ButtonEnum.DOUBT0.value)
-PIN_YELLOW = Device.pin_factory.pin(ButtonEnum.YELLOW.value)
-PIN_RED = Device.pin_factory.pin(ButtonEnum.RED.value)
-PIN_DOUBT1 = Device.pin_factory.pin(ButtonEnum.DOUBT1.value)
-PIN_RESET = Device.pin_factory.pin(ButtonEnum.RESET.value)
-PIN_REBOOT = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
-PIN_CONFIG = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
-
-
-def _press_button(pin, wait=0.001):
-    logging.debug(f'press {str(pin)}')
-    pin.drive_high()
-    sleep(wait)
-    pin.drive_low()
-
 
 def doubt0():
-    _press_button(PIN_DOUBT0)
+    State().press_button('DOUBT0')
     return redirect(url_for('simulator'))
 
 
 def doubt1():
-    _press_button(PIN_DOUBT1)
+    State().press_button('DOUBT1')
     return redirect(url_for('simulator'))
 
 
 def green():
-    _press_button(PIN_GREEN)
+    State().press_button('GREEN')
+    sleep(0.7)
     return redirect(url_for('simulator'))
 
 
 def red():
-    _press_button(PIN_RED)
+    State().press_button('RED')
+    sleep(0.7)
     return redirect(url_for('simulator'))
 
 
 def yellow():
-    _press_button(PIN_YELLOW)
+    State().press_button('YELLOW')
     return redirect(url_for('simulator'))
 
 
 def reset():
-    _press_button(PIN_RESET)
+    State().press_button('RESET')
     return redirect(url_for('simulator'))
 
 
@@ -95,19 +84,28 @@ def cam_last():
 
 
 def simulator() -> str:
+    logging.debug(f'thread queue len {len(pool._threads)}')
+    _, t0, _, t1, _ = State().watch.get_status()
+    m1, s1 = divmod(abs(1800 - t0), 60)
+    m2, s2 = divmod(abs(1800 - t1), 60)
+    left = f'-{m1:1d}:{s1:02d}' if 1800 - \
+        t0 < 0 else f'{m1:02d}:{s1:02d}'
+    right = f'-{m2:1d}:{s2:02d}' if 1800 - \
+        t1 < 0 else f'{m2:02d}:{s2:02d}'
     img = ApiServer.cam.read(peek=True)  # type: ignore
     _, im_buf_arr = cv2.imencode(".jpg", img)
     png_output = base64.b64encode(im_buf_arr)
     if os.path.exists(f'{config.LOG_DIR}/messages.log'):
-        p1 = subprocess.run(['tail', '-100', f'{config.LOG_DIR}/messages.log'], check=True,
+        p1 = subprocess.run(['tail', '-75', f'{config.LOG_DIR}/messages.log'], check=True,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         log_out = p1.stdout.decode()
     else:
         log_out = '## empty ##'
 
     return render_template('simulator.html', version=ApiServer.scrabscrap_version,
-                           img_data=urllib.parse.quote(png_output),
-                           log=log_out)
+                           img_data=urllib.parse.quote(png_output), log=log_out,
+                           green=LEDEnum.green.value, yellow=LEDEnum.yellow.value, red=LEDEnum.red.value,
+                           left=left, right=right)
 
 
 def main():
@@ -129,6 +127,12 @@ def main():
     cam_event = Event()
     _ = pool.submit(cam.update, cam_event)
 
+    # set Watch
+    watch = ScrabbleWatch()
+    timer = RepeatedTimer(1, watch.tick)
+    timer_event = Event()
+    _ = pool.submit(timer.tick, timer_event)
+
     api = ApiServer()
     ApiServer.cam = cam  # type: ignore
 
@@ -143,11 +147,16 @@ def main():
     api.app.add_url_rule('/simulator/next', 'next', cam_next)
     api.app.add_url_rule('/simulator/last', 'last', cam_last)
     api.app.add_url_rule('/simulator', 'simulator', simulator)
+
+    # start State-Machine
+    state = State(cam=cam, watch=watch)
+    state.do_ready()
+
     api.start_server(host='127.0.0.1')
 
-    sleep(240)  # stop after 2 min
     api.stop_server()
     cam_event.set()
+    timer_event.set()
 
 
 if __name__ == '__main__':
