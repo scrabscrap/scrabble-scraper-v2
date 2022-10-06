@@ -9,11 +9,12 @@
                 <div class="card-header bg-info">
                     ScrabScrap
                 </div>
-                <div class="card-body">
+                <div class="card-body bg-light">
                     <div class="row py-2">
                         <div class="col-2 text-center">
                             <button type="submit" class="btn btn-success btn-circle btn-sm" data-toggle="tooltip"
-                                data-placement="top" title="doubt green"></button>
+                                data-placement="top" title="doubt green"
+                                onclick="location.href='/simulator/doubt0'"></button>
                         </div>
                         <div class="col"> </div>
                         <div class="col-3 text-center">
@@ -25,30 +26,40 @@
                         <div class="col"> </div>
                         <div class="col-2 text-center">
                             <button type="submit" class="btn btn-danger btn-circle btn-sm" data-toggle="tooltip"
-                                data-placement="top" title="doubt red"></button>
+                                data-placement="top" title="doubt red"
+                                onclick="location.href='/simulator/doubt1'"></button>
                         </div>
                     </div>
                     <div class="row py-2">
                         <div class="col-2 text-center">
                             <button type="submit" class="btn btn-success mb-3 btn-circle btn-md" data-toggle="tooltip"
-                                data-placement="top" title="move green">x</button>
+                                data-placement="top" title="move green"
+                                onclick="location.href='/simulator/green'"></button>
                         </div>
                         <div class="col"> </div>
                         <div class="col-2 text-center">
                             <button type="submit" class="btn btn-warning mb-3 btn-circle btn-md" data-toggle="tooltip"
-                                data-placement="top" title="pause"></button>
+                                data-placement="top" title="pause" onclick="location.href='/simulator/yellow'"></button>
                         </div>
                         <div class="col"> </div>
                         <div class="col-2 text-center">
                             <button type="submit" class="btn btn-danger mb-3 btn-circle btn-md" data-toggle="tooltip"
-                                data-placement="top" title="move red"></button>
+                                data-placement="top" title="move red" onclick="location.href='/simulator/red'"></button>
                         </div>
                     </div>
                     <div class="row py-4 px-5">
-                        <div class="col-2 py-4 border text-center">30:00</div>
+                        <div class="col-2 py-4 border text-center bg-white">30:00</div>
                         <div class="col"> </div>
-                        <div class="col-2 py-4 border text-center">30:00</div>
+                        <div class="col-2 py-4 border text-center bg-white">30:00</div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="py-2">
+            <div class="card">
+                <div class="card-body">
+                    <div style="display: flex; flex-direction: column-reverse; max-height: 300px; overflow: auto;font-size: 50%; white-space: pre-wrap;">
+                        {{log}}</div>
                 </div>
             </div>
         </div>
@@ -62,10 +73,10 @@
                             next picture
                         </div>
                         <div class="col-2">
-                            <i class="bi-skip-start-circle"></i>
-                            <i class="bi-skip-backward-circle"></i>
-                            <i class="bi-skip-forward-circle"></i>
-                            <i class="bi-skip-end-circle"></i>
+                            <a href="/simulator/first"><i class="bi-skip-start-circle"></i></a>
+                            <a href="/simulator/prev"><i class="bi-skip-backward-circle"></i></a>
+                            <a href="/simulator/next"><i class="bi-skip-forward-circle"></i></a>
+                            <a href="/simulator/last"><i class="bi-skip-end-circle"></i></a>
                         </div>
                         <div class="col-2">
                             <i class="bi-upload"></i>
