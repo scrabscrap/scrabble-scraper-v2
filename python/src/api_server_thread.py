@@ -238,22 +238,29 @@ class ApiServer:
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
             LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
+            logging.debug('LED switch on red yellow green')
             sleep(1)
             LED.switch_on({})  # type: ignore
             sleep(1)
             LED.blink_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
+            logging.debug('LED blink on red yellow green')
             sleep(2)
             LED.blink_on({LEDEnum.yellow})
+            logging.debug('LED blink on yellow')
             sleep(2)
             LED.switch_on({})  # type: ignore
             sleep(1)
             LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
+            logging.debug('LED switch on red yellow green')
             sleep(1)
             LED.switch_on({LEDEnum.green})
+            logging.debug('LED switch on green')
             sleep(1)
             LED.switch_on({LEDEnum.yellow})
+            logging.debug('LED switch on yellow')
             sleep(1)
             LED.switch_on({LEDEnum.red})
+            logging.debug('LED switch on red')
             sleep(1)
             LED.switch_on({})  # type: ignore
             ApiServer.flask_shutdown_blocked = False
@@ -264,7 +271,11 @@ class ApiServer:
 
     @app.route('/test_display')
     def test_display():
-        from hardware.oled import PlayerDisplay
+        try:
+            from hardware.oled import PlayerDisplay
+        except ImportError:
+            logging.warn('use mock as PlayerDisplay')
+            from display import Display as PlayerDisplay
         from scrabblewatch import ScrabbleWatch
         from state import State
 
@@ -273,16 +284,22 @@ class ApiServer:
             display = PlayerDisplay()
             watch = ScrabbleWatch(display)
             watch.display.show_boot()
+            logging.debug('Display show boot')
             sleep(0.5)
             watch.display.show_cam_err()
+            logging.debug('Display show cam err')
             sleep(0.5)
             watch.display.show_config()
+            logging.debug('Display show config')
             sleep(0.5)
             watch.display.show_ftp_err()
+            logging.debug('Display show ftp err')
             sleep(0.5)
             watch.display.show_ready()
+            logging.debug('Display show ready')
             sleep(0.5)
             watch.display.clear()
+            logging.debug('Display clear display')
             watch.display.show()
             ApiServer.flask_shutdown_blocked = False
             ApiServer.last_msg = 'display_test ended'

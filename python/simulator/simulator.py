@@ -33,6 +33,7 @@ def main():
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
+    # set Mock-Camera
     cam = Camera(useCamera=CameraEnum.FILE)
     cam_event = Event()
     _ = pool.submit(cam.update, cam_event)
