@@ -51,8 +51,12 @@ class Camera(metaclass=Singleton):  # type: ignore
     def update(self, ev: Event) -> None:
         self.stream.update(ev)
 
-    def read(self) -> Mat:
-        return self.stream.read()
+    def read(self, peek=False) -> Mat:
+        from .camera_file import CameraFile
+        if isinstance(self.stream, CameraFile):
+            return self.stream.read(peek=peek)
+        else:
+            return self.stream.read()
 
     def cancel(self) -> None:
         self.stream.cancel()

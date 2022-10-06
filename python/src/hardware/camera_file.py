@@ -43,11 +43,12 @@ class CameraFile(metaclass=Singleton):  # type: ignore
             self.formatter = config.SIMULATE_PATH
         self.img = cv2.imread(self.formatter.format(self.cnt))
 
-    def read(self):
-        self.cnt += 1 if os.path.isfile(
-            self.formatter.format(self.cnt + 1)) else 0
+    def read(self, peek=False) -> Mat:
         self.img = cv2.imread(self.formatter.format(self.cnt))
         logging.debug(f"read {self.formatter.format(self.cnt)}")
+        if not peek:
+            self.cnt += 1 if os.path.isfile(
+                self.formatter.format(self.cnt + 1)) else 0
         return cv2.resize(self.img, self.resolution)
 
     def update(self, ev: Event) -> None:
