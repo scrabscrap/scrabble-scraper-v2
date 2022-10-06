@@ -336,6 +336,10 @@ class ApiServer:
 
     def start_server(self, host: str = '0.0.0.0'):
         logging.debug('start api server')
+        # flask log only error
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.ERROR)
+
         version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if version_info.returncode > 0:
