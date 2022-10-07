@@ -45,7 +45,7 @@ class CameraFile(metaclass=Singleton):  # type: ignore
 
     def read(self, peek=False) -> Mat:
         self.img = cv2.imread(self.formatter.format(self.cnt))
-        logging.debug(f"read {self.formatter.format(self.cnt)}")
+        logging.debug(f"read {self.cnt}: {self.formatter.format(self.cnt)} with peek={peek}")
         if not peek:
             self.cnt += 1 if os.path.isfile(
                 self.formatter.format(self.cnt + 1)) else 0
