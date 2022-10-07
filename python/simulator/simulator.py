@@ -10,7 +10,7 @@ import cv2
 import util
 from api_server_thread import ApiServer
 from config import config
-from flask import redirect, render_template, url_for
+from flask import redirect, render_template, url_for, request
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 from hardware.led import LEDEnum
@@ -59,7 +59,6 @@ def reset():
 
 
 def cam_first():
-    logging.debug('first')
     ApiServer.cam.stream.cnt = 0  # type: ignore
     return redirect(url_for('simulator'))
 
@@ -85,8 +84,23 @@ def cam_last():
     return redirect(url_for('simulator'))
 
 
+def open_folder():
+    folder = request.args.get('folder')
+    print(f'try to open {folder}')
+    iniFile = f'{config.WORK_DIR}/simulate/{folder}/scrabble.ini'
+    if os.path.exists(iniFile):
+        config.reload(iniFile=iniFile)
+        ApiServer.cam.stream.cnt = 0  # type: ignore
+        ApiServer.cam.stream.formatter = config.SIMULATE_PATH  # type: ignore
+    else:
+        logging.warning(f'INI File not found: {iniFile}')
+    return redirect(url_for('simulator'))
+
+
 def simulator() -> str:
-    logging.debug(f'thread queue len {len(pool._threads)}')
+    # get simulate folders
+    listOfDir = [f for f in os.listdir(f'{config.WORK_DIR}/simulate') if os.path.isdir(f'{config.WORK_DIR}/simulate/{f}')]
+
     # display time
     _, t0, _, t1, _ = State().watch.get_status()
     m1, s1 = divmod(abs(1800 - t0), 60)
@@ -102,12 +116,11 @@ def simulator() -> str:
         pic = game.moves[-1].img
         _, pic_buf_arr = cv2.imencode(".jpg", pic)
         png_current = urllib.parse.quote(base64.b64encode(pic_buf_arr))
-
     # get next picture
     img = ApiServer.cam.read(peek=True)  # type: ignore
     _, im_buf_arr = cv2.imencode(".jpg", img)
     png_next = urllib.parse.quote(base64.b64encode(im_buf_arr))
-    #show log
+    # show log
     if os.path.exists(f'{config.LOG_DIR}/messages.log'):
         p1 = subprocess.run(['tail', '-75', f'{config.LOG_DIR}/messages.log'], check=True,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -116,9 +129,9 @@ def simulator() -> str:
         log_out = '## empty ##'
 
     return render_template('simulator.html', version=ApiServer.scrabscrap_version,
-                           img_next=png_next, img_current=png_current,log=log_out,
+                           img_next=png_next, img_current=png_current, log=log_out,
                            green=LEDEnum.green.value, yellow=LEDEnum.yellow.value, red=LEDEnum.red.value,
-                           left=left, right=right)
+                           left=left, right=right, folder=listOfDir)
 
 
 def main():
@@ -159,6 +172,7 @@ def main():
     api.app.add_url_rule('/simulator/prev', 'prev', cam_prev)
     api.app.add_url_rule('/simulator/next', 'next', cam_next)
     api.app.add_url_rule('/simulator/last', 'last', cam_last)
+    api.app.add_url_rule('/simulator/open', 'open', open_folder)
     api.app.add_url_rule('/simulator', 'simulator', simulator)
 
     # start State-Machine
