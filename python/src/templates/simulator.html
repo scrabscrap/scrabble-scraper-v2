@@ -95,8 +95,13 @@
                                 <a href="/simulator/last"><i class="bi-skip-end-circle"></i></a>
                             </div>
                             <div class="col-2">
-                                <i class="bi-upload"></i>
-                                <i class="bi-folder2-open"></i>
+                                <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-folder2-open"></i></a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    {%for i in folder%}
+                                        <li><a class="dropdown-item" href="/simulator/open?folder={{i}}">{{i}}</a></li>
+                                    {%endfor%}
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -112,7 +117,7 @@
             <div class="card">
                 <div class="card-body">
                     <div
-                        style="font-family: ui-monospace;display: flex; flex-direction: column-reverse; max-height: 350px; overflow: auto;font-size: 50%; white-space: pre-wrap;">
+                        style="font-family: monospace; display: flex; flex-direction: column-reverse; max-height: 350px; overflow: auto;font-size: 50%; white-space: pre-wrap;">
                         {{log}}</div>
                 </div>
             </div>
