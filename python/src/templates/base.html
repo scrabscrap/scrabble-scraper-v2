@@ -61,6 +61,8 @@
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li><a class="dropdown-item" href="/test_led"><i class="bi-lightbulb"></i> LED</a></li>
               <li><a class="dropdown-item" href="/test_display"><i class="bi-display"></i> Display</a></li>
+              <div class="dropdown-divider"></div>
+              <li><a class="dropdown-item" href="/simulator"><i class="bi-easel"></i> Simulator</a></li>
             </ul>
           </li>
           <li class="nav-item">
@@ -70,14 +72,12 @@
         <span class="navbar-text">
           <i class="bi-info-circle"></i> {{version}}
         </span>
-
       </div>
     </div>
   </nav>
+
   <main>
-    <div class="container">
-      {% block content %}{% endblock %}
-    </div>
+    {% block content %}{% endblock %}
   </main>
   <!-- JavaScript Bundle with Popper -->
   <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>

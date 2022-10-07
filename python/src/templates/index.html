@@ -1,40 +1,45 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-6">
-        <div class="py-2">
-            <div class="card">
-                <div class="card-header bg-info">
-                    Names
-                </div>
-                <div class="card-body">
-                    <form action="/player" method="get">
-                        <div class="row">
-                            <div class="col-4">
-                                <input type="text" class="form-control" name="player1" placeholder="{{ player1 }}" required>
+<div class="container">
+
+    <div class="row">
+        <div class="col-6">
+            <div class="py-2">
+                <div class="card">
+                    <div class="card-header bg-info">
+                        Names
+                    </div>
+                    <div class="card-body">
+                        <form action="/player" method="get">
+                            <div class="row">
+                                <div class="col-4">
+                                    <input type="text" class="form-control" name="player1" placeholder="{{ player1 }}"
+                                        required>
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control" name="player2" placeholder="{{ player2 }}"
+                                        required>
+                                </div>
+                                <div class="col-4">
+                                    <input type="submit" class="form-control btn-primary" value="Submit">
+                                </div>
                             </div>
-                            <div class="col-4">
-                                <input type="text" class="form-control" name="player2" placeholder="{{ player2 }}" required>
-                            </div>
-                            <div class="col-4">
-                                <input type="submit" class="form-control btn-primary" value="Submit">
-                            </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-12">
-        <div class="py-2">
+        <div class="col-12">
+            <div class="py-2">
 
-            <div class="card">
-                <div class="card-header bg-info">
-                    last result
-                </div>
-                <div class="card-body">
-                    <div style="white-space: pre-wrap;">{{message}}</div>
+                <div class="card">
+                    <div class="card-header bg-info">
+                        last result
+                    </div>
+                    <div class="card-body">
+                        <div style="white-space: pre-wrap;">{{message}}</div>
+                    </div>
                 </div>
             </div>
         </div>

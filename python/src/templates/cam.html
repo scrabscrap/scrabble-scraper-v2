@@ -1,51 +1,52 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="py-2">
-        <div class="card">
-            <div class="card-header bg-info">
-                video.warp_coordinates = {{warp_coord_cnf}} / calculated {{warp_coord_raw}} (lt, rt, rb, lb)
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-10">
-                        <img style="padding:5px; max-width: 45vw;max-height: calc(95vh - 50px);"
-                            src="data:image/jpg;base64,{{warp_data}}" />
-                    </div>
-                    <div class="col-2">
-                        <div class="row py-2">
-                            <button type="button" class="btn btn-primary" onclick="location.href='/cam'">
-                                <i class="bi-arrow-repeat"></i> Reload</button>
+<div class="container">
+    <div class="row">
+        <div class="py-2">
+            <div class="card">
+                <div class="card-header bg-info">
+                    video.warp_coordinates = {{warp_coord_cnf}} / calculated {{warp_coord_raw}} (lt, rt, rb, lb)
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-10">
+                            <img style="padding:5px; max-width: 45vw;max-height: calc(95vh - 50px);"
+                                src="data:image/jpg;base64,{{warp_data}}" />
                         </div>
-                        <div class="row py-2">
-                            <button type="button" class="btn btn-warning"
-                                onclick="location.href='/settings?setting=video.warp_coordinates&value='">
-                                <i class="bi-eraser"></i> Clear Warp</button>
-                        </div>
-                        <div class="row py-2">
-                            <button type="button" class="btn btn-success"
-                                onclick="location.href='/settings?setting=video.warp_coordinates&value={{warp_coord}}'">
-                                <i class="bi-save"></i> Store Warp</button>
+                        <div class="col-2">
+                            <div class="row py-2">
+                                <button type="button" class="btn btn-primary" onclick="location.href='/cam'">
+                                    <i class="bi-arrow-repeat"></i> Reload</button>
+                            </div>
+                            <div class="row py-2">
+                                <button type="button" class="btn btn-warning"
+                                    onclick="location.href='/settings?setting=video.warp_coordinates&value='">
+                                    <i class="bi-eraser"></i> Clear Warp</button>
+                            </div>
+                            <div class="row py-2">
+                                <button type="button" class="btn btn-success"
+                                    onclick="location.href='/settings?setting=video.warp_coordinates&value={{warp_coord}}'">
+                                    <i class="bi-save"></i> Store Warp</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="py-2">
-        <div class="card">
-            <div class="card-header bg-info">
-                Original
-            </div>
-            <div class="card-body">
-                <a href="/cam"><img src="data:image/jpg;base64,{{img_data}}" ismap /></a>
+    <div class="row">
+        <div class="py-2">
+            <div class="card">
+                <div class="card-header bg-info">
+                    Original
+                </div>
+                <div class="card-body">
+                    <a href="/cam"><img src="data:image/jpg;base64,{{img_data}}" ismap /></a>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}

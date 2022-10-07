@@ -1,68 +1,70 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-6">
-        <div class="py-2">
-            <div class="card">
-                <div class="card-header bg-info">
-                    Settings
-                </div>
-                <div class="card-body">
-                    <form action="/settings" method="get">
-                        <div class="row">
-                            <div class="col-4">
-                                <select class="form-select" aria-label="Default select example" name="setting">
-                                    <option selected>Setting ...</option>
-                                    <option value="video.warp">video.warp</option>
-                                    <option value="video.rotade">video.rotade</option>
-                                    <option value="output.ftp">output.ftp</option>
-                                    <option value="output.web">output.web</option>
-                                    <option value="path.work_dir">path.work_dir</option>
-                                    <option value="path.log_dir">path.log_dir</option>
-                                    <option value="path.web_dir">path.web_dir</option>
-                                    <option value="scrabble.malus_doubt">scrabble.malus_doubt</option>
-                                    <option value="scrabble.max_time">scrabble.max_time</option>
-                                    <option value="scrabble.min_time">scrabble.min_time</option>
-                                    <option value="scrabble.doubt_timeout">scrabble.doubt_timeout</option>
-                                    <option value="video.width">video.width</option>
-                                    <option value="video.height">video.height</option>
-                                    <option value="video.fps">video.fps</option>
-                                    <option value="input.keyboard">input.keyboard</option>
-                                    <option value="input.keyboard_wait">input.keyboard_wait</option>
-                                    <option value="output.screen">output.screen</option>
-                                    <option value="button.hold1">button.hold1</option>
-                                    <option value="tiles.image_path">tiles.image_path</option>
-                                    <option value="tiles.language">tiles.language</option>
-                                    <option value="system.quit">system.quit</option>
-                                    <option value="motion.detection">motion.detection</option>
-                                    <option value="motion.learningRate">motion.learningRate</option>
-                                    <option value="motion.wait">motion.wait</option>
-                                    <option value="motion.area">motion.area</option>
-                                  </select>
-                                <!-- <input type="text" class="form-control" name="setting" placeholder="Parameter" required> -->
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <div class="py-2">
+                <div class="card">
+                    <div class="card-header bg-info">
+                        Settings
+                    </div>
+                    <div class="card-body">
+                        <form action="/settings" method="get">
+                            <div class="row">
+                                <div class="col-4">
+                                    <select class="form-select" aria-label="Default select example" name="setting">
+                                        <option selected>Setting ...</option>
+                                        <option value="video.warp">video.warp</option>
+                                        <option value="video.rotade">video.rotade</option>
+                                        <option value="output.ftp">output.ftp</option>
+                                        <option value="output.web">output.web</option>
+                                        <option value="path.work_dir">path.work_dir</option>
+                                        <option value="path.log_dir">path.log_dir</option>
+                                        <option value="path.web_dir">path.web_dir</option>
+                                        <option value="scrabble.malus_doubt">scrabble.malus_doubt</option>
+                                        <option value="scrabble.max_time">scrabble.max_time</option>
+                                        <option value="scrabble.min_time">scrabble.min_time</option>
+                                        <option value="scrabble.doubt_timeout">scrabble.doubt_timeout</option>
+                                        <option value="video.width">video.width</option>
+                                        <option value="video.height">video.height</option>
+                                        <option value="video.fps">video.fps</option>
+                                        <option value="input.keyboard">input.keyboard</option>
+                                        <option value="input.keyboard_wait">input.keyboard_wait</option>
+                                        <option value="output.screen">output.screen</option>
+                                        <option value="button.hold1">button.hold1</option>
+                                        <option value="tiles.image_path">tiles.image_path</option>
+                                        <option value="tiles.language">tiles.language</option>
+                                        <option value="system.quit">system.quit</option>
+                                        <option value="motion.detection">motion.detection</option>
+                                        <option value="motion.learningRate">motion.learningRate</option>
+                                        <option value="motion.wait">motion.wait</option>
+                                        <option value="motion.area">motion.area</option>
+                                    </select>
+                                    <!-- <input type="text" class="form-control" name="setting" placeholder="Parameter" required> -->
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control" name="value" placeholder="Value">
+                                </div>
+                                <div class="col-4">
+                                    <input type="submit" class="form-control btn-primary" value="Submit">
+                                </div>
                             </div>
-                            <div class="col-4">
-                                <input type="text" class="form-control" name="value" placeholder="Value">
-                            </div>
-                            <div class="col-4">
-                                <input type="submit" class="form-control btn-primary" value="Submit">
-                            </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-12">
-        <div class="py-2">
+        <div class="col-12">
+            <div class="py-2">
 
-            <div class="card">
-                <div class="card-header bg-info">
-                    last result
-                </div>
-                <div class="card-body">
-                    <div style="white-space: pre-wrap;">{{message}}</div>
+                <div class="card">
+                    <div class="card-header bg-info">
+                        last result
+                    </div>
+                    <div class="card-body">
+                        <div style="white-space: pre-wrap;">{{message}}</div>
+                    </div>
                 </div>
             </div>
         </div>

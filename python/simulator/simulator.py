@@ -54,6 +54,7 @@ def yellow():
 
 def reset():
     State().press_button('RESET')
+    ApiServer.cam.stream.cnt = 0  # type: ignore
     return redirect(url_for('simulator'))
 
 
@@ -86,6 +87,7 @@ def cam_last():
 
 def simulator() -> str:
     logging.debug(f'thread queue len {len(pool._threads)}')
+    # display time
     _, t0, _, t1, _ = State().watch.get_status()
     m1, s1 = divmod(abs(1800 - t0), 60)
     m2, s2 = divmod(abs(1800 - t1), 60)
@@ -93,9 +95,19 @@ def simulator() -> str:
         t0 < 0 else f'{m1:02d}:{s1:02d}'
     right = f'-{m2:1d}:{s2:02d}' if 1800 - \
         t1 < 0 else f'{m2:02d}:{s2:02d}'
+    # get current picture
+    png_current = None
+    game = State().game
+    if (len(game.moves) > 0) and (game.moves[-1].img is not None):
+        pic = game.moves[-1].img
+        _, pic_buf_arr = cv2.imencode(".jpg", pic)
+        png_current = urllib.parse.quote(base64.b64encode(pic_buf_arr))
+
+    # get next picture
     img = ApiServer.cam.read(peek=True)  # type: ignore
     _, im_buf_arr = cv2.imencode(".jpg", img)
-    png_output = base64.b64encode(im_buf_arr)
+    png_next = urllib.parse.quote(base64.b64encode(im_buf_arr))
+    #show log
     if os.path.exists(f'{config.LOG_DIR}/messages.log'):
         p1 = subprocess.run(['tail', '-75', f'{config.LOG_DIR}/messages.log'], check=True,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -104,7 +116,7 @@ def simulator() -> str:
         log_out = '## empty ##'
 
     return render_template('simulator.html', version=ApiServer.scrabscrap_version,
-                           img_data=urllib.parse.quote(png_output), log=log_out,
+                           img_next=png_next, img_current=png_current,log=log_out,
                            green=LEDEnum.green.value, yellow=LEDEnum.yellow.value, red=LEDEnum.red.value,
                            left=left, right=right)
 
