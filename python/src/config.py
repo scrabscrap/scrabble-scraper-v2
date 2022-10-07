@@ -25,21 +25,22 @@ from util import Singleton
 
 class Config(metaclass=Singleton):
 
-    def __init__(self) -> None:
+    def __init__(self, iniPath=None) -> None:
         self.config = configparser.ConfigParser()
         try:
             self.config['path'] = {}
             self.config['path']['src_dir'] = os.path.dirname(__file__) or '.'
-            with open(f'{self.WORK_DIR}/scrabble.ini', 'r') as config_file:
+            self.iniPath = iniPath if iniPath is not None else f'{self.WORK_DIR}/scrabble.ini'
+            with open(self.iniPath, 'r') as config_file:
                 self.config.read_file(config_file)
         except Exception as e:
             logging.exception(f'can not read INI-File {e}')
 
-    def reload(self) -> None:
-        self.__init__()
+    def reload(self, iniPath=None) -> None:
+        self.__init__(iniPath)
 
     def save(self) -> None:
-        with open(f'{self.WORK_DIR}/scrabble.ini', 'w') as config_file:
+        with open(self.iniPath, 'w') as config_file:
             val = self.config['path']['src_dir']
             if val == (os.path.dirname(__file__) or '.'):
                 self.config.remove_option('path', 'src_dir')
