@@ -4,73 +4,82 @@
 <div class="container-fluid">
 
     <div class="row">
-        <div class="col-4">
-            <div class="py-2">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        ScrabScrap
-                    </div>
-                    <div class="card-body bg-light">
-                        <div class="row py-2">
-                            <div class="col-2 text-center">
-                                <button type="submit" class="btn btn-success btn-circle btn-sm" data-toggle="tooltip"
-                                    data-placement="top" title="doubt green"
-                                    onclick="location.href='/simulator/doubt0'"></button>
-                            </div>
-                            <div class="col"> </div>
-                            <div class="col-3 text-center">
-                                <button type="submit" class="btn btn-secondary btn-circle btn-sm" data-toggle="tooltip"
-                                    data-placement="top" title="end"
-                                    onclick="location.href='/simulator/reset'"></button>
-                                <button type="submit" class="btn btn-secondary btn-circle btn-sm" data-toggle="tooltip"
-                                    data-placement="top" title="reboot"></button>
-                            </div>
-                            <div class="col"> </div>
-                            <div class="col-2 text-center">
-                                <button type="submit" class="btn btn-danger btn-circle btn-sm" data-toggle="tooltip"
-                                    data-placement="top" title="doubt red"
-                                    onclick="location.href='/simulator/doubt1'"></button>
-                            </div>
+        <div class="col-6">
+            <div class="row">
+                <div class="py-2">
+                    <div class="card">
+                        <div class="card-header bg-info">
+                            ScrabScrap
                         </div>
-                        <div class="row py-2">
-                            <div class="col-2 text-center">
-                                <button type="submit" class="btn btn-success mb-3 btn-circle btn-md"
-                                    data-toggle="tooltip" data-placement="top" title="move green"
-                                    onclick="location.href='/simulator/green'">
-                                    {% if green == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
-                                </button>
+                        <div class="card-body bg-light">
+                            <div class="row py-2">
+                                <div class="col-2 text-center">
+                                    <button type="submit" class="btn btn-success btn-circle btn-sm"
+                                        data-toggle="tooltip" data-placement="top" title="doubt green"
+                                        onclick="location.href='/simulator/doubt0'"></button>
+                                </div>
+                                <div class="col"> </div>
+                                <div class="col-3 text-center">
+                                    <button type="submit" class="btn btn-secondary btn-circle btn-sm"
+                                        data-toggle="tooltip" data-placement="top" title="end"
+                                        onclick="location.href='/simulator/reset'"></button>
+                                    <button type="submit" class="btn btn-secondary btn-circle btn-sm"
+                                        data-toggle="tooltip" data-placement="top" title="reboot"></button>
+                                </div>
+                                <div class="col"> </div>
+                                <div class="col-2 text-center">
+                                    <button type="submit" class="btn btn-danger btn-circle btn-sm" data-toggle="tooltip"
+                                        data-placement="top" title="doubt red"
+                                        onclick="location.href='/simulator/doubt1'"></button>
+                                </div>
                             </div>
-                            <div class="col"> </div>
-                            <div class="col-2 text-center">
-                                <button type="submit" class="btn btn-warning mb-3 btn-circle btn-md"
-                                    data-toggle="tooltip" data-placement="top" title="pause"
-                                    onclick="location.href='/simulator/yellow'">
-                                    {% if yellow == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
-                                </button>
+                            <div class="row py-2">
+                                <div class="col-2 text-center">
+                                    <button type="submit" class="btn btn-success mb-3 btn-circle btn-md"
+                                        data-toggle="tooltip" data-placement="top" title="move green"
+                                        onclick="location.href='/simulator/green'">
+                                        {% if green == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
+                                    </button>
+                                </div>
+                                <div class="col"> </div>
+                                <div class="col-2 text-center">
+                                    <button type="submit" class="btn btn-warning mb-3 btn-circle btn-md"
+                                        data-toggle="tooltip" data-placement="top" title="pause"
+                                        onclick="location.href='/simulator/yellow'">
+                                        {% if yellow == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
+                                    </button>
+                                </div>
+                                <div class="col"> </div>
+                                <div class="col-2 text-center">
+                                    <button type="submit" class="btn btn-danger mb-3 btn-circle btn-md"
+                                        data-toggle="tooltip" data-placement="top" title="move red"
+                                        onclick="location.href='/simulator/red'">
+                                        {% if red == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col"> </div>
-                            <div class="col-2 text-center">
-                                <button type="submit" class="btn btn-danger mb-3 btn-circle btn-md"
-                                    data-toggle="tooltip" data-placement="top" title="move red"
-                                    onclick="location.href='/simulator/red'">
-                                    {% if red == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
-                                </button>
+                            <div class="row py-2 px-2">
+                                <div class="col py-2 border text-center bg-white">{{ left }}</div>
+                                <div class="col-2"> </div>
+                                <div class="col py-2 border text-center bg-white">{{ right }}</div>
                             </div>
-                        </div>
-                        <div class="row py-2 px-2">
-                            <div class="col py-2 border text-center bg-white">{{ left }}</div>
-                            <div class="col-2"> </div>
-                            <div class="col py-2 border text-center bg-white">{{ right }}</div>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="py-2">
+                    <div class="card-body bg-light">
+                        <div style="font-family: monospace; overflow: auto;font-size: 50%; white-space: pre-wrap;">{{board}}</div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-4">
+        <div class="col-3">
             <div class="py-2">
                 <div class="card">
                     <div class="card-header bg-info">
-                        current picture
+                        current
                     </div>
                     <div class="card-body">
                         {% if img_current %}
@@ -80,15 +89,15 @@
                 </div>
             </div>
         </div>
-        <div class="col-4">
+        <div class="col-3">
             <div class="py-2">
                 <div class="card">
                     <div class="card-header bg-info">
                         <div class="row">
                             <div class="col">
-                                next picture
+                                next
                             </div>
-                            <div class="col-3">
+                            <div class="col-6">
                                 <a href="/simulator/first"><i class="bi-skip-start-circle"></i></a>
                                 <a href="/simulator/prev"><i class="bi-skip-backward-circle"></i></a>
                                 <a href="/simulator/next"><i class="bi-skip-forward-circle"></i></a>
@@ -99,13 +108,16 @@
                                     data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-folder2-open"></i></a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     {%for i in folder%}
-                                        <li><a class="dropdown-item" href="/simulator/open?folder={{i}}">{{i}}</a></li>
+                                    <li><a class="dropdown-item" href="/simulator/open?folder={{i}}">{{i}}</a></li>
                                     {%endfor%}
                                 </ul>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body">
+                    <div class={% if green == 1 %}"card-body bg-success"
+                               {% elif red == 1 %}"card-body bg-danger"
+                               {% else %}"card-body"
+                               {% endif %}>
                         <img src="data:image/jpg;base64,{{img_next}}" style="max-height: 300px;" class="img-fluid" />
                     </div>
                 </div>
@@ -117,8 +129,7 @@
             <div class="card">
                 <div class="card-body">
                     <div
-                        style="font-family: monospace; display: flex; flex-direction: column-reverse; max-height: 350px; overflow: auto;font-size: 50%; white-space: pre-wrap;">
-                        {{log}}</div>
+                        style="font-family: monospace; display: flex; flex-direction: column-reverse; max-height: 350px; overflow: auto;font-size: 50%; white-space: pre-wrap;">{{log}}</div>
                 </div>
             </div>
         </div>

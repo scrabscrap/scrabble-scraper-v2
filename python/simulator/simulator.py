@@ -111,11 +111,13 @@ def simulator() -> str:
         t1 < 0 else f'{m2:02d}:{s2:02d}'
     # get current picture
     png_current = None
+    board = ''
     game = State().game
     if (len(game.moves) > 0) and (game.moves[-1].img is not None):
         pic = game.moves[-1].img
         _, pic_buf_arr = cv2.imencode(".jpg", pic)
         png_current = urllib.parse.quote(base64.b64encode(pic_buf_arr))
+        board = f'Score: {game.moves[-1].score} / {game.moves[-1].points}\n{game.board_str()}'
     # get next picture
     img = ApiServer.cam.read(peek=True)  # type: ignore
     _, im_buf_arr = cv2.imencode(".jpg", img)
@@ -131,7 +133,7 @@ def simulator() -> str:
     return render_template('simulator.html', version=ApiServer.scrabscrap_version,
                            img_next=png_next, img_current=png_current, log=log_out,
                            green=LEDEnum.green.value, yellow=LEDEnum.yellow.value, red=LEDEnum.red.value,
-                           left=left, right=right, folder=listOfDir)
+                           left=left, right=right, folder=listOfDir, board=board)
 
 
 def main():
