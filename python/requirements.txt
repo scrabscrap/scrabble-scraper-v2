@@ -1,13 +1,13 @@
 # install: pip install -r requirements.txt
 # libs #
-adafruit-circuitpython-ssd1306>=2.12.8; sys_platform != "darwin" and sys_platform != "windows"
+adafruit-circuitpython-ssd1306>=2.12.8; sys_platform != "darwin" and platform_machine != "x86_64"
 Flask>=2.2.2
 gpiozero>=1.6.2
 imutils>=0.5.4
 opencv-python==4.6.0.66
-picamera>=1.13; sys_platform != "darwin" and sys_platform != "windows"
+picamera>=1.13; sys_platform != "darwin" and platform_machine != "x86_64"
 Pillow>=9.2.0
-smbus>=1.1; sys_platform != "darwin" and sys_platform != "windows"
+smbus>=1.1; sys_platform != "darwin" and platform_machine != "x86_64"
 visual-logging>=1.0
 # tools #
 autopep8>=1.7.0
