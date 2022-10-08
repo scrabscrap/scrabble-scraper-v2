@@ -1,0 +1,30 @@
+image:
+  file: .gitpod.Dockerfile
+
+ports:
+  - port: 5000
+    onOpen: open-browser
+  - port: 3000
+    onOpen: open-browser
+
+tasks:
+  - name: python
+    init: |
+      echo "export PYTHONPATH=src" >> ~/.bashrc
+      pip install --upgrade pip
+      pip install -r python/requirements.txt
+    command: |
+      cp -n python/defaults/* python/work/
+
+  - name: react
+    init: |
+      ln -s python/work/web react/public/web
+      cd react
+      npm install
+      cd ..
+
+vscode:
+  extensions:
+    - ms-python.python
+    - eamodio.gitlens
+    - davidanson.vscode-markdownlint
