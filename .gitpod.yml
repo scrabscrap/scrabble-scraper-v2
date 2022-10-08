@@ -34,7 +34,8 @@ gitConfig:
 vscode:
   extensions:
     - ms-python.python
-    - eamodio.gitlens
+    - ms-python.vscode-pylance
+    - mhutchie.git-graph
     - davidanson.vscode-markdownlint
     - ms-azuretools.vscode-docker
     - tomoki1207.pdf
