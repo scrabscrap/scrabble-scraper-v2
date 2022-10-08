@@ -18,8 +18,9 @@ tasks:
 
   - name: react
     init: |
-      ln -s python/work/web react/public/web
-      cd react
+      cd react/public
+      ln -s ../../python/work/web web
+      cd ..
       npm install
       cd ..
 
