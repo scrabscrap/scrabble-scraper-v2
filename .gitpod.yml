@@ -18,14 +18,16 @@ tasks:
 
   - name: react
     init: |
-      cd react/public
+      cd $GITPOD_REPO_ROOTS/react/public
       ln -s ../../python/work/web web
-      cd ..
+      cd $GITPOD_REPO_ROOTS/react
       npm install
-      cd ..
+      cd $GITPOD_REPO_ROOTS
 
 vscode:
   extensions:
     - ms-python.python
     - eamodio.gitlens
     - davidanson.vscode-markdownlint
+    - ms-azuretools.vscode-docker
+    - tomoki1207.pdf
