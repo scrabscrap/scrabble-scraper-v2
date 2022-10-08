@@ -24,6 +24,13 @@ tasks:
       npm install
       cd $GITPOD_REPO_ROOTS
 
+gitConfig:
+  alias.st: status -s
+  alias.co: checkout
+  alias.hist: log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short --no-merges
+  rebase.autostash: true
+  pull.autostash: true
+
 vscode:
   extensions:
     - ms-python.python
