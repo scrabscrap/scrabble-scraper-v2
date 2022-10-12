@@ -37,13 +37,17 @@ def doubt1():
 
 def green():
     State().press_button('GREEN')
-    sleep(0.7)
+    if State().last_submit is not None:
+        while not State().last_submit.done():  # type: ignore
+            sleep(0.1)
     return redirect(url_for('simulator'))
 
 
 def red():
     State().press_button('RED')
-    sleep(0.7)
+    if State().last_submit is not None:
+        while not State().last_submit.done():  # type: ignore
+            sleep(0.1)
     return redirect(url_for('simulator'))
 
 
