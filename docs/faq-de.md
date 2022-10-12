@@ -2,6 +2,30 @@
 
 ## Einrichten der WLAN Verbindung
 
+Sofern keine gültige WLAN Verbindung aufgebaut werden kann, wechselt ScrabScrap in
+den AP Mode und stellt ein WLAN `ScrabScrap` zur Verfügung. Das Default-Kennwort
+lautet `scrabscrap` und sollte bei der ersten Nutzung geändert werden.
+
+Nach Verbindung mit AP kann über die API-Web-Anwendung `http://10.0.0.1:5000` im
+Menüpunkt `WiFi` nach aktiven WLAN Netzen gesucht werden und diese hinterlegt werden.
+
+Nach ein Reboot verbindet sich `ScrabScrap` automatisch mit dem stärksten bekannten
+WLAN.
+
+## Spielernamen setzen
+
+Die Spielernamen können über API-Web-Anwendung (`http://<ipadresse scrabscrap>:5000/`) gesetzt werden. Die Spielernamen
+in die Eingabefelder eintragen und über `Submit` abspeichern. Hierbei sollte möglichst auf Umlaute und Leerzeichen
+verzichtet werden.
+
+Die Einstellung kann auch während des Spieles vorgenommen werden und wird dann beim nächsten Zug aktiv.
+
+## Beleuchtung des Spielbrettes
+
+Das Spielbrett sollte möglichst indirekt beleuchtet werden, um eine Schattenbildung zu vermeiden. Die
+Qualität der Ausleichtung kann mit der API-Web-Anwendung (`http://<ipadresse scrabscrap>:5000/`) im Menüpunkt `Camera`
+geprüft werden.
+
 ## Kamera justieren
 
 Das Justieren der Kamera erfolgt über die API-Web-Anwendung (`http://<ipadresse scrabscrap>:5000/`). Hier den Menüpunkt `Camera`
@@ -21,19 +45,25 @@ Ist die Kamera nicht korrekt ausgerichtet, kann in dem unteren Bild der Ausschni
 am Ende ein ca. 2cm weisser Rand um das Spielfeld herum eingestellt werden. Nach Korrektur des Kamera-Armes den `Reload`
 Button drücken, damit das Bild neu aufgebaut wird.
 
-## Spielernamen setzen
+## Settings
 
-Die Spielernamen können über API-Web-Anwendung (`http://<ipadresse scrabscrap>:5000/`) gesetzt werden. Die Spielernamen
-in die Eingabefelder eintragen und über `Submit` abspeichern. Hierbei sollte möglichst auf Umlaute und Leerzeichen
-verzichtet werden.
+Die Settings der Anwendung werden über die INI-Datei `scrabscrap.ini` und `ftp-secret.ini` konfiguriert. In der
+Datei `scrabscrap.ini` sind die Default-Werte in den einzelnen Sektionen unter dem Schlüssel `defaults` aufgeführt.
+Es müssen nur die geänderten Werte abgespeichert werden.
 
-Die Einstellung kann auch während des Spieles vorgenommen werden und wird dann beim nächsten Zug aktiv.
+Bei einem bereits gestartetem System können Änderungen über die Web-Oberfläche der
+API-Schnittstelle vorgenommen werden. Hierzu einfach die URL `http://<ipadresse>:5000`
+aufrufen. Einige Funktionen sind nur möglich, wenn sich die Anwendung entweder im Modus
+`Start` oder `Pause`befindet.
 
-## Beleuchtung des Spielbrettes
+## Test der Hardware
 
-Das Spielbrett sollte möglichst indirekt beleuchtet werden, um eine Schattenbildung zu vermeiden. Die
-Qualität der Ausleichtung kann mit der API-Web-Anwendung (`http://<ipadresse scrabscrap>:5000/`) im Menüpunkt `Camera`
-geprüft werden.
+Wenn `scrabscrap`gestartet ist, kann über die API-Web-Anwendung ein Test der LEDs und der Displays
+ausgelöst werden. Hierzu einfach die URL `http://<ipadresse>:5000` aufrufen und dann den Menü-Punkt
+`Test` auswählen.
+
+Durch den Aufruf der LED Tests werden verschiedene Modi der LEDs angezeigt (Ein/Aus/Blinken).
+Beim Aufruf des Display-Test werden verschiedene Anzeigen der Reihe nach angezeigt.
 
 ## Erweiterung von ScrabScrap
 
@@ -73,13 +103,15 @@ Spielfeldes auf 750x750px normiert.
 Buchstaben zu optimieren. Algortihmisch wird ausgehend vom Zentrum die jeweiligen Nachbarfelder geprüft bis keine weiteren
 gelegten Steine mehr erkannt werden.
 
-## Test der Hardware
-
-## Settings
-
-## Erzeugung der Dokumentation
-
 ## Development
+
+### Nutzung von GitPod
+
+Die Konfiguration zur Nutzung von VSCode innerhalb von GitPod ist bereits vorgesehen. Um dies
+zu verwenden einfach auf den folgenden Button drücken, dann wird eine entsprechende Umgebung
+gestartet:
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/scrabscrap/scrabble-scraper-v2)
 
 ### Einrichten eines Entwicklungssystems unter Mac OS
 
@@ -140,9 +172,12 @@ Als Workspace Folder werden folgende Verzeichnisse angelegt
 
 In VSCode sollten dann folgende Erweiterungen installiert werden.
 
-* GitLens (GitKraken)
+* GitLess
+* GitGraph
 * markdownlint (David Anson)
 * Python (Microsoft)
+* Pylance (Microsoft)
+* optional: vscode-pdf
 
 soll eine Remote-Entwicklung auf dem Raspberry PI erfolgen, dann müssen noch
 
@@ -162,13 +197,95 @@ alias python=python3
 
 #### Einstellung .zshrc
 
-Damit die Ausführung in VSCode von Python-Code auch im RUN-Modus funktioniert, in
-der .zshrc folgendes ergänzen:
+Damit die Ausführung in VSCode von Python-Code auch im RUN-Modus funktioniert, muss in
+der .zshrc folgendes ergänzt werden:
 
 ```bash
 export PYTHONPATH=src:$PYTHONPATH
 ```
 
-### Nutzung von GitPods
+## Erzeugung der Dokumentation
+
+Damit die Dokumentation in Form von PDF Dateien erzeugt werden kann, muss auf dem System
+
+* pandoc
+* texlive
+
+installiert sein.
+
+Dann kann in dem Verzeichnis `docs` mit dem Script `make_pdf.sh` die Dokumentation erzeugt werden.
+
+## Start der Python Anwendungen
+
+### Raspberry PI
+
+Auf dem Raspberry PI kann die Anwendung wie folgt gestartet werden
+
+```bash
+cd python/src
+# ggf. workon cv
+python scrabscrap.py
+```
+
+Die API zum Einstellen von Parametern steht danach unter
+
+* `http://localhost:5000`
+
+zur Verfügung.
+
+Sollte ein Zugriff über `localhost`nicht funktionieren, bitte statt `localhost` die IPv4 Adresse des
+Rechners verwenden.
+
+### MacOS / GitPod
+
+Hier kann die Hardware des Raspberry PI nicht genutzt werden, daher muss eine Simulation erfolgen.
+
+Zum Start des Simulators folgenden Aufruf verwenden
+
+```bash
+cd python/simulator
+python simulator.py
+````
+
+Die simulierte Anwendung kann dann im lokalen Browser über
+
+* `http://localhost:5000`
+
+aufgerufen werden.
+
+Sollte ein Zugriff über `localhost`nicht funktionieren, bitte statt `localhost` die IPv4 Adresse des
+Rechners verwenden.
+
+## Start der Web-Anwendung
+
+Damit in der Web-Anwendung die Daten der Python-Anwendung angezeigt werden, muss ein symbolischer
+Link angelegt werden:
+
+```bash
+cd react/public
+ln -s ../../python/work/web web
+```
+
+Damit stehen dann die Daten, die in der Python-Anwendung erzeugt werden lokal zur Verfügung.
+
+Die Initialisierung der node_modules erfolgt mit:
+
+```bash
+cd react
+npm install
+```
+
+Der Start der Web-Anwendung erfolgt dann mit
+
+```bash
+cd react
+npm start
+````
+
+Die Web-Anwendung kann dann im lokalen Browser unter
+
+* `http://localhost:3000`
+
+aufgerufen werden.
 
 ## Fehlerbehebung
