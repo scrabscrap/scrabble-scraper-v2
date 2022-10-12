@@ -34,7 +34,7 @@ Es müssen aktiviert werden
 
 Im nächsten Schritt werden allgemeine Hilfsmittel installiert
 
-1. Git und Python installieren
+### Git und Python installieren
 
 ```bash
 sudo apt install -y git python3-venv python3-dev
@@ -56,7 +56,7 @@ libgraphite2-3 libhdf5-103-1 libgfortran5 libsoxr0 libpgm-5.3-0 libopenmpt0 libx
 libdatrie1 libgdk-pixbuf-2.0-0 libopenjp2-7 libwebpmux3 --fix-missing
 ```
 
-2. Clone des ScrabScrap Repositories
+### Clone des ScrabScrap Repositories
 
 Falls von dem RPI auch Commits an das Repository vorgenommen werden sollen, muss
 die GitHub Userkennung gesetzt werden.
@@ -73,7 +73,7 @@ cd
 git clone https://github.com/scrabscrap/scrabble-scraper.git
 ```
 
-3. Python Konfiguration erzeugen
+### Python Konfiguration erzeugen
 
 ```bash
 python3 -m venv ~/.venv/cv --system-site-packages
@@ -136,111 +136,11 @@ source ~/.alias
 
 ## Autostart von ScrabScrap konfigurieren
 
-TODO: ergänzen
+TODO
 
 ## Installation eines Develepment Rechners
 
-### Installation der Bibliotheken
-
-#### Installation von Python 3.9
-
-```bash
-brew install python@3.9
-```
-
-Alias für ``python3``anlegen
-
-```text
-alias workon='f() { source ~/.venv/$1/bin/activate };f'
-alias python=python3
-```
-
-#### Installation von venv
-
-```bash
-python pip install pip --upgrade
-python -m pip install --user virtualenv
-python -m venv ~/.venv/cv
-```
-
-#### Installation der Libraries
-
-Nach dem Klonen des Repositories
-
-```bash
-workon cv
-pip install -r requirements.txt
-```
-
-## Zugriff über einen ssh-Key
-
-(lokaler Rechner)
-
-```bash
-cd ~/.ssh
-#erzeugen des scrabsrap ssh-keys
-ssh-keygen -f ~/.ssh/scrabscrap -t ecdsa
-#kopieren auf dem RPI ! user@host ! anpassen
-ssh-copy-id -i ~/.ssh/scrabscrap user@host
-```
-
-Für den lokalen Rechner für den Host ``scrabscrap`` eine abweichende ssh-keys konfigurieren.
-
-```bash
-nano ~/.shh/config 
-```
-
-folgende Einträge ergänzen
-
-```text
-Host scrabscrap
-  HostName scrabscrap
-  User <username>
-  IdentityFile ~/.ssh/scrabscrap
-```
-
-## Zugriff über VS Code
-
-Auf dem lokalen Rechner sollte VS Code mit folgenden Plugins installiert werden
-
-- Remote - SSH (Microsoft)
-- Remote Development (Microsoft)
-- Python (Microsoft)
-- Pylance (Microsoft)
-- React Native Tools (Microsoft)
-- GitLens (GitKraken)
-- Html Preview (George Oliveira)
-
-Dann kann eine Remote Verbindung zum RPI aufgebaut werden. Hierzu werden zusätzliche Hilfsmittel
-auf dem RPI installiert.
-
-Danach kann von dem lokalen Rechner über ssh Entwicklung auf dem RPI durchgeführt werden.
-
-Nach dem Start der ssh Verbindung kann das Verzeichnis ``~/scrabscrap/python`` geöffnet werden.
-
-### Lint und Format
-
-```bash
-pip install flake8 autopep8
-```
-
-Parameter flake8
-
-```json
-    "python.linting.flake8Args": [
-        "--max-line-length=128",
-        "--ignore=E402"
-      ],
-```
-
-Parameter autopep8
-
-```json
-    "python.formatting.autopep8Args": [
-        "--max-line-length=128",
-        "--ignore=E402"
-      ],
-```
+siehe FAQ
 
 ## Automatischer HotSpot
 
@@ -326,7 +226,7 @@ wpa_passphrase {ssid} {key}
 
 ## Sonstiges
 
-Rote Power LED ausschalten
+### Rote Power LED ausschalten
 
 in /etc/crontab
 
@@ -334,7 +234,7 @@ in /etc/crontab
 @reboot echo 0 >/sys/class/leds/led1/brightness
 ```
 
-Kamera LED ausschalten
+### Kamera LED ausschalten
 
 in /boot/config.txt
 

@@ -168,7 +168,34 @@ Als Workspace Folder werden folgende Verzeichnisse angelegt
 * Documentation
 * Scripts
 
-#### VS Code Erweiterungen
+### Zugriff über einen ssh-Key
+
+(lokaler Rechner)
+
+```bash
+cd ~/.ssh
+#erzeugen des scrabsrap ssh-keys
+ssh-keygen -f ~/.ssh/scrabscrap -t ecdsa
+#kopieren auf dem RPI ! user@host ! anpassen
+ssh-copy-id -i ~/.ssh/scrabscrap user@host
+```
+
+Für den lokalen Rechner für den Host ``scrabscrap`` eine abweichende ssh-keys konfigurieren.
+
+```bash
+nano ~/.shh/config 
+```
+
+folgende Einträge ergänzen
+
+```text
+Host scrabscrap
+  HostName scrabscrap
+  User <username>
+  IdentityFile ~/.ssh/scrabscrap
+```
+
+### VS Code Erweiterungen
 
 In VSCode sollten dann folgende Erweiterungen installiert werden.
 
@@ -186,7 +213,50 @@ soll eine Remote-Entwicklung auf dem Raspberry PI erfolgen, dann müssen noch
 
 installiert werden.
 
-#### Einstellung .alias
+### Zugriff über VS Code
+
+Auf dem lokalen Rechner sollte VS Code mit folgenden Plugins installiert werden
+
+* GitLess
+* GitGraph
+* markdownlint (David Anson)
+* Python (Microsoft)
+* Pylance (Microsoft)
+* Html Preview (George Oliveira)
+
+Dann kann eine Remote Verbindung zum RPI aufgebaut werden. Hierzu werden zusätzliche Hilfsmittel
+auf dem RPI installiert.
+
+Danach kann von dem lokalen Rechner über ssh Entwicklung auf dem RPI durchgeführt werden.
+
+Nach dem Start der ssh Verbindung kann der Workspace `~/scrabble-scraper-v2/scrabble-scraper-v2.code-workspace`
+geöffnet werden.
+
+### Lint und Format
+
+```bash
+pip install flake8 autopep8
+```
+
+Parameter flake8
+
+```json
+    "python.linting.flake8Args": [
+        "--max-line-length=128",
+        "--ignore=E402"
+      ],
+```
+
+Parameter autopep8
+
+```json
+    "python.formatting.autopep8Args": [
+        "--max-line-length=128",
+        "--ignore=E402"
+      ],
+```
+
+### Einstellung .alias
 
 Es bietet sich an, folgende Alias-Einträge anzulegen.
 
