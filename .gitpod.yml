@@ -9,17 +9,18 @@ ports:
 
 tasks:
   - name: python
-    init: |
+    before: |
       echo "export PYTHONPATH=src" >> ~/.bashrc
+      cp -n python/defaults/* python/work/
+    init: |
       pip install --upgrade pip
       pip install -r python/requirements.txt
-    command: |
-      cp -n python/defaults/* python/work/
 
   - name: react
-    init: |
+    before: |
       cd $GITPOD_REPO_ROOTS/react/public
-      ln -s ../../python/work/web web
+      ln -s ../../python/work/web web || true
+    init: |
       cd $GITPOD_REPO_ROOTS/react
       npm install
       cd $GITPOD_REPO_ROOTS
