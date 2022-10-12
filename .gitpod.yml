@@ -35,7 +35,6 @@ gitConfig:
 vscode:
   extensions:
     - ms-python.python
-    - ms-python.vscode-pylance
     - mhutchie.git-graph
     - davidanson.vscode-markdownlint
     - ms-azuretools.vscode-docker
