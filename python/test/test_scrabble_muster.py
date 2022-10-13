@@ -1,18 +1,18 @@
 """
- This file is part of the scrabble-scraper distribution 
+ This file is part of the scrabble-scraper distribution
  (https://github.com/scrabscrap/scrabble-scraper-v2)
  Copyright (c) 2022 Rainer Rohloff.
- 
- This program is free software: you can redistribute it and/or modify  
- it under the terms of the GNU General Public License as published by  
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
  the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but 
- WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  General Public License for more details.
 
- You should have received a copy of the GNU General Public License 
+ You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging.config
@@ -67,7 +67,6 @@ class ScrabbleMusterTestCase(unittest.TestCase):
     def test_names(self):
 
         files = [TEST_DIR + "/board-neu/board-04.png"]
-        last_board = None
         for f in files:
             img = cv2.imread(f)
             self.config_setter('video', 'warp_coordinates', None)
