@@ -72,7 +72,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
         cam = Camera(useCamera=CameraEnum.FILE)
-        cam.stream.formatter = f'{TEST_DIR}/spiel-12/board-{{:02d}}.png'  # type: ignore
+        cam.stream.formatter = f'{TEST_DIR}/game-12/board-{{:02d}}.png'  # type: ignore
         state = State(cam=cam)
         state.do_reset()
         state.game.nicknames = ('A', 'S')
@@ -95,7 +95,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
         cam = Camera(useCamera=CameraEnum.FILE)
-        cam.stream.formatter = f'{TEST_DIR}/spiel-13/board-{{:02d}}.png'  # type: ignore
+        cam.stream.formatter = f'{TEST_DIR}/game-13/board-{{:02d}}.png'  # type: ignore
         # print(f'formatter {cam.stream.formatter}')  # type: ignore
         state = State(cam=cam)
         state.do_reset()
@@ -120,7 +120,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
         cam = Camera(useCamera=CameraEnum.FILE)
-        cam.stream.formatter = f'{TEST_DIR}/spiel-14/board-{{:02d}}.png'  # type: ignore
+        cam.stream.formatter = f'{TEST_DIR}/game-14/board-{{:02d}}.png'  # type: ignore
         # print(f'formatter {cam.stream.formatter}')  # type: ignore
         state = State(cam=cam)
         state.do_reset()
@@ -144,7 +144,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
         cam = Camera(useCamera=CameraEnum.FILE)
-        cam.stream.formatter = f'{TEST_DIR}/spiel-15/board-{{:02d}}.png'  # type: ignore
+        cam.stream.formatter = f'{TEST_DIR}/game-15/board-{{:02d}}.png'  # type: ignore
         # print(f'formatter {cam.stream.formatter}')  # type: ignore
         state = State(cam=cam)
         state.do_reset()

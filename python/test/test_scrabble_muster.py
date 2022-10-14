@@ -66,7 +66,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
     def test_names(self):
 
-        files = [TEST_DIR + "/board-neu/board-04.png"]
+        files = [TEST_DIR + "/board-tests/board-04.png"]
         for f in files:
             img = cv2.imread(f)
             self.config_setter('video', 'warp_coordinates', None)
@@ -98,24 +98,24 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
     def test_err_images(self):
 
-        files = [TEST_DIR + "/board-neu/err-01.png", TEST_DIR + "/board-neu/err-02.png",
-                 TEST_DIR + "/board-neu/err-03.png",
-                 TEST_DIR + "/board-neu/err-04.png", TEST_DIR + "/board-neu/err-05.png",
-                 TEST_DIR + "/board-neu/err-06.png",
-                 TEST_DIR + "/board-neu/err-07.png", TEST_DIR + "/board-neu/err-08.png",
-                 TEST_DIR + "/board-neu/err-09.png",
-                 TEST_DIR + "/board-neu/err-10.png", TEST_DIR + "/board-neu/err-11.png",
-                 TEST_DIR + "/board-neu/err-12.png",
-                 TEST_DIR + "/board-neu/err-14.png",
-                 TEST_DIR + "/board-neu/err-16.png", TEST_DIR + "/board-neu/err-17.png",
-                 TEST_DIR + "/board-neu/err-18.png",
-                 TEST_DIR + "/board-neu/err-19.png", TEST_DIR + "/board-neu/err-20.png",
-                 TEST_DIR + "/board-neu/err-21.png",
-                 TEST_DIR + "/board-neu/err-22.png",
-                 TEST_DIR + "/board-neu/err-24.png"
+        files = [TEST_DIR + "/board-tests/err-01.png", TEST_DIR + "/board-tests/err-02.png",
+                 TEST_DIR + "/board-tests/err-03.png",
+                 TEST_DIR + "/board-tests/err-04.png", TEST_DIR + "/board-tests/err-05.png",
+                 TEST_DIR + "/board-tests/err-06.png",
+                 TEST_DIR + "/board-tests/err-07.png", TEST_DIR + "/board-tests/err-08.png",
+                 TEST_DIR + "/board-tests/err-09.png",
+                 TEST_DIR + "/board-tests/err-10.png", TEST_DIR + "/board-tests/err-11.png",
+                 TEST_DIR + "/board-tests/err-12.png",
+                 TEST_DIR + "/board-tests/err-14.png",
+                 TEST_DIR + "/board-tests/err-16.png", TEST_DIR + "/board-tests/err-17.png",
+                 TEST_DIR + "/board-tests/err-18.png",
+                 TEST_DIR + "/board-tests/err-19.png", TEST_DIR + "/board-tests/err-20.png",
+                 TEST_DIR + "/board-tests/err-21.png",
+                 TEST_DIR + "/board-tests/err-22.png",
+                 TEST_DIR + "/board-tests/err-24.png"
                  ]
         # Errors on analyze:
-        # TEST_DIR + "/board-neu/err-13.png", TEST_DIR + "/board-neu/err-15.png", TEST_DIR + "/board-neu/err-23.png",
+        # TEST_DIR + "/board-tests/err-13.png", TEST_DIR + "/board-tests/err-15.png", TEST_DIR + "/board-tests/err-23.png",
         for f in files:
             img = cv2.imread(f)
             self.config_setter('video', 'warp_coordinates', None)
@@ -140,8 +140,8 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
     def test_new_images(self):
 
-        files = [TEST_DIR + "/board-neu/board-00.png", TEST_DIR + "/board-neu/board-01.png",
-                 TEST_DIR + "/board-neu/board-03.png"]
+        files = [TEST_DIR + "/board-tests/board-00.png", TEST_DIR + "/board-tests/board-01.png",
+                 TEST_DIR + "/board-tests/board-03.png"]
 
         for f in files:
             img = cv2.imread(f)
