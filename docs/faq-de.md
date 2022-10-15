@@ -111,7 +111,7 @@ Die Konfiguration zur Nutzung von VSCode innerhalb von GitPod ist bereits vorges
 zu verwenden einfach auf den folgenden Button drücken, dann wird eine entsprechende Umgebung
 gestartet:
 
-Open in Gitpod(https://gitpod.io/#https://github.com/scrabscrap/scrabble-scraper-v2)
+[Open in Gitpod](https://gitpod.io/#https://github.com/scrabscrap/scrabble-scraper-v2)
 
 ### Einrichten eines Entwicklungssystems unter Mac OS
 

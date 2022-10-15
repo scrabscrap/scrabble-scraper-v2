@@ -2,16 +2,17 @@
 
 ## Teileliste
 
-* Raspberry PI 3
-* [Raspberry PI Camera (AZDelivery Kamera für Raspberry Pi) v1.3](https://www.amazon.de/AZDelivery-Kamera-Flexkabel-Raspberry-Gratis/dp/B07KSZW251)
-* Anschluss-Kabel Raspberry PI Camera
+* [Raspberry PI 3](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/)
+* [Raspberry PI Camera (AZDelivery Kamera für Raspberry Pi) v1.3](https://www.az-delivery.de/products/raspberrykamerav1-3)
+* [Anschluss-Kabel Raspberry PI Camera](https://www.az-delivery.de/products/200cm-ersatz-flexkabel-fur-raspberry-pi-kamera-und-das-raspberry-pi-display)
 * [Button mit LED Grün/Gelb/Rot (EG STARTS 10x neue LED beleuchtet Arcade-Tasten mit Mikroschalter Mame Multicade)](https://www.amazon.de/gp/product/B01N549IDL)
 * Schalter Grün
 * Schalter Rot
 * Schalter Gelb, Schwarz, Blau
-* [Multiplexer I2C (AZDelivery PCA9548A I2C Multiplexer 8-Kanal-Multiplexer)](https://www.amazon.de/AZDelivery-TCA9548A-Multiplexer-8-Kanal-Multiplexer-kompatibel/dp/B086W7SL63)
-* [2 * Display (AZDelivery 5 x 0,96 Zoll OLED Display I2C SSD1306 Chip 128 x 64 Pixel)](https://www.amazon.de/AZDelivery-Display-Arduino-Raspberry-Gratis/dp/B074NJMPYJ)
-* [RTC (AZDelivery Real Time Clock RTC DS3231 I2C)](https://www.amazon.de/AZDelivery-RTC-Batterie-inklusive-Arduino/dp/B01M2B7HQB)
+* [Multiplexer I2C (AZDelivery PCA9548A I2C Multiplexer 8-Kanal-Multiplexer)](https://www.az-delivery.de/products/tca9548a-i2c-iic-multiplexer)
+* [2 * Display (AZDelivery 5 x 0,96 Zoll OLED Display I2C SSD1306 Chip 128 x 64 Pixel)](https://www.az-delivery.de/products/0-96zolldisplay)
+* [RTC (AZDelivery Real Time Clock RTC DS3231 I2C)](https://www.az-delivery.de/products/ds3231-real-time-clock)
+* [Kamera Extender](https://www.berrybase.de/kamerakabelverbinder-fuer-raspberry-pi-15-pin-zu-15-pin)
 * Kabel & Stecker
 
 <div style="display:none;page-break-after: always;">\pagebreak</div>
