@@ -138,39 +138,51 @@ class State(metaclass=Singleton):
     def do_valid_challenge0(self) -> str:
         """player 0 has a valid challenge for the last move from player 1"""
         logging.debug(f'{self.current_state} - (valid challenge) -> {P0}')
-        _, t0, _, t1, _ = self.watch.get_status()
-        self.watch.display.add_remove_tiles(1)  # player 1 has to remove the last move
-        self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 0, (t0, t1))
-        LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green, yellow
+        _, t0, pt, t1, _ = self.watch.get_status()
+        if pt > config.DOUBT_TIMEOUT:
+            logging.info(f'no challenge possible, because of timeout {pt}')
+        else:
+            self.watch.display.add_remove_tiles(1)  # player 1 has to remove the last move
+            self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 0, (t0, t1))
+            LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green, yellow
         return P0
 
     def do_valid_challenge1(self) -> str:
         """player 1 has a valid challenge for the last move from player 0"""
         logging.debug(f'{self.current_state} - (valid challenge) -> {P1}')
-        _, t0, _, t1, _ = self.watch.get_status()
-        self.watch.display.add_remove_tiles(0)  # player 0 has to remove the last move
-        self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 1, (t0, t1))
-        LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
+        _, t0, _, t1, pt = self.watch.get_status()
+        if pt > config.DOUBT_TIMEOUT:
+            logging.info(f'no challenge possible, because of timeout {pt}')
+        else:
+            self.watch.display.add_remove_tiles(0)  # player 0 has to remove the last move
+            self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 1, (t0, t1))
+            LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
         return P1
 
     def do_invalid_challenge0(self) -> str:
         """player 0 has an invalid challenge for the last move from player 1"""
         logging.debug(
             f'{self.current_state} - (invalid challenge) -> {P0} (-{config.MALUS_DOUBT:2d})')  # -10
-        _, t0, _, t1, _ = self.watch.get_status()
-        self.watch.display.add_malus(0)  # player 0 gets a malus
-        self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 0, (t0, t1))
-        LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green
+        _, t0, pt, t1, _ = self.watch.get_status()
+        if pt > config.DOUBT_TIMEOUT:
+            logging.info(f'no challenge possible, because of timeout {pt}')
+        else:
+            self.watch.display.add_malus(0)  # player 0 gets a malus
+            self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 0, (t0, t1))
+            LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green
         return P0
 
     def do_invalid_challenge1(self) -> str:
         """player 0 has an invalid challenge for the last move from player 1"""
         logging.debug(
             f'{self.current_state} - (invalid challenge) -> {P1} (-{config.MALUS_DOUBT:2d})')  # -10
-        _, t0, _, t1, _ = self.watch.get_status()
-        self.watch.display.add_malus(1)  # player 1 gets a malus
-        self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 1, (t0, t1))
-        LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
+        _, t0, _, t1, pt = self.watch.get_status()
+        if pt > config.DOUBT_TIMEOUT:
+            logging.info(f'no challenge possible, because of timeout {pt}')
+        else:
+            self.watch.display.add_malus(1)  # player 1 gets a malus
+            self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 1, (t0, t1))
+            LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
         return P1
 
     def do_reset(self) -> str:
