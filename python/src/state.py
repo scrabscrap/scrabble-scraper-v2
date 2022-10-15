@@ -140,6 +140,7 @@ class State(metaclass=Singleton):
         logging.debug(f'{self.current_state} - (valid challenge) -> {P0}')
         _, t0, pt, t1, _ = self.watch.get_status()
         if pt > config.DOUBT_TIMEOUT:
+            self.watch.display.add_doubt_timeout(0)  # player 0 gets a malus
             logging.info(f'no challenge possible, because of timeout {pt}')
         else:
             self.watch.display.add_remove_tiles(1)  # player 1 has to remove the last move
@@ -152,6 +153,7 @@ class State(metaclass=Singleton):
         logging.debug(f'{self.current_state} - (valid challenge) -> {P1}')
         _, t0, _, t1, pt = self.watch.get_status()
         if pt > config.DOUBT_TIMEOUT:
+            self.watch.display.add_doubt_timeout(1)  # player 0 gets a malus
             logging.info(f'no challenge possible, because of timeout {pt}')
         else:
             self.watch.display.add_remove_tiles(0)  # player 0 has to remove the last move
@@ -165,6 +167,7 @@ class State(metaclass=Singleton):
             f'{self.current_state} - (invalid challenge) -> {P0} (-{config.MALUS_DOUBT:2d})')  # -10
         _, t0, pt, t1, _ = self.watch.get_status()
         if pt > config.DOUBT_TIMEOUT:
+            self.watch.display.add_doubt_timeout(0)  # player 0 gets a malus
             logging.info(f'no challenge possible, because of timeout {pt}')
         else:
             self.watch.display.add_malus(0)  # player 0 gets a malus
@@ -178,6 +181,7 @@ class State(metaclass=Singleton):
             f'{self.current_state} - (invalid challenge) -> {P1} (-{config.MALUS_DOUBT:2d})')  # -10
         _, t0, _, t1, pt = self.watch.get_status()
         if pt > config.DOUBT_TIMEOUT:
+            self.watch.display.add_doubt_timeout(1)  # player 0 gets a malus
             logging.info(f'no challenge possible, because of timeout {pt}')
         else:
             self.watch.display.add_malus(1)  # player 1 gets a malus

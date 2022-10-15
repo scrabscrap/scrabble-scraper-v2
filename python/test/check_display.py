@@ -58,6 +58,10 @@ class DisplayTestCase(unittest.TestCase):
         watch.display.add_remove_tiles(1)
         time.sleep(1)
 
+        logging.debug('0: remove tiles')
+        watch.display.add_doubt_timeout(1)
+        time.sleep(1)
+
         logging.debug('resume')
         watch.resume()
 

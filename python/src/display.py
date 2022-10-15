@@ -56,6 +56,11 @@ class Display:
         pass
 
     @abstractmethod
+    def add_doubt_timeout(self, player: int) -> None:
+        logging.debug(f'doubt timeout for player {player}')
+        pass
+
+    @abstractmethod
     def show_cam_err(self) -> None:
         logging.debug('add cam err')
         pass

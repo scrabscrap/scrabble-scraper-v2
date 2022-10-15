@@ -121,6 +121,17 @@ class PlayerDisplay(Display, metaclass=Singleton):
         self.draw[player].text(MSG_REMOVE_TILES_COORD, MSG_REMOVE_TILES, font=MSG_REMOVE_TILES_FONT, fill=255)
         self.show(player=player)
 
+    def add_doubt_timeout(self, player: int) -> None:
+        assert player in [0, 1], "invalid player number"
+
+        logging.debug(f'{player}: doubt timeout')
+        MSG_TIMEOUT = '\u21AF time'
+        MSG_TIMEOUT_FONT = self.font1
+        MSG_TIMEOUT_COORD = (24, 1)
+        self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
+        self.draw[player].text(MSG_TIMEOUT_COORD, MSG_TIMEOUT, font=MSG_TIMEOUT_FONT, fill=255)
+        self.show(player=player)
+
     def show_cam_err(self) -> None:
         logging.debug('Cam err message')
         MSG_ERR_CAM = '\u2620Cam'
