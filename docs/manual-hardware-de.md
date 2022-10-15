@@ -92,4 +92,4 @@ so müssen geeignete Vorwiderstände ergänzt werden.
 
 ![Schaltplan](images/circuit-diagram.png)
 
-## Aufbau des Kamera-Arm
+## Aufbau des Kamera-Arms

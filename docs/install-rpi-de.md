@@ -13,7 +13,7 @@ Bei dem Erzeugen der SD Karte ggf. folgende Optionen konfigurieren
 - User / Passwort = (alter default: pi/raspberry)
 - Spracheinstellungen
 
-Nachdem der RPI gestartet wurde, per ssh eine Verbindung zu dem Rechner aufbauen.
+Nachdem der RPI gestartet wurde, per ssh eine Verbindung zum Rechner aufbauen.
 
 ```bash
 sudo apt update
@@ -70,7 +70,7 @@ Danach kann das Repository geladen werden
 
 ```bash
 cd
-git clone https://github.com/scrabscrap/scrabble-scraper.git
+git clone https://github.com/scrabscrap/scrabble-scraper-v2.git
 ```
 
 ### Python Konfiguration erzeugen
@@ -144,7 +144,7 @@ siehe FAQ
 
 ## Automatischer HotSpot
 
-siehe: [Automatischer HotSpot](https://raspberrypi.stackexchange.com/questions/100134/wpa-supplicant-dnsmasq-fallback-to-ap-mode-if-no-wifi-connection)
+siehe Artikel [Automatischer HotSpot](https://raspberrypi.stackexchange.com/questions/100134/wpa-supplicant-dnsmasq-fallback-to-ap-mode-if-no-wifi-connection).
 
 ```bash
 sudo apt install -y dnsmasq

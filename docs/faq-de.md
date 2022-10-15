@@ -9,7 +9,7 @@ lautet `scrabscrap` und sollte bei der ersten Nutzung geändert werden.
 Nach Verbindung mit AP kann über die API-Web-Anwendung `http://10.0.0.1:5000` im
 Menüpunkt `WiFi` nach aktiven WLAN Netzen gesucht werden und diese hinterlegt werden.
 
-Nach ein Reboot verbindet sich `ScrabScrap` automatisch mit dem stärksten bekannten
+Nach einem Reboot verbindet sich `ScrabScrap` automatisch mit dem stärksten bekannten
 WLAN.
 
 ## Spielernamen setzen
@@ -23,26 +23,26 @@ Die Einstellung kann auch während des Spieles vorgenommen werden und wird dann 
 ## Beleuchtung des Spielbrettes
 
 Das Spielbrett sollte möglichst indirekt beleuchtet werden, um eine Schattenbildung zu vermeiden. Die
-Qualität der Ausleichtung kann mit der API-Web-Anwendung (`http://<ipadresse scrabscrap>:5000/`) im Menüpunkt `Camera`
+Qualität der Ausleuchtung kann mit der API-Web-Anwendung (`http://<ipadresse scrabscrap>:5000/`) im Menüpunkt `Camera`
 geprüft werden.
 
 ## Kamera justieren
 
 Das Justieren der Kamera erfolgt über die API-Web-Anwendung (`http://<ipadresse scrabscrap>:5000/`). Hier den Menüpunkt `Camera`
-aufrufen. Dann wird ein aktuelles Build mit überlagertem Gitter angezeigt. Sofern dies bereits passend ist, sind keine weiteren
+aufrufen. Dann wird ein aktuelles Bild mit überlagertem Gitter angezeigt. Sofern dies bereits passend ist, sind keine weiteren
 Aktionen nötig.
 
-Falls das Bild nicht passend erkannt wird, den Mnüpunkt `Clear Warp` auswählen. Damit wird die Warp Einstellung gelöscht
-und das Spielbrett wird bei jeder Bild-Aufnahme dynmaisch ermittelt. Soll ein neuer Warp-Wert gespeichert werde, einfach
-erneut in das Menü `Camera`wechseln. Ist die Erkennung jetzt korrekt, können mit `Store Warp` die Koordinaten wieder
+Falls das Bild nicht passend erkannt wird, den Menüpunkt `Clear Warp` auswählen. Damit wird die Warp Einstellung gelöscht
+und das Spielbrett wird bei jeder Bild-Aufnahme dynamisch ermittelt. Soll ein neuer Warp-Wert gespeichert werden, einfach
+erneut in das Menü `Camera` wechseln. Ist die Erkennung jetzt korrekt, können mit `Store Warp` die Koordinaten wieder
 gespeichert werden. Dies kann durchaus auch während eines Spieles gemacht werden, wenn z.B. ein Spieler versehentlich
-gegen die Kamera gestoßen ist, und damit eventuell die Jusiterung verschoben hat.
+gegen die Kamera gestoßen ist, und damit eventuell die Justierung verschoben hat.
 
-Wird das Spieltfeld auf nach mehreren Versuchen nicht korrekt erkannt, kann auf dem unteren Bild mit der Maus in die
+Wird das Spielfeld auf nach mehreren Versuchen nicht korrekt erkannt, kann auf dem unteren Bild mit der Maus in die
 Spielfeldecken (einzeln) geklickt werden, dann werden die Koordinaten für den Warp verwendet.
 
 Ist die Kamera nicht korrekt ausgerichtet, kann in dem unteren Bild der Ausschnitt der Kamera geprüft werden. Hier sollte
-am Ende ein ca. 2cm weisser Rand um das Spielfeld herum eingestellt werden. Nach Korrektur des Kamera-Armes den `Reload`
+am Ende ein ca. 2 cm weißer Rand um das Spielfeld herum eingestellt werden. Nach Korrektur des Kamera-Armes den `Reload`
 Button drücken, damit das Bild neu aufgebaut wird.
 
 ## Settings
@@ -54,11 +54,11 @@ Es müssen nur die geänderten Werte abgespeichert werden.
 Bei einem bereits gestartetem System können Änderungen über die Web-Oberfläche der
 API-Schnittstelle vorgenommen werden. Hierzu einfach die URL `http://<ipadresse>:5000`
 aufrufen. Einige Funktionen sind nur möglich, wenn sich die Anwendung entweder im Modus
-`Start` oder `Pause`befindet.
+`Start` oder `Pause` befindet.
 
 ## Test der Hardware
 
-Wenn `scrabscrap`gestartet ist, kann über die API-Web-Anwendung ein Test der LEDs und der Displays
+Wenn `scrabscrap` gestartet ist, kann über die API-Web-Anwendung ein Test der LEDs und der Displays
 ausgelöst werden. Hierzu einfach die URL `http://<ipadresse>:5000` aufrufen und dann den Menü-Punkt
 `Test` auswählen.
 
@@ -70,10 +70,10 @@ Beim Aufruf des Display-Test werden verschiedene Anzeigen der Reihe nach angezei
 ### Abweichende Steine benutzen
 
 Soll ein abweichender Satz an Scrabble-Steinen verwendet werden, müssen diese in einem geeigneten Format als Bilder zur
-Verfügung stehen. Schwarzer Hintergrund mit weissem Text in der (Stein-)Größe ?x?. Es ist möglich nur einen Ausschnitt
+Verfügung stehen. Schwarzer Hintergrund mit weißem Text in der (Stein-)Größe ?x?. Es ist möglich nur einen Ausschnitt
 des Steines zu speichern, dabei muss allerdings das Größenverhältnis erhalten bleiben.
 
-Bei sehr ähnlichen Steinen empfiehlt es sich, den Buchstabenwert im Bild zu erhalten (z.B. bei A und Ä führt der abweichende
+Bei sehr ähnlichen Steinen empfiehlt es sich, den Buchstabenwert im Bild des Steines zu erhalten (z.B. bei A und Ä führt der abweichende
 Buchstabenwert zu einer verbesserten Erkennung).
 
 Der Pfad auf die Steine kann in der Konfigurationsdatei "scrabble.ini" angepasst werden. Der Vorgabewert für diesen Pfad
@@ -93,14 +93,14 @@ enthalten. Üblicherweise muss hierzu auch ein passendes Set an Steinen verwende
 ### Unterstützung weiterer Spielbretter
 
 Eine Unterstützung weiterer Spielbretter geht mit einer Anpassung der Software einher. Hierzu müssen die Methoden `warp` und
-`filter_image`implementiert werden.
+`filter_image` implementiert werden.
 
 `warp` sorgt für ein korrekt rotiertes, skaliertes und normiertes Bild des Spielbrettes. Als Ergebnis muss hier eine
 Bildgröße von 800x800px mit einem 25px Rand zu dem eigentlichen Spielfeld erzeugt werden. Damit ist das Gitter des
 Spielfeldes auf 750x750px normiert.
 
-`filter_image` dient zur Prüfung welche Felder auf dem Spielbrett durch Steine belegt sind, um den Erkennungprozess der
-Buchstaben zu optimieren. Algortihmisch wird ausgehend vom Zentrum die jeweiligen Nachbarfelder geprüft bis keine weiteren
+`filter_image` dient zur Prüfung, welche Felder auf dem Spielbrett durch Steine belegt sind, um den Erkennungprozess der
+Buchstaben zu optimieren. Algorithmisch werden ausgehend vom Zentrum die jeweiligen Nachbarfelder geprüft bis keine weiteren
 gelegten Steine mehr erkannt werden.
 
 ## Development
@@ -323,7 +323,7 @@ Die simulierte Anwendung kann dann im lokalen Browser über
 
 aufgerufen werden.
 
-Sollte ein Zugriff über `localhost`nicht funktionieren, bitte statt `localhost` die IPv4 Adresse des
+Sollte ein Zugriff über `localhost` nicht funktionieren, bitte statt `localhost` die IPv4 Adresse des
 Rechners verwenden.
 
 ## Start der Web-Anwendung

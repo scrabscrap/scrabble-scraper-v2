@@ -73,7 +73,7 @@ Damit verliert der Spieler 2 (Rot) die Bedenkzeit des Gegners
 
 ## Vorbereitungen
 
-Vor dem Spiel sollte die Video-Kamera ausgerichtet werden. Dies kann
+Vor dem Spiel sollte die Kamera ausgerichtet werden. Dies kann
 durch den internen Web-Server von ScrabScrap komfortabel im Browser
 eingestellt werden.
 
@@ -120,19 +120,19 @@ das aktuelle Spiel kann nicht mehr fortgesetzt werden.
 Die Anwendung beruht darauf, zu bestimmten Zeitpunkten ein Foto vom
 Spielbrett aufzunehmen und dann zu analysieren. Damit dies möglichst
 fehlerfrei funktioniert, müssen die Spieler darauf achten, das Brett
-nicht zu verdecken, wenn der Button zum Auslösen des Spielzuges
+nicht zu verdecken, wenn der Button zum Auslösen des Spielzugs
 gedrückt wird.
 
 ## Anzweifeln
 
 Sofern ein Anzweifeln noch möglich ist, wird im Display des aktiven
-Spielers "!?" angezeigt. Auf der rechten Seite des Displays wird zusätzlich die Dauer des aktuelle Spielzuges in Sekunden angezeigt.
+Spielers "!?" angezeigt. Auf der rechten Seite des Displays wird zusätzlich die Dauer des aktuellen Spielzugs in Sekunden angezeigt.
 
 ## Weitere Taster
 
 Hinter den Buttons befinden sich fünf Taster.
 
-* Grün/Rot: Taster für das Anzweifeln des Zuges  
+* Grün/Rot: Taster für das Anzweifeln des zugs  
   (einfaches Drücken)
 * Gelb/Blau: Taster für Reset, Reboot, ??  
   (halten von mehr als 3s)
