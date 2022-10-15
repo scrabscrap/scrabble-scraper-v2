@@ -176,7 +176,7 @@ class State(metaclass=Singleton):
         return P0
 
     def do_invalid_challenge1(self) -> str:
-        """player 0 has an invalid challenge for the last move from player 1"""
+        """player 1 has an invalid challenge for the last move from player 0"""
         logging.debug(
             f'{self.current_state} - (invalid challenge) -> {P1} (-{config.MALUS_DOUBT:2d})')  # -10
         _, t0, _, t1, pt = self.watch.get_status()

@@ -125,7 +125,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
         assert player in [0, 1], "invalid player number"
 
         logging.debug(f'{player}: doubt timeout')
-        MSG_TIMEOUT = '\u21AF time'
+        MSG_TIMEOUT = '\u21AFtimeout'
         MSG_TIMEOUT_FONT = self.font1
         MSG_TIMEOUT_COORD = (24, 1)
         self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
