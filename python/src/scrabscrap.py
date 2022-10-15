@@ -1,5 +1,6 @@
 """
- This file is part of the scrabble-scraper distribution (https://github.com/scrabscrap/scrabble-scraper)
+ This file is part of the scrabble-scraper-v2 distribution
+ (https://github.com/scrabscrap/scrabble-scraper-v2)
  Copyright (c) 2022 Rainer Rohloff.
 
  This program is free software: you can redistribute it and/or modify

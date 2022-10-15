@@ -1,5 +1,5 @@
 """
- This file is part of the scrabble-scraper distribution
+ This file is part of the scrabble-scraper-v2 distribution
  (https://github.com/scrabscrap/scrabble-scraper-v2)
  Copyright (c) 2022 Rainer Rohloff.
 
