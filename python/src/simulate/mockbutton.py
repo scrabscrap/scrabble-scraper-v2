@@ -89,5 +89,5 @@ class MockButton:
         self.pin_doubt2 = Device.pin_factory.pin(ButtonEnum.DOUBT1.value)
         self.pin_reset = Device.pin_factory.pin(ButtonEnum.RESET.value)
         self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
-        self.pin_config = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
+        # self.pin_config = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
         self.listen_keyboard()

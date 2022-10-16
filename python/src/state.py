@@ -210,16 +210,6 @@ class State(metaclass=Singleton):
         alarm(1)  # raise alarm for reboot
         return current_state
 
-    def do_config(self) -> str:
-        """??? necessary ???"""
-        logging.debug(f'{self.current_state} - (config) ignore')
-        # self.watch.reset()
-        # self.watch.display.show_config()  # Display message CONFIG
-        # todo: check for upload
-        # LED.switch_on({})  # type: ignore
-        # current_state = 'START'
-        return self.current_state
-
     def press_button(self, button: str) -> None:
         """process button press
 
@@ -247,7 +237,6 @@ class State(metaclass=Singleton):
         (START, RED): do_start0,
         (START, RESET): do_reset,
         (START, REBOOT): do_reboot,
-        (START, CONFIG): do_config,
         (S0, GREEN): do_move0,
         (S0, YELLOW): do_pause0,
         (P0, RED): do_resume0,
@@ -256,7 +245,6 @@ class State(metaclass=Singleton):
         (P0, DOUBT1): do_invalid_challenge0,
         (P0, RESET): do_reset,
         (P0, REBOOT): do_reboot,
-        (P0, CONFIG): do_config,
         (S1, RED): do_move1,
         (S1, YELLOW): do_pause1,
         (P1, GREEN): do_resume1,
@@ -265,5 +253,4 @@ class State(metaclass=Singleton):
         (P1, DOUBT0): do_invalid_challenge1,
         (P1, RESET): do_reset,
         (P1, REBOOT): do_reboot,
-        (P1, CONFIG): do_config,
     }

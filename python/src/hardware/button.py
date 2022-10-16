@@ -30,15 +30,15 @@ class ButtonEnum(Enum):
         return self.name
 
     GREEN = 16  # GPIO16 - pin 36 - Button green
-    YELLOW = 17  # GPI1O7 - pin 11 - Button yellow
-    RED = 26  # GPIO26 - pin 37 - Button red
+    YELLOW = 17  # GPI17 - pin 11 - Button yellow
+    RED = 23  # GPIO23 - pin 16 - Button red
 
-    DOUBT0 = 25  # GPIO25 - pin 22 - Button doubt1
-    DOUBT1 = 12  # GPIO12 - pin 32 - Button doubt1
+    DOUBT0 = 12  # GPIO12 - pin 32 - Button doubt0 (green)
+    DOUBT1 = 25  # GPIO25 - pin 22 - Button doubt1 (red)
 
-    RESET = 23  # GPIO23 - pin 16 - Button reset
-    REBOOT = 18  # GPIO18 - pin 12 - Button reboot
-    CONFIG = 24  # GPIO24 - pin 18 - Button config
+    # CONFIG = 13  # GPIO13 - pin 33 - Button config
+    RESET = 19  # GPIO19 - pin 35 - Button reset (black)
+    REBOOT = 26  # GPIO26 - pin 37 - Button reboot (blue)
 
 
 class Button:

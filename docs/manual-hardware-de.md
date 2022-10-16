@@ -21,26 +21,33 @@
 
 ![PIN Layout](images/pin-layout.png)
 
-* Button Gelb mit LED  
-  PIN 9, 11, 13 (GPIO Gnd, 17, 27)
-* Button Rot mit LED  
-  PIN 35, 37, 39 (GPIO 19, 26, Gnd)
-* Button Grün mit LED  
-  PIN 34, 36, 38 (GPIO Gnd, 16, 20)
-* Switch Rot  
-  PIN 30, 32 (GPIO Gnd, 12)
-* Switch Grün  
-  PIN 20, 22 (GPIO Gnd, 25)
-* Switch Gelb  
-  PIN 18, 14 (GPIO Gnd, 24)
-* Switch Blau  
-  PIN 16, 14 (GPIO Gnd, 23)
-* Switch Schwarz  
-  PIN 12, 14 (GPIO Gnd, 18)
-* Stromversorgung: ein Anschuß wird gegabelt auf 4 Anschlüsse  
-  PIN 17, 25 (GPIO Gnd, 3V3)
-* I2C Multiplexer  
-  PIN 1, 3, 5, 6 (GPIO 3V3, 2, 3, Gnd)
+Pin | GPiO | Funktion | Ziel
+----|------|----------|-----
+1   | 3V3  | I2C      | MUX vcc
+3   | 2    | I2C /SDA | MUX sda
+5   | 3    | I2C /SCL | MUX scl
+9   | Gnd  | B yellow | button/led Gnd
+11  | 17   | B yellow | button yellow
+13  | 27   | L yellow | led yellow
+17  | 3V3  | Pwr      | Pwr (3*) => OLED, OLED, RTC
+25  | Gnd  | Pwr      | Gnd (3*) => OLED, OLED, RTC
+35  | 19   | S black  | switch black => reset
+37  | 26   | S blue   | switch blue  => reboot
+39  | Gnd  | B blk,bl | switch black/blue Gnd
+
+Pin | GPiO | Funktion | Ziel
+----|------|----------|-----
+6   | Gnd  | I2C /Gnd | MUX Gnd
+14  | Gnd  | B red    | button/led Gnd
+16  | 23   | B red    | button red
+18  | 24   | L red    | led red
+20  | Gnd  | S red    | switch Gnd
+22  | 25   | S red    | switch
+30  | Gnd  | S green  | switch Gnd
+32  | 12   | S green  | switch
+34  | Gnd  | B green  | button/led Gnd
+36  | 16   | B green  | button green
+38  | 20   | L green  | led green
 
 __Hinweis__ Die eingebauten LEDs der Button benötigen keinen Vorwiderstand. Werden diese ersetzt,
 so müssen geeignete Vorwiderstände ergänzt werden.

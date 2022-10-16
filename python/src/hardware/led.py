@@ -29,11 +29,9 @@ if platform.machine() not in ('aarch64', 'armv7l', 'armv6l'):
 
 
 class GpioLEDEnum(Enum):
-    # GROUND - pin 39
-    # BLUE_GPIO = 26  # GPIO26 - pin 37 - led blue
     GREEN_GPIO = 20  # GPIO20 - pin 38 - led green
     YELLOW_GPIO = 27  # GPIO27 - pin 13 - led yellow
-    RED_GPIO = 19  # GPIO19  - pin 35 - led red
+    RED_GPIO = 24  # GPIO24  - pin 18 - led red
 
 
 class LEDEnum:

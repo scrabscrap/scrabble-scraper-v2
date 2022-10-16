@@ -48,7 +48,7 @@ class ButtonTestCase(unittest.TestCase):
         self.pin_doubt1 = Device.pin_factory.pin(ButtonEnum.DOUBT1.value)
         self.pin_reset = Device.pin_factory.pin(ButtonEnum.RESET.value)
         self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
-        self.pin_config = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
+        # self.pin_config = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
         cam = MockCamera()
         self.state = State(cam=cam)
         self.button_handler = Button()
