@@ -141,12 +141,13 @@ class State(metaclass=Singleton):
         logging.debug(f'{self.current_state} - (valid challenge) -> {P0}')
         _, t0, pt, t1, _ = self.watch.get_status()
         if pt > config.DOUBT_TIMEOUT:
-            self.watch.display.add_doubt_timeout(0)  # player 0 gets a malus
+            self.watch.display.add_doubt_timeout(0)
             logging.info(f'no challenge possible, because of timeout {pt}')
         else:
             self.watch.display.add_remove_tiles(1)  # player 1 has to remove the last move
             self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 0, (t0, t1))
-            LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green, yellow
+            LED.switch_on({LEDEnum.yellow})  # turn on LED green (blink), yellow
+            LED.blink_on({LEDEnum.green})
         return P0
 
     def do_valid_challenge1(self) -> str:
@@ -154,12 +155,13 @@ class State(metaclass=Singleton):
         logging.debug(f'{self.current_state} - (valid challenge) -> {P1}')
         _, t0, _, t1, pt = self.watch.get_status()
         if pt > config.DOUBT_TIMEOUT:
-            self.watch.display.add_doubt_timeout(1)  # player 0 gets a malus
+            self.watch.display.add_doubt_timeout(1)
             logging.info(f'no challenge possible, because of timeout {pt}')
         else:
             self.watch.display.add_remove_tiles(0)  # player 0 has to remove the last move
             self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 1, (t0, t1))
-            LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
+            LED.switch_on({LEDEnum.yellow})  # turn on LED red (blink), yellow
+            LED.blink_on({LEDEnum.red})
         return P1
 
     def do_invalid_challenge0(self) -> str:
@@ -168,12 +170,13 @@ class State(metaclass=Singleton):
             f'{self.current_state} - (invalid challenge) -> {P0} (-{config.MALUS_DOUBT:2d})')  # -10
         _, t0, pt, t1, _ = self.watch.get_status()
         if pt > config.DOUBT_TIMEOUT:
-            self.watch.display.add_doubt_timeout(0)  # player 0 gets a malus
+            self.watch.display.add_doubt_timeout(0)
             logging.info(f'no challenge possible, because of timeout {pt}')
         else:
             self.watch.display.add_malus(0)  # player 0 gets a malus
             self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 0, (t0, t1))
-            LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green
+            LED.switch_on({LEDEnum.yellow})  # turn on LED green (blink), yellow
+            LED.blink_on({LEDEnum.green})
         return P0
 
     def do_invalid_challenge1(self) -> str:
@@ -182,12 +185,13 @@ class State(metaclass=Singleton):
             f'{self.current_state} - (invalid challenge) -> {P1} (-{config.MALUS_DOUBT:2d})')  # -10
         _, t0, _, t1, pt = self.watch.get_status()
         if pt > config.DOUBT_TIMEOUT:
-            self.watch.display.add_doubt_timeout(1)  # player 0 gets a malus
+            self.watch.display.add_doubt_timeout(1)
             logging.info(f'no challenge possible, because of timeout {pt}')
         else:
             self.watch.display.add_malus(1)  # player 1 gets a malus
             self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 1, (t0, t1))
-            LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
+            LED.switch_on({LEDEnum.yellow})  # turn on LED red (blink), yellow
+            LED.blink_on({LEDEnum.red})
         return P1
 
     def do_reset(self) -> str:
