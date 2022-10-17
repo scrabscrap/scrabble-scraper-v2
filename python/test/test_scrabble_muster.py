@@ -63,16 +63,20 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         return result
 
     def setUp(self):
+        from custom import Custom
+
+        Custom.last_warp = None
         self.config_setter('output', 'ftp', False)
         self.config_setter('output', 'web', False)
+        self.config_setter('video', 'warp', True)
+        self.config_setter('video', 'warp_coordinates', None)
+        self.config_setter('board', 'layout', 'custom')
 
     def test_names(self):
 
         files = [TEST_DIR + "/board-tests/board-04.png"]
         for f in files:
             img = cv2.imread(f)
-            self.config_setter('video', 'warp_coordinates', None)
-            self.config_setter('board', 'layout', 'custom')
             warped = warp_image(img)
             warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
             _, tiles_candidates = filter_image(warped)
@@ -120,8 +124,6 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         # TEST_DIR + "/board-tests/err-13.png", TEST_DIR + "/board-tests/err-15.png", TEST_DIR + "/board-tests/err-23.png",
         for f in files:
             img = cv2.imread(f)
-            self.config_setter('video', 'warp_coordinates', None)
-            self.config_setter('board', 'layout', 'custom')
             warped = warp_image(img)
             warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
             _, tiles_candidates = filter_image(warped)
@@ -147,8 +149,6 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
         for f in files:
             img = cv2.imread(f)
-            self.config_setter('video', 'warp_coordinates', None)
-            self.config_setter('board', 'layout', 'custom')
             warped = warp_image(img)
             warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
             _, tiles_candidates = filter_image(warped)

@@ -63,9 +63,11 @@ class ScrabbleGameTestCase(unittest.TestCase):
         return result
 
     def setUp(self):
+        from custom import Custom
+
+        Custom.last_warp = None
         self.config_setter('output', 'ftp', False)
         self.config_setter('output', 'web', False)
-        pass
 
     def test_spiel_12(self):
         from state import State
