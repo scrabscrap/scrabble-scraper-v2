@@ -59,4 +59,4 @@ class MockCamera(metaclass=Singleton):
             self.event.set()
 
     def done(self, result: Future) -> None:
-        print(f'done {result}')
+        logging.info(f'done {result}')

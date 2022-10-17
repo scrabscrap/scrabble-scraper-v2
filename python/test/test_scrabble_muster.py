@@ -15,6 +15,7 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+import logging
 import logging.config
 import os
 import unittest
@@ -78,7 +79,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            print(f'new board= {self.print_board(new_board)}')
+            logging.debug(f'new board= {self.print_board(new_board)}')
             res = {(3, 7): 'A',
                    (4, 7): 'N',
                    (5, 7): 'K',
@@ -127,7 +128,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            print(f'new board= {self.print_board(new_board)}')
+            logging.debug(f'new board= {self.print_board(new_board)}')
             # last_board = ret  # falls der Test vorige Boards berücksichtigen soll
             res = {(4, 11): 'G', (5, 7): 'Y', (5, 10): 'U', (5, 11): 'S', (6, 7): 'L', (6, 10): 'Ü',
                    (7, 7): 'A', (7, 8): 'E', (7, 9): 'E', (7, 10): 'N', (8, 7): 'T', (9, 7): 'Z',
@@ -154,7 +155,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            print(f'new board= {self.print_board(new_board)}')
+            logging.debug(f'new board= {self.print_board(new_board)}')
 
             res = {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
                    (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',

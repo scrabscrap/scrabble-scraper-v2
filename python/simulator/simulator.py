@@ -107,7 +107,7 @@ def cam_last():
 
 def open_folder():
     folder = request.args.get('folder')
-    print(f'try to open {folder}')
+    logging.debug(f'try to open {folder}')
     iniFile = f'{config.WORK_DIR}/simulate/{folder}/scrabble.ini'
     if os.path.exists(iniFile):
         config.reload(iniFile=iniFile)

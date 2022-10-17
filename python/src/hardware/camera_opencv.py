@@ -37,7 +37,7 @@ class CameraOpenCV(metaclass=Singleton):  # type: ignore
         self.stream = cv2.VideoCapture('/dev/video0', cv2.CAP_V4L)
         # self.stream = cv2.VideoCapture(-1)
         if not self.stream.isOpened():
-            print('can not open VideoCapture')
+            logging.error('can not open VideoCapture')
             exit()
         self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
         self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
@@ -55,7 +55,7 @@ class CameraOpenCV(metaclass=Singleton):  # type: ignore
         while True:
             valid, self.frame = self.stream.read()
             if not valid:
-                print('frame not valid')
+                logging.warning('frame not valid')
             if config.ROTATE:
                 self.frame = cv2.rotate(self.frame, cv2.ROTATE_180)
             if ev.is_set():

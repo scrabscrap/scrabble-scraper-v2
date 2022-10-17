@@ -32,7 +32,7 @@ class Config(metaclass=Singleton):
             self.config['path'] = {}
             self.config['path']['src_dir'] = os.path.dirname(__file__) or '.'
             self.iniPath = iniFile if iniFile is not None else f'{self.WORK_DIR}/scrabble.ini'
-            print(f'load {self.iniPath}')
+            logging.info(f'load {self.iniPath}')
             with open(self.iniPath, 'r') as config_file:
                 self.config.read_file(config_file)
         except Exception as e:

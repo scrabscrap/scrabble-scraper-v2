@@ -15,6 +15,7 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+import logging
 import time
 from concurrent.futures import Future
 from threading import Event
@@ -42,5 +43,5 @@ class RepeatedTimer:
             self.event.set()
 
     def done(self, result: Future) -> None:
-        print(f'timer done {result}')
+        logging.info(f'timer done {result}')
         pass

@@ -36,7 +36,7 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         LED.switch_on({})  # type: ignore
         for thread in threading.enumerate():
             if not thread.name.startswith('Main'):
-                print(thread.name)
+                logging.debug(f'tread-name: {thread.name}')
 
     # @mock.patch('camera.cam', mock.MagicMock(return_value=mockcamera.MockCamera()))
     def test_timer(self):

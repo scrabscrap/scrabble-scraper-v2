@@ -97,7 +97,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.config_setter('board', 'layout', 'custom')
         cam = Camera(useCamera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game-13/board-{{:02d}}.png'  # type: ignore
-        # print(f'formatter {cam.stream.formatter}')  # type: ignore
+
         state = State(cam=cam)
         state.cam = cam
         state.do_reset()
@@ -112,7 +112,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
             if state.last_submit is not None:
                 while not state.last_submit.done():  # type: ignore
                     sleep(0.1)
-            # print(state.game.board_str())
+
         self.assertEqual(501, state.game.moves[-1].score[0])
         self.assertEqual(421, state.game.moves[-1].score[1])
 
@@ -123,7 +123,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.config_setter('board', 'layout', 'custom')
         cam = Camera(useCamera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game-14/board-{{:02d}}.png'  # type: ignore
-        # print(f'formatter {cam.stream.formatter}')  # type: ignore
+
         state = State(cam=cam)
         state.cam = cam
         state.do_reset()
@@ -148,7 +148,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.config_setter('board', 'layout', 'custom')
         cam = Camera(useCamera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game-15/board-{{:02d}}.png'  # type: ignore
-        # print(f'formatter {cam.stream.formatter}')  # type: ignore
+
         state = State(cam=cam)
         state.cam = cam
         state.do_reset()

@@ -348,7 +348,7 @@ class ApiServer:
         self.server.serve_forever()
 
     def stop_server(self):
-        print(f'server shutdown blocked: {ApiServer.flask_shutdown_blocked}')
+        logging.info(f'server shutdown blocked: {ApiServer.flask_shutdown_blocked}')
         while ApiServer.flask_shutdown_blocked:
             sleep(0.1)
         self.server.shutdown()
