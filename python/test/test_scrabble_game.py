@@ -74,6 +74,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         cam = Camera(useCamera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game-12/board-{{:02d}}.png'  # type: ignore
         state = State(cam=cam)
+        state.cam = cam
         state.do_reset()
         state.game.nicknames = ('A', 'S')
         state.press_button('RED')  # green begins
@@ -98,6 +99,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         cam.stream.formatter = f'{TEST_DIR}/game-13/board-{{:02d}}.png'  # type: ignore
         # print(f'formatter {cam.stream.formatter}')  # type: ignore
         state = State(cam=cam)
+        state.cam = cam
         state.do_reset()
         state.game.nicknames = ('A', 'B')
         state.press_button('RED')  # green begins
@@ -123,6 +125,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         cam.stream.formatter = f'{TEST_DIR}/game-14/board-{{:02d}}.png'  # type: ignore
         # print(f'formatter {cam.stream.formatter}')  # type: ignore
         state = State(cam=cam)
+        state.cam = cam
         state.do_reset()
         state.game.nicknames = ('INESSA', 'STEFAN')
         state.press_button('RED')  # green begins
@@ -147,6 +150,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         cam.stream.formatter = f'{TEST_DIR}/game-15/board-{{:02d}}.png'  # type: ignore
         # print(f'formatter {cam.stream.formatter}')  # type: ignore
         state = State(cam=cam)
+        state.cam = cam
         state.do_reset()
         state.game.nicknames = ('JO', 'ST')
         state.press_button('GREEN')  # red begins
