@@ -51,6 +51,7 @@ class ButtonTestCase(unittest.TestCase):
         # self.pin_config = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
         cam = MockCamera()
         self.state = State(cam=cam)
+        self.state.cam = cam
         self.button_handler = Button()
         self.button_handler.start(self.state)
         return super().setUp()
