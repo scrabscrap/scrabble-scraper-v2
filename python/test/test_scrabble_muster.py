@@ -64,6 +64,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
     def setUp(self):
         self.config_setter('output', 'ftp', False)
+        self.config_setter('output', 'web', False)
 
     def test_names(self):
 

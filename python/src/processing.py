@@ -358,13 +358,14 @@ def end_of_game(waitfor: Optional[Future], game: Game):
         time.sleep(0.05)
     time.sleep(1.5)
     filename = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-") + str(uuid.uuid4())
-    with ZipFile(f'{config.WEB_DIR}/{filename}.zip', 'w') as _zip:
-        logging.info(f"create zip with {len(game.moves):d} files")
-        for i in range(1, len(game.moves) + 1):
-            _zip.write(f'{config.WEB_DIR}/image-{i}.jpg')
-            _zip.write(f'{config.WEB_DIR}/data-{i}.json')
-        if os.path.exists(f'{config.WEB_DIR}/../log/messages.log'):
-            _zip.write(f'{config.WEB_DIR}/../log/messages.log')
+    if config.WRITE_WEB or config.FTP:
+        with ZipFile(f'{config.WEB_DIR}/{filename}.zip', 'w') as _zip:
+            logging.info(f"create zip with {len(game.moves):d} files")
+            for i in range(1, len(game.moves) + 1):
+                _zip.write(f'{config.WEB_DIR}/image-{i}.jpg')
+                _zip.write(f'{config.WEB_DIR}/data-{i}.json')
+            if os.path.exists(f'{config.WEB_DIR}/../log/messages.log'):
+                _zip.write(f'{config.WEB_DIR}/../log/messages.log')
 
     if config.FTP:
         Ftp.upload_game(filename)

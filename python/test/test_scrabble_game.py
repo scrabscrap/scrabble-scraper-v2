@@ -64,6 +64,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
     def setUp(self):
         self.config_setter('output', 'ftp', False)
+        self.config_setter('output', 'web', False)
         pass
 
     def test_spiel_12(self):

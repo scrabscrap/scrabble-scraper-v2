@@ -37,7 +37,20 @@ from time import sleep
 
 class ButtonTestCase(unittest.TestCase):
 
+    def config_setter(self, section: str, option: str, value):
+        from config import config
+
+        if value is not None:
+            if section not in config.config.sections():
+                config.config.add_section(section)
+            config.config.set(section, option, str(value))
+        else:
+            config.config.remove_option(section, option)
+
     def setUp(self) -> None:
+        self.config_setter('output', 'ftp', False)
+        self.config_setter('output', 'web', False)
+
         # set default pin factory
         Device.pin_factory = MockFactory()
         # Get a reference to mock buttons
