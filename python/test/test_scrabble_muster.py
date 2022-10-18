@@ -63,9 +63,9 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         return result
 
     def setUp(self):
-        from custom import Custom
+        from processing import clear_last_warp
 
-        Custom.last_warp = None
+        clear_last_warp()
         self.config_setter('output', 'ftp', False)
         self.config_setter('output', 'web', False)
         self.config_setter('video', 'warp', True)

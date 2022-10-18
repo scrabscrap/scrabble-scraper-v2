@@ -44,6 +44,14 @@ def get_last_warp() -> Optional[Mat]:
     return Custom.last_warp
 
 
+def clear_last_warp():
+    """Delegates the warp of the ``img`` according to the configured board style"""
+    if config.BOARD_LAYOUT == 'classic':
+        Classic.last_warp = None
+    else:
+        Custom.last_warp = None
+
+
 def warp_image(img: Mat) -> Mat:
     """Delegates the warp of the ``img`` according to the configured board style"""
     if config.WARP and config.BOARD_LAYOUT == 'custom':
