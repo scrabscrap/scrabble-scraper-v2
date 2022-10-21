@@ -2,7 +2,7 @@ image:
   file: .gitpod.Dockerfile
 
 ports:
-  - port: 5000
+  - port: 5050
     onOpen: open-browser
   - port: 3000
     onOpen: open-browser

@@ -328,7 +328,7 @@ class ApiServer:
     # - [ ] set move?
     # - [ ] set rack
 
-    def start_server(self, host: str = '0.0.0.0'):
+    def start_server(self, host: str = '0.0.0.0', port=5050):
         logging.debug('start api server')
         # flask log only error
         log = logging.getLogger('werkzeug')
@@ -342,7 +342,7 @@ class ApiServer:
         ApiServer.scrabscrap_version = version_info.stdout.decode()
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
-        self.server = make_server(host, 5000, self.app)
+        self.server = make_server(host=host, port=port, app=self.app)
         self.ctx = self.app.app_context()
         self.ctx.push()
         self.server.serve_forever()

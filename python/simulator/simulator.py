@@ -202,7 +202,7 @@ def main():
     state = State(cam=cam, watch=watch)
     state.do_ready()
 
-    api.start_server(host=util.get_ipv4())
+    api.start_server(port=5050)
 
     api.stop_server()
     cam_event.set()
