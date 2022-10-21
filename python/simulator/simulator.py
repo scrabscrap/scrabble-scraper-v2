@@ -24,7 +24,6 @@ import urllib.parse
 from time import sleep
 
 import cv2
-import util
 from api_server_thread import ApiServer
 from config import config
 from flask import redirect, render_template, url_for, request
