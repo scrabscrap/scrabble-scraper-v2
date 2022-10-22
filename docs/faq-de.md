@@ -6,7 +6,7 @@ Sofern keine gültige WLAN Verbindung aufgebaut werden kann, wechselt ScrabScrap
 den AP Mode und stellt ein WLAN `ScrabScrap` zur Verfügung. Das Default-Kennwort
 lautet `scrabscrap` und sollte bei der ersten Nutzung geändert werden.
 
-Nach Verbindung mit AP kann über die API-Web-Anwendung `http://10.0.0.1:5000` im
+Nach Verbindung mit AP kann über die API-Web-Anwendung `http://10.0.0.1:5050` im
 Menüpunkt `WiFi` nach aktiven WLAN Netzen gesucht werden und diese hinterlegt werden.
 
 Nach einem Reboot verbindet sich `ScrabScrap` automatisch mit dem stärksten bekannten
@@ -14,7 +14,7 @@ WLAN.
 
 ## Spielernamen setzen
 
-Die Spielernamen können über API-Web-Anwendung (`http://<ipadresse scrabscrap>:5000/`) gesetzt werden. Die Spielernamen
+Die Spielernamen können über API-Web-Anwendung (`http://<ipadresse scrabscrap>:5050/`) gesetzt werden. Die Spielernamen
 in die Eingabefelder eintragen und über `Submit` abspeichern. Hierbei sollte möglichst auf Umlaute und Leerzeichen
 verzichtet werden.
 
@@ -23,12 +23,12 @@ Die Einstellung kann auch während des Spieles vorgenommen werden und wird dann 
 ## Beleuchtung des Spielbrettes
 
 Das Spielbrett sollte möglichst indirekt beleuchtet werden, um eine Schattenbildung zu vermeiden. Die
-Qualität der Ausleuchtung kann mit der API-Web-Anwendung (`http://<ipadresse scrabscrap>:5000/`) im Menüpunkt `Camera`
+Qualität der Ausleuchtung kann mit der API-Web-Anwendung (`http://<ipadresse scrabscrap>:5050/`) im Menüpunkt `Camera`
 geprüft werden.
 
 ## Kamera justieren
 
-Das Justieren der Kamera erfolgt über die API-Web-Anwendung (`http://<ipadresse scrabscrap>:5000/`). Hier den Menüpunkt `Camera`
+Das Justieren der Kamera erfolgt über die API-Web-Anwendung (`http://<ipadresse scrabscrap>:5050/`). Hier den Menüpunkt `Camera`
 aufrufen. Dann wird ein aktuelles Bild mit überlagertem Gitter angezeigt. Sofern dies bereits passend ist, sind keine weiteren
 Aktionen nötig.
 
@@ -52,14 +52,14 @@ Datei `scrabscrap.ini` sind die Default-Werte in den einzelnen Sektionen unter d
 Es müssen nur die geänderten Werte abgespeichert werden.
 
 Bei einem bereits gestartetem System können Änderungen über die Web-Oberfläche der
-API-Schnittstelle vorgenommen werden. Hierzu einfach die URL `http://<ipadresse>:5000`
+API-Schnittstelle vorgenommen werden. Hierzu einfach die URL `http://<ipadresse>:5050`
 aufrufen. Einige Funktionen sind nur möglich, wenn sich die Anwendung entweder im Modus
 `Start` oder `Pause` befindet.
 
 ## Test der Hardware
 
 Wenn `scrabscrap` gestartet ist, kann über die API-Web-Anwendung ein Test der LEDs und der Displays
-ausgelöst werden. Hierzu einfach die URL `http://<ipadresse>:5000` aufrufen und dann den Menü-Punkt
+ausgelöst werden. Hierzu einfach die URL `http://<ipadresse>:5050` aufrufen und dann den Menü-Punkt
 `Test` auswählen.
 
 Durch den Aufruf der LED Tests werden verschiedene Modi der LEDs angezeigt (Ein/Aus/Blinken).
@@ -299,7 +299,7 @@ python scrabscrap.py
 
 Die API zum Einstellen von Parametern steht danach unter
 
-* `http://localhost:5000`
+* `http://localhost:5050`
 
 zur Verfügung.
 
@@ -319,7 +319,7 @@ python simulator.py
 
 Die simulierte Anwendung kann dann im lokalen Browser über
 
-* `http://localhost:5000`
+* `http://localhost:5050`
 
 aufgerufen werden.
 
