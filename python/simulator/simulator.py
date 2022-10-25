@@ -109,7 +109,7 @@ def open_folder():
     logging.debug(f'try to open {folder}')
     iniFile = f'{config.WORK_DIR}/simulate/{folder}/scrabble.ini'
     if os.path.exists(iniFile):
-        config.reload(iniFile=iniFile)
+        config.reload(ini_file=iniFile)
         ApiServer.cam.stream.cnt = 0  # type: ignore
         ApiServer.cam.stream.formatter = config.SIMULATE_PATH  # type: ignore
     else:

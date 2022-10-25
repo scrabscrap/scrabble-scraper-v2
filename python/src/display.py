@@ -21,6 +21,9 @@ from abc import abstractmethod
 
 class Display:
 
+    def __init__(self):
+        pass
+
     @abstractmethod
     def stop(self) -> None:
         logging.debug('stop')

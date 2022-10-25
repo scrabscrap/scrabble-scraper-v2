@@ -48,7 +48,7 @@ class NoMoveException(Exception):
     pass
 
 
-class Move():
+class Move:
     """Represents a Move
 
     After construction, the ``score`` will be calculated
@@ -192,7 +192,7 @@ class Move():
             return 0
 
         if self.board is None or self.type is not MoveType.regular:
-            return (0, previous_score, False)
+            return 0, previous_score, False
         val: int = 0
         crossing_words: int = 0
         letter_bonus: int = 0
@@ -226,7 +226,7 @@ class Move():
         val += 50 if is_scrabble else 0
         score = (previous_score[0] + val, previous_score[1]
                  ) if self.player == 0 else (previous_score[0], previous_score[1] + val)
-        return (val, score, is_scrabble)
+        return val, score, is_scrabble
 
 
 class Game():

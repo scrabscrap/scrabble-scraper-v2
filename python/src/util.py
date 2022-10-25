@@ -89,7 +89,7 @@ def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type
             continue
         try:
             for h in v.handlers:
-                if (isinstance(h, BaseRotatingHandler) and h not in handlers):
+                if isinstance(h, BaseRotatingHandler) and h not in handlers:
                     handlers.append(h)
         except AttributeError:
             pass
@@ -102,9 +102,9 @@ def get_ipv4() -> str:
     st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         st.connect(('10.255.255.255', 1))
-        IP = st.getsockname()[0]
+        ip = st.getsockname()[0]
     except Exception:
-        IP = '127.0.0.1'
+        ip = '127.0.0.1'
     finally:
         st.close()
-    return IP
+    return ip

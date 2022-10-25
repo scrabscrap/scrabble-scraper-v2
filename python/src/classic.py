@@ -47,6 +47,9 @@ visualLogger = logging.getLogger("visualLogger")
 class Classic:
     last_warp = None
 
+    def __init__(self):
+        pass
+
     @staticmethod
     def warp(__image):
 

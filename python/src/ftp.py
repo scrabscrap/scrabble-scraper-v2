@@ -24,6 +24,10 @@ from config import config
 
 
 class Ftp:
+
+    def __init__(self):
+        pass
+
     class FtpConfig:
         def __init__(self) -> None:
             self.config = configparser.ConfigParser()
@@ -58,9 +62,9 @@ class Ftp:
                 logging.info('ftp: start transfer move files')
                 with ftplib.FTP(cls.ftp_config.FTP_SERVER, cls.ftp_config.FTP_USER, cls.ftp_config.FTP_PASS) as session:
                     with open(f'{config.WEB_DIR}/image-{move}.jpg', 'rb') as file:
-                        session.storbinary(f'STOR image-{move}.jpg', file)   # send the file
+                        session.storbinary(f'STOR image-{move}.jpg', file)  # send the file
                     with open(f'{config.WEB_DIR}/data-{move}.json', 'rb') as file:
-                        session.storbinary(f'STOR data-{move}.json', file)   # send the file
+                        session.storbinary(f'STOR data-{move}.json', file)  # send the file
                     with open(f'{config.WEB_DIR}/data-{move}.json', 'rb') as file:
                         session.storbinary('STOR status.json', file)  # send the file
                 logging.debug('ftp: end of transfer')

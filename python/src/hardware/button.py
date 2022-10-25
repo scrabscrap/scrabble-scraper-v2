@@ -44,6 +44,7 @@ class ButtonEnum(Enum):
 class Button:
 
     def __init__(self) -> None:
+        self.state = None
         atexit.register(self.cleanup_atexit)
 
     def cleanup_atexit(self) -> None:

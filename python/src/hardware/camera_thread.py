@@ -36,16 +36,16 @@ class CameraEnum(Enum):
 
 class Camera(metaclass=Singleton):  # type: ignore
 
-    def __init__(self, src: int = 0, useCamera: CameraEnum = CameraEnum.AUTO, resolution=(config.IM_WIDTH, config.IM_HEIGHT),
+    def __init__(self, src: int = 0, use_camera: CameraEnum = CameraEnum.AUTO, resolution=(config.IM_WIDTH, config.IM_HEIGHT),
                  framerate=config.FPS, **kwargs):
         machine = platform.machine()
-        if (useCamera == CameraEnum.PICAMERA) or (useCamera == CameraEnum.AUTO and machine in ('armv7l', 'armv6l')):
+        if (use_camera == CameraEnum.PICAMERA) or (use_camera == CameraEnum.AUTO and machine in ('armv7l', 'armv6l')):
             from .camera_rpi import CameraRPI
             self.stream = CameraRPI(resolution=resolution, framerate=framerate, **kwargs)
-        elif (useCamera == CameraEnum.OPENCV) or (useCamera == CameraEnum.AUTO and machine in ('aarch64')):
+        elif (use_camera == CameraEnum.OPENCV) or (use_camera == CameraEnum.AUTO and machine in ('aarch64')):
             from .camera_opencv import CameraOpenCV
             self.stream = CameraOpenCV(src=src, resolution=resolution, framerate=framerate)
-        elif (useCamera == CameraEnum.FILE) or (useCamera == CameraEnum.AUTO):
+        elif (use_camera == CameraEnum.FILE) or (use_camera == CameraEnum.AUTO):
             from .camera_file import CameraFile
             self.stream = CameraFile()
 
