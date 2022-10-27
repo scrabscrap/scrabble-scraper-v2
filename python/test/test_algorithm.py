@@ -150,8 +150,8 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 TURNeNS
         board = {(3, 7): ('T', 75), (4, 7): ('U', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('_', 75),
                  (8, 7): ('N', 75), (9, 7): ('S', 75)}
-        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS', new_tiles=board.copy(),
-                    removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS',
+                    new_tiles=board.copy(), removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
         logging.debug(f'score {score} / moves {len(game.moves)}')
@@ -937,8 +937,8 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(3, 7): ('F', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
         try:
-            move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FJRNS', new_tiles=new_tiles,
-                        removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
+            move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FJRNS',
+                        new_tiles=new_tiles, removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
             game.add_move(move)
         except Exception:
             pass
