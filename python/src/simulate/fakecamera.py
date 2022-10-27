@@ -26,6 +26,7 @@ fakecamera_index = 0
 
 
 class FakeCamera(metaclass=Singleton):
+    """simulate a rpi camera"""
 
     def __init__(self) -> None:
         self.resolution = (992, 976)
@@ -39,12 +40,14 @@ class FakeCamera(metaclass=Singleton):
         pass
 
     def close(self) -> None:
+        """close camera"""
         global fakecamera_index
         fakecamera_index = 0
         logging.debug('FakeCamera close')
 
     def capture_continuous(self, output, format=None, use_video_port=False, resize=None,
                            splitter_port=0, burst=False, bayer=False, **options):
+        """simulation continous capture"""
         # todo simulate streamoutput
         img = cv2.imread(fakecamera_formatter.format(fakecamera_index))
         logging.debug(f"read {fakecamera_formatter.format(fakecamera_index)}")

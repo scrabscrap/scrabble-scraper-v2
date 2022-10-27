@@ -26,6 +26,7 @@ from util import Singleton
 
 
 class MockCamera(metaclass=Singleton):
+    """implement a mock camera with images files"""
 
     def __init__(self, formatter=None):
         self.frame = []
@@ -42,21 +43,26 @@ class MockCamera(metaclass=Singleton):
         self.img = cv2.imread(self.formatter.format(self.cnt))
 
     def read(self):
+        """read next picture"""
         self.cnt += 1 if os.path.isfile(
             self.formatter.format(self.cnt + 1)) else 0
         self.img = cv2.imread(self.formatter.format(self.cnt))
         logging.debug(f"read {self.formatter.format(self.cnt)}")
         return cv2.resize(self.img, self.resolution)
 
-    def update(self, ev: Event) -> None:
-        self.event = ev
-        while ev.wait(0.05):
+    def update(self, event: Event) -> None:
+        """update to next picture on thread event"""
+
+        self.event = event
+        while event.wait(0.05):
             pass
-        ev.clear()
+        event.clear()
 
     def cancel(self) -> None:
+        """end of video thread"""
         if self.event is not None:
             self.event.set()
 
     def done(self, result: Future) -> None:
+        """signal end of video thread"""
         logging.info(f'done {result}')

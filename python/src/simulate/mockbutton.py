@@ -19,16 +19,18 @@ import logging
 from time import sleep
 
 import cv2
-from hardware.button import ButtonEnum
 from config import config
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
+from hardware.button import ButtonEnum
 from state import State
 
 
 class MockButton:
+    """implement mock buttons"""
 
     def listen_keyboard(self) -> None:
+        """listen for keypress"""
         self.state = State()
         logging.info('listen keyboard')
         print('(g)reen (r)ed (y)ellow doubt(1) doubt(2) (c)config (q)uit re(s)et')
@@ -75,6 +77,7 @@ class MockButton:
             sleep(0.01)
 
     def start(self) -> None:
+        """initialize the MockFactory"""
         Device.pin_factory = MockFactory()  # set default pin factory
 
         self.pin_green = Device.pin_factory.pin(ButtonEnum.GREEN.value)
