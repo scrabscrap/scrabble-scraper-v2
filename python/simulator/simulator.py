@@ -158,7 +158,7 @@ def simulator() -> str:
     # show log
     if os.path.exists(f'{config.log_dir}/messages.log'):
         process = subprocess.run(['tail', '-75', f'{config.log_dir}/messages.log'], check=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         log_out = process.stdout.decode()
     else:
         log_out = '## empty ##'
