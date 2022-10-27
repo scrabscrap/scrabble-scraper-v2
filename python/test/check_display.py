@@ -28,9 +28,11 @@ logging.basicConfig(
 
 
 class DisplayTestCase(unittest.TestCase):
+    """Test pattern for OLED Display"""
 
     @trace
     def test_display(self):
+        """show different pattern on the OLED Displays"""
         display = PlayerDisplay()
         watch = ScrabbleWatch(display)
 

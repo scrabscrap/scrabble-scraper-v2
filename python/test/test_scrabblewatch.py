@@ -29,6 +29,7 @@ from scrabblewatch import ScrabbleWatch
 
 # noinspection PyMethodMayBeStatic
 class ScrabbleWatchTestCase(unittest.TestCase):
+    """Testclass ScrabbleWatch"""
 
     @classmethod
     def tearDownClass(cls):
@@ -40,6 +41,7 @@ class ScrabbleWatchTestCase(unittest.TestCase):
 
     # @mock.patch('camera.cam', mock.MagicMock(return_value=mockcamera.MockCamera()))
     def test_timer(self):
+        """test: timer"""
         display_pause = 0.1
 
         watch = ScrabbleWatch()

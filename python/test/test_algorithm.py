@@ -23,8 +23,12 @@ import unittest
 logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/test_log.conf',
                           disable_existing_loggers=False)
 
+from state import State
+from scrabble import Move, MoveType
+
 
 class AlgorithmTestCase(unittest.TestCase):
+    """Test class for algorithm"""
 
     def setUp(self):
         # logging.disable(logging.DEBUG)  # falls Info-Ausgaben erfolgen sollen
@@ -32,7 +36,7 @@ class AlgorithmTestCase(unittest.TestCase):
         pass
 
     def test_10(self):
-        # Testfall 10 - Hand auf dem Spielfeld
+        """Test 10 - hand on board"""
         from processing import filter_candidates
 
         # check hand without connection to tiles
@@ -63,9 +67,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertNotEqual(result_set, expected_set, 'Test 10: no difference in sets')
 
     def test_101(self):
-        # Test 101 - Algorithm: empty board with tiles exchange
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 101 - Algorithm: empty board with tiles exchange"""
 
         state = State()
         game = state.game
@@ -85,9 +87,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_102(self):
-        # Test 102 - Algorithm: first move
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 102 - Algorithm: first move"""
 
         state = State()
         game = state.game
@@ -107,9 +107,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_103(self):
-        # Test 103 - Algorithm: crossed move
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 103 - Algorithm: crossed move"""
 
         state = State()
         game = state.game
@@ -139,9 +137,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_104(self):
-        # Test 104 - Algorithm: move at top (horizontal)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 104 - Algorithm: move at top (horizontal)"""
 
         state = State()
         game = state.game
@@ -185,9 +181,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_105(self):
-        # Test 105 - Algorithm: move at top (vertical)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 105 - Algorithm: move at top (vertical)"""
 
         state = State()
         game = state.game
@@ -221,9 +215,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_106(self):
-        # Test 106 - Algorithm: move at bottom (horizontal)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 106 - Algorithm: move at bottom (horizontal)"""
 
         state = State()
         game = state.game
@@ -270,9 +262,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_107(self):
-        # Test 107 - Algorithm: move at bottom (vertical)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 107 - Algorithm: move at bottom (vertical)"""
 
         state = State()
         game = state.game
@@ -306,9 +296,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_108(self):
-        # Test 108 - Algorithm: move at left border (horizontal)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 108 - Algorithm: move at left border (horizontal)"""
 
         state = State()
         game = state.game
@@ -342,9 +330,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_109(self):
-        # Test 109 - Algorithm: move at left border (vertical)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 109 - Algorithm: move at left border (vertical)"""
 
         state = State()
         game = state.game
@@ -392,9 +378,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_110(self):
-        # Test 110 - Algorithm: move at right border (horizontal)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 110 - Algorithm: move at right border (horizontal)"""
 
         state = State()
         game = state.game
@@ -428,9 +412,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_111(self):
-        # Test 111 - Algorithm: move at right border (vertical)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 111 - Algorithm: move at right border (vertical)"""
 
         state = State()
         game = state.game
@@ -477,8 +459,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_112(self):
-        # Test 112 - Algorithm: challenge without move
-        from state import State
+        """Test 112 - Algorithm: challenge without move"""
 
         state = State()
         game = state.game
@@ -491,9 +472,7 @@ class AlgorithmTestCase(unittest.TestCase):
             self.fail("Test 112 Exception expected")
 
     def test_113(self):
-        # Test 113 - Algorithm: not enough point for a challenge
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 113 - Algorithm: not enough point for a challenge"""
 
         state = State()
         game = state.game
@@ -514,9 +493,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_114(self):
-        # Test 114 - Algorithm: valid challenge
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 114 - Algorithm: valid challenge"""
 
         state = State()
         game = state.game
@@ -539,9 +516,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_115(self):
-        # Test 115 - Algorithm: invalid challenge
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 115 - Algorithm: invalid challenge"""
 
         state = State()
         game = state.game
@@ -573,14 +548,12 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_116(self):
-        # Test 116 - Algorithm: valid callenge - tiles not removed
+        """Test 116 - Algorithm: valid callenge - tiles not removed"""
         # currently not supported
         pass
 
     def test_117(self):
-        # Test 117 - Algorithm: extend a word
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 117 - Algorithm: extend a word"""
 
         state = State()
         game = state.game
@@ -610,9 +583,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_118(self):
-        # Test 118 - Algorithm: word between two word
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 118 - Algorithm: word between two word"""
 
         state = State()
         game = state.game
@@ -665,9 +636,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_119(self):
-        # Test 119 - Algorithm: calculation double letter
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 119 - Algorithm: calculation double letter"""
 
         state = State()
         game = state.game
@@ -687,9 +656,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_120(self):
-        # Test 120 - Algorithm: calculation triple letter
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 120 - Algorithm: calculation triple letter"""
 
         state = State()
         game = state.game
@@ -723,9 +690,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_121(self):
-        # Test 121 - Algorithm: calculation double word
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 121 - Algorithm: calculation double word"""
 
         state = State()
         game = state.game
@@ -755,9 +720,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_122(self):
-        # Test 122 - Algorithm: calculation triple word
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 122 - Algorithm: calculation triple word"""
 
         state = State()
         game = state.game
@@ -791,9 +754,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_123(self):
-        # Test 123 - Algorithm: calculation double letter (blank on double letter field)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 123 - Algorithm: calculation double letter (blank on double letter field)"""
 
         state = State()
         game = state.game
@@ -813,9 +774,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_124(self):
-        # Test 124 - Algorithm: calculation triple letter (blank on double letter field)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 124 - Algorithm: calculation triple letter (blank on double letter field)"""
 
         state = State()
         game = state.game
@@ -849,9 +808,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_125(self):
-        # Test 125 - Algorithm: calculation double word (blank on double letter field)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 125 - Algorithm: calculation double word (blank on double letter field)"""
 
         state = State()
         game = state.game
@@ -881,9 +838,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_126(self):
-        # Test 126 - Algorithm: calculation triple word (blank on double letter field)
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 126 - Algorithm: calculation triple word (blank on double letter field)"""
 
         state = State()
         game = state.game
@@ -917,17 +872,15 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_127(self):
-        # Test 127 - Algorithm: tile removed without challenge
+        """Test 127 - Algorithm: tile removed without challenge"""
         pass
 
     def test_128(self):
-        # Test 128 - Algorithm: tile removed without challenge and put again to board
+        """Test 128 - Algorithm: tile removed without challenge and put again to board"""
         pass
 
     def test_129(self):
-        # Test 129 - Algorithm: space between new tiles
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 129 - Algorithm: space between new tiles"""
 
         state = State()
         game = state.game
@@ -946,9 +899,7 @@ class AlgorithmTestCase(unittest.TestCase):
             self.fail('Test 129 Exception expected')
 
     def test_130(self):
-        # Test 130 - Algorithm: new tile with higher propability
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 130 - Algorithm: new tile with higher propability"""
 
         state = State()
         game = state.game
@@ -979,9 +930,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_131(self):
-        # Test 131 - Algorithm: correct letter to blank
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 131 - Algorithm: correct letter to blank"""
 
         state = State()
         game = state.game
@@ -1012,9 +961,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
 
     def test_132(self):
-        # Test 132 - Algorithm: new tile with lower propability
-        from state import State
-        from scrabble import Move, MoveType
+        """Test 132 - Algorithm: new tile with lower propability"""
 
         state = State()
         game = state.game

@@ -26,8 +26,10 @@ logging.basicConfig(
 
 
 class LedTestCase(unittest.TestCase):
+    """Test pattern for LED"""
 
     def test_led(self):
+        """start LED test"""
         LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
         logging.debug('led on')
         time.sleep(1)

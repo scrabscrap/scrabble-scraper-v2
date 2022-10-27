@@ -30,8 +30,10 @@ logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/t
 
 
 class ScrabbleMusterTestCase(unittest.TestCase):
+    """Testclass for some board pattern"""
 
     def config_setter(self, section: str, option: str, value):
+        """set value in scrabscrap config"""
         from config import config
 
         if value is not None:
@@ -42,6 +44,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             config.config.remove_option(section, option)
 
     def print_board(self, board: dict) -> str:
+        """print out Scrabble board dictionary"""
         result = '  |'
         for i in range(15):
             result += f'{(i + 1):2d} '
@@ -73,10 +76,10 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         self.config_setter('board', 'layout', 'custom')
 
     def test_names(self):
-
+        """Test: Namess on board"""
         files = [TEST_DIR + "/board-tests/board-04.png"]
-        for f in files:
-            img = cv2.imread(f)
+        for file in files:
+            img = cv2.imread(file)
             warped = warp_image(img)
             warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
             _, tiles_candidates = filter_image(warped)
@@ -96,14 +99,14 @@ class ScrabbleMusterTestCase(unittest.TestCase):
                    (11, 7): 'F',
                    (12, 7): 'A',
                    (13, 7): 'N'}
-            k = new_board.keys()
-            v = new_board.values()
-            k1 = [(x, y) for (x, y) in k]
-            v1 = [t for (t, p) in v]
-            self.assertEqual(dict(zip(*[k1, v1])), res, "Test")
+            keys = new_board.keys()
+            values = new_board.values()
+            keys1 = [(x, y) for (x, y) in keys]
+            values1 = [t for (t, p) in values]
+            self.assertEqual(dict(zip(*[keys1, values1])), res, "Test")
 
     def test_err_images(self):
-
+        """Regression test: old error images """
         files = [TEST_DIR + "/board-tests/err-01.png", TEST_DIR + "/board-tests/err-02.png",
                  TEST_DIR + "/board-tests/err-03.png",
                  TEST_DIR + "/board-tests/err-04.png", TEST_DIR + "/board-tests/err-05.png",
@@ -122,8 +125,8 @@ class ScrabbleMusterTestCase(unittest.TestCase):
                  ]
         # Errors on analyze:
         # TEST_DIR + "/board-tests/err-13.png", TEST_DIR + "/board-tests/err-15.png", TEST_DIR + "/board-tests/err-23.png",
-        for f in files:
-            img = cv2.imread(f)
+        for file in files:
+            img = cv2.imread(file)
             warped = warp_image(img)
             warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
             _, tiles_candidates = filter_image(warped)
@@ -136,19 +139,19 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             res = {(4, 11): 'G', (5, 7): 'Y', (5, 10): 'U', (5, 11): 'S', (6, 7): 'L', (6, 10): 'Ü',
                    (7, 7): 'A', (7, 8): 'E', (7, 9): 'E', (7, 10): 'N', (8, 7): 'T', (9, 7): 'Z',
                    (10, 5): 'W', (10, 6): 'Ö', (10, 7): 'I', (10, 8): 'U', (10, 9): 'Ä'}
-            k = new_board.keys()
-            v = new_board.values()
-            k1 = [(x, y) for (x, y) in k]
-            v1 = [t for (t, p) in v]
-            self.assertEqual(dict(zip(*[k1, v1])), res, f'Test error: {f}')
+            keys = new_board.keys()
+            values = new_board.values()
+            keys1 = [(x, y) for (x, y) in keys]
+            values1 = [t for (t, p) in values]
+            self.assertEqual(dict(zip(*[keys1, values1])), res, f'Test error: {file}')
 
     def test_new_images(self):
-
+        """Test some new images"""
         files = [TEST_DIR + "/board-tests/board-00.png", TEST_DIR + "/board-tests/board-01.png",
                  TEST_DIR + "/board-tests/board-03.png"]
 
-        for f in files:
-            img = cv2.imread(f)
+        for file in files:
+            img = cv2.imread(file)
             warped = warp_image(img)
             warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
             _, tiles_candidates = filter_image(warped)
@@ -161,11 +164,11 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             res = {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
                    (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
                    (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'}
-            k = new_board.keys()
-            v = new_board.values()
-            k1 = [(x, y) for (x, y) in k]
-            v1 = [t for (t, p) in v]
-            self.assertEqual(dict(zip(*[k1, v1])), res, f'Test error: {f}')
+            keys = new_board.keys()
+            values = new_board.values()
+            keys1 = [(x, y) for (x, y) in keys]
+            values1 = [t for (t, p) in values]
+            self.assertEqual(dict(zip(*[keys1, values1])), res, f'Test error: {file}')
 
 
 # unit tests per commandline

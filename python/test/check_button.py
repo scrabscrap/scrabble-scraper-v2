@@ -31,6 +31,7 @@ logging.basicConfig(
 
 
 class SimulateState(State):
+    """Mock: simulate State"""
 
     def press_button(self, button: str) -> None:
         """process button press
@@ -57,9 +58,10 @@ class SimulateState(State):
 
 
 class CheckButtonTestCase(unittest.TestCase):
+    """check physical button"""
 
     def test_button(self):
-
+        """start button event handler - display LED on Button press"""
         display = Display()
         watch = ScrabbleWatch(display)
         cam = MockCamera()

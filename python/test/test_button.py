@@ -36,8 +36,10 @@ from time import sleep
 
 
 class ButtonTestCase(unittest.TestCase):
+    """Test class button"""
 
     def config_setter(self, section: str, option: str, value):
+        """set scrabble config"""
         from config import config
 
         if value is not None:
@@ -98,161 +100,165 @@ class ButtonTestCase(unittest.TestCase):
                      f'red {LEDEnum.red.value} state nw {State().current_state}')
 
     def test_doubt01(self):
+        """Test doubt01"""
         # doubt invalid
         display_pause = 0.01
 
         time.sleep(display_pause)
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
 
         self._press_button(self.pin_red)  # start Green, Disp0
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_green)  # S0 Red, Disp1
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1)
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
         self._press_button(self.pin_yellow)  # P0 Yellow, Red
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 1)
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
         self._press_button(self.pin_doubt0)  # Yellow, Red, invalid Ch. Disp1
         # yellow is in state blink
-        assert (LEDEnum.green.value == 0 and LEDEnum.red.value == 1)
+        assert LEDEnum.green.value == 0 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
     def test_doubt02(self):
+        """Test doubt01"""
         # doubt valid
         display_pause = 0.01
 
         time.sleep(display_pause)
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
 
         self._press_button(self.pin_red)  # start Green, Disp0
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_green)  # S0 Red, Disp1
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1)
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
         self._press_button(self.pin_yellow)  # P0 Yellow, Red
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 1)
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
         self._press_button(self.pin_doubt1)  # Yellow, Red, invalid Ch. Disp1
         # yellow is in state blink
-        assert (LEDEnum.green.value == 0 and LEDEnum.red.value == 1)
+        assert LEDEnum.green.value == 0 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
     def test_doubt03(self):
+        """Test doubt 03"""
         # first invalid challenge, second valid challenge
         display_pause = 0.01
 
         time.sleep(display_pause)
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
 
         self._press_button(self.pin_red)  # start Green, Disp0
         time.sleep(display_pause)
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_yellow)  # P0 Yellow, Red
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 0)
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_doubt0)  # Yellow, Red, invalid Ch. Disp1
         # yellow is in state blink
-        assert (LEDEnum.green.value == 1 and LEDEnum.red.value == 0)
+        assert LEDEnum.green.value == 1 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_doubt1)  # Yellow, Red, Valid Ch. Disp0
         # yellow is in state blink
-        assert (LEDEnum.green.value == 1 and LEDEnum.red.value == 0)
+        assert LEDEnum.green.value == 1 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
     def test_button_led(self):
+        """Test LED"""
         display_pause = 0.01
 
         # start
         self._press_button(self.pin_red)  # start Green, Disp0
-        assert (State().current_state == 'S0')
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert State().current_state == 'S0'
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_green)  # S0 Red, Disp1
-        assert (State().current_state == 'S1')
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1)
+        assert State().current_state == 'S1'
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
         self._press_button(self.pin_yellow)  # P0 Yellow, Red
-        assert (State().current_state == 'P1')
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 1)
+        assert State().current_state == 'P1'
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
         self._press_button(self.pin_doubt1)  # P0 Yellow, Red, Valid Ch. Disp0
-        assert (State().current_state == 'P1')
+        assert State().current_state == 'P1'
         # yellow is in state blink
-        assert (LEDEnum.green.value == 0 and LEDEnum.red.value == 1)
+        assert LEDEnum.green.value == 0 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
         self._press_button(self.pin_yellow)  # S1 Disp1, Red
-        assert (State().current_state == 'S1')
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1)
+        assert State().current_state == 'S1'
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
         self._press_button(self.pin_red)  # S0 Disp0, Green
-        assert (State().current_state == 'S0')
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert State().current_state == 'S0'
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_yellow)  # P0 Disp0, Yellow, Green
-        assert (State().current_state == 'P0')
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 0)
+        assert State().current_state == 'P0'
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_doubt1)  # P0 Disp0 -10, Yellow, Green
-        assert (State().current_state == 'P0')
+        assert State().current_state == 'P0'
         # yellow is in state blink
-        assert (LEDEnum.green.value == 1 and LEDEnum.red.value == 0)
+        assert LEDEnum.green.value == 1 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_yellow)  # S0 Disp0, Green
-        assert (State().current_state == 'S0')
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert State().current_state == 'S0'
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_yellow)  # P0 Disp0, Yellow, Green
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 0)
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_red)  # S0 Disp0, Green
-        assert (State().current_state == 'S0')
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert State().current_state == 'S0'
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_yellow)  # P0 Disp0, Yellow, Green
-        assert (State().current_state == 'P0')
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 0)
+        assert State().current_state == 'P0'
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         State().do_reset()
-        assert (State().current_state == 'START')
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert State().current_state == 'START'
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
 
         self._press_button(self.pin_red)  # S1 start Green, Disp0
-        assert (State().current_state == 'S0')
-        assert (LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0)
+        assert State().current_state == 'S0'
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
         self._press_button(self.pin_green)  # S1 Red, Disp1
-        assert (State().current_state == 'S1')
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1)
+        assert State().current_state == 'S1'
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
         self._press_button(self.pin_yellow)  # P0 Yellow, Red
-        assert (State().current_state == 'P1')
-        assert (LEDEnum.green.value == 0 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 1)
+        assert State().current_state == 'P1'
+        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
 

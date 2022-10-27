@@ -30,8 +30,10 @@ logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/t
 
 
 class ScrabbleGameTestCase(unittest.TestCase):
+    """Test class for some scrabble games"""
 
     def config_setter(self, section: str, option: str, value):
+        """set scrabble config"""
         from config import config
 
         if value is not None:
@@ -42,6 +44,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
             config.config.remove_option(section, option)
 
     def print_board(self, board: dict) -> str:
+        """print out scrabble board dictionary"""
         result = '  |'
         for i in range(15):
             result += f'{(i + 1):2d} '
@@ -69,7 +72,8 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.config_setter('output', 'ftp', False)
         self.config_setter('output', 'web', False)
 
-    def test_spiel_12(self):
+    def test_game_12(self):
+        """Test game 12"""
         from state import State
 
         self.config_setter('video', 'warp_coordinates', None)
@@ -93,7 +97,8 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.assertEqual(185, state.game.moves[-1].score[0])
         self.assertEqual(208, state.game.moves[-1].score[1])
 
-    def test_spiel_13(self):
+    def test_game_13(self):
+        """"Test game 13"""
         from state import State
 
         self.config_setter('video', 'warp_coordinates', None)
@@ -119,7 +124,8 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.assertEqual(501, state.game.moves[-1].score[0])
         self.assertEqual(421, state.game.moves[-1].score[1])
 
-    def test_spiel_14(self):
+    def test_game_14(self):
+        """Test game 14"""
         from state import State
 
         self.config_setter('video', 'warp_coordinates', None)
@@ -144,7 +150,8 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.assertEqual(425, state.game.moves[-1].score[0])
         self.assertEqual(362, state.game.moves[-1].score[1])
 
-    def test_spiel_15(self):
+    def test_game_15(self):
+        """Test game 15"""
         from state import State
 
         self.config_setter('video', 'warp_coordinates', None)

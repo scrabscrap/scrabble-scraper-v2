@@ -41,6 +41,7 @@ visualLogger = logging.getLogger("visualLogger")
 
 
 def print_board(board: dict) -> str:
+    """print out scrabble board dictionary"""
     result = '  |'
     for i in range(15):
         result += f'{(i + 1):2d} '
@@ -63,16 +64,16 @@ def print_board(board: dict) -> str:
 
 
 def main() -> None:
-
-    def main_cleanup(signum, frame) -> None:
+    """main entry for starting"""
+    def main_cleanup(signum, _) -> None:
         logging.debug(f'Signal handler called with signal {signum}')
         cam_future.cancel()
         cam_event.set()
         # reset alarm
         signal.alarm(0)
 
-    def chunkify(lst, n):
-        return [lst[i::n] for i in range(n)]
+    def chunkify(lst, chunks):
+        return [lst[i::chunks] for i in range(chunks)]
 
     signal.signal(signal.SIGALRM, main_cleanup)
 
@@ -96,7 +97,7 @@ def main() -> None:
     visualLogger.info(VisualRecord("Warped-Gray", [warped_gray], fmt="png"))
     # cv2.imwrite('log/warped_gray.jpg', warped_gray)
 
-    filtered, tiles_candidates = filter_image(warped)                          # find potential tiles on board
+    _, tiles_candidates = filter_image(warped)                          # find potential tiles on board
     logging.debug(f'tiles candidated: {tiles_candidates}')
     ignore_coords = set()  # only analyze tiles from last 3 moves
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
