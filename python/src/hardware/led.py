@@ -29,14 +29,17 @@ if platform.machine() not in ('aarch64', 'armv7l', 'armv6l'):
 
 
 class GpioLEDEnum(Enum):
+    """Enumeration of supported LED GPIO"""
     GREEN_GPIO = 20  # GPIO20 - pin 38 - led green
     YELLOW_GPIO = 27  # GPIO27 - pin 13 - led yellow
     RED_GPIO = 24  # GPIO24  - pin 18 - led red
 
 
 class LEDEnum:
+    """Enumeration of physical LED"""
     @classmethod
     def set(cls):
+        """set enumeration value"""
         return {LEDEnum.green, LEDEnum.yellow, LEDEnum.red}
 
     green = GpioLED(GpioLEDEnum.GREEN_GPIO.value)
@@ -46,16 +49,19 @@ class LEDEnum:
 
 
 class LED:
+    """Implementation of LED access"""
 
     def __init__(self) -> None:
         atexit.register(self.cleanup_atexit)
 
     def cleanup_atexit(self) -> None:
+        """cleanup on allication exit"""
         LED.switch_on({})  # type: ignore
         # Device.pin_factory.close()  # type: ignore
 
     @staticmethod
     def switch_on(leds: Set[GpioLED]) -> None:
+        """switch all leds on"""
         for i in LEDEnum.set().difference(leds):
             i.off()
         for i in leds:
@@ -63,6 +69,7 @@ class LED:
 
     @staticmethod
     def blink_on(leds: Set[GpioLED]) -> None:
+        """set all leds to blink"""
         for i in LEDEnum.set().difference(leds):
             i.off()
         for i in leds:
@@ -70,5 +77,6 @@ class LED:
 
     @staticmethod
     def switch_off(leds: Set[GpioLED]) -> None:
+        """switch all LEDs off"""
         for i in leds:
             i.off()

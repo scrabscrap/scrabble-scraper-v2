@@ -17,6 +17,7 @@
 """
 import atexit
 import logging
+import sys
 from concurrent.futures import Future
 from threading import Event
 from time import sleep
@@ -30,18 +31,20 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 
 class CameraOpenCV(metaclass=Singleton):  # type: ignore
+    """implement a camera with OpenCV"""
 
     def __init__(self, src: int = 0, resolution=(config.im_width, config.im_height), framerate=config.fps):
         # initialize the video camera stream and read the first frame
         logging.info('### init OpenCV VideoCapture')
-        self.stream = cv2.VideoCapture('/dev/video0', cv2.CAP_V4L)
+        self.stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
         # self.stream = cv2.VideoCapture(-1)
         if not self.stream.isOpened():
             logging.error('can not open VideoCapture')
-            exit()
+            sys.exit()
+        self.event = None
         self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
         self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
-        self.stream.set(cv2.CAP_PROP_FPS, 10)
+        self.stream.set(cv2.CAP_PROP_FPS, framerate)
         sleep(1)
         _, self.frame = self.stream.read()
         atexit.register(self._atexit)
@@ -49,8 +52,9 @@ class CameraOpenCV(metaclass=Singleton):  # type: ignore
     def _atexit(self) -> None:
         self.stream.release()
 
-    def update(self, ev: Event) -> None:
-        self.event = ev
+    def update(self, event: Event) -> None:
+        """update to next picture on thread event"""
+        self.event = event
         # keep looping infinitely until the thread is stopped
         while True:
             valid, self.frame = self.stream.read()
@@ -58,17 +62,20 @@ class CameraOpenCV(metaclass=Singleton):  # type: ignore
                 logging.warning('frame not valid')
             if config.rotade:
                 self.frame = cv2.rotate(self.frame, cv2.ROTATE_180)
-            if ev.is_set():
+            if event.is_set():
                 break
             sleep(0.06)
-        ev.clear()
+        event.clear()
 
     def read(self) -> Mat:
+        """read next picture"""
         return self.frame
 
     def cancel(self) -> None:
+        """end of video thread"""
         if self.event is not None:
             self.event.set()
 
     def done(self, result: Future) -> None:
+        """signal end of video thread"""
         logging.info(f'cam done {result}')

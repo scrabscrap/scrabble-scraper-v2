@@ -29,6 +29,7 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 
 class CameraFile(metaclass=Singleton):  # type: ignore
+    """implement a camera simulation with images files"""
 
     def __init__(self, formatter=None, resolution=(config.im_width, config.im_height)):
         logging.info('### init MockCamera')
@@ -45,6 +46,7 @@ class CameraFile(metaclass=Singleton):  # type: ignore
         self.img = cv2.imread(self.formatter.format(self.cnt))
 
     def read(self, peek=False) -> Mat:
+        """read next picture (no counter increment if peek=True)"""
         self.img = cv2.imread(self.formatter.format(self.cnt))
         logging.debug(f"read {self.cnt}: {self.formatter.format(self.cnt)} with peek={peek}")
         if not peek:
@@ -52,15 +54,18 @@ class CameraFile(metaclass=Singleton):  # type: ignore
                 self.formatter.format(self.cnt + 1)) else 0
         return cv2.resize(self.img, self.resolution)
 
-    def update(self, ev: Event) -> None:
-        self.event = ev
-        while ev.wait(0.05):
+    def update(self, event: Event) -> None:
+        """update to next picture on thread event"""
+        self.event = event
+        while event.wait(0.05):
             pass
-        ev.clear()
+        event.clear()
 
     def cancel(self) -> None:
+        """end of video thread"""
         if self.event is not None:
             self.event.set()
 
     def done(self, result: Future) -> None:
+        """signal end of video thread"""
         logging.info(f'done {result}')

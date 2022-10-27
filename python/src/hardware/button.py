@@ -25,6 +25,7 @@ from state import State
 
 
 class ButtonEnum(Enum):
+    """Enumeration of supported Buttons"""
 
     def __str__(self) -> str:
         return self.name
@@ -42,35 +43,40 @@ class ButtonEnum(Enum):
 
 
 class Button:
+    """Handle button press and release"""
 
     def __init__(self) -> None:
         self.state = None
         atexit.register(self.cleanup_atexit)
 
     def cleanup_atexit(self) -> None:
+        """cleanup at program exit"""
         # from gpiozero import Device
         # Device.pin_factory.close()  # type: ignore
         pass
 
     def button_pressed(self, button: GpioButton) -> None:  # callback
+        """perform button press"""
         self.state.press_button(ButtonEnum(button.pin.number).name)  # type: ignore
 
     def button_released(self, button: GpioButton) -> None:  # callback
+        """perform button release"""
         self.state.release_button(ButtonEnum(button.pin.number).name)  # type: ignore
 
     def start(self, _state: State) -> None:
+        """initialize the button handler"""
         self.state = _state
         # create Buttons and configure listener
-        for b in ButtonEnum:
-            if b in [ButtonEnum.GREEN, ButtonEnum.YELLOW, ButtonEnum.RED, ButtonEnum.DOUBT0, ButtonEnum.DOUBT1]:
-                logging.debug(f'Button {b.name}')
-                nb = GpioButton(b.value)
-                nb.when_pressed = self.button_pressed
-                nb.when_released = self.button_released
+        for button in ButtonEnum:
+            if button in [ButtonEnum.GREEN, ButtonEnum.YELLOW, ButtonEnum.RED, ButtonEnum.DOUBT0, ButtonEnum.DOUBT1]:
+                logging.debug(f'Button {button.name}')
+                input_button = GpioButton(button.value)
+                input_button.when_pressed = self.button_pressed
+                input_button.when_released = self.button_released
             else:
-                logging.debug(f'Button {b.name} when held')
-                nb = GpioButton(b.value)
-                nb.hold_time = 3
-                nb.when_held = self.button_pressed
-                nb.when_released = self.button_released
+                logging.debug(f'Button {button.name} when held')
+                input_button = GpioButton(button.value)
+                input_button.hold_time = 3
+                input_button.when_held = self.button_pressed
+                input_button.when_released = self.button_released
         self.state.do_ready()

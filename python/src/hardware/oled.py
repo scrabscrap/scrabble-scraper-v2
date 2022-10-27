@@ -31,6 +31,7 @@ from util import Singleton
 
 
 class PlayerDisplay(Display, metaclass=Singleton):
+    """Implementation of class Display with OLED"""
 
     def __init__(self):
         self.i2cbus = SMBus(1)
@@ -56,137 +57,127 @@ class PlayerDisplay(Display, metaclass=Singleton):
             self.oled.poweroff()
 
     def display(self, disp: int) -> None:
+        """active display on multiplexer"""
         assert disp in [0, 1], "invalid display"
         self.i2cbus.write_byte(0x70, 1 << disp)
         time.sleep(0.001)
 
     def show_boot(self) -> None:
         logging.debug('Boot message')
-        MSG_BOOT = 'Boot'
-        MSG_BOOT_FONT = self.font
-        msg_boot_width = MSG_BOOT_FONT.getlength(MSG_BOOT)
-        MSG_BOOT_COORD = (self.oled.width // 2 - msg_boot_width // 2, 20)
+        msg = 'Boot'
+        width = self.font.getlength(msg)
+        coord = (self.oled.width // 2 - width // 2, 20)
         for i in range(2):
             self.image[i].paste(self.empty)
-            self.draw[i].text(MSG_BOOT_COORD, MSG_BOOT, font=MSG_BOOT_FONT, fill=255)
+            self.draw[i].text(coord, msg, font=self.font, fill=255)
         self.show()
 
     def show_reset(self) -> None:
         logging.debug('Reset message')
-        MSG_RESET = 'Reset'
-        MSG_RESET_FONT = self.font
-        msg_boot_width = MSG_RESET_FONT.getlength(MSG_RESET)
-        MSG_RESET_COORD = (self.oled.width // 2 - msg_boot_width // 2, 20)
+        msg = 'Reset'
+        width = self.font.getlength(msg)
+        coord = (self.oled.width // 2 - width // 2, 20)
         for i in range(2):
             self.image[i].paste(self.empty)
-            self.draw[i].text(MSG_RESET_COORD, MSG_RESET, font=MSG_RESET_FONT, fill=255)
+            self.draw[i].text(coord, msg, font=self.font, fill=255)
         self.show(invert=False)
 
     def show_ready(self) -> None:
         logging.debug('Ready message')
-        m1, s1 = divmod(abs(config.max_time), 60)
+        minutes, seconds = divmod(abs(config.max_time), 60)
         for i in range(2):
             self.image[i].paste(self.empty)
-            self.draw[i].text((1, 22), f'{m1:02d}:{s1:02d}', font=self.font, fill=255)
+            self.draw[i].text((1, 22), f'{minutes:02d}:{seconds:02d}', font=self.font, fill=255)
         self.show(invert=False)
 
     def show_pause(self, player: int) -> None:
         assert player in [0, 1], "invalid player number"
         logging.debug('Pause message')
-        MSG_BREAK = 'Pause'
-        MSG_BREAK_FONT = self.font1
-        MSG_BREAK_COORD = (24, 1)
+        msg = 'Pause'
+        coord = (24, 1)
         self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
-        self.draw[player].text(MSG_BREAK_COORD, MSG_BREAK, font=MSG_BREAK_FONT, fill=255)
+        self.draw[player].text(coord, msg, font=self.font1, fill=255)
         self.show(player=player, invert=True)
 
     def add_malus(self, player: int) -> None:
         assert player in [0, 1], "invalid player number"
 
         logging.debug(f'{player}: malus -10')
-        MSG_MALUS = '-10P'
-        MSG_MALUS_FONT = self.font1
-        MSG_MALUS_COORD = (24, 1)
+        msg = '-10P'
+        coord = (24, 1)
         self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
-        self.draw[player].text(MSG_MALUS_COORD, MSG_MALUS, font=MSG_MALUS_FONT, fill=255)
+        self.draw[player].text(coord, msg, font=self.font1, fill=255)
         self.show(player=player)
 
     def add_remove_tiles(self, player: int) -> None:
         assert player in [0, 1], "invalid player number"
 
         logging.debug(f'{player}: Entf. Zug')
-        MSG_REMOVE_TILES = '\u2717Zug\u270D'
-        MSG_REMOVE_TILES_FONT = self.font1
-        MSG_REMOVE_TILES_COORD = (24, 1)
+        msg = '\u2717Zug\u270D'
+        coord = (24, 1)
         self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
-        self.draw[player].text(MSG_REMOVE_TILES_COORD, MSG_REMOVE_TILES, font=MSG_REMOVE_TILES_FONT, fill=255)
+        self.draw[player].text(coord, msg, font=self.font1, fill=255)
         self.show(player=player)
 
     def add_doubt_timeout(self, player: int) -> None:
         assert player in [0, 1], "invalid player number"
 
         logging.debug(f'{player}: doubt timeout')
-        MSG_TIMEOUT = '\u21AFtimeout'
-        MSG_TIMEOUT_FONT = self.font1
-        MSG_TIMEOUT_COORD = (24, 1)
+        msg = '\u21AFtimeout'
+        coord = (24, 1)
         self.draw[player].rectangle((24, 0, self.oled.width, 24), fill=0)
-        self.draw[player].text(MSG_TIMEOUT_COORD, MSG_TIMEOUT, font=MSG_TIMEOUT_FONT, fill=255)
+        self.draw[player].text(coord, msg, font=self.font1, fill=255)
         self.show(player=player)
 
     def show_cam_err(self) -> None:
         logging.debug('Cam err message')
-        MSG_ERR_CAM = '\u2620Cam'
-        MSG_ERR_CAM_FONT = self.font
-        MSG_ERR_CAM_COORD = (1, 16)
+        msg = '\u2620Cam'
+        coord = (1, 16)
         for i in range(2):
             self.image[i].paste(self.empty)
-            self.draw[i].text(MSG_ERR_CAM_COORD, MSG_ERR_CAM, font=MSG_ERR_CAM_FONT, fill=255)
+            self.draw[i].text(coord, msg, font=self.font, fill=255)
         self.show()
 
     def show_ftp_err(self) -> None:
         logging.debug('FTP err message')
-        MSG_ERR_FTP = '\u2620ftp'
-        MSG_ERR_FTP_FONT = self.font
-        MSG_ERR_FTP_COORD = (1, 16)
+        msg = '\u2620ftp'
+        coord = (1, 16)
         for i in range(2):
             self.image[i].paste(self.empty)
-            self.draw[i].text(MSG_ERR_FTP_COORD, MSG_ERR_FTP, font=MSG_ERR_FTP_FONT, fill=255)
+            self.draw[i].text(coord, msg, font=self.font, fill=255)
         self.show()
 
     def show_config(self) -> None:
         logging.debug('Cfg message')
-        MSG_CONFIG = '\u270ECfg'
-        MSG_CONFIG_FONT = self.font
-        MSG_CONFIG_COORD = (1, 16)
+        msg = '\u270ECfg'
+        coord = (1, 16)
         for i in range(0, 2):
             self.image[i].paste(self.empty)
-            self.draw[i].text(MSG_CONFIG_COORD, MSG_CONFIG, font=MSG_CONFIG_FONT, fill=255)
+            self.draw[i].text(coord, msg, font=self.font, fill=255)
         self.show()
 
-    def add_time(self, player, t1, p1, t2, p2) -> None:
-        MSG_DOUBT = '\u2049'  # \u2718
-        MSG_DOUBT_FONT = self.font1
-        # msg_doubt_width = MSG_DOUBT_FONT.getlength(MSG_DOUBT)
-        MSG_DOUBT_COORD = (1, 0)
+    def add_time(self, player, time1, played1, time2, played2) -> None:
+        msg = '\u2049'  # \u2718
+        coord = (1, 0)
 
         self.image[player].paste(self.empty)
         text = ''
-        p = 0
+        played_time = 0
         if player == 0:
             # display 0
-            m1, s1 = divmod(abs(config.max_time - t1), 60)
-            text = f'-{m1:1d}:{s1:02d}' if config.max_time - t1 < 0 else f'{m1:02d}:{s1:02d}'
-            p = p1
+            minutes1, seconds1 = divmod(abs(config.max_time - time1), 60)
+            text = f'-{minutes1:1d}:{seconds1:02d}' if config.max_time - time1 < 0 else f'{minutes1:02d}:{seconds1:02d}'
+            played_time = played1
         elif player == 1:
             # display 1
-            m2, s2 = divmod(abs(config.max_time - t2), 60)
-            text = f'-{m2:1d}:{s2:02d}' if config.max_time - t2 < 0 else f'{m2:02d}:{s2:02d}'
-            p = p2
+            minutest2, seconds2 = divmod(abs(config.max_time - time2), 60)
+            text = f'-{minutest2:1d}:{seconds2:02d}' if config.max_time - time2 < 0 else f'{minutest2:02d}:{seconds2:02d}'
+            played_time = played2
 
         self.draw[player].text((1, 22), text, font=self.font, fill=255)
-        self.draw[player].text((80, 1), f'{p:4d}', font=self.font1, fill=255)
-        if p <= config.doubt_timeout:
-            self.draw[player].text(MSG_DOUBT_COORD, MSG_DOUBT, font=MSG_DOUBT_FONT, fill=255)
+        self.draw[player].text((80, 1), f'{played_time:4d}', font=self.font1, fill=255)
+        if played_time <= config.doubt_timeout:
+            self.draw[player].text(coord, msg, font=self.font1, fill=255)
         self.display(player)
         self.oled.image(self.image[player])
         self.oled.show()
@@ -197,15 +188,15 @@ class PlayerDisplay(Display, metaclass=Singleton):
             self.oled.fill(0)
         # self.oled.show()
 
-    def clear_message(self, disp: Optional[int] = None) -> None:
-        if disp is None:
+    def clear_message(self, player: Optional[int] = None) -> None:
+        if player is None:
             for i in range(2):
                 self.draw[i].rectangle((0, 0, self.oled.width, 24), fill=0)
             self.show()
         else:
-            assert disp in [0, 1], "invalid display"
-            self.draw[disp].rectangle((0, 0, self.oled.width, 24), fill=0)
-            self.show(player=disp)
+            assert player in [0, 1], "invalid display"
+            self.draw[player].rectangle((0, 0, self.oled.width, 24), fill=0)
+            self.show(player=player)
 
     def show(self, player: Optional[int] = None, invert: Optional[bool] = None) -> None:
         if player is None:

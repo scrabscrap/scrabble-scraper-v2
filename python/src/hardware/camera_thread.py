@@ -28,6 +28,7 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 
 class CameraEnum(Enum):
+    """Enumation of supported camera types"""
     AUTO = 1
     PICAMERA = 2
     OPENCV = 3
@@ -35,6 +36,7 @@ class CameraEnum(Enum):
 
 
 class Camera(metaclass=Singleton):  # type: ignore
+    """implement a camera thread as proxy"""
 
     def __init__(self, src: int = 0, use_camera: CameraEnum = CameraEnum.AUTO, resolution=(config.im_width, config.im_height),
                  framerate=config.fps, **kwargs):
@@ -45,22 +47,25 @@ class Camera(metaclass=Singleton):  # type: ignore
         elif (use_camera == CameraEnum.OPENCV) or (use_camera == CameraEnum.AUTO and machine in ('aarch64')):
             from .camera_opencv import CameraOpenCV
             self.stream = CameraOpenCV(src=src, resolution=resolution, framerate=framerate)
-        elif (use_camera == CameraEnum.FILE) or (use_camera == CameraEnum.AUTO):
+        elif use_camera in (CameraEnum.FILE, CameraEnum.AUTO):
             from .camera_file import CameraFile
             self.stream = CameraFile()
 
-    def update(self, ev: Event) -> None:
-        self.stream.update(ev)
+    def update(self, event: Event) -> None:
+        """update to next picture on thread event"""
+        self.stream.update(event)
 
     def read(self, peek=False) -> Mat:
+        """read next picture (no counter increment if peek=True when using CameraFile)"""
         from .camera_file import CameraFile
         if isinstance(self.stream, CameraFile):
             return self.stream.read(peek=peek)
-        else:
-            return self.stream.read()
+        return self.stream.read()
 
     def cancel(self) -> None:
+        """end of video thread"""
         self.stream.cancel()
 
     def done(self, result: Future) -> None:
+        """signal end of video thread"""
         self.stream.done(result)

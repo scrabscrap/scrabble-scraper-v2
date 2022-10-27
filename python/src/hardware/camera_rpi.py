@@ -30,6 +30,7 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 
 class CameraRPI(metaclass=Singleton):  # type: ignore
+    """implement a camera with rpi native"""
 
     def __init__(self, resolution=(config.im_width, config.im_height), framerate=config.fps, **kwargs):
         logging.info('### init PiCamera')
@@ -37,8 +38,8 @@ class CameraRPI(metaclass=Singleton):  # type: ignore
         self.camera = PiCamera()
         self.camera.resolution = resolution
         self.camera.framerate = framerate
-        self.rawCapture = PiRGBArray(self.camera, size=self.camera.resolution)
-        self.stream = self.camera.capture_continuous(self.rawCapture, format="bgr", use_video_port=True)
+        self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
+        self.stream = self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True)
         if config.rotade:
             self.camera.rotation = 180
         self.event = None
@@ -47,24 +48,28 @@ class CameraRPI(metaclass=Singleton):  # type: ignore
     def _atexit(self) -> None:
         logging.debug('camera close')
         self.stream.close()  # type: ignore
-        self.rawCapture.close()
+        self.raw_capture.close()
         self.camera.close()
 
     def read(self) -> Mat:
+        """read next picture"""
         return self.frame  # type: ignore
 
-    def update(self, ev: Event) -> None:
-        self.event = ev
-        for f in self.stream:
-            self.frame = f.array  # type: ignore
-            self.rawCapture.truncate(0)
-            if ev.is_set():
+    def update(self, event: Event) -> None:
+        """update to next picture on thread event"""
+        self.event = event
+        for images in self.stream:
+            self.frame = images.array  # type: ignore
+            self.raw_capture.truncate(0)
+            if event.is_set():
                 break
-        ev.clear()
+        event.clear()
 
     def cancel(self) -> None:
+        """end of video thread"""
         if self.event is not None:
             self.event.set()
 
     def done(self, result: Future) -> None:
+        """signal end of video thread"""
         logging.info(f'cam done {result}')
