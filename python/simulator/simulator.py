@@ -24,11 +24,12 @@ import urllib.parse
 from time import sleep
 
 import cv2
-from api_server_thread import ApiServer
-from config import config
-from flask import redirect, render_template, url_for, request
+from flask import redirect, render_template, request, url_for
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
+
+from api_server_thread import ApiServer
+from config import config
 from hardware.led import LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
@@ -42,16 +43,19 @@ STATIC_FOLDER = f'{os.path.dirname(__file__) or "."}/../src/static'
 
 
 def doubt0():
+    """simulate doubt player 0"""
     State().press_button('DOUBT0')
     return redirect(url_for('simulator'))
 
 
 def doubt1():
+    """simulate doubt player 1"""
     State().press_button('DOUBT1')
     return redirect(url_for('simulator'))
 
 
 def green():
+    """simulate press green button"""
     State().press_button('GREEN')
     if State().last_submit is not None:
         while not State().last_submit.done():  # type: ignore
@@ -60,6 +64,7 @@ def green():
 
 
 def red():
+    """simulate press red button"""
     State().press_button('RED')
     if State().last_submit is not None:
         while not State().last_submit.done():  # type: ignore
@@ -68,22 +73,26 @@ def red():
 
 
 def yellow():
+    """simulate press yellow button"""
     State().press_button('YELLOW')
     return redirect(url_for('simulator'))
 
 
 def reset():
+    """simulate press reset"""
     State().press_button('RESET')
     ApiServer.cam.stream.cnt = 0  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_first():
+    """skip to first image"""
     ApiServer.cam.stream.cnt = 0  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_prev():
+    """skip to previous image"""
     logging.debug('prev')
     if ApiServer.cam.stream.cnt > 0:  # type: ignore
         ApiServer.cam.stream.cnt -= 1  # type: ignore
@@ -91,6 +100,7 @@ def cam_prev():
 
 
 def cam_next():
+    """skip to next image"""
     logging.debug('next')
     ApiServer.cam.stream.cnt += 1 if os.path.isfile(  # type: ignore
         ApiServer.cam.stream.formatter.format(ApiServer.cam.stream.cnt + 1)) else 0  # type: ignore
@@ -98,6 +108,7 @@ def cam_next():
 
 
 def cam_last():
+    """skip to last image"""
     logging.debug('last')
     while os.path.isfile(ApiServer.cam.stream.formatter.format(ApiServer.cam.stream.cnt + 1)):  # type: ignore
         ApiServer.cam.stream.cnt += 1  # type: ignore
@@ -105,30 +116,32 @@ def cam_last():
 
 
 def open_folder():
+    """select folder for images"""
     folder = request.args.get('folder')
     logging.debug(f'try to open {folder}')
-    iniFile = f'{config.work_dir}/simulate/{folder}/scrabble.ini'
-    if os.path.exists(iniFile):
-        config.reload(ini_file=iniFile)
+    ini_file = f'{config.work_dir}/simulate/{folder}/scrabble.ini'
+    if os.path.exists(ini_file):
+        config.reload(ini_file=ini_file)
         ApiServer.cam.stream.cnt = 0  # type: ignore
         ApiServer.cam.stream.formatter = config.simulate_path  # type: ignore
     else:
-        logging.warning(f'INI File not found: {iniFile}')
+        logging.warning(f'INI File not found: {ini_file}')
     return redirect(url_for('simulator'))
 
 
 def simulator() -> str:
+    """"render simulator on web page"""
     # get simulate folders
-    listOfDir = [f for f in os.listdir(f'{config.work_dir}/simulate') if os.path.isdir(f'{config.work_dir}/simulate/{f}')]
+    list_of_dir = [f for f in os.listdir(f'{config.work_dir}/simulate') if os.path.isdir(f'{config.work_dir}/simulate/{f}')]
 
     # display time
-    _, t0, _, t1, _ = State().watch.get_status()
-    m1, s1 = divmod(abs(1800 - t0), 60)
-    m2, s2 = divmod(abs(1800 - t1), 60)
-    left = f'-{m1:1d}:{s1:02d}' if 1800 - \
-        t0 < 0 else f'{m1:02d}:{s1:02d}'
-    right = f'-{m2:1d}:{s2:02d}' if 1800 - \
-        t1 < 0 else f'{m2:02d}:{s2:02d}'
+    _, time0, _, time1, _ = State().watch.get_status()
+    minutes1, seconds1 = divmod(abs(1800 - time0), 60)
+    minutes2, seconds2 = divmod(abs(1800 - time1), 60)
+    left = f'-{minutes1:1d}:{seconds1:02d}' if 1800 - \
+        time0 < 0 else f'{minutes1:02d}:{seconds1:02d}'
+    right = f'-{minutes2:1d}:{seconds2:02d}' if 1800 - \
+        time1 < 0 else f'{minutes2:02d}:{seconds2:02d}'
     # get current picture
     png_current = None
     board = ''
@@ -144,21 +157,22 @@ def simulator() -> str:
     png_next = urllib.parse.quote(base64.b64encode(im_buf_arr))
     # show log
     if os.path.exists(f'{config.log_dir}/messages.log'):
-        p1 = subprocess.run(['tail', '-75', f'{config.log_dir}/messages.log'], check=True,
+        process = subprocess.run(['tail', '-75', f'{config.log_dir}/messages.log'], check=True,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        log_out = p1.stdout.decode()
+        log_out = process.stdout.decode()
     else:
         log_out = '## empty ##'
 
     return render_template('simulator.html', version=ApiServer.scrabscrap_version,
                            img_next=png_next, img_current=png_current, log=log_out,
                            green=LEDEnum.green.value, yellow=LEDEnum.yellow.value, red=LEDEnum.red.value,
-                           left=left, right=right, folder=listOfDir, board=board)
+                           left=left, right=right, folder=list_of_dir, board=board)
 
 
 def main():
-    from threading import Event
+    """used to start the simulator"""
 
+    from threading import Event
     from hardware.camera_thread import Camera, CameraEnum
 
     logging.config.fileConfig(fname=config.work_dir + '/log.conf',
