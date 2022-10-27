@@ -72,7 +72,7 @@ def filter_image(img: Mat) -> tuple[Optional[Mat], set]:
 
 def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], ignore_set: set[tuple[int, int]]) -> set:
     (col, row) = coord
-    result = set()
+    result: set = set()
     if coord not in candidates:  # already visited
         return result
     candidates.remove(coord)
