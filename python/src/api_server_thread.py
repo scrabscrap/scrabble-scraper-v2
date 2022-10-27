@@ -25,6 +25,7 @@ import urllib.parse
 from time import sleep
 
 import cv2
+import numpy as np
 from flask import (Flask, jsonify, redirect, render_template, request,
                    send_from_directory, url_for)
 from werkzeug.serving import make_server
@@ -32,27 +33,32 @@ from werkzeug.serving import make_server
 from config import config
 from game_board.board import overlay_grid
 from processing import get_last_warp, warp_image
+from state import State
 from threadpool import pool
 
 
 class ApiServer:
+    """ definition of flask server """
     app = Flask(__name__)
     last_msg = ''
     cam = None
     flask_shutdown_blocked = False
     scrabscrap_version = ''
 
+    @staticmethod
     @app.get('/')
     @app.get('/index')
     def get_defaults():
-        from state import State
+        """ index web page """
 
         (player1, player2) = State().game.nicknames
         return render_template('index.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg,
                                player1=player1, player2=player2)
 
+    @staticmethod
     @app.get('/settings')
     def get_settings():
+        """display settings on web page"""
         try:
             must_save = False
             for i in request.args.items():
@@ -82,8 +88,10 @@ class ApiServer:
         ApiServer.last_msg = json.dumps(config_as_dict, sort_keys=False, indent=2, ensure_ascii=False)
         return render_template('settings.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
 
+    @staticmethod
     @app.post('/settings')  # type: ignore
     def add_settings():
+        """ post request to add settings via json"""
         if request.is_json:
             must_save = False
             json_object = request.get_json()
@@ -102,9 +110,10 @@ class ApiServer:
         else:
             return {'error': 'Request must be JSON'}, 415
 
+    @staticmethod
     @app.route('/player')  # type: ignore
     def player():
-        from state import State
+        """ set player names """
 
         player1 = request.args.get('player1')
         player2 = request.args.get('player2')
@@ -114,35 +123,44 @@ class ApiServer:
         ApiServer.last_msg = f'player1={player1}\nplayer2={player2}'
         return redirect(url_for('get_defaults'))
 
+    @staticmethod
     @app.post('/wifi')
     def post_wifi():
+        """ set wifi param (ssid, psk) via post request """
         ssid = request.form.get('ssid')
         key = request.form.get('psk')
         logging.debug(f'ssid={ssid}')
-        p1 = subprocess.call(f"sudo sh -c 'wpa_passphrase {ssid} {key} >> /etc/wpa_supplicant/wpa_supplicant.conf'", shell=True)
-        ApiServer.last_msg = f'set wifi return={p1}'
+        process = subprocess.call(
+            f"sudo sh -c 'wpa_passphrase {ssid} {key} >> /etc/wpa_supplicant/wpa_supplicant.conf'", shell=True)
+        ApiServer.last_msg = f'set wifi return={process}'
         return render_template('wifi.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
 
+    @staticmethod
     @app.get('/wifi')
     def get_wifi():
+        """ display wifi web page """
         ApiServer.last_msg = ''
         return render_template('wifi.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
 
+    @staticmethod
     @app.route('/scan_wifi')
     def scan_wifi():
-        p1 = subprocess.run(['wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        """ start wifi scan process """
+        process1 = subprocess.run(['wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         _ = subprocess.run(['wpa_cli', 'scan', '-i', 'wlan0'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         sleep(1)
-        p2 = subprocess.run(['wpa_cli', 'scan_results', '-i', 'wlan0'], check=False,
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        ApiServer.last_msg = f'wifi config\n{p1.stdout.decode()}\nwifi search\n{p2.stdout.decode()}'
+        process2 = subprocess.run(['wpa_cli', 'scan_results', '-i', 'wlan0'], check=False,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        ApiServer.last_msg = f'wifi config\n{process1.stdout.decode()}\nwifi search\n{process2.stdout.decode()}'
         logging.debug(ApiServer.last_msg)
         return render_template('wifi.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
 
+    @staticmethod
     @app.route('/cam')
     def get_cam():
-        import numpy as np
+        """ display current camera picture """
+
         logging.debug(f'request args {request.args.keys()}')
         if len(request.args.keys()) > 0:
             coord = list(request.args.keys())[0]
@@ -181,46 +199,51 @@ class ApiServer:
                                warp_coord=urllib.parse.quote(warp_coord), warp_coord_raw=warp_coord,
                                warp_coord_cnf=warp_coord_cnf)
 
+    @staticmethod
     @app.route('/logs')
     def logs():
+        """ display message log """
         ApiServer.last_msg = ''
         if os.path.exists(f'{config.LOG_DIR}/messages.log'):
-            p1 = subprocess.run(['tail', '-100', f'{config.LOG_DIR}/messages.log'], check=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            log_out = p1.stdout.decode()
+            process = subprocess.run(['tail', '-100', f'{config.LOG_DIR}/messages.log'], check=True,
+                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            log_out = process.stdout.decode()
         else:
             log_out = '## empty ##'
         return render_template('logs.html', log=log_out)
 
+    @staticmethod
     @app.route('/upgrade_linux')
     def update_linux():
-        from state import State
+        """ start linux upgrade """
 
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
-            p1 = subprocess.run(['sudo', 'apt-get', 'update'], check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p2 = subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'], check=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            process1 = subprocess.run(['sudo', 'apt-get', 'update'], check=True,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            process2 = subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'], check=True,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.flask_shutdown_blocked = False
-            ApiServer.last_msg = f'{p1.stdout.decode()}\n{p2.stdout.decode()}'
+            ApiServer.last_msg = f'{process1.stdout.decode()}\n{process2.stdout.decode()}'
             logging.debug(ApiServer.last_msg)
         else:
             ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
+    @staticmethod
     @app.route('/upgrade_scrabscrap')
     def update_scrabscrap():
-        from state import State
+        """ start scrabscrap upgrade """
 
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
-            p1 = subprocess.run(['git', 'fetch'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            # TODO: PROD-> git reset --hard origin/main
-            # TODO: restrict to Tag v2
-            p2 = subprocess.run(['git', 'pull', '--autostash'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p3 = subprocess.run(['git', 'gc'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            process1 = subprocess.run(['git', 'fetch'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            # TODO: git checkout v2 --hard v2
+            process2 = subprocess.run(['git', 'pull', '--autostash'], check=False,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            process3 = subprocess.run(['git', 'gc'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.flask_shutdown_blocked = False
-            ApiServer.last_msg = f'{p1.stdout.decode()}\n{p2.stdout.decode()}\n{p3.stdout.decode()}'
+            ApiServer.last_msg = f'{process1.stdout.decode()}\n{process2.stdout.decode()}\n{process3.stdout.decode()}'
             logging.debug(ApiServer.last_msg)
             version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -232,10 +255,11 @@ class ApiServer:
             ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
+    @staticmethod
     @app.route('/test_led')
     def test_led():
+        """ start simple led test """
         from hardware.led import LED, LEDEnum
-        from state import State
 
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
@@ -271,15 +295,16 @@ class ApiServer:
             ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
+    @staticmethod
     @app.route('/test_display')
     def test_display():
+        """ start simple display test """
         try:
             from hardware.oled import PlayerDisplay
         except ImportError:
-            logging.warn('use mock as PlayerDisplay')
+            logging.warning('use mock as PlayerDisplay')
             from display import Display as PlayerDisplay
         from scrabblewatch import ScrabbleWatch
-        from state import State
 
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
@@ -309,26 +334,22 @@ class ApiServer:
             ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
+    @staticmethod
     @app.route('/download_logs', methods=['POST', 'GET'])
     def download_logs():
+        """ download message log """
         ApiServer.last_msg = 'download logs'
         return send_from_directory(f'{config.WORK_DIR}', 'log.conf', as_attachment=True)
 
+    @staticmethod
     @app.route('/game_status', methods=['POST', 'GET'])
     def game_status():
-        from state import State
+        """ get request to current game state """
 
-        # state holds the current game
         return State().game.json_str(), 201
 
-    # TODO:
-    # - [o] download logs / images / games
-    # - [ ] shutdown system
-    # - [o] upgrade scrabscrap
-    # - [ ] set move?
-    # - [ ] set rack
-
     def start_server(self, host: str = '0.0.0.0', port=5050):
+        """ start flask server """
         logging.debug('start api server')
         # flask log only error
         log = logging.getLogger('werkzeug')
@@ -348,6 +369,7 @@ class ApiServer:
         self.server.serve_forever()
 
     def stop_server(self):
+        """ stop flask server """
         logging.info(f'server shutdown blocked: {ApiServer.flask_shutdown_blocked}')
         while ApiServer.flask_shutdown_blocked:
             sleep(0.1)
@@ -355,9 +377,9 @@ class ApiServer:
 
 
 def main():
+    """ main for standalone test """
     # for testing
     from threading import Event
-
     from hardware.camera_thread import Camera
 
     logging.config.fileConfig(fname=config.WORK_DIR + '/log.conf',
