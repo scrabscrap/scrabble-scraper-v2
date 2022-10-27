@@ -21,7 +21,7 @@ import cv2
 from config import config
 from util import Singleton
 
-fakecamera_formatter = config.SIMULATE_PATH
+fakecamera_formatter = config.simulate_path
 fakecamera_index = 0
 
 

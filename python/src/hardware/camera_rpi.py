@@ -31,7 +31,7 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 class CameraRPI(metaclass=Singleton):  # type: ignore
 
-    def __init__(self, resolution=(config.IM_WIDTH, config.IM_HEIGHT), framerate=config.FPS, **kwargs):
+    def __init__(self, resolution=(config.im_width, config.im_height), framerate=config.fps, **kwargs):
         logging.info('### init PiCamera')
         self.frame = []
         self.camera = PiCamera()
@@ -39,7 +39,7 @@ class CameraRPI(metaclass=Singleton):  # type: ignore
         self.camera.framerate = framerate
         self.rawCapture = PiRGBArray(self.camera, size=self.camera.resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture, format="bgr", use_video_port=True)
-        if config.ROTATE:
+        if config.rotade:
             self.camera.rotation = 180
         self.event = None
         atexit.register(self._atexit)

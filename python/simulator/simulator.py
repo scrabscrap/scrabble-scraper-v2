@@ -107,11 +107,11 @@ def cam_last():
 def open_folder():
     folder = request.args.get('folder')
     logging.debug(f'try to open {folder}')
-    iniFile = f'{config.WORK_DIR}/simulate/{folder}/scrabble.ini'
+    iniFile = f'{config.work_dir}/simulate/{folder}/scrabble.ini'
     if os.path.exists(iniFile):
         config.reload(ini_file=iniFile)
         ApiServer.cam.stream.cnt = 0  # type: ignore
-        ApiServer.cam.stream.formatter = config.SIMULATE_PATH  # type: ignore
+        ApiServer.cam.stream.formatter = config.simulate_path  # type: ignore
     else:
         logging.warning(f'INI File not found: {iniFile}')
     return redirect(url_for('simulator'))
@@ -119,7 +119,7 @@ def open_folder():
 
 def simulator() -> str:
     # get simulate folders
-    listOfDir = [f for f in os.listdir(f'{config.WORK_DIR}/simulate') if os.path.isdir(f'{config.WORK_DIR}/simulate/{f}')]
+    listOfDir = [f for f in os.listdir(f'{config.work_dir}/simulate') if os.path.isdir(f'{config.work_dir}/simulate/{f}')]
 
     # display time
     _, t0, _, t1, _ = State().watch.get_status()
@@ -143,8 +143,8 @@ def simulator() -> str:
     _, im_buf_arr = cv2.imencode(".jpg", img)
     png_next = urllib.parse.quote(base64.b64encode(im_buf_arr))
     # show log
-    if os.path.exists(f'{config.LOG_DIR}/messages.log'):
-        p1 = subprocess.run(['tail', '-75', f'{config.LOG_DIR}/messages.log'], check=True,
+    if os.path.exists(f'{config.log_dir}/messages.log'):
+        p1 = subprocess.run(['tail', '-75', f'{config.log_dir}/messages.log'], check=True,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         log_out = p1.stdout.decode()
     else:
@@ -161,7 +161,7 @@ def main():
 
     from hardware.camera_thread import Camera, CameraEnum
 
-    logging.config.fileConfig(fname=config.WORK_DIR + '/log.conf',
+    logging.config.fileConfig(fname=config.work_dir + '/log.conf',
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})

@@ -107,8 +107,7 @@ class ApiServer:
             config_as_dict = config.config_as_dict()
             ApiServer.last_msg = json.dumps(config_as_dict, sort_keys=True, indent=2)
             return jsonify(config_as_dict), 201
-        else:
-            return {'error': 'Request must be JSON'}, 415
+        return {'error': 'Request must be JSON'}, 415
 
     @staticmethod
     @app.route('/player')  # type: ignore
@@ -164,22 +163,22 @@ class ApiServer:
         logging.debug(f'request args {request.args.keys()}')
         if len(request.args.keys()) > 0:
             coord = list(request.args.keys())[0]
-            x: int = int(coord.split(',')[0])
-            y: int = int(coord.split(',')[1])
-            logging.debug(f'coord x:{x} y:{y}')
-            rect = np.array(config.WARP_COORDINATES, dtype="float32")
-            if x < 200 and y < 200:
-                rect[0] = (x, y)
-            elif x < 200:
-                rect[1] = (x, y)
-            elif y < 200:
-                rect[3] = (x, y)
+            col: int = int(coord.split(',')[0])
+            row: int = int(coord.split(',')[1])
+            logging.debug(f'coord x:{col} y:{row}')
+            rect = np.array(config.warp_coordinates, dtype="float32")
+            if col < 200 and row < 200:
+                rect[0] = (col, row)
+            elif col < 200:
+                rect[1] = (col, row)
+            elif row < 200:
+                rect[3] = (col, row)
             else:
-                rect[2] = (x, y)
+                rect[2] = (col, row)
             logging.debug(f"new warp: {np.array2string(rect, formatter={'float_kind':lambda x: '%.1f' % x}, separator=', ')}")
             config.config.set('video', 'warp_coordinates', np.array2string(
                 rect, formatter={'float_kind': lambda x: '%.1f' % x}, separator=','))
-        warp_coord_cnf = str(config.WARP_COORDINATES)
+        warp_coord_cnf = str(config.warp_coordinates)
         if ApiServer.cam is not None:
             img = ApiServer.cam.read()
             _, im_buf_arr = cv2.imencode(".jpg", img)
@@ -204,8 +203,8 @@ class ApiServer:
     def logs():
         """ display message log """
         ApiServer.last_msg = ''
-        if os.path.exists(f'{config.LOG_DIR}/messages.log'):
-            process = subprocess.run(['tail', '-100', f'{config.LOG_DIR}/messages.log'], check=True,
+        if os.path.exists(f'{config.log_dir}/messages.log'):
+            process = subprocess.run(['tail', '-100', f'{config.log_dir}/messages.log'], check=True,
                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             log_out = process.stdout.decode()
         else:
@@ -339,7 +338,7 @@ class ApiServer:
     def download_logs():
         """ download message log """
         ApiServer.last_msg = 'download logs'
-        return send_from_directory(f'{config.WORK_DIR}', 'log.conf', as_attachment=True)
+        return send_from_directory(f'{config.work_dir}', 'log.conf', as_attachment=True)
 
     @staticmethod
     @app.route('/game_status', methods=['POST', 'GET'])
@@ -382,7 +381,7 @@ def main():
     from threading import Event
     from hardware.camera_thread import Camera
 
-    logging.config.fileConfig(fname=config.WORK_DIR + '/log.conf',
+    logging.config.fileConfig(fname=config.work_dir + '/log.conf',
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})

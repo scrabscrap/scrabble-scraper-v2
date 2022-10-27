@@ -24,83 +24,93 @@ from config import config
 
 
 class Ftp:
+    """ ftp implementation """
 
     def __init__(self):
         pass
 
     class FtpConfig:
+        """ read ftp configuration """
+
         def __init__(self) -> None:
             self.config = configparser.ConfigParser()
             try:
-                with open(f'{config.WORK_DIR}/ftp-secret.ini', 'r') as config_file:
+                with open(f'{config.work_dir}/ftp-secret.ini', 'r') as config_file:
                     self.config.read_file(config_file)
-            except Exception as e:
-                logging.exception(f'can not read ftp INI-File {e}')
+            except IOError as err:
+                logging.exception(f'can not read ftp INI-File {err}')
 
         def reload(self) -> None:
+            """ reload ftp configuration """
             self.__init__()
 
         @property
-        def FTP_SERVER(self) -> Optional[str]:
+        def ftp_server(self) -> Optional[str]:
+            """ get ftp server name """
             return self.config.get('ftp', 'ftp-server', fallback=None)
 
         @property
-        def FTP_USER(self) -> str:
+        def ftp_user(self) -> str:
+            """ get ftp user name """
             return self.config.get('ftp', 'ftp-user', fallback='')
 
         @property
-        def FTP_PASS(self) -> str:
+        def ftp_pass(self) -> str:
+            """ get ftp password """
             return self.config.get('ftp', 'ftp-password', fallback='')
 
     ftp_config = FtpConfig()
 
     @classmethod
     def upload_move(cls, move: int) -> bool:
+        """ upload move to ftp server """
         logging.debug(f'ftp: upload_move {move}')
-        if cls.ftp_config.FTP_SERVER is not None:
+        if cls.ftp_config.ftp_server is not None:
             try:
                 logging.info('ftp: start transfer move files')
-                with ftplib.FTP(cls.ftp_config.FTP_SERVER, cls.ftp_config.FTP_USER, cls.ftp_config.FTP_PASS) as session:
-                    with open(f'{config.WEB_DIR}/image-{move}.jpg', 'rb') as file:
+                with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
+                    with open(f'{config.web_dir}/image-{move}.jpg', 'rb') as file:
                         session.storbinary(f'STOR image-{move}.jpg', file)  # send the file
-                    with open(f'{config.WEB_DIR}/data-{move}.json', 'rb') as file:
+                    with open(f'{config.web_dir}/data-{move}.json', 'rb') as file:
                         session.storbinary(f'STOR data-{move}.json', file)  # send the file
-                    with open(f'{config.WEB_DIR}/data-{move}.json', 'rb') as file:
+                    with open(f'{config.web_dir}/data-{move}.json', 'rb') as file:
                         session.storbinary('STOR status.json', file)  # send the file
                 logging.debug('ftp: end of transfer')
                 return True
-            except Exception as e:
-                logging.error(f'ftp: upload failure {e}')
+            except IOError as err:
+                logging.error(f'ftp: upload failure {err}')
         return False
 
     @classmethod
     def upload_game(cls, filename: str) -> bool:
+        """ upload a zpped game file to ftp """
         logging.debug(f'ftp: upload_game {filename}')
-        if cls.ftp_config.FTP_SERVER is not None:
+        if cls.ftp_config.ftp_server is not None:
             try:
                 logging.info('ftp: start transfer zip file')
-                with ftplib.FTP(cls.ftp_config.FTP_SERVER, cls.ftp_config.FTP_USER, cls.ftp_config.FTP_PASS) as session:
-                    with open(f'{config.WEB_DIR}/{filename}.zip', 'rb') as file:
+                with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
+                    with open(f'{config.web_dir}/{filename}.zip', 'rb') as file:
                         session.storbinary(f'STOR {filename}.zip', file)  # send the file
                 logging.info(f'ftp: end of upload {filename} to ftp-server')
                 return True
-            except Exception as e:
-                logging.error(f'ftp: upload failure {e}')
+            except IOError as err:
+                logging.error(f'ftp: upload failure {err}')
         return False
 
     @classmethod
     def delete_files(cls, prefix: str) -> bool:
+        """ delete files on ftp server """
         logging.debug(f'ftp: delete files with prefix {prefix}*')
-        if cls.ftp_config.FTP_SERVER is not None:
+        if cls.ftp_config.ftp_server is not None:
             try:
                 logging.info('ftp: delete files')
-                with ftplib.FTP(cls.ftp_config.FTP_SERVER, cls.ftp_config.FTP_USER, cls.ftp_config.FTP_PASS) as session:
+                with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
                     files = session.nlst()
                     for i in files:
                         if i.startswith(prefix):
                             session.delete(i)  # delete (not status.json, *.zip)
                 logging.info(f'ftp: end of delete {prefix}* ')
                 return True
-            except Exception as e:
-                logging.error(f'ftp: delete failure {e}')
+            except IOError as err:
+                logging.error(f'ftp: delete failure {err}')
         return False

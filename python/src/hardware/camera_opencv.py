@@ -31,7 +31,7 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 class CameraOpenCV(metaclass=Singleton):  # type: ignore
 
-    def __init__(self, src: int = 0, resolution=(config.IM_WIDTH, config.IM_HEIGHT), framerate=config.FPS):
+    def __init__(self, src: int = 0, resolution=(config.im_width, config.im_height), framerate=config.fps):
         # initialize the video camera stream and read the first frame
         logging.info('### init OpenCV VideoCapture')
         self.stream = cv2.VideoCapture('/dev/video0', cv2.CAP_V4L)
@@ -56,7 +56,7 @@ class CameraOpenCV(metaclass=Singleton):  # type: ignore
             valid, self.frame = self.stream.read()
             if not valid:
                 logging.warning('frame not valid')
-            if config.ROTATE:
+            if config.rotade:
                 self.frame = cv2.rotate(self.frame, cv2.ROTATE_180)
             if ev.is_set():
                 break

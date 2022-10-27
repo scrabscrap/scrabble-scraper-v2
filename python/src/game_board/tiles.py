@@ -30,15 +30,15 @@ class OneTile:
         self.h = 0
 
 
-scores = config.TILES_SCORES
-bag = config.TILES_BAG
+scores = config.tiles_scores
+bag = config.tiles_bag
 bag_as_list = sum([[k] * bag[k] for k in bag], [])
 tiles: List[OneTile] = []
 
 
 def load_tiles(filepath: Optional[str] = None) -> List[OneTile]:
     tiles.clear()
-    filepath = config.TILES_IMAGE_PATH
+    filepath = config.tiles_image_path
     tile_list = [*scores]
     tile_list.remove('_')  # without blank
     for tile_name in tile_list:

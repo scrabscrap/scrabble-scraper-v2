@@ -23,7 +23,7 @@ from threading import Event
 
 from config import config
 
-logging.config.fileConfig(fname=f'{config.WORK_DIR}/log.conf',
+logging.config.fileConfig(fname=f'{config.work_dir}/log.conf',
                           disable_existing_loggers=False,
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
@@ -34,13 +34,13 @@ from hardware.camera_thread import Camera
 from timer_thread import RepeatedTimer
 from scrabblewatch import ScrabbleWatch
 from state import State
-# from simulate.mockcamera import MockCamera
 from threadpool import pool
 
 
 def main() -> None:
+    """entry point for scrabscrap"""
 
-    def main_cleanup(signum, frame) -> None:
+    def main_cleanup(signum, _) -> None:
         logging.debug(f'Signal handler called with signal {signum}')
         api_future.cancel()
         cam_future.cancel()

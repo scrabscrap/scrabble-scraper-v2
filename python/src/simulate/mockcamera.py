@@ -30,15 +30,15 @@ class MockCamera(metaclass=Singleton):
     def __init__(self, formatter=None):
         self.frame = []
         self.resolution = (992, 976)
-        self.framerate = config.FPS
-        if config.ROTATE:
+        self.framerate = config.fps
+        if config.rotade:
             self.rotation = 180
         self.event = None
         self.cnt = 0
         if formatter is not None:
             self.formatter = formatter
         else:
-            self.formatter = config.SIMULATE_PATH
+            self.formatter = config.simulate_path
         self.img = cv2.imread(self.formatter.format(self.cnt))
 
     def read(self):

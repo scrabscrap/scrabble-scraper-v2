@@ -26,7 +26,7 @@ import cv2
 from config import config
 from vlogging import VisualRecord
 
-logging.config.fileConfig(fname=config.WORK_DIR + '/log.conf', disable_existing_loggers=False,
+logging.config.fileConfig(fname=config.work_dir + '/log.conf', disable_existing_loggers=False,
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 

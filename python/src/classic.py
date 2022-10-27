@@ -45,6 +45,7 @@ visualLogger = logging.getLogger("visualLogger")
 
 
 class Classic:
+    """ Implentation classic scrabble board analysis """
     last_warp = None
 
     def __init__(self):
@@ -52,16 +53,17 @@ class Classic:
 
     @staticmethod
     def warp(__image):
+        """" implement warp of a classic board """
 
-        if config.WARP_COORDINATES is not None:
-            rect = np.array(config.WARP_COORDINATES, dtype="float32")
+        if config.warp_coordinates is not None:
+            rect = np.array(config.warp_coordinates, dtype="float32")
         else:
             # based on: https://www.pyimagesearch.com/2014/08/25/4-point-opencv-getperspective-transform-example/
             (blue, _, _) = cv2.split(__image.copy())
 
             # Otsu's thresholding after Gaussian filtering
             blur = cv2.GaussianBlur(blue, (5, 5), 0)
-            ret3, th3 = cv2.threshold(
+            _, th3 = cv2.threshold(
                 blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
@@ -71,21 +73,21 @@ class Classic:
                 dilated.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cnts = imutils.grab_contours(cnts)
             cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:1]
-            c = cnts[0]
+            contour = cnts[0]
             peri = 1
-            approx = cv2.approxPolyDP(c, peri, True)
+            approx = cv2.approxPolyDP(contour, peri, True)
             while len(approx) > 4:
                 peri += 1
-                approx = cv2.approxPolyDP(c, peri, True)
+                approx = cv2.approxPolyDP(contour, peri, True)
 
             pts = approx.reshape(4, 2)
             rect = np.zeros((4, 2), dtype="float32")
 
             # the top-left point has the smallest sum whereas the
             # bottom-right has the largest sum
-            s = pts.sum(axis=1)
-            rect[0] = pts[np.argmin(s)]
-            rect[2] = pts[np.argmax(s)]
+            sums = pts.sum(axis=1)
+            rect[0] = pts[np.argmin(sums)]
+            rect[2] = pts[np.argmax(sums)]
 
             # compute the difference between the points -- the top-right
             # will have the minumum difference and the bottom-left will
@@ -96,13 +98,13 @@ class Classic:
 
         # now that we have our rectangle of points, let's compute
         # the width of our new image
-        (tl, tr, br, bl) = rect
-        width_a = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
-        width_b = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
+        (topleft, topright, bottomright, bottomleft) = rect
+        width_a = np.sqrt(((bottomright[0] - bottomleft[0]) ** 2) + ((bottomright[1] - bottomleft[1]) ** 2))
+        width_b = np.sqrt(((topright[0] - topleft[0]) ** 2) + ((topright[1] - topleft[1]) ** 2))
 
         # ...and now for the height of our new image
-        height_a = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
-        height_b = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
+        height_a = np.sqrt(((topright[0] - bottomright[0]) ** 2) + ((topright[1] - bottomright[1]) ** 2))
+        height_b = np.sqrt(((topleft[0] - bottomleft[0]) ** 2) + ((topleft[1] - bottomleft[1]) ** 2))
 
         # take the maximum of the width and height values to reach
         # our final dimensions
@@ -120,23 +122,24 @@ class Classic:
         Classic.last_warp = rect
         # calculate the perspective transform matrix and warp
         # the perspective to grab the screen
-        m = cv2.getPerspectiveTransform(rect, dst)
-        result = cv2.warpPerspective(__image, m, (max_width, max_height))
+        matrix = cv2.getPerspectiveTransform(rect, dst)
+        result = cv2.warpPerspective(__image, matrix, (max_width, max_height))
         # crop bild auf 10mm Rand
         # größe = 360mm x 360mm
         # abschneiden: oben: 7mm links: 15mm rechts 15mm unten 23mm
         # ergibt: 330mm x 330mm
         # img[y:y + h, x:x + w]
-        ct = int((max_height / 360) * 7)
-        cw = int((max_width / 360) * 15)
-        cb = int((max_height / 360) * 23)
-        crop = result[ct:max_height - cb, cw:max_width - cw]
+        crop_top = int((max_height / 360) * 7)
+        crop_width = int((max_width / 360) * 15)
+        crop_bottom = int((max_height / 360) * 23)
+        crop = result[crop_top:max_height - crop_bottom, crop_width:max_width - crop_width]
         resized = cv2.resize(crop, (800, 800))
         visualLogger.debug(VisualRecord("warp_classic", [resized, result, crop], fmt="png"))
         return resized
 
     @staticmethod
     def filter_image(_img) -> tuple[Mat, set]:
+        """ implement filter for classic board """
         _gray = cv2.cvtColor(_img, cv2.COLOR_BGR2GRAY)
         _, thresh = cv2.threshold(_gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         blank_grid = 255 - thresh.astype('uint8')

@@ -36,8 +36,8 @@ class CameraEnum(Enum):
 
 class Camera(metaclass=Singleton):  # type: ignore
 
-    def __init__(self, src: int = 0, use_camera: CameraEnum = CameraEnum.AUTO, resolution=(config.IM_WIDTH, config.IM_HEIGHT),
-                 framerate=config.FPS, **kwargs):
+    def __init__(self, src: int = 0, use_camera: CameraEnum = CameraEnum.AUTO, resolution=(config.im_width, config.im_height),
+                 framerate=config.fps, **kwargs):
         machine = platform.machine()
         if (use_camera == CameraEnum.PICAMERA) or (use_camera == CameraEnum.AUTO and machine in ('armv7l', 'armv6l')):
             from .camera_rpi import CameraRPI

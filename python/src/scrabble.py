@@ -29,22 +29,25 @@ from game_board.tiles import bag_as_list, scores
 
 
 class MoveType(Enum):
-    regular = 1
-    pass_turn = 2
-    exchange = 3
-    withdraw = 4
-    challenge_bonus = 5
-    last_rack_bonus = 6
-    last_rack_malus = 7
-    time_malus = 8
-    unknown = 9
+    """Enumeration for move types"""
+    REGULAR = 1
+    PASS_TURN = 2
+    EXCHANGE = 3
+    WITHDRAW = 4
+    CHALLENGE_BONUS = 5
+    LAST_RACK_BONUS = 6
+    LAST_RACK_MALUS = 7
+    TIME_MALUS = 8
+    UNKNOWN = 9
 
 
 class InvalidMoveExeption(Exception):
+    """Excpetion for invalid moves"""
     pass
 
 
 class NoMoveException(Exception):
+    """Exception for no move"""
     pass
 
 
@@ -70,10 +73,10 @@ class Move:
         rack(dict,dict): the racks of the players (currently not used)
     """
 
-    def __init__(self, type: MoveType, player: int, coord: Optional[Tuple[int, int]], is_vertical: bool, word: str,
+    def __init__(self, move_type: MoveType, player: int, coord: Optional[Tuple[int, int]], is_vertical: bool, word: str,
                  new_tiles: dict, removed_tiles: dict, board: dict, played_time: Tuple[int, int],
                  previous_score: Tuple[int, int], img=None, rack=None):
-        self.type: MoveType = type
+        self.type: MoveType = move_type
         self.time: str = str(datetime.datetime.now())
         self.move = 0  # set on append of move in class Game
         self.player: int = player
@@ -87,8 +90,8 @@ class Move:
         self.played_time: Tuple[int, int] = played_time
         self.img = img
         self.rack: Optional[Tuple[dict, dict]] = rack
-        if self.type in (MoveType.regular, MoveType.challenge_bonus):  # (re) calculate score
-            self.points, self.score, self.is_scrabble = self._calculate_score(previous_score)
+        if self.type in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):  # (re) calculate score
+            self.points, self.score, self.is_scrabble = self.calculate_score(previous_score)
         else:
             self.score, self.is_scrabble = (previous_score, False)
 
@@ -97,31 +100,32 @@ class Move:
         return self.gcg_str()
 
     def gcg_str(self) -> str:
+        """game as gcg string"""
         from state import State
 
         game = State().game
         nickname = game.nicknames[self.player]
         result = ">" + nickname + ": "
-        if self.type == MoveType.regular:
+        if self.type == MoveType.REGULAR:
             (col, row) = self.coord
             result += str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(
                 ord('A') + row) + str(col + 1)
             result += " " + self.word + " "
-        elif self.type == MoveType.pass_turn:
+        elif self.type == MoveType.PASS_TURN:
             result += "- "
-        elif self.type == MoveType.exchange:
+        elif self.type == MoveType.EXCHANGE:
             result += "- "  # + self.exchange + " "
-        elif self.type == MoveType.withdraw:
+        elif self.type == MoveType.WITHDRAW:
             result += "-- "
         # elif self.type == MoveType.last_rack_bonus:
         #     result += "(" + self.opp_rack + ") "
         # elif self.type == MoveType.last_rack_malus:
         #     result += "(" + self.rack + ") "
-        elif self.type == MoveType.challenge_bonus:
+        elif self.type == MoveType.CHALLENGE_BONUS:
             result += "(challenge) "
-        elif self.type == MoveType.time_malus:
+        elif self.type == MoveType.TIME_MALUS:
             result += "(time) "
-        elif self.type == MoveType.unknown:
+        elif self.type == MoveType.UNKNOWN:
             result += "(unknown) "
         result += f"{self.points:+d} {self.score[self.player]:+d}"
         return result
@@ -131,12 +135,12 @@ class Move:
         from state import State
 
         game = State().game
-        k = self.board.keys()
-        v = self.board.values()
-        k1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in k]
-        v1 = [t for (t, p) in v]
+        keys = self.board.keys()
+        values = self.board.values()
+        keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in keys]
+        values1 = [t for (t, p) in values]
         bag = bag_as_list.copy()
-        [i for i in v1 if i not in bag or bag.remove(i)]  # remove v1 from bag
+        _ = [i for i in values1 if i not in bag or bag.remove(i)]  # remove v1 from bag
         (name1, name2) = game.nicknames
 
         gcg_moves = []
@@ -150,34 +154,34 @@ class Move:
                 'move': self.move,
                 'score1': self.score[0],
                 'score2': self.score[1],
-                'time1': config.MAX_TIME - self.played_time[0],
-                'time2': config.MAX_TIME - self.played_time[1],
+                'time1': config.max_time - self.played_time[0],
+                'time2': config.max_time - self.played_time[1],
                 'name1': name1,
                 'name2': name2,
                 'onmove': game.nicknames[self.player],
                 'moves': gcg_moves,
-                'board': dict(zip(*[k1, v1])),
+                'board': dict(zip(*[keys1, values1])),
                 'bag': bag
             })
         return to_json
 
-    def _calculate_score(self, previous_score: Tuple[int, int]) -> Tuple[int, Tuple[int, int], bool]:
-
+    def calculate_score(self, previous_score: Tuple[int, int]) -> Tuple[int, Tuple[int, int], bool]:
+        """calculate score of the current move"""
         def crossing_points(pos: Tuple[int, int]) -> int:
-            x, y = pos
+            col, row = pos
             word: str = ''
             if self.is_vertical:
-                while x > 0 and (x - 1, y) in self.board:
-                    x -= 1
-                while x < 15 and (x, y) in self.board:
-                    word += self.board[(x, y)][0]
-                    x += 1
+                while col > 0 and (col - 1, row) in self.board:
+                    col -= 1
+                while col < 15 and (col, row) in self.board:
+                    word += self.board[(col, row)][0]
+                    col += 1
             else:
-                while y > 0 and (x, y - 1) in self.board:
-                    y -= 1
-                while y < 15 and (x, y) in self.board:
-                    word += self.board[(x, y)][0]
-                    y += 1
+                while row > 0 and (col, row - 1) in self.board:
+                    row -= 1
+                while row < 15 and (col, row) in self.board:
+                    word += self.board[(col, row)][0]
+                    row += 1
             if len(word) > 1:
                 xval = sum([scores[letter] for letter in word])
                 if pos in DOUBLE_LETTER:
@@ -191,7 +195,7 @@ class Move:
                 return xval
             return 0
 
-        if self.board is None or self.type is not MoveType.regular:
+        if self.board is None or self.type is not MoveType.REGULAR:
             return 0, previous_score, False
         val: int = 0
         crossing_words: int = 0
@@ -241,7 +245,7 @@ class Game():
 
     def json_str(self) -> str:
         """Return the json represention of the board"""
-        return f'{{ {self.__str__()} }}'
+        return f'{{ {str(self)} }}'
 
     def board_str(self) -> str:
         """Return the textual represention of the board"""
@@ -323,21 +327,21 @@ class Game():
         if len(self.moves) < 1:
             raise Exception('challenge: no previous move available')
         last_move = self.moves[-1]
-        if last_move.type not in (MoveType.regular, MoveType.challenge_bonus):
+        if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):
             logging.info(f'(last move {last_move.type.name}): invalid challenge not allowed')
             return self
 
         logging.debug('scrabble: create move invalid challenge')
         move = copy.deepcopy(last_move)
-        move.type = MoveType.challenge_bonus
-        move.points = -config.MALUS_DOUBT
+        move.type = MoveType.CHALLENGE_BONUS
+        move.points = -config.malus_doubt
         move.player = player
         move.word = ''
         move.removed_tiles = {}
         move.new_tiles = {}
         move.played_time = played_time
-        move.score = (move.score[0] - config.MALUS_DOUBT, move.score[1]
-                      ) if player == 0 else (move.score[0], move.score[1] - config.MALUS_DOUBT)
+        move.score = (move.score[0] - config.malus_doubt, move.score[1]
+                      ) if player == 0 else (move.score[0], move.score[1] - config.malus_doubt)
         self.moves.append(move)
         move.move = len(self.moves)  # set move number
         return self
@@ -356,7 +360,7 @@ class Game():
         if len(self.moves) < 1:
             raise Exception('challenge: no previous move available')
         last_move = self.moves[-1]
-        if last_move.type not in (MoveType.regular, MoveType.challenge_bonus):
+        if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):
             logging.info(f'(last move {last_move.type.name}): valid challenge not allowed')
             return self
 
@@ -364,10 +368,10 @@ class Game():
         # board information before challenged move
         if len(self.moves) < 2:
             # first move => create move with empty board
-            move = Move(MoveType.withdraw, 0, None, False, '', {}, {}, {}, played_time, (0, 0))
+            move = Move(MoveType.WITHDRAW, 0, None, False, '', {}, {}, {}, played_time, (0, 0))
         else:
             move = copy.deepcopy(self.moves[-2])  # board, img, score
-            move.type = MoveType.withdraw
+            move.type = MoveType.WITHDRAW
             move.played_time = played_time
         move.player = 1 if player == 0 else 0
         move.points = -last_move.points

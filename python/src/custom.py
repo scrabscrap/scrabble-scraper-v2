@@ -44,20 +44,22 @@ visualLogger = logging.getLogger("visualLogger")
 
 
 class Custom:
+    """ Implentation custom scrabble board analysis """
     last_warp = None
 
     @staticmethod
     def warp(__image: Mat) -> Mat:
+        """" implement warp of a custom board """
 
-        if config.WARP_COORDINATES is not None:
-            rect = np.array(config.WARP_COORDINATES, dtype="float32")
+        if config.warp_coordinates is not None:
+            rect = np.array(config.warp_coordinates, dtype="float32")
         else:
             # based on: https://www.pyimagesearch.com/2014/08/25/4-point-opencv-getperspective-transform-example/
             (blue, _, _) = cv2.split(__image.copy())
 
             # Otsu's thresholding after Gaussian filtering
             blur = cv2.GaussianBlur(blue, (5, 5), 0)
-            ret3, th3 = cv2.threshold(
+            _, th3 = cv2.threshold(
                 blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
             dilated = cv2.dilate(th3, kernel)
@@ -66,21 +68,21 @@ class Custom:
                 dilated.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cnts = imutils.grab_contours(cnts)
             cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:1]
-            c = cnts[0]
+            contour = cnts[0]
             peri = 1
-            approx = cv2.approxPolyDP(c, peri, True)
+            approx = cv2.approxPolyDP(contour, peri, True)
             while len(approx) > 4:
                 peri += 1
-                approx = cv2.approxPolyDP(c, peri, True)
+                approx = cv2.approxPolyDP(contour, peri, True)
 
             pts = approx.reshape(4, 2)
             rect = np.zeros((4, 2), dtype="float32")
 
             # the top-left point has the smallest sum whereas the
             # bottom-right has the largest sum
-            s = pts.sum(axis=1)
-            rect[0] = pts[np.argmin(s)]
-            rect[2] = pts[np.argmax(s)]
+            sums = pts.sum(axis=1)
+            rect[0] = pts[np.argmin(sums)]
+            rect[2] = pts[np.argmax(sums)]
 
             # compute the difference between the points -- the top-right
             # will have the minimum difference and the bottom-left will
@@ -149,13 +151,14 @@ class Custom:
         # calculate the perspective transform matrix and warp
         # the perspective to grab the screen
         Custom.last_warp = rect
-        m = cv2.getPerspectiveTransform(rect, dst)
-        result = cv2.warpPerspective(__image, m, (800, 800))
+        matrix = cv2.getPerspectiveTransform(rect, dst)
+        result = cv2.warpPerspective(__image, matrix, (800, 800))
         visualLogger.debug(VisualRecord("warp_custom", [result], fmt="png"))
         return result
 
     @staticmethod
     def filter_image(_image: Mat) -> tuple[Mat, set]:
+        """ implement filter for custom board """
         # Farbmodell LAB, 100px
         tmp_img = cv2.GaussianBlur(_image, (7, 7), 0)
         tmp_img = cv2.resize(tmp_img, (200, 200), interpolation=cv2.INTER_AREA)

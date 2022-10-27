@@ -39,31 +39,35 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-def runtime_measure(fn):
-    @functools.wraps(fn)
-    def runtime_measure(*args, **kwargs):
+def runtime_measure(func):
+    """perform runtime measure"""
+
+    @functools.wraps(func)
+    def do_runtime_measure(*args, **kwargs):
         start = time.perf_counter()
-        ret = fn(*args, **kwargs)
+        ret = func(*args, **kwargs)
         end = time.perf_counter()
-        logging.debug(f'{fn.__name__} took {end-start} sec(s).')
+        logging.debug(f'{func.__name__} took {end-start} sec(s).')
         return ret
 
-    return runtime_measure
+    return do_runtime_measure
 
 
-def trace(fn):
-    @functools.wraps(fn)
-    def trace(*args, **kwargs):
+def trace(func):
+    """perform method trace"""
+
+    @functools.wraps(func)
+    def do_trace(*args, **kwargs):
         try:
-            logging.debug(f'entering {fn.__name__}')
-            return fn(*args, **kwargs)
+            logging.debug(f'entering {func.__name__}')
+            return func(*args, **kwargs)
         except Exception:  # type: ignore
-            logging.debug(f'exception in {fn.__name__}')
+            logging.debug(f'exception in {func.__name__}')
             raise
         finally:
-            logging.debug(f'leaving {fn.__name__}')
+            logging.debug(f'leaving {func.__name__}')
 
-    return trace
+    return do_trace
 
 
 def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type: ignore
@@ -83,28 +87,30 @@ def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type
     handlers = []
     root = logging.getLogger()
     # Include root logger in dict.
-    ld = {'': root, **root.manager.loggerDict}
-    for k, v in ld.items():
-        if loggers is not None and k not in loggers:
+    logger_dict = {'': root, **root.manager.loggerDict}
+    for keys, values in logger_dict.items():
+        if loggers is not None and keys not in loggers:
             continue
         try:
-            for h in v.handlers:
-                if isinstance(h, BaseRotatingHandler) and h not in handlers:
-                    handlers.append(h)
+            for handler in values.handlers:
+                if isinstance(handler, BaseRotatingHandler) and handler not in handlers:
+                    handlers.append(handler)
         except AttributeError:
             pass
-    for h in handlers:
-        h.doRollover()
+    for handler in handlers:
+        handler.doRollover()
 
 
 def get_ipv4() -> str:
+    """try to get an ipv4 adress"""
     import socket
-    st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        st.connect(('10.255.255.255', 1))
-        ip = st.getsockname()[0]
-    except Exception:
-        ip = '127.0.0.1'
+        server_socket.connect(('10.255.255.255', 1))
+        ip_addr = server_socket.getsockname()[0]
+    except socket.error:
+        ip_addr = '127.0.0.1'
     finally:
-        st.close()
-    return ip
+        server_socket.close()
+    return ip_addr

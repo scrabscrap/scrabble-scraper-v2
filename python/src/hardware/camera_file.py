@@ -30,18 +30,18 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 class CameraFile(metaclass=Singleton):  # type: ignore
 
-    def __init__(self, formatter=None, resolution=(config.IM_WIDTH, config.IM_HEIGHT)):
+    def __init__(self, formatter=None, resolution=(config.im_width, config.im_height)):
         logging.info('### init MockCamera')
         self.frame = []
         self.resolution = resolution
-        if config.ROTATE:
+        if config.rotade:
             self.rotation = 180
         self.event = None
         self.cnt = 0
         if formatter is not None:
             self.formatter = formatter
         else:
-            self.formatter = config.SIMULATE_PATH
+            self.formatter = config.simulate_path
         self.img = cv2.imread(self.formatter.format(self.cnt))
 
     def read(self, peek=False) -> Mat:

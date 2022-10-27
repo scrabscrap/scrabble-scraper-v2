@@ -39,14 +39,14 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 def get_last_warp() -> Optional[Mat]:
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if config.WARP and config.BOARD_LAYOUT == 'classic':
+    if config.warp and config.board_layout == 'classic':
         return Classic.last_warp
     return Custom.last_warp
 
 
 def clear_last_warp():
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if config.BOARD_LAYOUT == 'classic':
+    if config.board_layout == 'classic':
         Classic.last_warp = None
     else:
         Custom.last_warp = None
@@ -54,23 +54,24 @@ def clear_last_warp():
 
 def warp_image(img: Mat) -> Mat:
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if config.WARP and config.BOARD_LAYOUT == 'custom':
+    if config.warp and config.board_layout == 'custom':
         return Custom.warp(img)
-    elif config.WARP and config.BOARD_LAYOUT == 'classic':
+    if config.warp and config.board_layout == 'classic':
         return Classic.warp(img)
     return img
 
 
 def filter_image(img: Mat) -> tuple[Optional[Mat], set]:
     """Delegates the image filter of the ``img`` according to the configured board style"""
-    if config.BOARD_LAYOUT == 'custom':
+    if config.board_layout == 'custom':
         return Custom.filter_image(img)
-    elif config.BOARD_LAYOUT == 'classic':
+    if config.board_layout == 'classic':
         return Classic.filter_image(img)
     return None, set()
 
 
 def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], ignore_set: set[tuple[int, int]]) -> set:
+    """ allow only valid field for analysis"""
     (col, row) = coord
     result: set = set()
     if coord not in candidates:  # already visited
@@ -86,6 +87,7 @@ def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], 
 
 
 def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> dict:
+    """find tiles on board"""
     def match(img: Mat, suggest_tile: str, suggest_prop: int) -> tuple[str, int]:
         for _tile in tiles:
             res = cv2.matchTemplate(img, _tile.img, cv2.TM_CCOEFF_NORMED)  # type: ignore
@@ -119,36 +121,36 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
     return board
 
 
-def store_move(move: Move, img: Optional[Mat]):
+def store_move(current_move: Move, img: Optional[Mat]):
     """store move to filesystem
 
     Args:
-        move(Move): the current move
+        current_move(Move): the current move
         img(Mat): current picture
     """
-    if config.WRITE_WEB or config.FTP:
-        with open(f'{config.WEB_DIR}/data-{move.move}.json', "w") as f:
-            f.write(move.json_str())
-        with open(f'{config.WEB_DIR}/status.json', "w") as f:
-            f.write(move.json_str())
+    if config.write_web or config.ftp:
+        with open(f'{config.web_dir}/data-{current_move.move}.json', "w", encoding='UTF-8') as handle:
+            handle.write(current_move.json_str())
+        with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
+            handle.write(current_move.json_str())
         if img is None:
             import shutil
-            shutil.copyfile(f'{config.WEB_DIR}/image-{move.move - 1}.jpg',
-                            f'{config.WEB_DIR}/image-{move.move}.jpg')
+            shutil.copyfile(f'{config.web_dir}/image-{current_move.move - 1}.jpg',
+                            f'{config.web_dir}/image-{current_move.move}.jpg')
         else:
-            cv2.imwrite(f'{config.WEB_DIR}/image-{move.move}.jpg', img)
+            cv2.imwrite(f'{config.web_dir}/image-{current_move.move}.jpg', img)
 
 
-def upload_ftp(move: Move):
+def upload_ftp(current_move: Move):
     """upload move to ftp server
 
     Args:
-        move(Move): the current move
+        current_move(Move): the current move
     """
     from ftp import Ftp
-    if config.FTP:
+    if config.ftp:
         # start thread for upload and return immediatly
-        pool.submit(Ftp.upload_move, move.move)
+        pool.submit(Ftp.upload_move, current_move.move)
 
 
 @trace
@@ -226,14 +228,14 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
                     else:
                         _word += board[(col + i, row)][0] if mov.word[i] != '.' else '.'
                 mov.word = _word
-                mov.points, prev_score, mov.is_scrabble = mov._calculate_score(prev_score)
+                mov.points, prev_score, mov.is_scrabble = mov.calculate_score(prev_score)
                 mov.score = prev_score                                         # store previous score
                 logging.debug(f'move {mov.move} after recalculate {prev_score}')
             else:
                 prev_score = mov.score                                         # store previous score
 
-    def chunkify(lst, n):
-        return [lst[i::n] for i in range(n)]
+    def chunkify(lst, chunks):
+        return [lst[i::chunks] for i in range(chunks)]
 
     #  1. warped = warp_image(img)
     #  2. warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
@@ -256,10 +258,10 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
 
     warped = warp_image(img)                                                   # warp image if necessary
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # grayscale image
-    filtered, tiles_candidates = filter_image(warped)                          # find potential tiles on board
+    _, tiles_candidates = filter_image(warped)                          # find potential tiles on board
     ignore_coords = set()
     if len(game.moves) > 3:                                                    # TODO: configure how many moves to inspect
-        if game.moves[-2].type is MoveType.withdraw:                           # if opponents move has a valid challenge
+        if game.moves[-2].type is MoveType.WITHDRAW:                           # if opponents move has a valid challenge
             ignore_coords = set(game.moves[-2].board.keys())                   # only analyze tiles from last 2 moves
         else:
             ignore_coords = set(game.moves[-3].board.keys())                   # only analyze tiles from last 2 moves
@@ -282,22 +284,24 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         previous_score = game.moves[-1].score                                  # reapply previuos score
     try:                                                                       # find word and create move
         is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
-        move = Move(MoveType.regular, player=player, coord=coord, is_vertical=is_vertical, word=word, new_tiles=new_tiles,
-                    removed_tiles=removed_tiles, board=current_board, played_time=played_time, previous_score=previous_score,
-                    img=warped)
+        current_move = Move(MoveType.REGULAR, player=player, coord=coord, is_vertical=is_vertical, word=word,
+                            new_tiles=new_tiles, removed_tiles=removed_tiles, board=current_board, played_time=played_time,
+                            previous_score=previous_score, img=warped)
     except NoMoveException:
-        move = Move(MoveType.exchange, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
-                    removed_tiles=removed_tiles, board=current_board, played_time=played_time, previous_score=previous_score)
+        current_move = Move(MoveType.EXCHANGE, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
+                            removed_tiles=removed_tiles, board=current_board, played_time=played_time,
+                            previous_score=previous_score)
     except InvalidMoveExeption:
-        move = Move(MoveType.unknown, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
-                    removed_tiles=removed_tiles, board=current_board, played_time=played_time, previous_score=previous_score)
+        current_move = Move(MoveType.UNKNOWN, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
+                            removed_tiles=removed_tiles, board=current_board, played_time=played_time,
+                            previous_score=previous_score)
 
-    game.add_move(move)                                                        # add move
+    game.add_move(current_move)                                                        # add move
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'\n{game.moves[-1].json_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
-    store_move(move, warped)                                                      # store move on hd
-    upload_ftp(move)
+    store_move(current_move, warped)                                                      # store move on hd
+    upload_ftp(current_move)
 
 
 @trace
@@ -339,6 +343,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
 
 
 def start_of_game():
+    """ start of game """
     # TODO: delete only at beginning not at end of game
     # from ftp import Ftp
     # Ftp.delete_files('image')
@@ -366,14 +371,14 @@ def end_of_game(waitfor: Optional[Future], game: Game):
         time.sleep(0.05)
     time.sleep(1.5)
     filename = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-") + str(uuid.uuid4())
-    if config.WRITE_WEB or config.FTP:
-        with ZipFile(f'{config.WEB_DIR}/{filename}.zip', 'w') as _zip:
+    if config.write_web or config.ftp:
+        with ZipFile(f'{config.web_dir}/{filename}.zip', 'w') as _zip:
             logging.info(f"create zip with {len(game.moves):d} files")
             for i in range(1, len(game.moves) + 1):
-                _zip.write(f'{config.WEB_DIR}/image-{i}.jpg')
-                _zip.write(f'{config.WEB_DIR}/data-{i}.json')
-            if os.path.exists(f'{config.WEB_DIR}/../log/messages.log'):
-                _zip.write(f'{config.WEB_DIR}/../log/messages.log')
+                _zip.write(f'{config.web_dir}/image-{i}.jpg')
+                _zip.write(f'{config.web_dir}/data-{i}.json')
+            if os.path.exists(f'{config.web_dir}/../log/messages.log'):
+                _zip.write(f'{config.web_dir}/../log/messages.log')
 
-    if config.FTP:
+    if config.ftp:
         Ftp.upload_game(filename)

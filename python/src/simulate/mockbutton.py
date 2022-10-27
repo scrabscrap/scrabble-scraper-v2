@@ -34,7 +34,7 @@ class MockButton:
         print('(g)reen (r)ed (y)ellow doubt(1) doubt(2) (c)config (q)uit re(s)et')
         self.state.do_ready()
         while True:
-            key = cv2.waitKey(0 if config.SIMULATE else 1) & 0xff
+            key = cv2.waitKey(0 if config.simulate else 1) & 0xff
             if (key == 27) or (key == ord('q')):
                 print('pressed (q)uit - wait 3s')
                 self.pin_reboot.drive_high()

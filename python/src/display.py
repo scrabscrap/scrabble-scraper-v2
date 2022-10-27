@@ -20,67 +20,69 @@ from abc import abstractmethod
 
 
 class Display:
+    """ display abstract implementation """
 
     def __init__(self):
         pass
 
     @abstractmethod
     def stop(self) -> None:
+        """ power off display """
         logging.debug('stop')
-        pass
 
     @abstractmethod
     def show_boot(self) -> None:
+        """ show boot messsage """
         logging.debug('add boot')
-        pass
 
     @abstractmethod
     def show_reset(self) -> None:
+        """ show reset message """
         logging.debug('add reset')
-        pass
 
     @abstractmethod
     def show_ready(self) -> None:
+        """ show ready message """
         logging.debug('add ready')
-        pass
 
     @abstractmethod
     def show_pause(self, player: int) -> None:
+        """" show pause message """
         logging.debug('add pause')
-        pass
 
     @abstractmethod
     def add_malus(self, player: int) -> None:
+        """ show malus message """
         logging.debug(f'add malus on {player}')
-        pass
 
     @abstractmethod
     def add_remove_tiles(self, player: int) -> None:
+        """ show remove tiles message """
         logging.debug(f'add remove tiles on {player}')
-        pass
 
     @abstractmethod
     def add_doubt_timeout(self, player: int) -> None:
+        """ show doubt timeout marker """
         logging.debug(f'doubt timeout for player {player}')
-        pass
 
     @abstractmethod
     def show_cam_err(self) -> None:
+        """ show camera error message """
         logging.debug('add cam err')
-        pass
 
     @abstractmethod
     def show_ftp_err(self) -> None:
+        """" show ftp error message """
         logging.debug('add cam err')
-        pass
 
     @abstractmethod
     def show_config(self) -> None:
+        """ show config message """
         logging.debug('add config')
-        pass
 
     @abstractmethod
-    def add_time(self, player: int, t1: int, p1: int, t2: int, p2: int) -> None:
+    def add_time(self, player: int, time1: int, played1: int, time2: int, played2: int) -> None:
+        """" show timer message """
         # m1, s1 = divmod(abs(1800 - t1), 60)
         # m2, s2 = divmod(abs(1800 - t2), 60)
         # doubt1 = 'x' if player == 0 and p1 <= 300 else ' '
@@ -94,13 +96,15 @@ class Display:
 
     @abstractmethod
     def clear_message(self, player=None) -> None:
+        """ clear display """
         pass
 
     @abstractmethod
     def clear(self) -> None:
+        """ clear message strings """
         logging.debug('clear')
-        pass
 
     @abstractmethod
     def show(self, player=None, invert=None) -> None:
+        """ show display content """
         pass

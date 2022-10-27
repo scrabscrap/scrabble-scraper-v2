@@ -74,7 +74,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # empty
         board = {}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=None, is_vertical=False, word='', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=None, is_vertical=False, word='', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -96,7 +96,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 FIRNS
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -118,7 +118,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 FIRNS
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -128,7 +128,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75),
                  (4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('N', 75)}
         new_tiles = {(4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('N', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(4, 6), is_vertical=True, word='V.TEN', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(4, 6), is_vertical=True, word='V.TEN', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -150,7 +150,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 TURNeNS
         board = {(3, 7): ('T', 75), (4, 7): ('U', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('_', 75),
                  (8, 7): ('N', 75), (9, 7): ('S', 75)}
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS', new_tiles=board.copy(),
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS', new_tiles=board.copy(),
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -162,7 +162,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (7, 5): ('E', 75), (7, 6): ('R', 75)}
         new_tiles = {(7, 0): ('S', 75), (7, 1): ('A', 75), (7, 2): ('U', 75), (7, 3): ('N', 75), (7, 4): ('I', 75),
                      (7, 5): ('E', 75), (7, 6): ('R', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(7, 0), is_vertical=True, word='SAUNIER', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(7, 0), is_vertical=True, word='SAUNIER', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -174,7 +174,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (7, 5): ('E', 75), (7, 6): ('R', 75),
                  (8, 0): ('U', 75), (9, 0): ('P', 75), (10, 0): ('E', 75), (11, 0): ('R', 75)}
         new_tiles = {(8, 0): ('U', 75), (9, 0): ('P', 75), (10, 0): ('E', 75), (11, 0): ('R', 75)}
-        move = Move(type=MoveType.regular, player=0, coord=(7, 0), is_vertical=False, word='.UPER', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(7, 0), is_vertical=False, word='.UPER', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(2, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -197,7 +197,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(3, 7): ('T', 75), (4, 7): ('U', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('_', 75),
                  (8, 7): ('N', 75), (9, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -210,7 +210,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (7, 5): ('E', 75), (7, 6): ('R', 75)}
         new_tiles = {(7, 0): ('S', 75), (7, 1): ('A', 75), (7, 2): ('U', 75), (7, 3): ('N', 75), (7, 4): ('I', 75),
                      (7, 5): ('E', 75), (7, 6): ('R', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(7, 0), is_vertical=True, word='SAUNIER.', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(7, 0), is_vertical=True, word='SAUNIER.', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -233,7 +233,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(1, 7): ('T', 75), (2, 7): ('U', 75), (3, 7): ('R', 75), (4, 7): ('N', 75), (5, 7): ('_', 75),
                  (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(1, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(1, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -246,7 +246,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (7, 12): ('E', 75), (7, 13): ('R', 75), (7, 14): ('E', 75)}
         new_tiles = {(7, 8): ('A', 75), (7, 9): ('U', 75), (7, 10): ('N', 75), (7, 11): ('I', 75),
                      (7, 12): ('E', 75), (7, 13): ('R', 75), (7, 14): ('E', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(7, 7), is_vertical=True, word='.AUNIERE', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(7, 7), is_vertical=True, word='.AUNIERE', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -259,7 +259,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (7, 12): ('E', 75), (7, 13): ('R', 75), (7, 14): ('E', 75),
                  (4, 14): ('S', 75), (5, 14): ('U', 75), (6, 14): ('P', 75), (8, 14): ('R', 75)}
         new_tiles = {(4, 14): ('S', 75), (5, 14): ('U', 75), (6, 14): ('P', 75), (8, 14): ('R', 75)}
-        move = Move(type=MoveType.regular, player=0, coord=(4, 14), is_vertical=False, word='SUP.R', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(4, 14), is_vertical=False, word='SUP.R', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(2, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -282,7 +282,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(1, 7): ('T', 75), (2, 7): ('U', 75), (3, 7): ('R', 75), (4, 7): ('N', 75), (5, 7): ('_', 75),
                  (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(1, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(1, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -295,7 +295,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (7, 12): ('E', 75), (7, 13): ('R', 75), (7, 14): ('E', 75)}
         new_tiles = {(7, 8): ('A', 75), (7, 9): ('U', 75), (7, 10): ('N', 75), (7, 11): ('I', 75),
                      (7, 12): ('E', 75), (7, 13): ('R', 75), (7, 14): ('E', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(7, 7), is_vertical=True, word='.AUNIERE', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(7, 7), is_vertical=True, word='.AUNIERE', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -318,7 +318,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(7, 3): ('T', 75), (7, 4): ('U', 75), (7, 5): ('R', 75), (7, 6): ('N', 75), (7, 7): ('_', 75),
                  (7, 8): ('N', 75), (7, 9): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(7, 3), is_vertical=True, word='TURN_NS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(7, 3), is_vertical=True, word='TURN_NS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -331,7 +331,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (5, 7): ('E', 75), (6, 7): ('R', 75)}
         new_tiles = {(0, 7): ('S', 75), (1, 7): ('A', 75), (2, 7): ('U', 75), (3, 7): ('N', 75), (4, 7): ('I', 75),
                      (5, 7): ('E', 75), (6, 7): ('R', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(0, 7), is_vertical=False, word='SAUNIER.', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(0, 7), is_vertical=False, word='SAUNIER.', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -354,7 +354,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(7, 3): ('T', 75), (7, 4): ('U', 75), (7, 5): ('R', 75), (7, 6): ('N', 75), (7, 7): ('_', 75),
                  (7, 8): ('N', 75), (7, 9): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(7, 3), is_vertical=True, word='TURN_NS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(7, 3), is_vertical=True, word='TURN_NS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -367,7 +367,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (5, 7): ('E', 75), (6, 7): ('R', 75)}
         new_tiles = {(0, 7): ('S', 75), (1, 7): ('A', 75), (2, 7): ('U', 75), (3, 7): ('N', 75), (4, 7): ('I', 75),
                      (5, 7): ('E', 75), (6, 7): ('R', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(0, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(0, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -381,7 +381,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (0, 8): ('U', 75), (0, 9): ('P', 75), (0, 10): ('E', 75), (0, 11): ('R', 75)
                  }
         new_tiles = {(0, 8): ('U', 75), (0, 9): ('P', 75), (0, 10): ('E', 75), (0, 11): ('R', 75)}
-        move = Move(type=MoveType.regular, player=0, coord=(0, 7), is_vertical=True, word='.UPER', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(0, 7), is_vertical=True, word='.UPER', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -404,7 +404,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(7, 1): ('T', 75), (7, 2): ('U', 75), (7, 3): ('R', 75), (7, 4): ('N', 75), (7, 5): ('_', 75),
                  (7, 6): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(7, 1), is_vertical=True, word='TURN_NS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(7, 1), is_vertical=True, word='TURN_NS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -417,7 +417,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (12, 7): ('E', 75), (13, 7): ('R', 75), (14, 7): ('E', 75)}
         new_tiles = {(8, 7): ('A', 75), (9, 7): ('U', 75), (10, 7): ('N', 75), (11, 7): ('I', 75),
                      (12, 7): ('E', 75), (13, 7): ('R', 75), (14, 7): ('E', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(7, 7), is_vertical=False, word='.AUNIERE', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(7, 7), is_vertical=False, word='.AUNIERE', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -440,7 +440,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(7, 1): ('T', 75), (7, 2): ('U', 75), (7, 3): ('R', 75), (7, 4): ('N', 75), (7, 5): ('_', 75),
                  (7, 6): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(7, 1), is_vertical=True, word='TURN_NS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(7, 1), is_vertical=True, word='TURN_NS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -453,7 +453,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (12, 7): ('E', 75), (13, 7): ('R', 75), (14, 7): ('E', 75)}
         new_tiles = {(8, 7): ('A', 75), (9, 7): ('U', 75), (10, 7): ('N', 75), (11, 7): ('I', 75),
                      (12, 7): ('E', 75), (13, 7): ('R', 75), (14, 7): ('E', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(7, 7), is_vertical=False, word='.AUNIERE', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(7, 7), is_vertical=False, word='.AUNIERE', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -466,7 +466,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (12, 7): ('E', 75), (13, 7): ('R', 75), (14, 7): ('E', 75),
                  (14, 4): ('S', 75), (14, 5): ('U', 75), (14, 6): ('P', 75), (14, 8): ('R', 75)}
         new_tiles = {(14, 4): ('S', 75), (14, 5): ('U', 75), (14, 6): ('P', 75), (14, 8): ('R', 75)}
-        move = Move(type=MoveType.regular, player=0, coord=(14, 4), is_vertical=True, word='SUP.R', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(14, 4), is_vertical=True, word='SUP.R', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(2, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -501,7 +501,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 FIRNS
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -525,7 +525,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 FIRNS
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -550,7 +550,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 FIRNS
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -560,7 +560,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75),
                  (4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('N', 75)}
         new_tiles = {(4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('N', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(4, 6), is_vertical=True, word='V.TEN', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(4, 6), is_vertical=True, word='V.TEN', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -589,7 +589,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H5 TEST
         board = {(4, 7): ('T', 75), (5, 7): ('E', 75), (6, 7): ('S', 75), (7, 7): ('T', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(4, 7), is_vertical=False, word='TEST', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(4, 7), is_vertical=False, word='TEST', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -599,7 +599,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(4, 7): ('T', 75), (5, 7): ('E', 75), (6, 7): ('S', 75), (7, 7): ('T', 75),
                  (8, 7): ('E', 75), (9, 7): ('R', 75)}
         new_tiles = {(8, 7): ('E', 75), (9, 7): ('R', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(4, 7), is_vertical=False, word='....ER', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(4, 7), is_vertical=False, word='....ER', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -621,7 +621,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H5 TEST
         board = {(4, 7): ('T', 75), (5, 7): ('E', 75), (6, 7): ('S', 75), (7, 7): ('T', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(4, 7), is_vertical=False, word='TEST', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(4, 7), is_vertical=False, word='TEST', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -631,7 +631,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(4, 7): ('T', 75), (5, 7): ('E', 75), (6, 7): ('S', 75), (7, 7): ('T', 75),
                  (4, 8): ('A', 75), (4, 9): ('T', 75)}
         new_tiles = {(4, 8): ('A', 75), (4, 9): ('T', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(4, 7), is_vertical=True, word='.AT', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(4, 7), is_vertical=True, word='.AT', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -642,7 +642,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (4, 8): ('A', 75), (4, 9): ('T', 75),
                  (7, 8): ('U', 75), (7, 9): ('T', 75)}
         new_tiles = {(7, 8): ('U', 75), (7, 9): ('T', 75)}
-        move = Move(type=MoveType.regular, player=0, coord=(7, 7), is_vertical=True, word='.UT', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(7, 7), is_vertical=True, word='.UT', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(2, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -654,7 +654,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (7, 8): ('U', 75), (7, 9): ('T', 75),
                  (5, 9): ('E', 75), (6, 9): ('S', 75)}
         new_tiles = {(5, 9): ('E', 75), (6, 9): ('S', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(4, 9), is_vertical=False, word='.ES.', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(4, 9), is_vertical=False, word='.ES.', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(2, 2), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -676,7 +676,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 FIRNS
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -699,7 +699,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(3, 7): ('T', 75), (4, 7): ('U', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('_', 75),
                  (8, 7): ('N', 75), (9, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -712,7 +712,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (5, 6): ('E', 75), (5, 8): ('E', 75)}
         new_tiles = {(5, 1): ('S', 75), (5, 2): ('A', 75), (5, 3): ('U', 75), (5, 4): ('N', 75), (5, 5): ('I', 75),
                      (5, 6): ('E', 75), (5, 8): ('E', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(5, 1), is_vertical=True, word='SAUNIE.E', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(5, 1), is_vertical=True, word='SAUNIE.E', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -734,7 +734,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 FIRNS
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -744,7 +744,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75),
                  (4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('N', 75)}
         new_tiles = {(4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('N', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(4, 6), is_vertical=True, word='V.TEN', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(4, 6), is_vertical=True, word='V.TEN', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -767,7 +767,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(3, 7): ('T', 75), (4, 7): ('U', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('_', 75),
                  (8, 7): ('N', 75), (9, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -780,7 +780,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (7, 5): ('E', 75), (7, 6): ('R', 75)}
         new_tiles = {(7, 0): ('S', 75), (7, 1): ('A', 75), (7, 2): ('U', 75), (7, 3): ('N', 75), (7, 4): ('I', 75),
                      (7, 5): ('E', 75), (7, 6): ('R', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(7, 0), is_vertical=True, word='SAUNIER.', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(7, 0), is_vertical=True, word='SAUNIER.', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -802,7 +802,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 fIRNS
         board = {(3, 7): ('_', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='_IRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='_IRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -825,7 +825,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(3, 7): ('T', 75), (4, 7): ('U', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('E', 75),
                  (8, 7): ('N', 75), (9, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='TURNENS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='TURNENS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -838,7 +838,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (5, 6): ('E', 75), (5, 8): ('E', 75)}
         new_tiles = {(5, 1): ('_', 75), (5, 2): ('A', 75), (5, 3): ('U', 75), (5, 4): ('N', 75), (5, 5): ('_', 75),
                      (5, 6): ('E', 75), (5, 8): ('E', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(5, 1), is_vertical=True, word='_AUN_E.E', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(5, 1), is_vertical=True, word='_AUN_E.E', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -860,7 +860,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 FIRNS
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -870,7 +870,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75),
                  (4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('_', 75)}
         new_tiles = {(4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('_', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(4, 6), is_vertical=True, word='V.TE_', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(4, 6), is_vertical=True, word='V.TE_', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -893,7 +893,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(3, 7): ('T', 75), (4, 7): ('U', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('_', 75),
                  (8, 7): ('N', 75), (9, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -906,7 +906,7 @@ class AlgorithmTestCase(unittest.TestCase):
                  (7, 5): ('E', 75), (7, 6): ('R', 75)}
         new_tiles = {(7, 0): ('_', 75), (7, 1): ('A', 75), (7, 2): ('U', 75), (7, 3): ('N', 75), (7, 4): ('I', 75),
                      (7, 5): ('E', 75), (7, 6): ('R', 75)}
-        move = Move(type=MoveType.regular, player=1, coord=(7, 0), is_vertical=True, word='_AUNIER.', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(7, 0), is_vertical=True, word='_AUNIER.', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         game.add_move(move)
         score = game.moves[-1].score
@@ -937,7 +937,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(3, 7): ('F', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
         try:
-            move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FJRNS', new_tiles=new_tiles,
+            move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FJRNS', new_tiles=new_tiles,
                         removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
             game.add_move(move)
         except Exception:
@@ -957,7 +957,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 FJRNS
         board = {(3, 7): ('F', 75), (4, 7): ('J', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FJRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FJRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -990,7 +990,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 FIRNS
         board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FJRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FJRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score
@@ -1023,7 +1023,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # H4 FIRNS
         board = {(3, 7): ('F', 75), (4, 7): ('I', 85), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
         new_tiles = board.copy()
-        move = Move(type=MoveType.regular, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
                     removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
         game.add_move(move)
         score = game.moves[-1].score

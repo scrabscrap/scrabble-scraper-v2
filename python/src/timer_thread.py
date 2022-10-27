@@ -22,6 +22,8 @@ from threading import Event
 
 
 class RepeatedTimer:
+    """create a timer thread with a specific intervall"""
+
     def __init__(self, interval: int, function: callable):  # type: ignore
         self.interval = interval
         self.function = function
@@ -32,16 +34,18 @@ class RepeatedTimer:
     def _time(self):
         return self.interval - ((time.time() - self.start) % self.interval)
 
-    def tick(self, ev: Event) -> None:
-        self.event = ev
-        while not ev.wait(self._time):
+    def tick(self, event: Event) -> None:
+        """call funtion on every tick"""
+        self.event = event
+        while not event.wait(self._time):
             self.function()
-        ev.clear()
+        event.clear()
 
     def cancel(self) -> None:
+        """cancel timer thread"""
         if self.event is not None:
             self.event.set()
 
     def done(self, result: Future) -> None:
+        """end of timer thread"""
         logging.info(f'timer done {result}')
-        pass

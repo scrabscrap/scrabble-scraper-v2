@@ -23,11 +23,12 @@ from util import Singleton
 try:
     from hardware.oled import PlayerDisplay
 except ImportError:
-    logging.warn('use mock as PlayerDisplay')
+    logging.warning('use mock as PlayerDisplay')
     from display import Display as PlayerDisplay
 
 
 class ScrabbleWatch(metaclass=Singleton):
+    """timer for played time"""
     from display import Display
 
     def __init__(self, _display: Optional[Display] = None):
@@ -42,6 +43,7 @@ class ScrabbleWatch(metaclass=Singleton):
             self.display = PlayerDisplay()  # default
 
     def start(self, player: int) -> None:
+        """start timer"""
         self.display.clear_message(self.player)
         self.display.show(self.player)
         self.play_time = 0
@@ -50,14 +52,17 @@ class ScrabbleWatch(metaclass=Singleton):
         self.paused = False
 
     def pause(self) -> None:
+        """pause timer"""
         self.paused = True
         self.display.show_pause(self.player)
 
     def resume(self) -> None:
+        """resume timer"""
         self.paused = False
         self.display.show(invert=False)
 
     def reset(self) -> None:
+        """reset timer"""
         self.paused = True
         self.display.show_reset()
         self.play_time = 0
@@ -66,6 +71,7 @@ class ScrabbleWatch(metaclass=Singleton):
         self.player = 0
 
     def tick(self) -> None:
+        """add one second"""
         self.play_time += 1
         if not self.paused:
             self.time[self.player] += 1
@@ -74,4 +80,13 @@ class ScrabbleWatch(metaclass=Singleton):
             self.display.show(self.player)
 
     def get_status(self) -> tuple[int, int, int, int, int]:
+        """ get current timer status
+
+            Returns
+                player (int): current player
+                time1 (int): time player 1
+                current1 (int): time player 1 on current move
+                time2 (int): time player 2
+                current3 (int): time player 2 on current move
+        """
         return self.player, self.time[0], self.current[0], self.time[1], self.current[1]

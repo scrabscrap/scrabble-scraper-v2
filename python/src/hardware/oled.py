@@ -84,7 +84,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
 
     def show_ready(self) -> None:
         logging.debug('Ready message')
-        m1, s1 = divmod(abs(config.MAX_TIME), 60)
+        m1, s1 = divmod(abs(config.max_time), 60)
         for i in range(2):
             self.image[i].paste(self.empty)
             self.draw[i].text((1, 22), f'{m1:02d}:{s1:02d}', font=self.font, fill=255)
@@ -174,18 +174,18 @@ class PlayerDisplay(Display, metaclass=Singleton):
         p = 0
         if player == 0:
             # display 0
-            m1, s1 = divmod(abs(config.MAX_TIME - t1), 60)
-            text = f'-{m1:1d}:{s1:02d}' if config.MAX_TIME - t1 < 0 else f'{m1:02d}:{s1:02d}'
+            m1, s1 = divmod(abs(config.max_time - t1), 60)
+            text = f'-{m1:1d}:{s1:02d}' if config.max_time - t1 < 0 else f'{m1:02d}:{s1:02d}'
             p = p1
         elif player == 1:
             # display 1
-            m2, s2 = divmod(abs(config.MAX_TIME - t2), 60)
-            text = f'-{m2:1d}:{s2:02d}' if config.MAX_TIME - t2 < 0 else f'{m2:02d}:{s2:02d}'
+            m2, s2 = divmod(abs(config.max_time - t2), 60)
+            text = f'-{m2:1d}:{s2:02d}' if config.max_time - t2 < 0 else f'{m2:02d}:{s2:02d}'
             p = p2
 
         self.draw[player].text((1, 22), text, font=self.font, fill=255)
         self.draw[player].text((80, 1), f'{p:4d}', font=self.font1, fill=255)
-        if p <= config.DOUBT_TIMEOUT:
+        if p <= config.doubt_timeout:
             self.draw[player].text(MSG_DOUBT_COORD, MSG_DOUBT, font=MSG_DOUBT_FONT, fill=255)
         self.display(player)
         self.oled.image(self.image[player])
