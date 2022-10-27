@@ -72,11 +72,6 @@ class MockButton:
                 self.pin_reset.drive_high()
                 sleep(3)
                 self.pin_reset.drive_low()
-            if key == ord('c'):
-                print('pressed (c)onfig - wait 3s')
-                self.pin_config.drive_high()
-                sleep(3)
-                self.pin_config.drive_low()
             sleep(0.01)
 
     def start(self) -> None:
