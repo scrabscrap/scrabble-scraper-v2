@@ -1,12 +1,12 @@
 {
     "terminal.integrated.env.osx": {
-        "PYTHONPATH": "./src:./src/mock"
+        "PYTHONPATH": "./src:../src"
     },
     "terminal.integrated.env.linux": {
-        "PYTHONPATH": "./src:./src/mock"
+        "PYTHONPATH": "./src:../src"
     },
     "terminal.integrated.env.windows": {
-        "PYTHONPATH": "./src;./src/mock"
+        "PYTHONPATH": "./src;../src"
     },
     "python.testing.unittestArgs": [
         "-v",
@@ -24,5 +24,7 @@
     "python.formatting.autopep8Args": [
         "--max-line-length=128",
         "--ignore=E402"
-      ],
+    ],
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true,
 }
