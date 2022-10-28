@@ -34,12 +34,11 @@ class PlayerDisplay(Display, metaclass=Singleton):
     """Implementation of class Display with OLED"""
 
     def __init__(self):
-        self.i2cbus = SMBus(1)
-        self.i2c = board.I2C()
-        self.i2cbus.write_byte(0x70, 1 << 1)  # display 1
-        self.oled = adafruit_ssd1306.SSD1306_I2C(128, 64, self.i2c, addr=0x3C)
+        self.TCA9548A_select(0)
+        i2c = board.I2C()
+        self.oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c, addr=0x3C)
         self.oled.init_display()
-        self.i2cbus.write_byte(0x70, 1 << 0)  # display 0
+        self.TCA9548A_select(1)
         self.oled.init_display()
         self.font_family = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
         self.font = ImageFont.truetype(self.font_family, 42)
@@ -50,17 +49,19 @@ class PlayerDisplay(Display, metaclass=Singleton):
         self.draw = [ImageDraw.Draw(self.image[0]), ImageDraw.Draw(self.image[1])]
         atexit.register(self.stop)
 
+    def TCA9548A_select(self, channel: int) -> None:
+        """select channel on multiplexer"""
+        assert channel in [0, 1], "invalid channel number"
+        channel_array = [0b00000001, 0b00000010]
+        bus = SMBus(1)
+        bus.write_byte(0x70, channel_array[channel])
+        time.sleep(0.01)
+
     def stop(self) -> None:
         logging.debug('display stop')
         for i in range(2):
-            self.display(i)
+            self.TCA9548A_select(i)
             self.oled.poweroff()
-
-    def display(self, disp: int) -> None:
-        """active display on multiplexer"""
-        assert disp in [0, 1], "invalid display"
-        self.i2cbus.write_byte(0x70, 1 << disp)
-        time.sleep(0.001)
 
     def show_boot(self) -> None:
         logging.debug('Boot message')
@@ -87,8 +88,10 @@ class PlayerDisplay(Display, metaclass=Singleton):
         minutes, seconds = divmod(abs(config.max_time), 60)
         for i in range(2):
             self.image[i].paste(self.empty)
+            self.draw[i].text((1, 22), 'Ready', font=self.font, fill=255)
+            self.show(i, invert=False)  # show "Ready"
+            self.image[i].paste(self.empty)  # prepare start timer
             self.draw[i].text((1, 22), f'{minutes:02d}:{seconds:02d}', font=self.font, fill=255)
-        self.show(invert=False)
 
     def show_pause(self, player: int) -> None:
         assert player in [0, 1], "invalid player number"
@@ -101,7 +104,6 @@ class PlayerDisplay(Display, metaclass=Singleton):
 
     def add_malus(self, player: int) -> None:
         assert player in [0, 1], "invalid player number"
-
         logging.debug(f'{player}: malus -10')
         msg = '-10P'
         coord = (24, 1)
@@ -111,7 +113,6 @@ class PlayerDisplay(Display, metaclass=Singleton):
 
     def add_remove_tiles(self, player: int) -> None:
         assert player in [0, 1], "invalid player number"
-
         logging.debug(f'{player}: Entf. Zug')
         msg = '\u2717Zug\u270D'
         coord = (24, 1)
@@ -121,7 +122,6 @@ class PlayerDisplay(Display, metaclass=Singleton):
 
     def add_doubt_timeout(self, player: int) -> None:
         assert player in [0, 1], "invalid player number"
-
         logging.debug(f'{player}: doubt timeout')
         msg = '\u21AFtimeout'
         coord = (24, 1)
@@ -151,42 +151,30 @@ class PlayerDisplay(Display, metaclass=Singleton):
         logging.debug('Cfg message')
         msg = '\u270ECfg'
         coord = (1, 16)
-        for i in range(0, 2):
+        for i in range(2):
             self.image[i].paste(self.empty)
             self.draw[i].text(coord, msg, font=self.font, fill=255)
         self.show()
 
     def add_time(self, player, time1, played1, time2, played2) -> None:
-        msg = '\u2049'  # \u2718
-        coord = (1, 0)
+        assert player in [0, 1], "invalid player number"
 
+        time = time1 if player == 0 else time2
+        played_time = played1 if player == 0 else played2
+        minutes, seconds = divmod(abs(config.max_time - time), 60)
+        text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - time < 0 else f'{minutes:02d}:{seconds:02d}'
         self.image[player].paste(self.empty)
-        text = ''
-        played_time = 0
-        if player == 0:
-            # display 0
-            minutes1, seconds1 = divmod(abs(config.max_time - time1), 60)
-            text = f'-{minutes1:1d}:{seconds1:02d}' if config.max_time - time1 < 0 else f'{minutes1:02d}:{seconds1:02d}'
-            played_time = played1
-        elif player == 1:
-            # display 1
-            minutest2, seconds2 = divmod(abs(config.max_time - time2), 60)
-            text = f'-{minutest2:1d}:{seconds2:02d}' if config.max_time - time2 < 0 else f'{minutest2:02d}:{seconds2:02d}'
-            played_time = played2
-
         self.draw[player].text((1, 22), text, font=self.font, fill=255)
         self.draw[player].text((80, 1), f'{played_time:4d}', font=self.font1, fill=255)
         if played_time <= config.doubt_timeout:
-            self.draw[player].text(coord, msg, font=self.font1, fill=255)
-        self.display(player)
-        self.oled.image(self.image[player])
-        self.oled.show()
+            msg = '\u2049'  # \u2718
+            self.draw[player].text((1, 0), msg, font=self.font1, fill=255)
+        self.show(player=player)
 
     def clear(self):
         for i in range(2):
-            self.display(i)
-            self.oled.fill(0)
-        # self.oled.show()
+            self.image[i].paste(self.empty)
+        self.show(invert=False)
 
     def clear_message(self, player: Optional[int] = None) -> None:
         if player is None:
@@ -201,14 +189,14 @@ class PlayerDisplay(Display, metaclass=Singleton):
     def show(self, player: Optional[int] = None, invert: Optional[bool] = None) -> None:
         if player is None:
             for i in range(2):
-                self.display(i)
+                self.TCA9548A_select(i)
                 if invert is not None:
                     self.oled.invert(invert)
                 self.oled.image(self.image[i])
                 self.oled.show()
         else:
             assert player in [0, 1], "invalid display"
-            self.display(player)
+            self.TCA9548A_select(player)
             if invert is not None:
                 self.oled.invert(invert)
             self.oled.image(self.image[player])

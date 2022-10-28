@@ -72,6 +72,7 @@ class State(metaclass=Singleton):
     def do_start0(self) -> str:
         """Start playing with player 0"""
         logging.debug(f'{self.current_state} - (start) -> {S0}')
+        self.watch.display.show()
         self.watch.start(0)
         LED.switch_on({LEDEnum.green})  # turn on LED green
         return S0
@@ -79,6 +80,7 @@ class State(metaclass=Singleton):
     def do_start1(self) -> str:
         """Start playing with player 1"""
         logging.debug(f'{self.current_state} - (start) -> {S1}')
+        self.watch.display.show()
         self.watch.start(1)
         LED.switch_on({LEDEnum.red})  # turn on LED red
         return S1
