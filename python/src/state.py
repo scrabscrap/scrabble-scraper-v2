@@ -16,6 +16,7 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import atexit
+from concurrent.futures import Future
 import logging
 import time
 from signal import alarm
@@ -53,7 +54,7 @@ class State(metaclass=Singleton):
         self.current_state: str = START
         self.watch: ScrabbleWatch = watch if watch is not None else ScrabbleWatch()
         self.cam = cam
-        self.last_submit = None  # last submit to thread pool; waiting for processing of the last move
+        self.last_submit: Optional[Future] = None  # last submit to thread pool; waiting for processing of the last move
         self.bounce = {GREEN: .0, RED: .0, YELLOW: .0, DOUBT0: .0,
                        DOUBT1: .0, RESET: .0, CONFIG: .0, REBOOT: .0}
         self.game: Game = Game(None)

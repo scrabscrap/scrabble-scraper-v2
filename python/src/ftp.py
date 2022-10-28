@@ -34,15 +34,15 @@ class Ftp:
 
         def __init__(self) -> None:
             self.config = configparser.ConfigParser()
+            self.reload(clean=False)
+
+        def reload(self, clean=True) -> None:
+            """ reload ftp configuration """
             try:
                 with open(f'{config.work_dir}/ftp-secret.ini', 'r') as config_file:
                     self.config.read_file(config_file)
             except IOError as err:
                 logging.exception(f'can not read ftp INI-File {err}')
-
-        def reload(self) -> None:
-            """ reload ftp configuration """
-            self.__init__()
 
         @property
         def ftp_server(self) -> Optional[str]:

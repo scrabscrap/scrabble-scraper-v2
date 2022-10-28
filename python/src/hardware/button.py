@@ -18,6 +18,7 @@
 import atexit
 import logging
 from enum import Enum
+from typing import Optional
 
 from gpiozero import Button as GpioButton
 
@@ -46,7 +47,7 @@ class Button:
     """Handle button press and release"""
 
     def __init__(self) -> None:
-        self.state = None
+        self.state: Optional[State] = None
         atexit.register(self.cleanup_atexit)
 
     def cleanup_atexit(self) -> None:

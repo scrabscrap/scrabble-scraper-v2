@@ -152,8 +152,8 @@ class Classic:
         mark_grid = cv2.erode(mark_grid, None, iterations=4)
         mark_grid = cv2.dilate(mark_grid, None, iterations=4)
         _, mark_grid = cv2.threshold(mark_grid, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-        _tiles_candidates = set()
-        _blank_candidates = {}
+        _tiles_candidates: set = set()
+        _blank_candidates: dict = {}
         Classic._mark_grid((7, 7), mark_grid, blank_grid, _tiles_candidates, _blank_candidates)  # starte in der Mitte
 
         return _gray, _tiles_candidates

@@ -29,6 +29,12 @@ class Config(metaclass=Singleton):
 
     def __init__(self, ini_file=None) -> None:
         self.config = configparser.ConfigParser()
+        self.reload(ini_file=ini_file, clean=False)
+
+    def reload(self, ini_file=None, clean=True) -> None:
+        """ reload configuration from file """
+        if clean:
+            self.config = configparser.ConfigParser()
         try:
             self.config['path'] = {}
             self.config['path']['src_dir'] = os.path.dirname(__file__) or '.'
@@ -38,10 +44,6 @@ class Config(metaclass=Singleton):
                 self.config.read_file(config_file)
         except IOError as err:
             logging.exception(f'can not read INI-File {err}')
-
-    def reload(self, ini_file=None) -> None:
-        """ reload configuration from file """
-        self.__init__(ini_file)
 
     def save(self) -> None:
         """ save configuration to file """

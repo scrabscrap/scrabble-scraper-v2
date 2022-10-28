@@ -19,15 +19,16 @@ import logging
 import time
 from concurrent.futures import Future
 from threading import Event
+from typing import Callable, Optional
 
 
 class RepeatedTimer:
     """create a timer thread with a specific intervall"""
 
-    def __init__(self, interval: int, function: callable):  # type: ignore
+    def __init__(self, interval: int, function: Callable):  # type: ignore
         self.interval = interval
         self.function = function
-        self.event = None
+        self.event: Optional[Event] = None
         self.start = time.time()
 
     @property

@@ -21,6 +21,7 @@ import sys
 from concurrent.futures import Future
 from threading import Event
 from time import sleep
+from typing import Optional
 
 import cv2
 import numpy as np
@@ -41,7 +42,7 @@ class CameraOpenCV(metaclass=Singleton):  # type: ignore
         if not self.stream.isOpened():
             logging.error('can not open VideoCapture')
             sys.exit()
-        self.event = None
+        self.event: Optional[Event] = None
         self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
         self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
         self.stream.set(cv2.CAP_PROP_FPS, framerate)

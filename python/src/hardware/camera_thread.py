@@ -19,10 +19,14 @@ import platform
 from concurrent.futures import Future
 from enum import Enum
 from threading import Event
+from typing import Union
 
 import numpy as np
 from config import config
 from util import Singleton
+
+from .camera_file import CameraFile
+from .camera_opencv import CameraOpenCV
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
@@ -43,12 +47,10 @@ class Camera(metaclass=Singleton):  # type: ignore
         machine = platform.machine()
         if (use_camera == CameraEnum.PICAMERA) or (use_camera == CameraEnum.AUTO and machine in ('armv7l', 'armv6l')):
             from .camera_rpi import CameraRPI
-            self.stream = CameraRPI(resolution=resolution, framerate=framerate, **kwargs)
+            self.stream: Union[CameraRPI, CameraOpenCV, CameraFile] = CameraRPI(resolution=resolution, framerate=framerate, **kwargs)
         elif (use_camera == CameraEnum.OPENCV) or (use_camera == CameraEnum.AUTO and machine in ('aarch64')):
-            from .camera_opencv import CameraOpenCV
             self.stream = CameraOpenCV(src=src, resolution=resolution, framerate=framerate)
         elif use_camera in (CameraEnum.FILE, CameraEnum.AUTO):
-            from .camera_file import CameraFile
             self.stream = CameraFile()
 
     def update(self, event: Event) -> None:
