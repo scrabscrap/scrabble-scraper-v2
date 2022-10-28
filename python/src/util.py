@@ -19,7 +19,7 @@ import functools
 import logging
 import time
 from logging.handlers import BaseRotatingHandler
-from typing import Dict, Union
+from typing import Union
 
 # def onexit(f):
 #     # see: https://peps.python.org/pep-0318/#examples
