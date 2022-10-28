@@ -47,7 +47,8 @@ class Camera(metaclass=Singleton):  # type: ignore
         machine = platform.machine()
         if (use_camera == CameraEnum.PICAMERA) or (use_camera == CameraEnum.AUTO and machine in ('armv7l', 'armv6l')):
             from .camera_rpi import CameraRPI
-            self.stream: Union[CameraRPI, CameraOpenCV, CameraFile] = CameraRPI(resolution=resolution, framerate=framerate, **kwargs)
+            self.stream: Union[CameraRPI, CameraOpenCV, CameraFile] = CameraRPI(
+                resolution=resolution, framerate=framerate, **kwargs)
         elif (use_camera == CameraEnum.OPENCV) or (use_camera == CameraEnum.AUTO and machine in ('aarch64')):
             self.stream = CameraOpenCV(src=src, resolution=resolution, framerate=framerate)
         elif use_camera in (CameraEnum.FILE, CameraEnum.AUTO):
