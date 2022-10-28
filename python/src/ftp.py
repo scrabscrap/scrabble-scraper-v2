@@ -38,6 +38,8 @@ class Ftp:
 
         def reload(self, clean=True) -> None:
             """ reload ftp configuration """
+            if clean:
+                self.config = configparser.ConfigParser()
             try:
                 with open(f'{config.work_dir}/ftp-secret.ini', 'r') as config_file:
                     self.config.read_file(config_file)
