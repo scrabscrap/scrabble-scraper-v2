@@ -7,23 +7,23 @@
 
 export DISPLAY=:0
 
-# working directory is $PROJECT/work
+# working directory is $PYTHONDIR/work
 SCRIPTPATH=$(dirname "$0")
-PROJECT="$(cd "$SCRIPTPATH/../python" && pwd)"
-WORKDIR=$PROJECT/work
+PYTHONDIR="$(cd "$SCRIPTPATH/../python" && pwd)"
+WORKDIR=$PYTHONDIR/work
 
 # create directories
 mkdir -p "$WORKDIR/log"
 mkdir -p "$WORKDIR/web"
 
 # copy defaults if not exists
-cp -n "$PROJECT/python/defaults/scrabble.ini" "$WORKDIR/scrabble.ini"
-cp -n "$PROJECT/python/defaults/ftp-secret.ini" "$WORKDIR/ftp-secret.ini"
-cp -n "$PROJECT/python/defaults/log.conf" "$WORKDIR/log.conf"
+cp -n "$PYTHONDIR/defaults/scrabble.ini" "$WORKDIR/scrabble.ini"
+cp -n "$PYTHONDIR/defaults/ftp-secret.ini" "$WORKDIR/ftp-secret.ini"
+cp -n "$PYTHONDIR/defaults/log.conf" "$WORKDIR/log.conf"
 
 # start app
 export PYTHONPATH=src:
 source ~/.venv/cv/bin/activate
 
-cd "$PROJECT"
+cd "$PYTHONDIR"
 python -m scrabscrap >> "$WORKDIR/log/game.log"
