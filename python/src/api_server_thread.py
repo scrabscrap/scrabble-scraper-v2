@@ -166,7 +166,13 @@ class ApiServer:
             col: int = int(coord.split(',')[0])
             row: int = int(coord.split(',')[1])
             logging.debug(f'coord x:{col} y:{row}')
-            rect = np.array(config.warp_coordinates, dtype="float32")
+            rect = get_last_warp()
+            if rect is None:
+                rect = np.array([
+                    [0, 0],
+                    [config.im_width, 0],
+                    [config.im_width, config.im_height],
+                    [0, config.im_height]], dtype="float32")
             if col < 200 and row < 200:
                 rect[0] = (col, row)
             elif col < 200:
