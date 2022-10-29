@@ -9,7 +9,7 @@ export DISPLAY=:0
 
 # working directory is $PROJECT/work
 SCRIPTPATH=$(dirname "$0")
-PROJECT="$(cd "$SCRIPTPATH/.." && pwd)"
+PROJECT="$(cd "$SCRIPTPATH/../python" && pwd)"
 WORKDIR=$PROJECT/work
 
 # create directories
@@ -22,8 +22,8 @@ cp -n "$PROJECT/python/defaults/ftp-secret.ini" "$WORKDIR/ftp-secret.ini"
 cp -n "$PROJECT/python/defaults/log.conf" "$WORKDIR/log.conf"
 
 # start app
-export PYTHONPATH=$PROJECT/python/src
+export PYTHONPATH=src:
 source ~/.venv/cv/bin/activate
 
-cd "$WORKDIR"
+cd "$PROJECT"
 python -m scrabscrap >> "$WORKDIR/log/game.log"
