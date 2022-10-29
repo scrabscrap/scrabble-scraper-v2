@@ -175,9 +175,9 @@ class ApiServer:
                     [0, config.im_height]], dtype="float32")
             if col < 200 and row < 200:
                 rect[0] = (col, row)
-            elif col < 200:
-                rect[1] = (col, row)
             elif row < 200:
+                rect[1] = (col, row)
+            elif col < 200:
                 rect[3] = (col, row)
             else:
                 rect[2] = (col, row)
