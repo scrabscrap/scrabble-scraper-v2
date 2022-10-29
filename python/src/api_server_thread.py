@@ -353,6 +353,22 @@ class ApiServer:
 
         return State().game.json_str(), 201
 
+    @staticmethod
+    @app.route('/shutdown', methods=['POST', 'GET'])
+    def shutdown():
+        """ process reboot """
+        State().do_reboot()
+        return redirect(url_for('get_defaults'))
+
+    @staticmethod
+    @app.route('/end', methods=['POST', 'GET'])
+    def do_end():
+        """ end app """
+        from signal import alarm
+
+        alarm(1)
+        return redirect(url_for('get_defaults'))
+
     def start_server(self, host: str = '0.0.0.0', port=5050):
         """ start flask server """
         logging.debug('start api server')
