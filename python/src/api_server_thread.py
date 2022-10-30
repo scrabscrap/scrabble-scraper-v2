@@ -145,11 +145,11 @@ class ApiServer:
     @app.route('/scan_wifi')
     def scan_wifi():
         """ start wifi scan process """
-        process1 = subprocess.run(['wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
+        process1 = subprocess.run(['/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        _ = subprocess.run(['wpa_cli', 'scan', '-i', 'wlan0'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        _ = subprocess.run(['/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         sleep(1)
-        process2 = subprocess.run(['wpa_cli', 'scan_results', '-i', 'wlan0'], check=False,
+        process2 = subprocess.run(['/usr/sbin/wpa_cli', 'scan_results', '-i', 'wlan0'], check=False,
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         ApiServer.last_msg = f'wifi config\n{process1.stdout.decode()}\nwifi search\n{process2.stdout.decode()}'
         logging.debug(ApiServer.last_msg)
