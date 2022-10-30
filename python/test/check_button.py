@@ -39,18 +39,25 @@ class SimulateState(State):
         before sending the next event, press button will wait for self.bounce
         """
         if button == GREEN:
+            logging.info("pressed green")
             LED.switch_on({LEDEnum.green})
         elif button == RED:
+            logging.info("pressed red")
             LED.switch_on({LEDEnum.red})
         elif button == YELLOW:
+            logging.info("pressed yellow")
             LED.switch_on({LEDEnum.yellow})
         elif button == DOUBT0:
+            logging.info("pressed doubt0 (switch green)")
             LED.blink_on({LEDEnum.green})
         elif button == DOUBT1:
+            logging.info("pressed doubt1 (switch red)")
             LED.blink_on({LEDEnum.red})
         elif button == RESET:
+            logging.info("pressed reset")
             LED.blink_on({LEDEnum.yellow})
         elif button == REBOOT:
+            logging.info("pressed reboot")
             LED.blink_on({LEDEnum.green, LEDEnum.red})
 
     def release_button(self, button: str) -> None:
