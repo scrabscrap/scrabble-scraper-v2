@@ -147,7 +147,8 @@ class ApiServer:
         """ start wifi scan process """
         process1 = subprocess.run(['/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        _ = subprocess.run(['/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        _ = subprocess.run(['/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'], check=False,
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         sleep(1)
         process2 = subprocess.run(['/usr/sbin/wpa_cli', 'scan_results', '-i', 'wlan0'], check=False,
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
