@@ -33,7 +33,7 @@ from werkzeug.serving import make_server
 from config import config
 from game_board.board import overlay_grid
 from processing import get_last_warp, warp_image
-from state import State
+from state import START, State
 from threadpool import pool
 
 
@@ -119,6 +119,8 @@ class ApiServer:
         logging.debug(f'player1={player1} player2={player2}')
         # state holds the current game
         State().game.nicknames = (player1, player2)
+        if State().current_state == START:
+            State().do_ready()
         ApiServer.last_msg = f'player1={player1}\nplayer2={player2}'
         return redirect(url_for('get_defaults'))
 
@@ -402,6 +404,7 @@ def main():
     """ main for standalone test """
     # for testing
     from threading import Event
+
     from hardware.camera_thread import Camera
 
     logging.config.fileConfig(fname=config.work_dir + '/log.conf',
