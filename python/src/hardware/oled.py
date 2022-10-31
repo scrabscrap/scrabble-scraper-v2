@@ -17,16 +17,16 @@
 """
 import atexit
 import logging
+import textwrap
 import time
 from typing import Optional
 
 import adafruit_ssd1306  # type: ignore
 import board  # type: ignore
-from PIL import Image, ImageDraw, ImageFont
-from smbus import SMBus  # type: ignore
-
 from config import config
 from display import Display
+from PIL import Image, ImageDraw, ImageFont
+from smbus import SMBus  # type: ignore
 from util import Singleton
 
 
@@ -88,9 +88,10 @@ class PlayerDisplay(Display, metaclass=Singleton):
         minutes, seconds = divmod(abs(config.max_time), 60)
         for i in range(2):
             self.image[i].paste(self.empty)
-            width = self.font1.getlength(msg[i])
+            text = textwrap.shorten(msg[i], 10, placeholder='...')
+            width = self.font1.getlength(text)
             coord = (self.oled.width // 2 - width // 2, 20)
-            self.draw[i].text(coord, msg[i], font=self.font1, fill=255)
+            self.draw[i].text(coord, text, font=self.font1, fill=255)
             self.show(i, invert=False)  # show "Ready"
             self.image[i].paste(self.empty)  # prepare start timer
             self.draw[i].text((1, 22), f'{minutes:02d}:{seconds:02d}', font=self.font, fill=255)
