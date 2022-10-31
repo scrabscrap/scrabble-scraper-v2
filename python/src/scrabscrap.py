@@ -59,12 +59,16 @@ def main() -> None:
     timer_event = Event()
     timer_future = pool.submit(timer.tick, timer_event)
 
-    # open Camera
-    cam = Camera()
-    # cam = MockCamera()
-    cam_event = Event()
-    cam_future = pool.submit(cam.update, cam_event)
-
+    cam = None
+    try:
+        # open Camera
+        cam = Camera()
+        # cam = MockCamera()
+        cam_event = Event()
+        cam_future = pool.submit(cam.update, cam_event)
+    except Exception as oops:  # type: ignore
+        logging.error(f'can not open camera {oops}')
+    
     # start api server
     api = ApiServer()
     ApiServer.cam = cam  # type: ignore
@@ -78,6 +82,8 @@ def main() -> None:
     # set callback for Button Events
     button_handler.start(state)
 
+    if cam is None:
+        watch.display.show_cam_err()
     # Run until Exit with alarm(1)
     pause()
 
