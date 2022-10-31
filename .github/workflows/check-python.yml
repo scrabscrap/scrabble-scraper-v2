@@ -3,13 +3,10 @@ name: Python package
 on: [push]
 
 jobs:
-  build:
-
+  flake8:
     runs-on: ubuntu-latest
-
     env:
       PYTHONPATH: 'src:'
-
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.9
@@ -38,10 +35,29 @@ jobs:
           pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint with flake8
+        id: flake8
         run: |
           cd python
           flake8 . --max-line-length=128 --ignore=E402 --exclude="ignore/*" --count --show-source --statistics
+
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: 'src:'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - name: Install pip dependencies
+        run: |
+          cd python
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Test with unittest
+        id: unittest
         run: |
           cd python
           cp defaults/* work/
