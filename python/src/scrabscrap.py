@@ -68,7 +68,7 @@ def main() -> None:
         cam_future = pool.submit(cam.update, cam_event)
     except Exception as oops:  # type: ignore
         logging.error(f'can not open camera {oops}')
-    
+
     # start api server
     api = ApiServer()
     ApiServer.cam = cam  # type: ignore
