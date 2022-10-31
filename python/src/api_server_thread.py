@@ -22,6 +22,7 @@ import logging.config
 import os
 import subprocess
 import urllib.parse
+from io import StringIO
 from time import sleep
 
 import cv2
@@ -84,8 +85,9 @@ class ApiServer:
             return render_template('settings.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
         if must_save:
             config.save()
-        config_as_dict = config.config_as_dict()
-        ApiServer.last_msg = json.dumps(config_as_dict, sort_keys=False, indent=2, ensure_ascii=False)
+        out = StringIO()
+        config.config.write(out)
+        ApiServer.last_msg = f'{out.getvalue()}'
         return render_template('settings.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
 
     @staticmethod
