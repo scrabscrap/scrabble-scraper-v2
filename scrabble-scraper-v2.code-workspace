@@ -16,6 +16,8 @@
       "name": "Scripts",
       "path": "scripts"
     }
-  ]
+  ],
+  "settings": {
+    "editor.formatOnSave": true
+  }
 }
-
