@@ -44,12 +44,12 @@ class ScrabbleWatch(metaclass=Singleton):
 
     def start(self, player: int) -> None:
         """start timer"""
-        self.display.clear_message(self.player)
-        self.display.show(self.player)
+        last = self.player
         self.play_time = 0
         self.player = player
         self.current = [0, 0]
         self.paused = False
+        self.display.clear_message(last)
 
     def pause(self) -> None:
         """pause timer"""
@@ -77,7 +77,7 @@ class ScrabbleWatch(metaclass=Singleton):
             self.time[self.player] += 1
             self.current[self.player] += 1
             self.display.add_time(self.player, self.time[0], self.current[0], self.time[1], self.current[1])
-            self.display.show(self.player)
+            # self.display.show(self.player)
 
     def get_status(self) -> tuple[int, int, int, int, int]:
         """ get current timer status
