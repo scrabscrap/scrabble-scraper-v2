@@ -17,7 +17,6 @@
 """
 import atexit
 import logging
-import textwrap
 import time
 from typing import Optional
 
@@ -88,7 +87,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
         minutes, seconds = divmod(abs(config.max_time), 60)
         for i in range(2):
             self.image[i].paste(self.empty)
-            text = textwrap.shorten(msg[i], 10, placeholder='...')
+            text = msg[i][:10]
             width = self.font1.getlength(text)
             coord = (self.oled.width // 2 - width // 2, 20)
             self.draw[i].text(coord, text, font=self.font1, fill=255)
