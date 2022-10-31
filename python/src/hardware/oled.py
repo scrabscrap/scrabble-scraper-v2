@@ -83,12 +83,14 @@ class PlayerDisplay(Display, metaclass=Singleton):
             self.draw[i].text(coord, msg, font=self.font, fill=255)
         self.show(invert=False)
 
-    def show_ready(self) -> None:
+    def show_ready(self, msg=('Ready', 'Ready')) -> None:
         logging.debug('Ready message')
         minutes, seconds = divmod(abs(config.max_time), 60)
         for i in range(2):
             self.image[i].paste(self.empty)
-            self.draw[i].text((1, 22), 'Ready', font=self.font, fill=255)
+            width = self.font1.getlength(msg[i])
+            coord = (self.oled.width // 2 - width // 2, 20)
+            self.draw[i].text(coord, msg[i], font=self.font1, fill=255)
             self.show(i, invert=False)  # show "Ready"
             self.image[i].paste(self.empty)  # prepare start timer
             self.draw[i].text((1, 22), f'{minutes:02d}:{seconds:02d}', font=self.font, fill=255)

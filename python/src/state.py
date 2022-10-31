@@ -50,6 +50,7 @@ CONFIG = 'CONFIG'
 
 class State(metaclass=Singleton):
     """State machine of the scrabble game"""
+
     def __init__(self, cam=None, watch: Optional[ScrabbleWatch] = None) -> None:
         self.current_state: str = START
         self.watch: ScrabbleWatch = watch if watch is not None else ScrabbleWatch()
@@ -66,7 +67,7 @@ class State(metaclass=Singleton):
     def do_ready(self) -> str:
         """Game can be started"""
         start_of_game()
-        self.watch.display.show_ready()
+        self.watch.display.show_ready(self.game.nicknames)
         self.current_state = START
         return self.current_state
 

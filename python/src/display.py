@@ -41,9 +41,9 @@ class Display:
         logging.debug('add reset')
 
     @abstractmethod
-    def show_ready(self) -> None:
+    def show_ready(self, msg=('Ready', 'Ready')) -> None:
         """ show ready message """
-        logging.debug('add ready')
+        logging.debug(f'add ready => {msg[0] - msg[1]}')
 
     @abstractmethod
     def show_pause(self, player: int) -> None:
