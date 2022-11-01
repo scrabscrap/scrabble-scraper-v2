@@ -63,22 +63,22 @@ class Config(metaclass=Singleton):
     @property
     def src_dir(self) -> str:
         """get src dir"""
-        return self.config.get('path', 'src_dir', fallback=os.path.dirname(__file__) or '.')
+        return os.path.abspath(self.config.get('path', 'src_dir', fallback=os.path.dirname(__file__) or '.'))
 
     @property
     def work_dir(self) -> str:
         """get work dir"""
-        return self.config.get('path', 'work_dir', fallback=f'{self.src_dir}/../work')
+        return os.path.abspath(self.config.get('path', 'work_dir', fallback=f'{self.src_dir}/../work'))
 
     @property
     def log_dir(self) -> str:
         """"get logging dir"""
-        return self.config.get('path', 'log_dir', fallback=f'{self.src_dir}/../work/log')
+        return os.path.abspath(self.config.get('path', 'log_dir', fallback=f'{self.src_dir}/../work/log'))
 
     @property
     def web_dir(self) -> str:
         """get web folder"""
-        return self.config.get('path', 'web_dir', fallback=f'{self.src_dir}/../work/web')
+        return os.path.abspath(self.config.get('path', 'web_dir', fallback=f'{self.src_dir}/../work/web'))
 
     @property
     def simulate(self) -> bool:

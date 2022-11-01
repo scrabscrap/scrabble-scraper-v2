@@ -38,8 +38,8 @@ from timer_thread import RepeatedTimer
 
 Device.pin_factory = MockFactory()
 
-TEMPLATE_FOLDER = f'{os.path.dirname(__file__) or "."}/../src/templates'
-STATIC_FOLDER = f'{os.path.dirname(__file__) or "."}/../src/static'
+# TEMPLATE_FOLDER = os.path.abspath(f'{os.path.dirname(__file__) or "."}/../src/templates')
+# STATIC_FOLDER = os.path.abspath(f'{os.path.dirname(__file__) or "."}/../src/static')
 
 
 def doubt0():
@@ -119,13 +119,13 @@ def open_folder():
     """select folder for images"""
     folder = request.args.get('folder')
     logging.debug(f'try to open {folder}')
-    ini_file = f'{config.work_dir}/simulate/{folder}/scrabble.ini'
-    if os.path.exists(ini_file):
+    ini_file = os.path.abspath(f'{config.work_dir}/simulate/{folder}/scrabble.ini')
+    if os.path.exists(ini_file) and os.path.commonprefix([config.work_dir, ini_file]) == config.work_dir:
         config.reload(ini_file=ini_file)
         ApiServer.cam.stream.cnt = 0  # type: ignore
         ApiServer.cam.stream.formatter = config.simulate_path  # type: ignore
     else:
-        logging.warning(f'INI File not found: {ini_file}')
+        logging.warning(f'INI File not found / invalid: {ini_file}')
     return redirect(url_for('simulator'))
 
 
