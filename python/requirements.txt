@@ -6,15 +6,16 @@ gpiozero>=1.6.2
 imutils>=0.5.4
 opencv-python==4.6.0.66
 picamera>=1.13; sys_platform != "darwin" and platform_machine != "x86_64"
-Pillow>=9.2.0
+Pillow>=9.3.0
 smbus>=1.1; sys_platform != "darwin" and platform_machine != "x86_64"
 visual-logging>=1.0
 # tools #
-autopep8>=1.7.0
+autopep8>=2.0.0
 cPython>=0.0.6
 flake8>=5.0.4
-pipdeptree>=2.2.1
+pipdeptree>=2.3.3
 snakeviz>=2.1.1
+mypy>=0.982
 
 
 # libs #
