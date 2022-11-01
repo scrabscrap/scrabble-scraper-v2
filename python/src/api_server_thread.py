@@ -20,6 +20,7 @@ import json
 import logging
 import logging.config
 import os
+import shlex
 import subprocess
 import urllib.parse
 from io import StringIO
@@ -132,6 +133,10 @@ class ApiServer:
         """ set wifi param (ssid, psk) via post request """
         ssid = request.form.get('ssid')
         key = request.form.get('psk')
+        if ssid is not None:
+            ssid = shlex.quote(ssid)
+        if key is not None:
+            key = shlex.quote(key)
         logging.debug(f'ssid={ssid}')
         process = subprocess.call(
             f"sudo sh -c 'wpa_passphrase {ssid} {key} >> /etc/wpa_supplicant/wpa_supplicant.conf'", shell=True)
