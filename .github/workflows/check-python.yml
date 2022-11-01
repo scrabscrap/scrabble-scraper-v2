@@ -40,6 +40,28 @@ jobs:
           cd python
           flake8 . --max-line-length=128 --ignore=E402 --exclude="ignore/*" --count --show-source --statistics
 
+  mypy:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: 'src:'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - name: Install pip dependencies
+        run: |
+          cd python
+          python -m pip install --upgrade pip
+          pip install mypy pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Check with mypy
+        id: mypy
+        run: |
+          cd python
+          mypy src/*.py src/hardware/*.py src/simulate/*.py simulator/*.py --config-file mypy.ini
+
   test:
     runs-on: ubuntu-latest
     env:

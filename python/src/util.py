@@ -30,7 +30,7 @@ from typing import Union
 
 class Singleton(type):
     """ Metaclass that creates a Singleton base type when called. """
-    _instances = {}
+    _instances = {}  # type: ignore # storage for singleton classes
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
@@ -87,7 +87,7 @@ def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type
     handlers = []
     root = logging.getLogger()
     # Include root logger in dict.
-    logger_dict = {'': root, **root.manager.loggerDict}
+    logger_dict = {'': root, **root.manager.loggerDict}  # type: ignore
     for keys, values in logger_dict.items():
         if loggers is not None and keys not in loggers:
             continue
@@ -98,7 +98,7 @@ def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type
         except AttributeError:
             pass
     for handler in handlers:
-        handler.doRollover()
+        handler.doRollover()  # type: ignore # flase positive on mypy
 
 
 def get_ipv4() -> str:

@@ -24,7 +24,7 @@ try:
     from hardware.oled import PlayerDisplay
 except ImportError:
     logging.warning('use mock as PlayerDisplay')
-    from display import Display as PlayerDisplay
+    from display import Display as PlayerDisplay  # type: ignore # fallback on ImportError
 
 
 class ScrabbleWatch(metaclass=Singleton):
