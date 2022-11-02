@@ -314,17 +314,11 @@ class ApiServer:
     @ app.route('/test_display')
     def test_display():
         """ start simple display test """
-        try:
-            from hardware.oled import PlayerDisplay
-        except ImportError:
-            logging.warning('use mock as PlayerDisplay')
-            from display import Display as PlayerDisplay
         from scrabblewatch import ScrabbleWatch
 
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
-            display = PlayerDisplay()
-            watch = ScrabbleWatch(display)
+            watch = ScrabbleWatch()
             watch.display.show_boot()
             logging.debug('Display show boot')
             sleep(0.5)
