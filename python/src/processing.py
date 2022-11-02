@@ -155,6 +155,7 @@ def upload_ftp(current_move: Move):
 
 @trace
 def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_time: Tuple[int, int]):
+    # pylint: disable=R0915,R0914
     """Process a move
 
     Args:
@@ -179,8 +180,8 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         if len(changed) < 1:
             logging.info('move: no new tiles detected')
             raise NoMoveException('move: no new tiles')
-        horizontal = len(set([col for col, _ in changed])) > 1
-        vertical = len(set([row for _, row in changed])) > 1
+        horizontal = len({col for col, _ in changed}) > 1
+        vertical = len({row for _, row in changed}) > 1
         if vertical and horizontal:
             logging.warning(f'illegal move: {changed}')
             raise InvalidMoveExeption('move: illegal move horizontal and vertical changes detected')
@@ -222,11 +223,11 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
             if must_recalculate:
                 _word = ''
                 (col, row) = mov.coord
-                for i in range(len(mov.word)):                                 # fix mov.word
+                for i, char in enumerate(mov.word):                                 # fix mov.word
                     if mov.is_vertical:
-                        _word += board[(col, row + i)][0] if mov.word[i] != '.' else '.'
+                        _word += board[(col, row + i)][0] if char != '.' else '.'
                     else:
-                        _word += board[(col + i, row)][0] if mov.word[i] != '.' else '.'
+                        _word += board[(col + i, row)][0] if char != '.' else '.'
                 mov.word = _word
                 mov.points, prev_score, mov.is_scrabble = mov.calculate_score(prev_score)
                 mov.score = prev_score                                         # store previous score
