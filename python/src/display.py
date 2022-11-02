@@ -81,7 +81,7 @@ class Display:
         logging.debug('add config')
 
     @abstractmethod
-    def add_time(self, player: int, time1: int, played1: int, time2: int, played2: int) -> None:
+    def add_time(self, player: int, time1: int, played1: int, time2: int, played2: int) -> None:  # pylint: disable=R0913
         """" show timer message """
         # m1, s1 = divmod(abs(1800 - t1), 60)
         # m2, s2 = divmod(abs(1800 - t2), 60)
