@@ -41,7 +41,7 @@ class Ftp:
             if clean:
                 self.config = configparser.ConfigParser()
             try:
-                with open(f'{config.work_dir}/ftp-secret.ini', 'r') as config_file:
+                with open(f'{config.work_dir}/ftp-secret.ini', 'r', encoding="UTF-8") as config_file:
                     self.config.read_file(config_file)
             except IOError as err:
                 logging.exception(f'can not read ftp INI-File {err}')

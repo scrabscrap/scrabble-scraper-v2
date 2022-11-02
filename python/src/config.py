@@ -40,14 +40,14 @@ class Config(metaclass=Singleton):
             self.config['path']['src_dir'] = os.path.dirname(__file__) or '.'
             self.ini_path = ini_file if ini_file is not None else f'{self.work_dir}/scrabble.ini'
             logging.info(f'load {self.ini_path}')
-            with open(self.ini_path, 'r') as config_file:
+            with open(self.ini_path, 'r', encoding="UTF-8") as config_file:
                 self.config.read_file(config_file)
         except IOError as err:
             logging.exception(f'can not read INI-File {err}')
 
     def save(self) -> None:
         """ save configuration to file """
-        with open(self.ini_path, 'w') as config_file:
+        with open(self.ini_path, 'w', encoding="UTF-8") as config_file:
             val = self.config['path']['src_dir']
             if val == (os.path.dirname(__file__) or '.'):
                 self.config.remove_option('path', 'src_dir')
