@@ -191,9 +191,9 @@ class ApiServer:
                 rect[3] = (col, row)
             else:
                 rect[2] = (col, row)
-            logging.debug(f"new warp: {np.array2string(rect, formatter={'float_kind':lambda x: '%.1f' % x}, separator=', ')}")
+            logging.debug(f"new warp: {np.array2string(rect, formatter={'float_kind':lambda x: f'{x:.1f}'}, separator=', ')}")
             config.config.set('video', 'warp_coordinates', np.array2string(
-                rect, formatter={'float_kind': lambda x: '%.1f' % x}, separator=','))
+                rect, formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=','))
         warp_coord_cnf = str(config.warp_coordinates)
         if ApiServer.cam is not None:
             img = ApiServer.cam.read()
@@ -214,8 +214,8 @@ class ApiServer:
                                warp_coord=urllib.parse.quote(warp_coord), warp_coord_raw=warp_coord,
                                warp_coord_cnf=warp_coord_cnf)
 
-    @staticmethod
-    @app.route('/logs')
+    @ staticmethod
+    @ app.route('/logs')
     def logs():
         """ display message log """
         ApiServer.last_msg = ''
@@ -227,8 +227,8 @@ class ApiServer:
             log_out = '## empty ##'
         return render_template('logs.html', log=log_out)
 
-    @staticmethod
-    @app.route('/upgrade_linux')
+    @ staticmethod
+    @ app.route('/upgrade_linux')
     def update_linux():
         """ start linux upgrade """
 
@@ -245,8 +245,8 @@ class ApiServer:
             ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
-    @staticmethod
-    @app.route('/upgrade_scrabscrap')
+    @ staticmethod
+    @ app.route('/upgrade_scrabscrap')
     def update_scrabscrap():
         """ start scrabscrap upgrade """
 
@@ -270,8 +270,8 @@ class ApiServer:
             ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
-    @staticmethod
-    @app.route('/test_led')
+    @ staticmethod
+    @ app.route('/test_led')
     def test_led():
         """ start simple led test """
         from hardware.led import LED, LEDEnum
@@ -310,8 +310,8 @@ class ApiServer:
             ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
-    @staticmethod
-    @app.route('/test_display')
+    @ staticmethod
+    @ app.route('/test_display')
     def test_display():
         """ start simple display test """
         try:
@@ -349,29 +349,29 @@ class ApiServer:
             ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
-    @staticmethod
-    @app.route('/download_logs', methods=['POST', 'GET'])
+    @ staticmethod
+    @ app.route('/download_logs', methods=['POST', 'GET'])
     def download_logs():
         """ download message log """
         ApiServer.last_msg = 'download logs'
         return send_from_directory(f'{config.work_dir}', 'log.conf', as_attachment=True)
 
-    @staticmethod
-    @app.route('/game_status', methods=['POST', 'GET'])
+    @ staticmethod
+    @ app.route('/game_status', methods=['POST', 'GET'])
     def game_status():
         """ get request to current game state """
 
         return State().game.json_str(), 201
 
-    @staticmethod
-    @app.route('/shutdown', methods=['POST', 'GET'])
+    @ staticmethod
+    @ app.route('/shutdown', methods=['POST', 'GET'])
     def shutdown():
         """ process reboot """
         State().do_reboot()
         return redirect(url_for('get_defaults'))
 
-    @staticmethod
-    @app.route('/end', methods=['POST', 'GET'])
+    @ staticmethod
+    @ app.route('/end', methods=['POST', 'GET'])
     def do_end():
         """ end app """
         from signal import alarm
