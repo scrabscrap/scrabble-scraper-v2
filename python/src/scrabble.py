@@ -51,7 +51,7 @@ class NoMoveException(Exception):
     pass
 
 
-class Move:
+class Move:  # pylint: disable=R0902 # too-many-instance-attributes
     """Represents a Move
 
     After construction, the ``score`` will be calculated
@@ -73,9 +73,9 @@ class Move:
         rack(dict,dict): the racks of the players (currently not used)
     """
 
-    def __init__(self, move_type: MoveType, player: int, coord: Optional[Tuple[int, int]], is_vertical: bool, word: str,
-                 new_tiles: dict, removed_tiles: dict, board: dict, played_time: Tuple[int, int],
-                 previous_score: Tuple[int, int], img=None, rack=None):
+    def __init__(self, move_type: MoveType, player: int,  # pylint: disable=R0913 # too-many-arguments
+                 coord: Optional[Tuple[int, int]], is_vertical: bool, word: str, new_tiles: dict, removed_tiles: dict,
+                 board: dict, played_time: Tuple[int, int], previous_score: Tuple[int, int], img=None, rack=None):
         self.type: MoveType = move_type
         self.time: str = str(datetime.datetime.now())
         self.move = 0  # set on append of move in class Game
@@ -183,7 +183,7 @@ class Move:
                     word += self.board[(col, row)][0]
                     row += 1
             if len(word) > 1:
-                xval = sum([scores[letter] for letter in word])
+                xval = sum(scores[letter] for letter in word)
                 if pos in DOUBLE_LETTER:
                     xval += scores[self.board[pos][0]]
                 elif pos in TRIPLE_LETTER:
@@ -202,14 +202,11 @@ class Move:
         letter_bonus: int = 0
         word_bonus: int = 1
         pos: Tuple[int, int] = self.coord
-        for i in range(len(self.word)):
+        for i, char in enumerate(self.word):
             if self.board[pos] is None:  # no tile on this board position
                 continue
-            if self.is_vertical:
-                pos = (self.coord[0], self.coord[1] + i)  # increment rows
-            else:
-                pos = (self.coord[0] + i, self.coord[1])  # increment cols
-            if self.word[i] != '.':
+            pos = (self.coord[0], self.coord[1] + i) if self.is_vertical else (self.coord[0] + i, self.coord[1])
+            if char != '.':
                 crossing_words += crossing_points(pos)  # crossing word
                 # check for bonus
                 if pos in DOUBLE_LETTER:
