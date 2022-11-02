@@ -133,28 +133,24 @@ def simulator() -> str:
     """"render simulator on web page"""
     # get simulate folders
     list_of_dir = [f for f in os.listdir(f'{config.work_dir}/simulate') if os.path.isdir(f'{config.work_dir}/simulate/{f}')]
-
     # display time
     _, time0, _, time1, _ = State().watch.get_status()
-    minutes1, seconds1 = divmod(abs(1800 - time0), 60)
-    minutes2, seconds2 = divmod(abs(1800 - time1), 60)
-    left = f'-{minutes1:1d}:{seconds1:02d}' if 1800 - \
-        time0 < 0 else f'{minutes1:02d}:{seconds1:02d}'
-    right = f'-{minutes2:1d}:{seconds2:02d}' if 1800 - \
-        time1 < 0 else f'{minutes2:02d}:{seconds2:02d}'
+    minutes, seconds = divmod(abs(1800 - time0), 60)
+    left = f'-{minutes:1d}:{seconds:02d}' if 1800 - time0 < 0 else f'{minutes:02d}:{seconds:02d}'
+    minutes, seconds = divmod(abs(1800 - time1), 60)
+    right = f'-{minutes:1d}:{seconds:02d}' if 1800 - time1 < 0 else f'{minutes:02d}:{seconds:02d}'
     # get current picture
     png_current = None
     board = ''
     game = State().game
     if (len(game.moves) > 0) and (game.moves[-1].img is not None):
-        pic = game.moves[-1].img
-        _, pic_buf_arr = cv2.imencode(".jpg", pic)
+        _, pic_buf_arr = cv2.imencode(".jpg", game.moves[-1].img)
         png_current = urllib.parse.quote(base64.b64encode(pic_buf_arr))
         board = f'Score: {game.moves[-1].score} / {game.moves[-1].points}\n{game.board_str()}'
     # get next picture
     img = ApiServer.cam.read(peek=True)  # type: ignore
-    _, im_buf_arr = cv2.imencode(".jpg", img)
-    png_next = urllib.parse.quote(base64.b64encode(im_buf_arr))
+    _, pic_buf_arr = cv2.imencode(".jpg", img)
+    png_next = urllib.parse.quote(base64.b64encode(pic_buf_arr))
     # show log
     if os.path.exists(f'{config.log_dir}/messages.log'):
         process = subprocess.run(['tail', '-75', f'{config.log_dir}/messages.log'], check=True,
