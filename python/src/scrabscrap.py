@@ -66,7 +66,7 @@ def main() -> None:
         # cam = MockCamera()
         cam_event = Event()
         cam_future = pool.submit(cam.update, cam_event)
-    except Exception as oops:  # type: ignore
+    except Exception as oops:  # type: ignore # pylint: disable=W0703
         logging.error(f'can not open camera {oops}')
 
     # start api server
