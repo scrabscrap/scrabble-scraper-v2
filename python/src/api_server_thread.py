@@ -245,6 +245,23 @@ class ApiServer:
             ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
 
+    @staticmethod
+    @app.route('/upgrade_pip')
+    def update_pip():
+        """ start pip upgrade """
+
+        if State().current_state == 'START':
+            ApiServer.flask_shutdown_blocked = True
+            process1 = subprocess.run([f'{os.path.expanduser("~")}/.venv/cv/bin/pip', 'install', '-r',
+                                       f'{config.src_dir}/../requirements.txt', '--upgrade'], check=False,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            ApiServer.flask_shutdown_blocked = False
+            ApiServer.last_msg = f'{process1.stdout.decode()}\n## please reboot ##'
+            logging.debug(ApiServer.last_msg)
+        else:
+            ApiServer.last_msg = 'not in State START'
+        return redirect(url_for('get_defaults'))
+
     @ staticmethod
     @ app.route('/upgrade_scrabscrap')
     def update_scrabscrap():
@@ -258,7 +275,8 @@ class ApiServer:
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             process3 = subprocess.run(['git', 'gc'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.flask_shutdown_blocked = False
-            ApiServer.last_msg = f'{process1.stdout.decode()}\n{process2.stdout.decode()}\n{process3.stdout.decode()}'
+            ApiServer.last_msg = (f'{process1.stdout.decode()}\n{process2.stdout.decode()}\n{process3.stdout.decode()}\n'
+                                  '## please reboot ##')
             logging.debug(ApiServer.last_msg)
             version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
