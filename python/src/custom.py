@@ -99,32 +99,32 @@ class Custom:
             (x2, h2) = rect[3]
             if abs(x1 - x2) > 40 or x1 < 15 or x2 < 15:
                 if Custom.last_warp is not None:
-                    rect[0][0] = Custom.last_warp[0][0]
-                    rect[3][0] = Custom.last_warp[3][0]
+                    rect[0][0] = Custom.last_warp[0][0]  # pylint: disable=E1136
+                    rect[3][0] = Custom.last_warp[3][0]  # pylint: disable=E1136
                 else:
                     x = max(x1, x2)
                     rect[0][0] = rect[3][0] = x
                     logging.warning(f"korrigiere x auf {x}")
             if abs(w1 - w2) > 40 or w1 > 1490 or w2 > 1490:
                 if Custom.last_warp is not None:
-                    rect[1][0] = Custom.last_warp[1][0]
-                    rect[2][0] = Custom.last_warp[2][0]
+                    rect[1][0] = Custom.last_warp[1][0]  # pylint: disable=E1136
+                    rect[2][0] = Custom.last_warp[2][0]  # pylint: disable=E1136
                 else:
                     w = min(w1, w2)
                     rect[1][0] = rect[2][0] = w
                     logging.warning(f"korrigiere w auf {w}")
             if abs(y1 - y2) > 40 or y1 < 15 or y2 < 15:
                 if Custom.last_warp is not None:
-                    rect[0][1] = Custom.last_warp[0][1]
-                    rect[1][1] = Custom.last_warp[1][1]
+                    rect[0][1] = Custom.last_warp[0][1]  # pylint: disable=E1136
+                    rect[1][1] = Custom.last_warp[1][1]  # pylint: disable=E1136
                 else:
                     y = max(y1, y2)
                     rect[0][1] = rect[1][1] = y
                     logging.warning(f"korrigiere y auf {y}")
             if abs(h1 - h2) > 40 or h1 > 1490 or h2 > 1490:
                 if Custom.last_warp is not None:
-                    rect[2][1] = Custom.last_warp[2][1]
-                    rect[3][1] = Custom.last_warp[3][1]
+                    rect[2][1] = Custom.last_warp[2][1]  # pylint: disable=E1136
+                    rect[3][1] = Custom.last_warp[3][1]  # pylint: disable=E1136
                 else:
                     h = min(h1, h2)
                     rect[2][1] = rect[3][1] = h
