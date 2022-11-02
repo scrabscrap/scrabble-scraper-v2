@@ -62,6 +62,28 @@ jobs:
           cd python
           mypy src/*.py src/hardware/*.py src/simulate/*.py simulator/*.py --config-file mypy.ini
 
+  pylint:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: 'src:'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - name: Install pip dependencies
+        run: |
+          cd python
+          python -m pip install --upgrade pip
+          pip install pylint
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Check with pylint
+        id: pylint
+        run: |
+          cd python
+          pylint src/*.py src/hardware/*.py simulator/*.py --exit-zero
+
   test:
     runs-on: ubuntu-latest
     env:
