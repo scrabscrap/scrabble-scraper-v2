@@ -166,6 +166,14 @@ class ApiServer:
         return render_template('wifi.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
 
     @staticmethod
+    @app.route('/cam/clearwarp')
+    def cam_clear_warp():
+        """clear warp configuration"""
+        logging.debug('clear warp')
+        config.config.remove_option('video', 'warp_coordinates')
+        return redirect(url_for('get_cam'))
+
+    @staticmethod
     @app.route('/cam')
     def get_cam():
         """ display current camera picture """
