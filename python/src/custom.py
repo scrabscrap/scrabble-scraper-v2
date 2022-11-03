@@ -51,8 +51,8 @@ class Custom:
     def warp(__image: Mat) -> Mat:
         """" implement warp of a custom board """
 
-        if config.warp_coordinates is not None:
-            rect = np.array(config.warp_coordinates, dtype="float32")
+        if config.video_warp_coordinates is not None:
+            rect = np.array(config.video_warp_coordinates, dtype="float32")
         else:
             # based on: https://www.pyimagesearch.com/2014/08/25/4-point-opencv-getperspective-transform-example/
             (blue, _, _) = cv2.split(__image.copy())

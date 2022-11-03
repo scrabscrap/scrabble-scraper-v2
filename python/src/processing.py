@@ -39,7 +39,7 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 def get_last_warp() -> Optional[Mat]:
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if config.warp and config.board_layout == 'classic':
+    if config.video_warp and config.board_layout == 'classic':
         return Classic.last_warp
     return Custom.last_warp
 
@@ -54,9 +54,9 @@ def clear_last_warp():
 
 def warp_image(img: Mat) -> Mat:
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if config.warp and config.board_layout == 'custom':
+    if config.video_warp and config.board_layout == 'custom':
         return Custom.warp(img)
-    if config.warp and config.board_layout == 'classic':
+    if config.video_warp and config.board_layout == 'classic':
         return Classic.warp(img)
     return img
 
@@ -128,7 +128,7 @@ def store_move(current_move: Move, img: Optional[Mat]):
         current_move(Move): the current move
         img(Mat): current picture
     """
-    if config.write_web or config.ftp:
+    if config.output_web or config.output_ftp:
         with open(f'{config.web_dir}/data-{current_move.move}.json', "w", encoding='UTF-8') as handle:
             handle.write(current_move.json_str())
         with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
@@ -148,7 +148,7 @@ def upload_ftp(current_move: Move):
         current_move(Move): the current move
     """
     from ftp import Ftp
-    if config.ftp:
+    if config.output_ftp:
         # start thread for upload and return immediatly
         pool.submit(Ftp.upload_move, current_move.move)
 
@@ -372,7 +372,7 @@ def end_of_game(waitfor: Optional[Future], game: Game):
         time.sleep(0.05)
     time.sleep(1.5)
     filename = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-") + str(uuid.uuid4())
-    if config.write_web or config.ftp:
+    if config.output_web or config.output_ftp:
         with ZipFile(f'{config.web_dir}/{filename}.zip', 'w') as _zip:
             logging.info(f"create zip with {len(game.moves):d} files")
             for i in range(1, len(game.moves) + 1):
@@ -381,5 +381,5 @@ def end_of_game(waitfor: Optional[Future], game: Game):
             if os.path.exists(f'{config.web_dir}/../log/messages.log'):
                 _zip.write(f'{config.web_dir}/../log/messages.log')
 
-    if config.ftp:
+    if config.output_ftp:
         Ftp.upload_game(filename)

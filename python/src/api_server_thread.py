@@ -188,9 +188,9 @@ class ApiServer:
             if rect is None:
                 rect = np.array([
                     [0, 0],
-                    [config.im_width, 0],
-                    [config.im_width, config.im_height],
-                    [0, config.im_height]], dtype="float32")
+                    [config.video_width, 0],
+                    [config.video_width, config.video_height],
+                    [0, config.video_height]], dtype="float32")
             if col < 200 and row < 200:
                 rect[0] = (col, row)
             elif row < 200:
@@ -202,7 +202,7 @@ class ApiServer:
             logging.debug(f"new warp: {np.array2string(rect, formatter={'float_kind':lambda x: f'{x:.1f}'}, separator=', ')}")
             config.config.set('video', 'warp_coordinates', np.array2string(
                 rect, formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=','))
-        warp_coord_cnf = str(config.warp_coordinates)
+        warp_coord_cnf = str(config.video_warp_coordinates)
         if ApiServer.cam is not None:
             img = ApiServer.cam.read()
             _, im_buf_arr = cv2.imencode(".jpg", img)

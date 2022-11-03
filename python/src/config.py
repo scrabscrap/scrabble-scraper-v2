@@ -116,37 +116,27 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         return self.config.getint('scrabble', 'doubt_warn', fallback=15)
 
     @property
-    def screen(self) -> bool:
-        """"should the screen used as putput device"""
-        return self.simulate or self.config.getboolean('output', 'screen', fallback=False)
-
-    @property
-    def write_web(self) -> bool:
+    def output_web(self) -> bool:
         """should the game stored into web folder"""
         return self.config.getboolean('output', 'web', fallback=True)
 
     @property
-    def ftp(self) -> bool:
+    def output_ftp(self) -> bool:
         """should ftp upload used"""
         return self.config.getboolean('output', 'ftp', fallback=False)
 
     @property
     def keyboard(self) -> bool:
         """should keyboard used as input device"""
-        return self.simulate or self.config.getboolean('input', 'keyboard', fallback=True)
+        return self.simulate or self.config.getboolean('input', 'keyboard', fallback=False)
 
     @property
-    def hold1(self) -> int:
-        """time for long button press"""
-        return self.config.getint('button', 'hold1', fallback=3)
-
-    @property
-    def warp(self) -> bool:
+    def video_warp(self) -> bool:
         """should warp performed"""
         return self.config.getboolean('video', 'warp', fallback=True)
 
     @property
-    def warp_coordinates(self) -> Optional[list]:
+    def video_warp_coordinates(self) -> Optional[list]:
         """stored warp coordinates"""
         warp_coordinates_as_string = self.config.get('video', 'warp_coordinates', fallback=None)
         if warp_coordinates_as_string is None or len(warp_coordinates_as_string) <= 0:
@@ -154,22 +144,22 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         return json.loads(warp_coordinates_as_string)
 
     @property
-    def im_width(self) -> int:
+    def video_width(self) -> int:
         """used image width"""
         return self.config.getint('video', 'width', fallback=992)
 
     @property
-    def im_height(self) -> int:
+    def video_height(self) -> int:
         """used image height"""
         return self.config.getint('video', 'height', fallback=976)
 
     @property
-    def fps(self) -> int:
+    def video_fps(self) -> int:
         """used fps on camera monitoring"""
         return self.config.getint('video', 'fps', fallback=30)
 
     @property
-    def rotade(self) -> bool:
+    def video_rotade(self) -> bool:
         """should the images rotated by 180° """
         return self.config.getboolean('video', 'rotate', fallback=False)
 

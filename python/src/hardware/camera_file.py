@@ -31,11 +31,11 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 class CameraFile(metaclass=Singleton):  # type: ignore
     """implement a camera simulation with images files"""
 
-    def __init__(self, formatter=None, resolution=(config.im_width, config.im_height)):
+    def __init__(self, formatter=None, resolution=(config.video_width, config.video_height)):
         logging.info('### init MockCamera')
         self.frame = []
         self.resolution = resolution
-        if config.rotade:
+        if config.video_rotade:
             self.rotation = 180
         self.event = None
         self.cnt = 0

@@ -31,8 +31,8 @@ class MockCamera(metaclass=Singleton):
     def __init__(self, formatter=None):
         self.frame = []
         self.resolution = (992, 976)
-        self.framerate = config.fps
-        if config.rotade:
+        self.framerate = config.video_fps
+        if config.video_rotade:
             self.rotation = 180
         self.event = None
         self.cnt = 0
