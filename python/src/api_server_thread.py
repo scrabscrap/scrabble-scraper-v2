@@ -277,11 +277,12 @@ class ApiServer:
 
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
-            process1 = subprocess.run(['git', 'fetch'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            # TODO: git checkout v2 --hard v2
-            process2 = subprocess.run(['git', 'pull', '--autostash'], check=False,
+            process1 = subprocess.run(['git', 'fetch', '--all', '--tags', '--prune'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            process3 = subprocess.run(['git', 'gc'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            process2 = subprocess.run(['git', 'stash'], check=False,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            process3 = subprocess.run(['git', 'checkout', config.system_gittag, '-f'], check=False,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.flask_shutdown_blocked = False
             ApiServer.last_msg = (f'{process1.stdout.decode()}\n{process2.stdout.decode()}\n{process3.stdout.decode()}\n'
                                   '## please reboot ##')

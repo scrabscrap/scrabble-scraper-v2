@@ -217,6 +217,11 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         return self.config.get('system', 'quit', fallback='shutdown').replace('"', '')
 
     @property
+    def system_gittag(self) -> str:
+        """git tag or branch to use for updates"""
+        return self.config.get('system', 'gittag', fallback='main').replace('"', '')
+
+    @property
     def motion_detection(self) -> str:
         """"which mode for motion detection is used"""
         return self.config.get('motion', 'detection', fallback='KNN')
