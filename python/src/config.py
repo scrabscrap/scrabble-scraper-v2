@@ -207,7 +207,7 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         return self.config.get('system', 'quit', fallback='shutdown').replace('"', '')
 
     @property
-    def system_gittag(self) -> str:
+    def system_gitbranch(self) -> str:
         """git tag or branch to use for updates"""
         return self.config.get('system', 'gittag', fallback='main').replace('"', '')
 
