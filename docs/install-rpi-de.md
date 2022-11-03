@@ -76,7 +76,7 @@ git clone https://github.com/scrabscrap/scrabble-scraper-v2.git
 ### Python Konfiguration erzeugen
 
 ```bash
-python3 -m venv ~/.venv/cv --system-site-packages
+python3 -m venv ~/.venv/cv
 #update pip
 source ~/.venv/cv/bin/activate
 pip install --upgrade pip
