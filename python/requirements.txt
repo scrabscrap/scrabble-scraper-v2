@@ -4,19 +4,23 @@ adafruit-circuitpython-ssd1306>=2.12.11; sys_platform != "darwin" and platform_m
 Flask>=2.2.2
 gpiozero>=1.6.2
 imutils>=0.5.4
-opencv-python==4.6.0.66
+opencv-python==4.5.5.62
+opencv-contrib-python==4.5.5.62; sys_platform == "darwin" or platform_machine == "x86_64"
 picamera>=1.13; sys_platform != "darwin" and platform_machine != "x86_64"
 Pillow>=9.3.0
 smbus>=1.1; sys_platform != "darwin" and platform_machine != "x86_64"
 visual-logging>=1.0
 # tools #
+numpy>=1.23.4
+# qs tools
 autopep8>=2.0.0
-cPython>=0.0.6
 flake8>=5.0.4
+mypy>=0.982
+pylint>=2.15.5
+# debug, misc
+cPython>=0.0.6
 pipdeptree>=2.3.3
 snakeviz>=2.1.1
-mypy>=0.982
-numpy>=1.23.4
 
 # libs #
 # adafruit-circuitpython-ssd1306==2.12.11
