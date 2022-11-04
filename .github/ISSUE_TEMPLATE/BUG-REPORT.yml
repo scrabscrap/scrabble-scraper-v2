@@ -59,7 +59,7 @@ body:
       description: What is the impacted environment ?
       multiple: true
       options:
-      	- "Raspberry PI OS"
+        - Raspberry PI OS
         - Windows
         - Linux
         - Mac
