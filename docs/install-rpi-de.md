@@ -246,3 +246,38 @@ in `/boot/config.txt`
 ```text
 disable_camera_led=1
 ```
+
+### Installation RTC
+
+Siehe: [Adding a Real Time Clock (RTC) to the Raspberry Pi](https://pimylifeup.com/raspberry-pi-rtc/)
+
+```bash
+sudo nano /boot/config.txt
+```
+
+Add (currently used: DS3231 RTC)
+
+```text
+dtoverlay=i2c-rtc,ds3231
+```
+
+```bash
+sudo reboot
+sudo apt -y remove fake-hwclock
+sudo update-rc.d -f fake-hwclock remove
+sudo nano /lib/udev/hwclock-set
+```
+
+Comment out
+
+```text
+#if [ -e /run/systemd/system ] ; then
+#    exit 0
+#fi
+```
+
+Read the time directly from the RTC module
+
+```bash
+sudo hwclock -v -r
+```
