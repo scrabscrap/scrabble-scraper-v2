@@ -111,11 +111,6 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         return self.config.getint('scrabble', 'doubt_timeout', fallback=20)
 
     @property
-    def doubt_warn(self) -> int:
-        """when to warn for doubt timeout"""
-        return self.config.getint('scrabble', 'doubt_warn', fallback=15)
-
-    @property
     def output_web(self) -> bool:
         """should the game stored into web folder"""
         return self.config.getboolean('output', 'web', fallback=True)
