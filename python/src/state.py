@@ -16,20 +16,21 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import atexit
-from concurrent.futures import Future
+import gc
 import logging
 import time
+from concurrent.futures import Future
 from signal import alarm
 from typing import Callable, Optional
 
 from config import config
 from hardware.led import LED, LEDEnum
-from processing import start_of_game, end_of_game, invalid_challenge, move, valid_challenge
+from processing import (end_of_game, invalid_challenge, move, start_of_game,
+                        valid_challenge)
 from scrabble import Game
 from scrabblewatch import ScrabbleWatch
 from threadpool import pool
 from util import Singleton
-
 
 # states
 START = 'START'
@@ -204,6 +205,7 @@ class State(metaclass=Singleton):
         self.watch.reset()
         end_of_game(None, self.game)
         self.game.new_game()
+        gc.collect()
         return self.do_ready()
 
     def do_reboot(self) -> str:
