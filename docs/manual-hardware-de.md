@@ -87,14 +87,18 @@ so müssen geeignete Vorwiderstände ergänzt werden.
 | VCC  | RPI PIN 17 (GPIO 3V3) |           |
 | Gnd  | RPI PIN 25 (GPIO Gnd) |           |
 
-### Anschluss RTC an Multiplexer
+### Anschluss RTC
 
-| OLED | Raspberry PI          | Multiplex |
-|------|-----------------------|-----------|
-| SDA  |                       | SD2       |
-| SCL  |                       | SC2       |
-| VCC  | RPI PIN 17 (GPIO 3V3) |           |
-| Gnd  | RPI PIN 25 (GPIO Gnd) |           |
+Die RTC wird parallel zum Multiplexer angeschlossen, damit ein Zugriff
+nicht über den Multiplexer erfolgen muss. Dies ist unproblematisch,
+da der Multiplexer und die RTC unterschiedliche Adressen verwenden.
+
+| OLED | Raspberry PI          |
+|------|-----------------------|
+| SDA  | PIN 3 (GPIO 2/SDA)    |
+| SCL  | PIN 5 (GPIO 3/SCL)    |
+| VCC  | RPI PIN 17 (GPIO 3V3) |
+| Gnd  | RPI PIN 25 (GPIO Gnd) |
 
 ## Schaltplan
 

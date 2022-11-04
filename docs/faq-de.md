@@ -211,23 +211,9 @@ soll eine Remote-Entwicklung auf dem Raspberry PI erfolgen, dann müssen noch
 * Remote SSH (Microsoft)
 * Remote SSH: Editing Configuration Files (Microsoft)
 
-installiert werden.
-
-### Zugriff über VS Code
-
-Auf dem lokalen Rechner sollte VS Code mit folgenden Plugins installiert werden
-
-* GitLess
-* GitGraph
-* markdownlint (David Anson)
-* Python (Microsoft)
-* Pylance (Microsoft)
-* Html Preview (George Oliveira)
-
-Dann kann eine Remote Verbindung zum RPI aufgebaut werden. Hierzu werden zusätzliche Hilfsmittel
-auf dem RPI installiert.
-
-Danach kann von dem lokalen Rechner über ssh Entwicklung auf dem RPI durchgeführt werden.
+installiert werden. Beim Aufruf des Remote-Rechners (RPI) werden dann zusätzliche
+Hilfsmittel installiert. Danach kann von dem lokalen Rechner über ssh die Entwicklung
+auf dem RPI durchgeführt werden.
 
 Nach dem Start der ssh Verbindung kann der Workspace `~/scrabble-scraper-v2/scrabble-scraper-v2.code-workspace`
 geöffnet werden.
@@ -256,6 +242,15 @@ Parameter autopep8
       ],
 ```
 
+_Hinweis:_ auf GitHub sind Workflows konfiguriert, die eine Prüfung mittels
+
+* flake8
+* pylint
+* mypy
+
+vornehmen. Die Konfiguration von etwaigen Ausnahmen sind im Source-Code bzw. in den
+jweiligen Konfigurationsdateien hinterlegt.
+
 ### Einstellung .alias
 
 Es bietet sich an, folgende Alias-Einträge anzulegen.
@@ -281,20 +276,23 @@ Damit die Dokumentation in Form von PDF Dateien erzeugt werden kann, muss auf de
 * pandoc
 * texlive
 
-installiert sein.
+installiert sein. Bei der Nutzung von GitPod sind diese Pakete bereits installiert und konfiguriert.
 
-Dann kann in dem Verzeichnis `docs` mit dem Script `make_pdf.sh` die Dokumentation erzeugt werden.
+Um die Dokumentation zu erzeugen in dem Verzeichnis `docs` das Script `make_pdf.sh` aufrufen. Es wird
+ein Order `pdf` angelegt, in dem die generierten Dokumente abgelegt werden.
 
 ## Start der Python Anwendungen
 
 ### Raspberry PI
 
-Auf dem Raspberry PI kann die Anwendung wie folgt gestartet werden
+Auf dem Raspberry PI kann die Anwendung wie folgt gestartet werden. Zuvor sollten die Default-Dateien
+`scrabble.ini, log.conf, ftp-secret.ini` vom Ordner `defaults` in den Ordner `python/work` kopiert werden
+und ggf. angepasst werden. Es muss vor dem Aufruf das venv Profil `cv` aktiviert werden.
 
 ```bash
-cd python/src
+cd python
 # ggf. workon cv
-python scrabscrap.py
+python src/scrabscrap.py
 ```
 
 Die API zum Einstellen von Parametern steht danach unter
@@ -306,20 +304,27 @@ zur Verfügung.
 Sollte ein Zugriff über `localhost`nicht funktionieren, bitte statt `localhost` die IPv4 Adresse des
 Rechners verwenden.
 
+Alternativ kann auf dem RPI die Anwendung auch über `scripts/scrabscrap.sh` gestartet werden.
+
+_Hinweis:_ ScrabScrap wird in diesem Fall als Hintergrund-Prozess gestartet.
+
 ### MacOS / GitPod
 
 Hier kann die Hardware des Raspberry PI nicht genutzt werden, daher muss eine Simulation erfolgen.
 
-Zum Start des Simulators folgenden Aufruf verwenden
+Zum Start des Simulators folgenden Aufruf verwenden. Zuvor sollten die Default-Dateien
+`scrabble.ini, log.conf, ftp-secret.ini` vom Ordner `defaults` in den Ordner `python/work` kopiert werden
+und ggf. angepasst werden. Unter GitPod wird dieser Kopiervorgang beim Starten automatisch durchgeführt.
+Es muss vor dem Aufruf das venv Profil `cv` aktiviert werden.
 
 ```bash
-cd python/simulator
-python simulator.py
-````
+cd python
+python simulator/simulator.py
+```
 
 Die simulierte Anwendung kann dann im lokalen Browser über
 
-* `http://localhost:5050`
+* `http://localhost:5050/simulator`
 
 aufgerufen werden.
 
@@ -335,6 +340,11 @@ Link angelegt werden:
 cd react/public
 ln -s ../../python/work/web web
 ```
+
+_Hinweis:_ Bei der Verwendung von GitPod wird dieser Link automatisch beim Start angelegt.
+
+_Hinweis:_ In diesem Modus muss __kein__ Upload an den FTP-Server erfolgen (d.h. der Upload kann in der
+Konfiguration über `output.ftp=False` deaktiviert werden).
 
 Damit stehen dann die Daten, die in der Python-Anwendung erzeugt werden lokal zur Verfügung.
 

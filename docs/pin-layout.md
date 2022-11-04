@@ -3,9 +3,9 @@
 
 Pin | GPiO | Funktion | Ziel
 ----|------|----------|-----
-1   | 3V3  | I2C      | MUX vcc
-3   | 2    | I2C /SDA | MUX sda
-5   | 3    | I2C /SCL | MUX scl
+1   | 3V3  | I2C      | MUX vcc / RTC vcc
+3   | 2    | I2C /SDA | MUX sda / RTC sda
+5   | 3    | I2C /SCL | MUX scl / RTC scl
 7   | 4    |          |
 9   | Gnd  | B yellow | button/led Gnd
 11  | 17   | B yellow | button yellow
@@ -28,7 +28,7 @@ Pin | GPiO | Funktion | Ziel
 ----|------|----------|-----
 2   | 5V   |          |
 4   | 5V   |          |
-6   | Gnd  | I2C /Gnd | MUX Gnd
+6   | Gnd  | I2C /Gnd | MUX Gnd / RTC Gnd
 8   | 14   |          |
 10  | 15   |          |
 12  | 18   |          |
