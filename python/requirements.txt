@@ -4,7 +4,7 @@ adafruit-circuitpython-ssd1306>=2.12.11; sys_platform != "darwin" and platform_m
 Flask>=2.2.2
 gpiozero>=1.6.2
 imutils>=0.5.4
-opencv-python==4.5.5.62
+opencv-python==4.6.0.66
 opencv-contrib-python==4.5.5.62
 picamera>=1.13; sys_platform != "darwin" and platform_machine != "x86_64"
 Pillow>=9.3.0
