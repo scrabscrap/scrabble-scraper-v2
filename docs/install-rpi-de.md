@@ -120,12 +120,12 @@ i2cbus.write_byte(0x70, 1 << <port auf dem mux>)
 
 Eine Datei ``~/.alias`` anlegen:
 
-```text
+```bash
 alias ll='ls -al'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias cd..='cd ..'
-alias workon='f() { source ~/.venv/$1/bin/activate };f'
+alias workon='f(){ source ~/.venv/$1/bin/activate; }; f'
 ```
 
 In der ``~/.bashrc`` bzw. ``~/.zshrc`` am Ende ergänzen:

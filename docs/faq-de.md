@@ -255,9 +255,12 @@ jweiligen Konfigurationsdateien hinterlegt.
 
 Es bietet sich an, folgende Alias-Einträge anzulegen.
 
-```text
-alias workon='f() { source ~/.venv/$1/bin/activate };f'
-alias python=python3
+```bash
+alias ll='ls -al'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias cd..='cd ..'
+alias workon='f(){ source ~/.venv/$1/bin/activate; }; f'
 ```
 
 #### Einstellung .zshrc
