@@ -199,11 +199,12 @@ edit /etc/wpa_supplicant/wpa_supplicant.conf
 
 ```text
 country=DE
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+ctrl_interface=DIR=/var/run/wpa_supplicant
 ap_scan=1
 
 update_config=1
 
+# ap entry - do not delete
 network={
     ssid="ScrabScrap"
     mode=2
@@ -215,6 +216,24 @@ network={
     id_str="dhcp_server"
     priority=-10
 }
+
+# dummy entry - do not delete
+network={
+    ssid="DummySSID_do_not_delete"
+    key_mgmt=WPA-PSK
+    psk="invalidpassword"
+    id_str="dhcp_client"
+}
+```
+
+Damit das automatische Umschalten auf den Access-Point funktioniert, muss ein WPA Eintrag
+für den "dhcp_client" vorhanden sein. Dieser sollte ungültige Werte enthalten, damit
+der Access-Point Fallback aktiviert wird.
+
+Service dnsmasq aktivieren
+
+```bash
+sudo systemctl enable dnsmasq.service
 ```
 
 Befehle für den Zugriff auf die Netzwerkkonfiguration
