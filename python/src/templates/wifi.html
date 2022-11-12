@@ -5,30 +5,28 @@
     <div class="row">
         <div class="col-6">
             <div class="py-2">
-
                 <div class="card">
                     <div class="card-header bg-info">
-                        Add WiFi
+                        Select configured WiFi
                     </div>
                     <div class="card-body">
-                        <form action="/wifi" method="post">
+                        <form action="/select_wifi" method="post">
                             <div class="row py-2">
-                                <div class="col-6">
-                                    <input type="text" class="form-control" name="ssid" placeholder="ssid" required>
+                                {% for wifi in wifi_list %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="radioSelect" id={{ wifi[0] }} {%
+                                        if wifi[3]=='[CURRENT]' or wifi[1] in ('DummySSID_do_not_delete') %}disabled{%
+                                        endif %}>
+                                    <label class="form-check-label" for={{ wifi[0] }}>
+                                        {{ wifi[1] }} {{ wifi[3]}}
+                                    </label>
                                 </div>
-                                <div class="col-6">
-                                    <input type="password" class="form-control" pattern=".{8,}" name="psk"
-                                        placeholder="psk" required>
-                                </div>
+                                {% endfor %}
                             </div>
-                            <div class="row">
-                                <div class="col float-start">
-                                    <button type="button" class="btn btn-warning"
-                                        onclick="location.href='/scan_wifi'"><i class="bi-search"></i> Scan</button>
-                                </div>
-                                <div class="col-2 float-end">
-                                    <input type="submit" class="form-control btn btn-primary" value="Add">
-                                </div>
+                            <div class="row float-end">
+                                <input type="submit" class="form-control btn-primary" value="Select"
+                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                    title="Please reconnect after change">
                             </div>
                         </form>
                     </div>
@@ -63,14 +61,50 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
         <div class="col-12">
             <div class="py-2">
+
                 <div class="card">
                     <div class="card-header bg-info">
-                        last result
+                        Add WiFi
                     </div>
                     <div class="card-body">
-                        <div style="font-family: monospace; white-space: pre-wrap;">{{message}}</div>
+                        <form action="/wifi" method="post">
+                            <div class="row py-2">
+                                <div class="col-6">
+                                    <input type="text" class="form-control" name="ssid" placeholder="ssid" required>
+                                </div>
+                                <div class="col-6">
+                                    <input type="password" class="form-control" pattern=".{8,}" name="psk"
+                                        placeholder="psk" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col float-start">
+                                    <button type="button" class="btn btn-warning float-start"
+                                        onclick="location.href='/scan_wifi'"><i class="bi-search"></i> Scan</button>
+                                </div>
+                                <div class="col float-end">
+                                    <input type="submit" class="btn btn-primary float-end" value="Add">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="py-2">
+                    <div class="card">
+                        <div class="card-header bg-info">
+                            last result
+                        </div>
+                        <div class="card-body">
+                            <div style="font-family: monospace; white-space: pre-wrap;">{{message}}</div>
+                        </div>
                     </div>
                 </div>
             </div>
