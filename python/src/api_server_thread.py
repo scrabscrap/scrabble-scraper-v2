@@ -253,7 +253,7 @@ class ApiServer:
         """ display message log """
         ApiServer.last_msg = ''
         if os.path.exists(f'{config.log_dir}/messages.log'):
-            process = subprocess.run(['tail', '-100', f'{config.log_dir}/messages.log'], check=True,
+            process = subprocess.run(['tail', '-100', f'{config.log_dir}/messages.log'], check=False,
                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             log_out = process.stdout.decode()
         else:
@@ -266,9 +266,9 @@ class ApiServer:
         """ start linux upgrade """
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
-            process1 = subprocess.run(['sudo', '-n', 'apt-get', 'update'], check=True,
+            process1 = subprocess.run(['sudo', '-n', 'apt-get', 'update'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            process2 = subprocess.run(['sudo', '-n', 'apt-get', 'dist-upgrade', '-y'], check=True,
+            process2 = subprocess.run(['sudo', '-n', 'apt-get', 'dist-upgrade', '-y'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.flask_shutdown_blocked = False
             ApiServer.last_msg = f'{process1.stdout.decode()}\n{process2.stdout.decode()}'
