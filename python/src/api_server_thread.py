@@ -129,22 +129,18 @@ class ApiServer:
     @app.post('/wifi')
     def post_wifi():
         """ set wifi param (ssid, psk) via post request """
-        sudo = subprocess.call("sudo -vn 2> /dev/null", shell=True)  # check for sudo
-        if sudo == 0:
-            ssid = request.form.get('ssid')
-            key = request.form.get('psk')
-            if ssid is not None:
-                ssid = shlex.quote(ssid)
-            if key is not None:
-                key = shlex.quote(key)
-            logging.debug(f'ssid={ssid}')
-            process = subprocess.call(
-                f"sudo sh -c 'wpa_passphrase {ssid} {key} >> /etc/wpa_supplicant/wpa_supplicant.conf'", shell=True)
-            process1 = subprocess.call(
-                "sudo /usr/sbin/wpa_cli reconfigure -i wlan0", shell=True)
-            ApiServer.last_msg = f'configure wifi return={process}\nreconfigure wpa return={process1}'
-        else:
-            ApiServer.last_msg = 'no sudo allowed'
+        ssid = request.form.get('ssid')
+        key = request.form.get('psk')
+        if ssid is not None:
+            ssid = shlex.quote(ssid)
+        if key is not None:
+            key = shlex.quote(key)
+        logging.debug(f'ssid={ssid}')
+        process = subprocess.call(
+            f"sudo -n sh -c 'wpa_passphrase {ssid} {key} >> /etc/wpa_supplicant/wpa_supplicant.conf'", shell=True)
+        process1 = subprocess.call(
+            "sudo -n /usr/sbin/wpa_cli reconfigure -i wlan0", shell=True)
+        ApiServer.last_msg = f'configure wifi return={process}\nreconfigure wpa return={process1}'
         logging.debug(ApiServer.last_msg)
         return redirect(url_for('get_wifi'))
 
@@ -152,15 +148,10 @@ class ApiServer:
     @app.get('/wifi')
     def get_wifi():
         """ display wifi web page """
-        sudo = subprocess.call("sudo -vn 2> /dev/null", shell=True)  # check for sudo
-        if sudo == 0:
-            process1 = subprocess.run(['sudo', '/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            wifi_raw = process1.stdout.decode().split(sep='\n')[1:-1]
-            wifi_list = [element.split(sep='\t') for element in wifi_raw]
-        else:
-            wifi_list = []
-            ApiServer.last_msg = 'no sudo allowed'
+        process1 = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        wifi_raw = process1.stdout.decode().split(sep='\n')[1:-1]
+        wifi_list = [element.split(sep='\t') for element in wifi_raw]
         return render_template('wifi.html', version=ApiServer.scrabscrap_version, wifi_list=wifi_list,
                                message=ApiServer.last_msg)
 
@@ -172,9 +163,9 @@ class ApiServer:
             if request.form.get(i) == 'on':
                 logging.debug(f'wpa network delete {i}')
                 _ = subprocess.call(
-                    f"sudo /usr/sbin/wpa_cli remove_network {i} -i wlan0", shell=True)
+                    f"sudo -n /usr/sbin/wpa_cli remove_network {i} -i wlan0", shell=True)
             _ = subprocess.call(
-                "sudo /usr/sbin/wpa_cli save_config -i wlan0", shell=True)
+                "sudo -n /usr/sbin/wpa_cli save_config -i wlan0", shell=True)
         return redirect(url_for('get_wifi'))
 
     @staticmethod
@@ -184,23 +175,19 @@ class ApiServer:
         i = request.form.get('radioSelect')
         logging.debug(f'wpa network select {i}')
         _ = subprocess.call(
-            f"sudo /usr/sbin/wpa_cli enable_network {i} -i wlan0", shell=True)
+            f"sudo -n /usr/sbin/wpa_cli enable_network {i} -i wlan0", shell=True)
         return redirect(url_for('get_wifi'))
 
     @staticmethod
     @app.route('/scan_wifi')
     def scan_wifi():
         """ start wifi scan process """
-        sudo = subprocess.call("sudo -vn 2> /dev/null", shell=True)  # check for sudo
-        if sudo == 0:
-            _ = subprocess.run(['sudo', '/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'], check=False,
-                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            sleep(3)
-            process2 = subprocess.run(['sudo', '/usr/sbin/wpa_cli', 'scan_results', '-i', 'wlan0'], check=False,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            ApiServer.last_msg = f'{process2.stdout.decode()}'
-        else:
-            ApiServer.last_msg = 'no sudo allowed'
+        _ = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'], check=False,
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        sleep(3)
+        process2 = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'scan_results', '-i', 'wlan0'], check=False,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        ApiServer.last_msg = f'{process2.stdout.decode()}'
         logging.debug(ApiServer.last_msg)
         return redirect(url_for('get_wifi'))
 
@@ -278,17 +265,13 @@ class ApiServer:
     def update_linux():
         """ start linux upgrade """
         if State().current_state == 'START':
-            sudo = subprocess.call("sudo -vn 2> /dev/null", shell=True)  # check for sudo
-            if sudo == 0:
-                ApiServer.flask_shutdown_blocked = True
-                process1 = subprocess.run(['sudo', 'apt-get', 'update'], check=True,
-                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                process2 = subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'], check=True,
-                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                ApiServer.flask_shutdown_blocked = False
-                ApiServer.last_msg = f'{process1.stdout.decode()}\n{process2.stdout.decode()}'
-            else:
-                ApiServer.last_msg = 'no sudo allowed'
+            ApiServer.flask_shutdown_blocked = True
+            process1 = subprocess.run(['sudo', '-n', 'apt-get', 'update'], check=True,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            process2 = subprocess.run(['sudo', '-n', 'apt-get', 'dist-upgrade', '-y'], check=True,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            ApiServer.flask_shutdown_blocked = False
+            ApiServer.last_msg = f'{process1.stdout.decode()}\n{process2.stdout.decode()}'
         else:
             ApiServer.last_msg = 'not in State START'
         logging.debug(ApiServer.last_msg)
@@ -415,6 +398,7 @@ class ApiServer:
     @ app.route('/download_logs', methods=['POST', 'GET'])
     def download_logs():
         """ download message log """
+        # TODO: zip logs
         ApiServer.last_msg = 'download logs'
         return send_from_directory(f'{config.work_dir}', 'log.conf', as_attachment=True)
 
@@ -422,7 +406,6 @@ class ApiServer:
     @ app.route('/game_status', methods=['POST', 'GET'])
     def game_status():
         """ get request to current game state """
-
         return State().game.json_str(), 201
 
     @ staticmethod
