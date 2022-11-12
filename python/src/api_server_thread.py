@@ -140,30 +140,47 @@ class ApiServer:
         logging.debug(f'ssid={ssid}')
         process = subprocess.call(
             f"sudo sh -c 'wpa_passphrase {ssid} {key} >> /etc/wpa_supplicant/wpa_supplicant.conf'", shell=True)
-        ApiServer.last_msg = f'set wifi return={process}'
-        return render_template('wifi.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
+        process1 = subprocess.call(
+            "sudo /usr/sbin/wpa_cli reconfigure -i wlan0", shell=True)
+        ApiServer.last_msg = f'configure wifi return={process}\nreconfigure wpa return={process1}'
+        return redirect(url_for('get_wifi'))
 
     @staticmethod
     @app.get('/wifi')
     def get_wifi():
         """ display wifi web page """
-        ApiServer.last_msg = ''
-        return render_template('wifi.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
+        process1 = subprocess.run(['sudo', '/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        wifi_raw = process1.stdout.decode().split(sep='\n')[1:-1]
+        wifi_list = [element.split(sep='\t') for element in wifi_raw]
+        return render_template('wifi.html', version=ApiServer.scrabscrap_version, wifi_list=wifi_list,
+                               message=ApiServer.last_msg)
+
+    @staticmethod
+    @app.post('/delete_wifi')
+    def delete_wifi():
+        """ delete a wifi entry """
+        for i in request.form.keys():
+            if request.form.get(i) == 'on':
+                logging.debug(f'wpa network delete {i}')
+                _ = subprocess.call(
+                    f"sudo /usr/sbin/wpa_cli remove_network {i} -i wlan0", shell=True)
+            _ = subprocess.call(
+                "sudo /usr/sbin/wpa_cli save_config -i wlan0", shell=True)
+        return redirect(url_for('get_wifi'))
 
     @staticmethod
     @app.route('/scan_wifi')
     def scan_wifi():
         """ start wifi scan process """
-        process1 = subprocess.run(['sudo', '/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
-                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         _ = subprocess.run(['sudo', '/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'], check=False,
                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         sleep(3)
         process2 = subprocess.run(['sudo', '/usr/sbin/wpa_cli', 'scan_results', '-i', 'wlan0'], check=False,
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        ApiServer.last_msg = f'wifi config\n{process1.stdout.decode()}\nwifi search\n{process2.stdout.decode()}'
+        ApiServer.last_msg = f'{process2.stdout.decode()}'
         logging.debug(ApiServer.last_msg)
-        return render_template('wifi.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
+        return redirect(url_for('get_wifi'))
 
     @staticmethod
     @app.route('/cam/clearwarp')
