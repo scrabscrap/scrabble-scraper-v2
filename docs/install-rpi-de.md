@@ -252,6 +252,14 @@ wpa_passphrase {ssid} {key}
 
 ### Rote Power LED ausschalten
 
+in `\boot\config.txt`` ergänzen
+
+```text
+#Power-LED ausschalten
+dtparam=pwr_led_trigger=none
+dtparam=pwr_led_activelow=off
+```
+
 in `/etc/crontab`
 
 ```text
