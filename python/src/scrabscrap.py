@@ -15,6 +15,7 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+import atexit
 import logging
 import logging.config
 import signal
@@ -40,6 +41,15 @@ from threadpool import pool
 def main() -> None:
     """entry point for scrabscrap"""
 
+    def _atexit():
+        logging.debug('main-_atexit')
+        api_future.cancel()
+        cam_future.cancel()
+        timer_future.cancel()
+        api.stop_server()
+        cam_event.set()
+        timer_event.set()
+
     def main_cleanup(signum, _) -> None:
         import os
 
@@ -60,6 +70,7 @@ def main() -> None:
             exit()
 
     signal.signal(signal.SIGALRM, main_cleanup)
+    atexit.register(_atexit)
     # create Timer
     watch = ScrabbleWatch()
     watch.display.show_boot()  # Boot Message
