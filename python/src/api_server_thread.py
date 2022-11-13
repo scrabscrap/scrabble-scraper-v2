@@ -415,18 +415,22 @@ class ApiServer:
     def shutdown():
         """ process reboot """
         State().do_reboot()
-        if config.system_quit in ('reboot'):
-            os.system('sudo reboot')
-            exit()
-        elif config.system_quit in ('shutdown'):
-            os.system('sudo shutdown now')
-            exit()
+        os.system('sudo shutdown now')
+        return redirect(url_for('get_defaults'))
+
+    @ staticmethod
+    @ app.route('/reboot', methods=['POST', 'GET'])
+    def do_reboot():
+        """ process reboot """
+        State().do_reboot()
+        os.system('sudo reboot')
         return redirect(url_for('get_defaults'))
 
     @ staticmethod
     @ app.route('/end', methods=['POST', 'GET'])
     def do_end():
         """ end app """
+        State().do_reboot()
         exit()
         return redirect(url_for('get_defaults'))
 
