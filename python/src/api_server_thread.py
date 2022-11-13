@@ -312,7 +312,7 @@ class ApiServer:
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.flask_shutdown_blocked = False
             ApiServer.last_msg = (f'{process1.stdout.decode()}\n{process2.stdout.decode()}\n{process3.stdout.decode()}\n'
-                                  f'{process4.stdout.decode()}\n## please reboot ##')
+                                  f'{process4.stdout.decode()}')
             logging.debug(ApiServer.last_msg)
             version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -320,6 +320,10 @@ class ApiServer:
                 version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
                                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.scrabscrap_version = version_info.stdout.decode()
+            if process4.stdout.decode().startswith('Successfully rebased and updated'):
+                config.config.set('system', 'quit', 'reboot')  # set temporary reboot
+                State().do_reboot()
+                alarm(1)
         else:
             ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
