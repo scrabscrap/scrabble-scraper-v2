@@ -283,11 +283,13 @@ class ApiServer:
         """ start pip upgrade """
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
+            process0 = subprocess.run([f'{os.path.expanduser("~")}/.venv/cv/bin/pip', 'install', 'pip',
+                                       '--upgrade'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             process1 = subprocess.run([f'{os.path.expanduser("~")}/.venv/cv/bin/pip', 'install', '-r',
                                        f'{config.src_dir}/../requirements.txt', '--upgrade'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.flask_shutdown_blocked = False
-            ApiServer.last_msg = f'{process1.stdout.decode()}\n## please reboot ##'
+            ApiServer.last_msg = f'{process0.stdout.decode()}\n{process1.stdout.decode()}\n## please reboot ##'
             logging.debug(ApiServer.last_msg)
         else:
             ApiServer.last_msg = 'not in State START'
