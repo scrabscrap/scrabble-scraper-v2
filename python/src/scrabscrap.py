@@ -37,30 +37,30 @@ from scrabblewatch import ScrabbleWatch
 from state import State
 from threadpool import pool
 
+cleanup_done = False
+
 
 def main() -> None:
     """entry point for scrabscrap"""
 
-    def _atexit():
-        logging.debug('main-_atexit')
-        api_future.cancel()
-        cam_future.cancel()
-        timer_future.cancel()
-        api.stop_server()
-        cam_event.set()
-        timer_event.set()
+    def _cleanup():
+        global cleanup_done
 
-    def main_cleanup(signum, _) -> None:
+        logging.debug(f'main-_atexit {cleanup_done}')
+        if not cleanup_done:
+            cleanup_done = True
+            api_future.cancel()
+            cam_future.cancel()
+            timer_future.cancel()
+            api.stop_server()
+            cam_event.set()
+            timer_event.set()
+
+    def signal_alarm(signum, _) -> None:
         import os
 
-        logging.debug(f'Signal handler called with signal {signum}')
-        api_future.cancel()
-        cam_future.cancel()
-        timer_future.cancel()
-        api.stop_server()
-        cam_event.set()
-        timer_event.set()
-        # reset alarm
+        logging.debug(f'Alarm handler called with signal {signum}')
+        _cleanup()
         signal.alarm(0)
         if config.system_quit in ('reboot'):
             os.system('sudo shutdown -r now')
@@ -69,8 +69,13 @@ def main() -> None:
             os.system('sudo shutdown now')
             exit()
 
-    signal.signal(signal.SIGALRM, main_cleanup)
-    atexit.register(_atexit)
+    def signal_handler(signum, _) -> None:
+        logging.debug(f'Signal handler called with signal {signum}')
+        _cleanup()
+
+    signal.signal(signal.SIGALRM, signal_alarm)
+    signal.signal(signal.SIGTERM, signal_handler)
+    atexit.register(_cleanup)
     # create Timer
     watch = ScrabbleWatch()
     watch.display.show_boot()  # Boot Message
