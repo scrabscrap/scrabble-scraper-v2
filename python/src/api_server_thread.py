@@ -21,6 +21,7 @@ import logging
 import logging.config
 import os
 import shlex
+from signal import alarm
 import subprocess
 import urllib.parse
 from io import StringIO
@@ -414,29 +415,26 @@ class ApiServer:
     @ app.route('/shutdown', methods=['POST', 'GET'])
     def shutdown():
         """ process reboot """
+        config.config.set('system', 'quit', 'shutdown')  # set temporary shutdown
         State().do_reboot()
-        os.system('sudo shutdown now')
+        alarm(1)
         return redirect(url_for('get_defaults'))
 
     @ staticmethod
     @ app.route('/reboot', methods=['POST', 'GET'])
     def do_reboot():
         """ process reboot """
+        config.config.set('system', 'quit', 'reboot')  # set temporary reboot
         State().do_reboot()
-        os.system('sudo reboot')
+        alarm(1)
         return redirect(url_for('get_defaults'))
 
     @ staticmethod
     @ app.route('/end', methods=['POST', 'GET'])
     def do_end():
         """ end app """
-        from hardware.led import LED
-        from scrabblewatch import ScrabbleWatch
-
-        watch = ScrabbleWatch()
-        LED.switch_on({})  # type: ignore
-        watch.display.stop()
-        exit()
+        config.config.set('system', 'quit', 'end')  # set temporary end app
+        alarm(1)
         return redirect(url_for('get_defaults'))
 
     def start_server(self, host: str = '0.0.0.0', port=5050):
