@@ -63,7 +63,7 @@ def main() -> None:
         # reset alarm
         signal.alarm(0)
         if config.system_quit in ('reboot'):
-            os.system('sudo reboot')
+            os.system('sudo shutdown -r now')
             exit()
         elif config.system_quit in ('shutdown'):
             os.system('sudo shutdown now')

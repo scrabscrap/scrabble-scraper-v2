@@ -320,7 +320,8 @@ class ApiServer:
                 version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
                                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.scrabscrap_version = version_info.stdout.decode()[:7]
-            if process4.stdout.decode().startswith('Successfully rebased and updated'):
+            if 'Successfully rebased and updated' in process4.stdout.decode():
+                ApiServer.last_msg += '\n **** System reboot ****'
                 config.config.set('system', 'quit', 'reboot')  # set temporary reboot
                 State().do_reboot()
                 alarm(1)
@@ -419,24 +420,27 @@ class ApiServer:
     @ app.route('/shutdown', methods=['POST', 'GET'])
     def shutdown():
         """ process reboot """
+        ApiServer.last_msg = '**** System shutdown ****'
         config.config.set('system', 'quit', 'shutdown')  # set temporary shutdown
         State().do_reboot()
-        alarm(1)
+        alarm(2)
         return redirect(url_for('get_defaults'))
 
     @ staticmethod
     @ app.route('/reboot', methods=['POST', 'GET'])
     def do_reboot():
         """ process reboot """
+        ApiServer.last_msg = '**** System reboot ****'
         config.config.set('system', 'quit', 'reboot')  # set temporary reboot
         State().do_reboot()
-        alarm(1)
+        alarm(2)
         return redirect(url_for('get_defaults'))
 
     @ staticmethod
     @ app.route('/end', methods=['POST', 'GET'])
     def do_end():
         """ end app """
+        ApiServer.last_msg = '**** Exit application ****'
         config.config.set('system', 'quit', 'end')  # set temporary end app
         alarm(1)
         return redirect(url_for('get_defaults'))
