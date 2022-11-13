@@ -319,7 +319,7 @@ class ApiServer:
             if version_info.returncode > 0:
                 version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
                                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            ApiServer.scrabscrap_version = version_info.stdout.decode()
+            ApiServer.scrabscrap_version = version_info.stdout.decode()[:7]
             if process4.stdout.decode().startswith('Successfully rebased and updated'):
                 config.config.set('system', 'quit', 'reboot')  # set temporary reboot
                 State().do_reboot()
@@ -453,7 +453,7 @@ class ApiServer:
         if version_info.returncode > 0:
             version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        ApiServer.scrabscrap_version = version_info.stdout.decode()
+        ApiServer.scrabscrap_version = version_info.stdout.decode()[:7]
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
         self.server = make_server(host=host, port=port, app=self.app)
