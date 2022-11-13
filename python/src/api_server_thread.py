@@ -415,15 +415,19 @@ class ApiServer:
     def shutdown():
         """ process reboot """
         State().do_reboot()
+        if config.system_quit in ('reboot'):
+            os.system('sudo reboot')
+            exit()
+        elif config.system_quit in ('shutdown'):
+            os.system('sudo shutdown now')
+            exit()
         return redirect(url_for('get_defaults'))
 
     @ staticmethod
     @ app.route('/end', methods=['POST', 'GET'])
     def do_end():
         """ end app """
-        from signal import alarm
-
-        alarm(1)
+        exit()
         return redirect(url_for('get_defaults'))
 
     def start_server(self, host: str = '0.0.0.0', port=5050):
