@@ -430,7 +430,12 @@ class ApiServer:
     @ app.route('/end', methods=['POST', 'GET'])
     def do_end():
         """ end app """
-        State().do_reboot()
+        from hardware.led import LED
+        from scrabblewatch import ScrabbleWatch
+
+        watch = ScrabbleWatch()
+        LED.switch_on({})  # type: ignore
+        watch.display.stop()
         exit()
         return redirect(url_for('get_defaults'))
 
