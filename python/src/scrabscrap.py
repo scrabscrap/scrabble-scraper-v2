@@ -41,6 +41,8 @@ def main() -> None:
     """entry point for scrabscrap"""
 
     def main_cleanup(signum, _) -> None:
+        import os
+
         logging.debug(f'Signal handler called with signal {signum}')
         api_future.cancel()
         cam_future.cancel()
@@ -50,6 +52,12 @@ def main() -> None:
         timer_event.set()
         # reset alarm
         signal.alarm(0)
+        if config.system_quit in ('reboot'):
+            os.system('sudo reboot')
+            exit()
+        elif config.system_quit in ('shutdown'):
+            os.system('sudo shutdown now')
+            exit()
 
     signal.signal(signal.SIGALRM, main_cleanup)
     # create Timer
