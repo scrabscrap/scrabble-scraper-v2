@@ -14,7 +14,7 @@
                             <div class="row py-2">
                                 {% for wifi in wifi_list %}
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="radioSelect" id={{ wifi[0] }} {%
+                                    <input class="form-check-input" type="radio" name={{ wifi[0] }} id={{ wifi[0] }} {%
                                         if wifi[3]=='[CURRENT]' or wifi[1] in ('DummySSID_do_not_delete') %}disabled{%
                                         endif %}>
                                     <label class="form-check-label" for={{ wifi[0] }}>

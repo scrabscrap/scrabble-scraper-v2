@@ -172,10 +172,10 @@ class ApiServer:
     @app.post('/select_wifi')
     def select_wifi():
         """ select a wifi entry """
-        i = request.form.get('radioSelect')
-        logging.debug(f'wpa network select {i}')
-        _ = subprocess.call(
-            f"sudo -n /usr/sbin/wpa_cli enable_network {i} -i wlan0", shell=True)
+        for i in request.form.keys():
+            logging.debug(f'wpa network select {i}')
+            _ = subprocess.call(
+                f"sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0", shell=True)
         return redirect(url_for('get_wifi'))
 
     @staticmethod
