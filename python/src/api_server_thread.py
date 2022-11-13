@@ -283,8 +283,8 @@ class ApiServer:
         """ start pip upgrade """
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
-            process0 = subprocess.run([f'{os.path.expanduser("~")}/.venv/cv/bin/pip', 'install', 'pip',
-                                       '--upgrade'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            process0 = subprocess.run([f'{os.path.expanduser("~")}/.venv/cv/bin/pip', 'install', '--upgrade', 'pip'],
+                                      check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             process1 = subprocess.run([f'{os.path.expanduser("~")}/.venv/cv/bin/pip', 'install', '-r',
                                        f'{config.src_dir}/../requirements.txt', '--upgrade'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
