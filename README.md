@@ -1,5 +1,7 @@
 # ScrabScrap
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=504629544)
+
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/scrabscrap/scrabble-scraper-v2)
 
 Die Idee zum Scrabble Scraper ist vor einem Scrabble Turnier in Hamburg
