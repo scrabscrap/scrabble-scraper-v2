@@ -10,7 +10,6 @@ ports:
 tasks:
   - name: python
     before: |
-      echo "export PYTHONPATH=src" >> ~/.bashrc
       cp -n python/defaults/* python/work/
     init: |
       pip install --upgrade pip
@@ -34,7 +33,10 @@ gitConfig:
 
 vscode:
   extensions:
+    - ms-python.isort
     - ms-python.python
+    - ms-python.vscode-pylance
+    - maattdd.gitless
     - mhutchie.git-graph
     - davidanson.vscode-markdownlint
     - ms-azuretools.vscode-docker

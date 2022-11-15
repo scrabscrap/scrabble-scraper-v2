@@ -2,7 +2,7 @@
   "folders": [
     {
       "name": "Python",
-      "path": "python"
+      "path": "python",
     },
     {
       "name": "Web-App",
@@ -18,6 +18,15 @@
     }
   ],
   "settings": {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "terminal.integrated.env.osx": {
+      "PYTHONPATH": "src:test"
+    },
+    "terminal.integrated.env.linux": {
+      "PYTHONPATH": "src:test"
+    },
+    "terminal.integrated.env.windows": {
+      "PYTHONPATH": "src;test"
+    },
   }
 }
