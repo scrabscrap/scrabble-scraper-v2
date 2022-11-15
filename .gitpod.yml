@@ -33,11 +33,12 @@ gitConfig:
 
 vscode:
   extensions:
-    - ms-python.isort
     - ms-python.python
-    - ms-python.vscode-pylance
-    - maattdd.gitless
     - mhutchie.git-graph
     - davidanson.vscode-markdownlint
     - ms-azuretools.vscode-docker
     - tomoki1207.pdf
+    # not available
+    # - ms-python.isort
+    # - ms-python.vscode-pylance
+    # - maattdd.gitless
