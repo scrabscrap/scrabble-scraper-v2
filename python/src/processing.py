@@ -210,7 +210,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
 
     def correct_tiles(_changed: dict):
         logging.debug(f'changed tiles: {_changed}')
-        to_inspect = (len(game.moves) if len(game.moves) < 3 else 3) * -1    # TODO: configure how many moves to inspect
+        to_inspect = min(config.scrabble_verify_moves, len(game.moves)) * -1
         prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
         must_recalculate = False
         for i in range(to_inspect, 0):
@@ -259,13 +259,14 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
 
     warped = warp_image(img)                                                   # warp image if necessary
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # grayscale image
-    _, tiles_candidates = filter_image(warped)                          # find potential tiles on board
+    _, tiles_candidates = filter_image(warped)                                 # find potential tiles on board
     ignore_coords = set()
-    if len(game.moves) > 3:                                                    # TODO: configure how many moves to inspect
-        if game.moves[-2].type is MoveType.WITHDRAW:                           # if opponents move has a valid challenge
-            ignore_coords = set(game.moves[-2].board.keys())                   # only analyze tiles from last 2 moves
+    if len(game.moves) > config.scrabble_verify_moves:
+        # if opponents move has a valid challenge
+        if game.moves[-config.scrabble_verify_moves + 1].type is MoveType.WITHDRAW:
+            ignore_coords = set(game.moves[-config.scrabble_verify_moves + 1].board.keys())
         else:
-            ignore_coords = set(game.moves[-3].board.keys())                   # only analyze tiles from last 2 moves
+            ignore_coords = set(game.moves[-config.scrabble_verify_moves].board.keys())
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
 
     board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # previous board information
@@ -282,7 +283,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
     if len(changed_tiles) > 0:                                                 # fix old moves
         correct_tiles(changed_tiles)
-        previous_score = game.moves[-1].score                                  # reapply previuos score
+        previous_score = game.moves[-1].score                                  # reapply previous score
     try:                                                                       # find word and create move
         is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
         current_move = Move(MoveType.REGULAR, player=player, coord=coord, is_vertical=is_vertical, word=word,

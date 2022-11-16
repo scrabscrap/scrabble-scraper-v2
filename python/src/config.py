@@ -111,6 +111,11 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         return self.config.getint('scrabble', 'doubt_timeout', fallback=20)
 
     @property
+    def scrabble_verify_moves(self) -> int:
+        """moves to look back for tiles corrections"""
+        return self.config.getint('scrabble', 'verify_moves', fallback=3)
+
+    @property
     def output_web(self) -> bool:
         """should the game stored into web folder"""
         return self.config.getboolean('output', 'web', fallback=True)
