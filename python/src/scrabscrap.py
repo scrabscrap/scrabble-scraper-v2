@@ -69,12 +69,12 @@ def main() -> None:
             os.system('sudo shutdown now')
             exit()
 
-    def signal_handler(signum, _) -> None:
-        logging.debug(f'Signal handler called with signal {signum}')
-        _cleanup()
+    # def signal_handler(signum, _) -> None:
+    #     logging.debug(f'Signal handler called with signal {signum}')
+    #     _cleanup()
 
     signal.signal(signal.SIGALRM, signal_alarm)
-    signal.signal(signal.SIGTERM, signal_handler)
+    # signal.signal(signal.SIGTERM, signal_handler)
     atexit.register(_cleanup)
     # create Timer
     watch = ScrabbleWatch()
