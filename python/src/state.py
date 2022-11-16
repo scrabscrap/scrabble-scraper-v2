@@ -67,7 +67,6 @@ class State(metaclass=Singleton):
 
     def do_ready(self) -> str:
         """Game can be started"""
-        start_of_game()
         self.watch.display.show_ready(self.game.nicknames)
         self.current_state = START
         return self.current_state
@@ -75,6 +74,7 @@ class State(metaclass=Singleton):
     def do_start0(self) -> str:
         """Start playing with player 0"""
         logging.debug(f'{self.current_state} - (start) -> {S0}')
+        start_of_game()
         self.watch.display.show()
         self.watch.start(0)
         LED.switch_on({LEDEnum.green})  # turn on LED green
@@ -83,6 +83,7 @@ class State(metaclass=Singleton):
     def do_start1(self) -> str:
         """Start playing with player 1"""
         logging.debug(f'{self.current_state} - (start) -> {S1}')
+        start_of_game()
         self.watch.display.show()
         self.watch.start(1)
         LED.switch_on({LEDEnum.red})  # turn on LED red

@@ -344,14 +344,12 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
     upload_ftp(game.moves[-1])
 
 
+@trace
 def start_of_game():
     """ start of game """
-    # TODO: delete only at beginning not at end of game
-    # from ftp import Ftp
-    # Ftp.delete_files('image')
-    # Ftp.delete_files('data')
-    # Ftp.delete_files('status')
-    pass
+    from ftp import Ftp
+
+    pool.submit(Ftp.delete_files, ['image', 'data'])  # first delete images and data files on ftp server
 
 
 @trace

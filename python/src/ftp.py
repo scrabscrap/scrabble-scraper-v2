@@ -100,7 +100,7 @@ class Ftp:
         return False
 
     @classmethod
-    def delete_files(cls, prefix: str) -> bool:
+    def delete_files(cls, prefix: list[str]) -> bool:
         """ delete files on ftp server """
         logging.debug(f'ftp: delete files with prefix {prefix}*')
         if cls.ftp_config.ftp_server is not None:
@@ -108,10 +108,11 @@ class Ftp:
                 logging.info('ftp: delete files')
                 with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
                     files = session.nlst()
-                    for i in files:
-                        if i.startswith(prefix):
-                            session.delete(i)  # delete (not status.json, *.zip)
-                logging.info(f'ftp: end of delete {prefix}* ')
+                    for f in files:
+                        for p in prefix:
+                            if f.startswith(p):
+                                session.delete(f)
+                logging.info(f'ftp: end of delete {prefix} ')
                 return True
             except IOError as err:
                 logging.error(f'ftp: delete failure {err}')
