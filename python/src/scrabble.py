@@ -96,11 +96,11 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
             self.score, self.is_scrabble = (previous_score, False)
 
     def __str__(self) -> str:
-        # TODO: implement
-        return self.gcg_str()
+        """move as json string"""
+        return self.json_str()
 
     def gcg_str(self) -> str:
-        """game as gcg string"""
+        """move as gcg string"""
         from state import State
 
         game = State().game
