@@ -19,11 +19,13 @@ import atexit
 import logging
 from concurrent.futures import Future
 from threading import Event
+from time import sleep
 
 import numpy as np
-from config import config
 from picamera import PiCamera  # type: ignore
 from picamera.array import PiRGBArray
+
+from config import config
 from util import Singleton
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
@@ -63,6 +65,7 @@ class CameraRPI(metaclass=Singleton):  # type: ignore
             self.raw_capture.truncate(0)
             if event.is_set():
                 break
+        sleep(0.05)
         event.clear()
 
     def cancel(self) -> None:
