@@ -405,10 +405,16 @@ class ApiServer:
     @ staticmethod
     @ app.route('/download_logs', methods=['POST', 'GET'])
     def download_logs():
-        """ download message log """
-        # TODO: zip logs
+        """ download message logs """
+        from zipfile import ZipFile
+
+        with ZipFile(f'{config.log_dir}/log.zip', 'w') as _zip:
+            files = ['game.log', 'messages.log', 'video.html']
+            for f in files:
+                if os.path.exists(f'{config.log_dir}/{f}'):
+                    _zip.write(f'{config.log_dir}/{f}')
         ApiServer.last_msg = 'download logs'
-        return send_from_directory(f'{config.work_dir}', 'log.conf', as_attachment=True)
+        return send_from_directory(f'{config.log_dir}', 'log.zip', as_attachment=True)
 
     @ staticmethod
     @ app.route('/game_status', methods=['POST', 'GET'])
