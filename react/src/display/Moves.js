@@ -8,7 +8,7 @@ class Moves extends React.Component {
       textAlign: 'right'
     }
     if (this.props.moves != null) {
-      for (const [key, value] of Array.from(this.props.moves.entries()).reverse()) {
+      for (const [key, value] of Array.from(this.props.moves.entries())) {
         let sp = value.split(' ')
         let img_link = "/web/image-" + (key + 1) + ".jpg"
         if (sp.length === 4) {
@@ -36,13 +36,15 @@ class Moves extends React.Component {
     return (
       <div className="card moves">
         <div className="card-body">
-          <table className={"moves"}>
-            <tbody>
+          <div className="tablemove">
+            <table className="moves" >
+              <tbody>
                 {items}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      </div >
     );
   }
 

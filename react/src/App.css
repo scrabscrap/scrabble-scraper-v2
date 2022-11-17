@@ -52,6 +52,15 @@ span.tile {
   box-shadow: 0px 8px 6px -6px #888
 }
 
+.tablemove {
+  max-height: 496px;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow: auto;
+  padding: 2;
+  border: 1px solid transparent;
+}
+
 .tableboard {
   width: 496px;
   height: 496px;
@@ -108,10 +117,11 @@ ul {
   font: "Lucida Console", Monaco, monospace;
   font-size: 90%;
 }
+
 @media (prefers-color-scheme: dark) {
+
   /* Overrides for Dark Mode. */
   body {
     background: #454545;
   }
 }
-
