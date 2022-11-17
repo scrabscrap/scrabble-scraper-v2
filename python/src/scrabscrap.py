@@ -21,6 +21,7 @@ import logging.config
 import signal
 from signal import pause
 from threading import Event
+from time import sleep
 
 from config import config
 
@@ -32,10 +33,10 @@ logging.config.fileConfig(fname=f'{config.work_dir}/log.conf',
 from api_server_thread import ApiServer
 from hardware.button import Button
 from hardware.camera_thread import Camera
-from timer_thread import RepeatedTimer
 from scrabblewatch import ScrabbleWatch
 from state import State
 from threadpool import pool
+from timer_thread import RepeatedTimer
 
 cleanup_done = False
 
@@ -85,6 +86,7 @@ def main() -> None:
     timer_future = pool.submit(timer.tick, timer_event)
 
     cam = None
+    sleep(2)  # wait for camera
     try:
         # open Camera
         cam = Camera()

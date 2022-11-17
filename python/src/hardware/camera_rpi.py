@@ -41,6 +41,7 @@ class CameraRPI(metaclass=Singleton):  # type: ignore
         self.camera.resolution = resolution
         self.camera.framerate = framerate
         self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
+        sleep(0.1)  # warmup camera
         self.stream = self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True)
         if config.video_rotade:
             self.camera.rotation = 180
@@ -65,7 +66,7 @@ class CameraRPI(metaclass=Singleton):  # type: ignore
             self.raw_capture.truncate(0)
             if event.is_set():
                 break
-        sleep(0.05)
+            sleep(0.05)  # reduce cpu usage
         event.clear()
 
     def cancel(self) -> None:
