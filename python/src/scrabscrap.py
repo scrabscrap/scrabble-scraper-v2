@@ -55,6 +55,7 @@ def main() -> None:
             api.stop_server()
             cam_event.set()
             timer_event.set()
+            pool.shutdown()
 
     def signal_alarm(signum, _) -> None:
         import os
