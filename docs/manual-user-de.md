@@ -2,70 +2,101 @@
 
 ### Spielzug
 
-![Zug legen](images/tiles-remove.png) (Zug legen)
-![Grüner Button](images/press-green.png) (Grün)
+|                                       |                                          |
+|---------------------------------------|------------------------------------------|
+| ![Zug legen](images/tiles-remove.png) | ![Grüner Button](images/press-green.png) |
+| Zug legen                             | Button Grün                              |
 
 ### Pause
 
-![Gelber Button](images/press-yellow.png) (Gelb)
+|                                           |                                           |
+|-------------------------------------------|-------------------------------------------|
+| ![Gelber Button](images/press-yellow.png) | ![Gelber Button](images/press-yellow.png) |
+| Button Gelb                               | Button Gelb                               |
+| Pause                                     | Spiel fortsetzen                          |
 
 ### Anzweifeln (ich habe Recht)
 
-![Gelber Button](images/press-yellow.png) (Gelb) ![Grüner Taster](images/press-green-switch.png) (Grüner **Taster**)  
-Im Display von Rot wird angezeigt: Zug Entf.  
+|                                           |                                                 |                                           |
+|-------------------------------------------|-------------------------------------------------|-------------------------------------------|
+| ![Gelber Button](images/press-yellow.png) | ![Grüner Taster](images/press-green-switch.png) | ![Gelber Button](images/press-yellow.png) |
+| Button Gelb                               | **Taster** Grün \*                              | Button Gelb                               |
+| Pause                                     | Im Display von Rot: Zug Entf.                   | Spiel fortsetzen                          |
 
-Das Spiel wird fortgesetzt mit  
-![Gelber Button](images/press-yellow.png) (Gelb)
+> \* falls ein Anzweifeln nicht mehr möglich ist, wird im Display Grün "Timeout" angezeigt
 
 ### Anzweifeln (ich habe Unrecht)
 
-![Gelber Button](images/press-yellow.png) (Gelb) ![Roter Taster](images/press-red-switch.png) (Roter **Taster**)  
-Im Display von Grün wird angezeigt: -10 Pkt.  
+|                                           |                                              |                                           |
+|-------------------------------------------|----------------------------------------------|-------------------------------------------|
+| ![Gelber Button](images/press-yellow.png) | ![Roter Taster](images/press-red-switch.png) | ![Gelber Button](images/press-yellow.png) |
+| Button Gelb                               | **Taster** Rot \*                            | Button Gelb                               |
+| Pause                                     | Im Display von Grün: -10 Pkt.                | Spiel fortsetzen                          |
 
-Das Spiel wird fortgesetzt mit  
-![Gelber Button](images/press-yellow.png) (Gelb)
+> \* falls ein Anzweifeln nicht mehr möglich ist, wird im Display Grün "Timeout" angezeigt
 
 ### Ich habe nach dem Zug meinen Spiel-Button nicht betätigt
 
-Pause -> Steine des Gegners vom Brett entfernen -> Pause -> Grün -> Pause -> Steine des Gegners wieder auf das Brett legen -> Pause -> Rot -> Grün ist wieder am Zug
+1. Gelber Button: Pause
+2. Steine des Gegners vom Brett entfernen
+3. Gelber Button: Pause beenden
+4. Grüner Button: Zug wird analysiert
+5. Steine des Gegners (Rot) wieder auf das Brett legen
+6. Roter Button: Zug des Gegners wird analysiert
+7. Grün ist wieder am Zug
 
-Damit verliert der Spieler 1 (Grün) die Bedenkzeit des Gegners
+> Damit verliert der Spieler 1 (Grün) die Bedenkzeit des Gegners
 
 <div style="display:none;page-break-after: always;">\pagebreak</div>
 
-## ScrabSrap - Spieler 2 (Rot)
+## ScrabScrap - Spieler 2 (Rot)
 
 ### Spielzug
 
-![Zug legen](images/tiles-remove.png) (Zug legen) ![Roter Button](images/press-red.png) (Rot)  
-Die Spielzeit für Grün beginnt.
+|                                       |                                       |
+|---------------------------------------|---------------------------------------|
+| ![Zug legen](images/tiles-remove.png) | ![Roter Button](images/press-red.png) |
+| Zug legen                             | Button Rot                            |
 
 ### Pause
 
-![Gelber Button](images/press-yellow.png) (Gelb)  
-Die Spielzeit für beide Spieler wird angehalten.
+|                                           |                                           |
+|-------------------------------------------|-------------------------------------------|
+| ![Gelber Button](images/press-yellow.png) | ![Gelber Button](images/press-yellow.png) |
+| Button Gelb                               | Button Gelb                               |
+| Pause                                     | Spiel fortsetzen                          |
 
 ### Anzweifeln (ich habe Recht)
 
-![Gelber Button](images/press-yellow.png) (Gelb) ![Roter Taster](images/press-red-switch.png) (Roter **Taster**)  
-Im Display von Grün wird angezeigt: Zug Entf.  
+|                                           |                                              |                                           |
+|-------------------------------------------|----------------------------------------------|-------------------------------------------|
+| ![Gelber Button](images/press-yellow.png) | ![Roter Taster](images/press-red-switch.png) | ![Gelber Button](images/press-yellow.png) |
+| Button Gelb                               | **Taster** Rot \*                            | Button Gelb                               |
+| Pause                                     | Im Display von Grün: Zug Entf                | Spiel fortsetzen                          |
 
-Das Spiel wird fortgesetzt mit  
-![Gelber Button](images/press-yellow.png) (Gelb)
+> \* falls ein Anzweifeln nicht mehr möglich ist, wird im Display Rot "Timeout" angezeigt
 
 ### Anzweifeln (ich habe Unrecht)
 
-![Gelber Button](images/press-yellow.png) (Gelb) ![Grüner Taster](images/press-green-switch.png) (Grüner **Taster**)  
-Im Display von Grün wird angezeigt: -10 Pkt.  
+|                                           |                                                 |                                           |
+|-------------------------------------------|-------------------------------------------------|-------------------------------------------|
+| ![Gelber Button](images/press-yellow.png) | ![Grüner Taster](images/press-green-switch.png) | ![Gelber Button](images/press-yellow.png) |
+| Button Gelb                               | **Taster** Grün \*                              | Button Gelb                               |
+| Pause                                     | Im Display von Rot: -10 Pkt.                    | Spiel fortsetzen                          |
 
-Das Spiel wird fortgesetzt mit  
-![Gelber Button](images/press-yellow.png) (Gelb)
+> \* falls ein Anzweifeln nicht mehr möglich ist, wird im Display Grün "Timeout" angezeigt
 
 ### Ich habe nach dem Zug meinen Spiel-Button nicht betätigt
 
-Pause -> Steine des Gegners vom Brett entfernen -> Pause -> Rot -> Pause -> Steine des Gegners wieder auf das Brett legen -> Pause -> Grün -> Rot ist wieder am Zug
+1. Gelber Button: Pause
+2. Steine des Gegners vom Brett entfernen
+3. Gelber Button: Pause beenden
+4. Roter Button: Zug wird analysiert
+5. Steine des Gegners (Grün) wieder auf das Brett legen
+6. Grüner Button: Zug des Gegners wird analysiert
+7. Rot ist wieder am Zug
 
-Damit verliert der Spieler 2 (Rot) die Bedenkzeit des Gegners
+> Damit verliert der Spieler 2 (Rot) die Bedenkzeit des Gegners
 
 <div style="display:none;page-break-after: always;">\pagebreak</div>
 
@@ -85,15 +116,17 @@ Spielernamen anzeigen.
 
 ### Grün soll beginnen
 
-![Roter Button](images/press-red.png) (Rot)
+![Roter Button](images/press-red.png)  
+Button Rot
 
 ### Rot soll beginnen
 
-![Grüner Button](images/press-green.png) (Grün)
+![Grüner Button](images/press-green.png)  
+Button Grün
 
 # Ende des Spiels
 
-Zunächst sicherstellen, dass das Spiel pausiert ist. Also die gelbe LED blinkt.
+Zunächst sicherstellen, dass das Spiel pausiert ist. Also die gelbe LED leuchtet.
 Um ein Spiel zu beenden und zu archivieren, muss der **Taster "End"** für mehr
 als 3 Sekunden gedrückt werden. Es erscheint in den Displays der Hinweis "Reset".
 Sobald die Daten des Spiels gesichert sind, beginnt ein neues Spiel.
