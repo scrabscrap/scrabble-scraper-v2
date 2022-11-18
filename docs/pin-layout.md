@@ -4,8 +4,8 @@
 Pin | GPiO | Funktion | Ziel
 ----|------|----------|-----
 1   | 3V3  | I2C      | MUX vcc / RTC vcc
-3   | 2    | I2C /SDA | MUX sda / RTC sda
-5   | 3    | I2C /SCL | MUX scl / RTC scl
+3   | SDA.1| I2C /SDA | MUX sda / RTC sda
+5   | SCL.1| I2C /SCL | MUX scl / RTC scl
 7   | 4    |          |
 9   | Gnd  | B yellow | button/led Gnd
 11  | 17   | B yellow | button yellow
@@ -16,7 +16,7 @@ Pin | GPiO | Funktion | Ziel
 21  | 9    |          |
 23  | 11   |          |
 25  | Gnd  | Pwr      | Gnd (3*) => OLED, OLED, RTC
-27  | -    |          |
+27  | SDA.0| I2C/SDA  |
 29  | 5    |          |
 31  | 6    |          |
 33  | 13   |          |
@@ -39,7 +39,7 @@ Pin | GPiO | Funktion | Ziel
 22  | 25   | S red    | switch
 24  | 8    |          |
 26  | 7    |          |
-28  | -    |          |
+28  | SCL.0| I2C/SCL  |
 30  | Gnd  | S green  | switch Gnd
 32  | 12   | S green  | switch
 34  | Gnd  | B green  | button/led Gnd
