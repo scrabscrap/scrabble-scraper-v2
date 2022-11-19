@@ -1,5 +1,29 @@
 # FAQ
 
+## Vorbereitungen
+
+### Nach dem Aufbau
+
+Folgende Schritte sind nach dem Aufbau des Systems empfohlen
+
+1. Einschalten des Rechners
+2. Falls nur unbekannte WLANs im Bereich sind, "Einrichten der WLAN Verbindung" durchführen
+3. Im Browser auf die Web-Anwendung von ScrabScrap navigieren
+4. Kamera-Arm justieren
+5. Einstellungen / Konfiguration prüfen (FTP Verbindung, verwendetes Scrabble Brett usw.)
+6. sofern ein FTP Upload verwendet wird, ein "Mini-Test-Spiel" machen und prüfen, ob ein
+  Upload der Daten korrekt erfolgt
+
+### Vor jedem Spiel
+
+1. In der Web-Anwendung prüfen, ob das Spielfeld noch korrekt erkannt wird
+2. Spielernamen setzen
+
+### Nach jedem Spiel
+
+1. Prüfen, ob das Spiel korrekt beendet wurde (Schalter "End" länger als 3s gedrückt)
+2. Es sollte "Spieler1" und "Spieler2" im Display angezeigt werden
+
 ## Einrichten der WLAN Verbindung
 
 Sofern keine gültige WLAN Verbindung aufgebaut werden kann, wechselt ScrabScrap in
@@ -12,44 +36,49 @@ Menüpunkt `WiFi` nach aktiven WLAN Netzen gesucht werden und diese hinterlegt w
 Nach einem Reboot verbindet sich `ScrabScrap` automatisch mit dem stärksten bekannten
 WLAN.
 
+_Hinweis:_ Eine detaillierte Beschreibung der einzelnen Schritte ist in dem Dokument
+"Konfiguration der WLAN Einträge" enthalten.
+
 ## Spielernamen setzen
 
-Die Spielernamen können über API-Web-Anwendung (`http://<ipadresse scrabscrap>:5050/`) gesetzt werden. Die Spielernamen
-in die Eingabefelder eintragen und über `Submit` abspeichern. Hierbei sollte möglichst auf Umlaute und Leerzeichen
-verzichtet werden.
+Die Spielernamen können über API-Web-Anwendung (`http://<ipadresse scrabscrap>:5050/`)
+gesetzt werden. Die Spielernamen in die Eingabefelder eintragen und über `Submit` abspeichern.
+Hierbei sollte möglichst auf Umlaute und Leerzeichen verzichtet werden.
 
-Die Einstellung kann auch während des Spieles vorgenommen werden und wird dann beim nächsten Zug aktiv.
+Die Einstellung kann auch während des Spieles vorgenommen werden und wird dann beim
+nächsten Zug aktiv.
 
 ## Beleuchtung des Spielbrettes
 
-Das Spielbrett sollte möglichst indirekt beleuchtet werden, um eine Schattenbildung zu vermeiden. Die
-Qualität der Ausleuchtung kann mit der API-Web-Anwendung (`http://<ipadresse scrabscrap>:5050/`) im Menüpunkt `Camera`
-geprüft werden.
+Das Spielbrett sollte möglichst indirekt beleuchtet werden, um eine Schattenbildung zu vermeiden.
+Die Qualität der Ausleuchtung kann mit der API-Web-Anwendung (`http://<ipadresse scrabscrap>:5050/`)
+im Menüpunkt `Camera` geprüft werden.
 
 ## Kamera justieren
 
-Das Justieren der Kamera erfolgt über die API-Web-Anwendung (`http://<ipadresse scrabscrap>:5050/`). Hier den Menüpunkt `Camera`
-aufrufen. Dann wird ein aktuelles Bild mit überlagertem Gitter angezeigt. Sofern dies bereits passend ist, sind keine weiteren
-Aktionen nötig.
+Das Justieren der Kamera erfolgt über die API-Web-Anwendung (`http://<ipadresse scrabscrap>:5050/`).
+Hier den Menüpunkt `Camera` aufrufen. Dann wird ein aktuelles Bild mit überlagertem Gitter angezeigt.
+Sofern dies bereits passend ist, sind keine weiteren Aktionen nötig.
 
-Falls das Bild nicht passend erkannt wird, den Menüpunkt `Clear Warp` auswählen. Damit wird die Warp Einstellung gelöscht
-und das Spielbrett wird bei jeder Bild-Aufnahme dynamisch ermittelt. Soll ein neuer Warp-Wert gespeichert werden, einfach
-erneut in das Menü `Camera` wechseln. Ist die Erkennung jetzt korrekt, können mit `Store Warp` die Koordinaten wieder
-gespeichert werden. Dies kann durchaus auch während eines Spieles gemacht werden, wenn z.B. ein Spieler versehentlich
-gegen die Kamera gestoßen ist, und damit eventuell die Justierung verschoben hat.
+Falls das Bild nicht passend erkannt wird, den Menüpunkt `Clear Warp` auswählen. Damit wird die Warp
+Einstellung gelöscht und das Spielbrett wird bei jeder Bild-Aufnahme dynamisch ermittelt. Soll ein
+neuer Warp-Wert gespeichert werden, einfach erneut in das Menü `Camera` wechseln. Ist die Erkennung
+jetzt korrekt, können mit `Store Warp` die Koordinaten wieder gespeichert werden. Dies kann durchaus
+auch während eines Spieles gemacht werden, wenn z.B. ein Spieler versehentlich gegen die Kamera gestoßen
+ist, und damit eventuell die Justierung verschoben hat.
 
-Wird das Spielfeld auf nach mehreren Versuchen nicht korrekt erkannt, kann auf dem unteren Bild mit der Maus in die
-Spielfeldecken (einzeln) geklickt werden, dann werden die Koordinaten für den Warp verwendet.
+Wird das Spielfeld auf nach mehreren Versuchen nicht korrekt erkannt, kann auf dem unteren Bild mit der
+Maus in die Spielfeldecken (einzeln) geklickt werden, dann werden die Koordinaten für den Warp verwendet.
 
-Ist die Kamera nicht korrekt ausgerichtet, kann in dem unteren Bild der Ausschnitt der Kamera geprüft werden. Hier sollte
-am Ende ein ca. 2 cm weißer Rand um das Spielfeld herum eingestellt werden. Nach Korrektur des Kamera-Armes den `Reload`
-Button drücken, damit das Bild neu aufgebaut wird.
+Ist die Kamera nicht korrekt ausgerichtet, kann in dem unteren Bild der Ausschnitt der Kamera geprüft
+werden. Hier sollte am Ende ein ca. 2 cm weißer Rand um das Spielfeld herum eingestellt werden. Nach
+Korrektur des Kamera-Armes den `Reload` Button drücken, damit das Bild neu aufgebaut wird.
 
 ## Settings
 
-Die Settings der Anwendung werden über die INI-Datei `scrabscrap.ini` und `ftp-secret.ini` konfiguriert. In der
-Datei `scrabscrap.ini` sind die Default-Werte in den einzelnen Sektionen unter dem Schlüssel `defaults` aufgeführt.
-Es müssen nur die geänderten Werte abgespeichert werden.
+Die Settings der Anwendung werden über die INI-Datei `scrabscrap.ini` und `ftp-secret.ini` konfiguriert.
+In der Datei `scrabscrap.ini` sind die Default-Werte in den einzelnen Sektionen unter dem Schlüssel
+`defaults` aufgeführt. Es müssen nur die geänderten Werte abgespeichert werden.
 
 Bei einem bereits gestartetem System können Änderungen über die Web-Oberfläche der
 API-Schnittstelle vorgenommen werden. Hierzu einfach die URL `http://<ipadresse>:5050`
@@ -89,39 +118,40 @@ Spielernamen die Anzeige wieder auf den Ausgangszustand versetzt werden.
 
 ### Abweichende Steine benutzen
 
-Soll ein abweichender Satz an Scrabble-Steinen verwendet werden, müssen diese in einem geeigneten Format als Bilder zur
-Verfügung stehen. Schwarzer Hintergrund mit weißem Text in der (Stein-)Größe ?x?. Es ist möglich nur einen Ausschnitt
-des Steines zu speichern, dabei muss allerdings das Größenverhältnis erhalten bleiben.
+Soll ein abweichender Satz an Scrabble-Steinen verwendet werden, müssen diese in einem geeigneten Format
+als Bilder zur Verfügung stehen. Schwarzer Hintergrund mit weißem Text in der (Stein-)Größe ?x?. Es ist
+möglich nur einen Ausschnitt des Steines zu speichern, dabei muss allerdings das Größenverhältnis
+erhalten bleiben.
 
-Bei sehr ähnlichen Steinen empfiehlt es sich, den Buchstabenwert im Bild des Steines zu erhalten (z.B. bei A und Ä führt der abweichende
-Buchstabenwert zu einer verbesserten Erkennung).
+Bei sehr ähnlichen Steinen empfiehlt es sich, den Buchstabenwert im Bild des Steines zu erhalten (z.B.
+bei A und Ä führt der abweichende Buchstabenwert zu einer verbesserten Erkennung).
 
-Der Pfad auf die Steine kann in der Konfigurationsdatei "scrabble.ini" angepasst werden. Der Vorgabewert für diesen Pfad
-ist `<python-src-dir>/game_board/img/default/`.
+Der Pfad auf die Steine kann in der Konfigurationsdatei "scrabble.ini" angepasst werden. Der Vorgabewert
+für diesen Pfad ist `<python-src-dir>/game_board/img/default/`.
 
-Werden abweichende Farben genutzt, ist u.U. eine Erweiterung der Methode `filter_image` vorzunehmen, damit die Steine auf
-dem Brett korrekt erkannt werden können.
+Werden abweichende Farben genutzt, ist u.U. eine Erweiterung der Methode `filter_image` vorzunehmen,
+damit die Steine auf dem Brett korrekt erkannt werden können.
 
 ### Unterstützung weiterer Sprachen
 
-Es können grundsätzlich unterschiedliche Sprachen unterstützt werden. Hierzu müssen die Anzahl der Steine für die jeweiligen
-Buchstaben und deren Scoring-Werte konfiguriert werden.
+Es können grundsätzlich unterschiedliche Sprachen unterstützt werden. Hierzu müssen die Anzahl der Steine
+für die jeweiligen Buchstaben und deren Scoring-Werte konfiguriert werden.
 
-Diese Einstellung wird in der `scrabble.ini` vorgenommen. Beispiele für die Sprachen `en` und `fr` sind hier bereits
-enthalten. Üblicherweise muss hierzu auch ein passendes Set an Steinen verwendet werden.
+Diese Einstellung wird in der `scrabble.ini` vorgenommen. Beispiele für die Sprachen `en` und `fr`
+sind hier bereits enthalten. Üblicherweise muss hierzu auch ein passendes Set an Steinen verwendet werden.
 
 ### Unterstützung weiterer Spielbretter
 
-Eine Unterstützung weiterer Spielbretter geht mit einer Anpassung der Software einher. Hierzu müssen die Methoden `warp` und
-`filter_image` implementiert werden.
+Eine Unterstützung weiterer Spielbretter geht mit einer Anpassung der Software einher. Hierzu müssen die
+Methoden `warp` und `filter_image` implementiert werden.
 
-`warp` sorgt für ein korrekt rotiertes, skaliertes und normiertes Bild des Spielbrettes. Als Ergebnis muss hier eine
-Bildgröße von 800x800px mit einem 25px Rand zu dem eigentlichen Spielfeld erzeugt werden. Damit ist das Gitter des
-Spielfeldes auf 750x750px normiert.
+`warp` sorgt für ein korrekt rotiertes, skaliertes und normiertes Bild des Spielbrettes. Als Ergebnis muss
+hier eine Bildgröße von 800x800px mit einem 25px Rand zu dem eigentlichen Spielfeld erzeugt werden. Damit
+ist das Gitter des Spielfeldes auf 750x750px normiert.
 
-`filter_image` dient zur Prüfung, welche Felder auf dem Spielbrett durch Steine belegt sind, um den Erkennungprozess der
-Buchstaben zu optimieren. Algorithmisch werden ausgehend vom Zentrum die jeweiligen Nachbarfelder geprüft bis keine weiteren
-gelegten Steine mehr erkannt werden.
+`filter_image` dient zur Prüfung, welche Felder auf dem Spielbrett durch Steine belegt sind, um den
+Erkennungprozess der Buchstaben zu optimieren. Algorithmisch werden ausgehend vom Zentrum die jeweiligen
+Nachbarfelder geprüft bis keine weiteren gelegten Steine mehr erkannt werden.
 
 ## Development
 
