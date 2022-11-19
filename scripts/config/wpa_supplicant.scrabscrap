@@ -1,5 +1,5 @@
-# ap entry - do not delete
 network={
+    # ap entry - do not delete
     ssid="ScrabScrap"
     mode=2
     key_mgmt=WPA-PSK
@@ -11,8 +11,8 @@ network={
     priority=-10
 }
 
-# dummy entry - do not delete
 network={
+    # dummy entry - do not delete
     ssid="DummySSID_do_not_delete"
     key_mgmt=WPA-PSK
     psk="invalidpassword"

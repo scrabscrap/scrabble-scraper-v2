@@ -63,7 +63,27 @@ ausgelöst werden. Hierzu einfach die URL `http://<ipadresse>:5050` aufrufen und
 `Test` auswählen.
 
 Durch den Aufruf der LED Tests werden verschiedene Modi der LEDs angezeigt (Ein/Aus/Blinken).
-Beim Aufruf des Display-Test werden verschiedene Anzeigen der Reihe nach angezeigt.
+Es wird folgndes Muster verwendet
+
+1. Grün, Gelb, Rot leuchten
+2. Grün, Gelb, Rot blinken
+3. Grün leuchtet
+4. Gelb leuchtet
+5. Rot leuchtet
+6. Grün blinkt
+7. Gelb blinkt
+8. Rot blinkt
+
+Beim Display-Test werden folgende Anzeigen getestet
+
+1. Boot Anzeige
+2. Kamera Fehler
+3. FTP Fehler
+4. "Ready" Anzeige
+5. Abschalten der Anzeige
+
+Das Spiel kann trotz ausgeschaltetem Display begonnen werden. Es kann über die (erneute) Eingabe der
+Spielernamen die Anzeige wieder auf den Ausgangszustand versetzt werden.
 
 ## Erweiterung von ScrabScrap
 
@@ -371,4 +391,20 @@ Die Web-Anwendung kann dann im lokalen Browser unter
 
 aufgerufen werden.
 
-## Fehlerbehebung
+## Fehlerbehebung / bekannte Probleme
+
+### Reboot
+
+_Hinweis:_ nach einem Reboot immer vor dem Spielbeginn prüfen, ob eine korrekte Betzverbindung
+besteht (z.B. durch Aufruf der Web-Oberfläche).
+
+Nach einem Reboot kann es vorkommen, dass keine korrekte Netzwerkverbindung aufgebaut wird.
+In diesem Fall muss ScrabScrap aus- und wieder eingeschaltet werden.
+
+### Hohe "Load average"
+
+Es wird durchgängig eine "Load average" von > 0.7 angezeigt. Das Verhalten scheint keinen
+Einfluss auf Performance / Temperatur des Rechners zu haben.
+
+Eine Lösung für dieses Problem ist offen. Es kann sein, dass dies ein Fehler im aktuellen
+Linux-Kernel ist.

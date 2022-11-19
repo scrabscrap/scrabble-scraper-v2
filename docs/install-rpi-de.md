@@ -81,8 +81,7 @@ python3 -m venv ~/.venv/cv
 source ~/.venv/cv/bin/activate
 pip install --upgrade pip
 
-#im scrabscrap python Verzeichnis
-#wichtig: venv cv muss aktiviert sein 
+cd ~/scrabble-scraper-v2/python
 pip install -r requirements.txt
 ```
 
@@ -128,7 +127,7 @@ alias cd..='cd ..'
 alias workon='f(){ source ~/.venv/$1/bin/activate; }; f'
 ```
 
-In der ``~/.bashrc`` bzw. ``~/.zshrc`` am Ende ergänzen:
+In der `~/.bashrc` bzw. `~/.zshrc` ergänzen:
 
 ```text
 source ~/.alias
@@ -155,7 +154,7 @@ siehe Artikel [Automatischer HotSpot](https://raspberrypi.stackexchange.com/ques
 sudo apt install -y dnsmasq
 ```
 
-edit /etc/dnsmasq.conf
+`sudo nano /etc/dnsmasq.conf`
 
 ```text
 port=0
@@ -173,19 +172,17 @@ dhcp-option=3
 dhcp-option=6
 ```
 
-edit /etc/network/interfaces
+`sudo nano /etc/network/interfaces`
 
 ```text
 # interfaces(5) file used by ifup(8) and ifdown(8)
 # Include files from /etc/network/interfaces.d:
-source /etc/network/interfaces.d/*
-
 auto lo
 iface lo inet loopback
 
 auto wlan0
 iface wlan0 inet manual
-  # wpa-driver nl80211
+  pre-up sleep 3 
   wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
 
 iface dhcp_server inet static
@@ -193,9 +190,13 @@ iface dhcp_server inet static
   netmask 255.0.0.0
 
 iface dhcp_client inet dhcp
+
+auto eth0
+
+source /etc/network/interfaces.d/*
 ```
 
-edit /etc/wpa_supplicant/wpa_supplicant.conf
+`sudo nano /etc/wpa_supplicant/wpa_supplicant.conf`
 
 ```text
 country=DE
@@ -204,8 +205,8 @@ ap_scan=1
 
 update_config=1
 
-# ap entry - do not delete
 network={
+    # ap entry - do not delete
     ssid="ScrabScrap"
     mode=2
     key_mgmt=WPA-PSK
@@ -217,8 +218,8 @@ network={
     priority=-10
 }
 
-# dummy entry - do not delete
 network={
+    # dummy entry - do not delete
     ssid="DummySSID_do_not_delete"
     key_mgmt=WPA-PSK
     psk="invalidpassword"

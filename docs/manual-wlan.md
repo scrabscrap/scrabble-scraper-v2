@@ -14,12 +14,20 @@ Wenn ScrabScrap kein bekanntes WLAN findet, wird ein Access Point geöffnet. Das
   ![WiFi](images/wlan-04.png)  
   Dort kann ein `Scan` durchgeführt werden, um die erreichbaren WLANs anzuzeigen.
   Eventuell muss der Scan häufiger angestoßen werden, falls nicht sofort die gewünschten WLANs angezeigt werden.
-5. In die Eigabefelder die SSID und das Kennwort des WLANs eintragen.
-  Nach dem `Submit` der Daten sollte im Log `return=0` angezeigt werden.  
-  ![Eingabe der WiFi Daten](images/wlan-05.png)
+5. In die Eingabefelder die SSID und das Kennwort des WLANs eintragen und mit "Add" bestätigen.
 6. Der ScrabScrap Rechner muss über das Menü `Exit -> Reboot` neu gestartet werden.
   Nach dem Neustart sollte das neue WLAN gefunden und verbunden werden.
 
 ## WLAN Eintrag löschen
 
-TODO - z.Zt. noch nicht implementiert
+Es können WLAN Konfigurationen gelöscht werden. Hierzu im Bereich "Delete configured WiFi" das zu löschende
+WLAN auswählen und über die Schaltfläche "Delete" löschen.
+
+_Hinweis:_ das aktuell verbundene und die vorkonfigurierten WLANs können nicht ausgewählt werden.
+
+## WLAN wechseln
+
+Stehen mehere WLANs zur Verfügung, wird das WLAN mit dem stärksten Empfang ausgewählt. Soll ein anderes verwendet werden, kann dies in dem Bereich "Select configured WiFi" gewählt werden. Das ausgewählte
+WLAN wird sofort aktiviert.
+
+_Hinweis:_ das aktuell verbundene und das notwendige "Dummy" WLAN können nicht ausgewählt werden.
