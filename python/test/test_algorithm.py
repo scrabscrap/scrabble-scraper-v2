@@ -23,8 +23,8 @@ import unittest
 logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/test_log.conf',
                           disable_existing_loggers=False)
 
-from state import State
 from scrabble import Move, MoveType
+from state import State
 
 
 class AlgorithmTestCase(unittest.TestCase):
@@ -899,7 +899,8 @@ class AlgorithmTestCase(unittest.TestCase):
             self.fail('Test 129 Exception expected')
 
     def test_130(self):
-        """Test 130 - Algorithm: new tile with higher propability"""
+        """Test 130 - Algorithm: changed tile with higher propability"""
+        from processing import recalculate_score_on_tiles_change
 
         state = State()
         game = state.game
@@ -915,19 +916,24 @@ class AlgorithmTestCase(unittest.TestCase):
         logging.debug(f'score {score} / moves {len(game.moves)}')
         self.assertEqual((34, 0), game.moves[-1].score)
 
-        # TODO: process changed tiles in processing.py
-        # j -> i
-        # board = {(3, 7): ('F', 75), (4, 7): ('I', 80), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
-        # new_tiles = {}
-        # move = Move(type=MoveType.regular, player=1, coord=None, is_vertical=False, word='', new_tiles=new_tiles,
-        #             removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
-        # game.add_move(move)
-        # score = game.moves[-1].score
-        # logging.debug(f'score {score} / moves {len(game.moves)}')
+        # 5G V.TEn
+        board = {(3, 7): ('F', 75), (4, 7): ('I', 85), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75),
+                 (4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('_', 75)}
+        new_tiles = {(4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('_', 75)}
 
-        # self.assertEqual(2, len(game.moves), 'invalid count of moves')
-        # self.assertEqual((24, 0), game.moves[-1].score, 'invalid scores')
-        # self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
+        # simulate changed tiles
+        changed = {(4, 7): ('I', 85)}
+        recalculate_score_on_tiles_change(game=game, board=board, changed=changed)
+        score = game.moves[-1].score
+
+        # next move
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(4, 6), is_vertical=True, word='V.TE_', new_tiles=new_tiles,
+                    removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
+        game.add_move(move)
+        score = game.moves[-1].score
+        logging.debug(f'score {score} / moves {len(game.moves)}')
+        # score changed from 34 to 24
+        self.assertEqual((24, 18), game.moves[-1].score)
 
     def test_131(self):
         """Test 131 - Algorithm: correct letter to blank"""

@@ -153,6 +153,42 @@ def upload_ftp(current_move: Move):
         pool.submit(Ftp.upload_move, current_move.move)
 
 
+def recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
+    """fix scores on changed tile recognition
+
+    Args:
+        game(Move): the game to fix
+        board(dict): last analyzed board
+        changed(dict): modified tiles of previous moves
+    """
+
+    logging.debug(f'changed tiles: {changed}')
+    to_inspect = min(config.scrabble_verify_moves, len(game.moves)) * -1
+    prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
+    must_recalculate = False
+    for i in range(to_inspect, 0):
+        mov = game.moves[i]
+        for coord in changed.keys():
+            if coord in mov.board.keys():                                 # tiles on board are changed
+                logging.debug(f'need correction {mov.board[coord]} -> {changed[coord]} {mov.score}/{mov.points}')
+                mov.board[coord] = changed[coord]
+                must_recalculate = True
+        if must_recalculate:
+            _word = ''
+            (col, row) = mov.coord
+            for i, char in enumerate(mov.word):                                 # fix mov.word
+                if mov.is_vertical:
+                    _word += board[(col, row + i)][0] if char != '.' else '.'
+                else:
+                    _word += board[(col + i, row)][0] if char != '.' else '.'
+            mov.word = _word
+            mov.points, prev_score, mov.is_scrabble = mov.calculate_score(prev_score)
+            mov.score = prev_score                                         # store previous score
+            logging.debug(f'move {mov.move} after recalculate {prev_score}')
+        else:
+            prev_score = mov.score                                         # store previous score
+
+
 @trace
 def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_time: Tuple[int, int]):
     # pylint: disable=R0915,R0914
@@ -208,33 +244,6 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
                 col += 1
         return vertical, (minx, miny), _word
 
-    def correct_tiles(_changed: dict):
-        logging.debug(f'changed tiles: {_changed}')
-        to_inspect = min(config.scrabble_verify_moves, len(game.moves)) * -1
-        prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
-        must_recalculate = False
-        for i in range(to_inspect, 0):
-            mov = game.moves[i]
-            for coord in _changed.keys():
-                if coord in mov.board.keys():                                 # tiles on board are changed
-                    logging.debug(f'need correction {mov.board[coord]} -> {_changed[coord]} {mov.score}/{mov.points}')
-                    mov.board[coord] = _changed[coord]
-                    must_recalculate = True
-            if must_recalculate:
-                _word = ''
-                (col, row) = mov.coord
-                for i, char in enumerate(mov.word):                                 # fix mov.word
-                    if mov.is_vertical:
-                        _word += board[(col, row + i)][0] if char != '.' else '.'
-                    else:
-                        _word += board[(col + i, row)][0] if char != '.' else '.'
-                mov.word = _word
-                mov.points, prev_score, mov.is_scrabble = mov.calculate_score(prev_score)
-                mov.score = prev_score                                         # store previous score
-                logging.debug(f'move {mov.move} after recalculate {prev_score}')
-            else:
-                prev_score = mov.score                                         # store previous score
-
     def chunkify(lst, chunks):
         return [lst[i::chunks] for i in range(chunks)]
 
@@ -282,7 +291,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
 
     current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
     if len(changed_tiles) > 0:                                                 # fix old moves
-        correct_tiles(changed_tiles)
+        recalculate_score_on_tiles_change(game, board, changed_tiles)
         previous_score = game.moves[-1].score                                  # reapply previous score
     try:                                                                       # find word and create move
         is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
