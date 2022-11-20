@@ -21,10 +21,10 @@ import logging
 import logging.config
 import os
 import shlex
-from signal import alarm
 import subprocess
 import urllib.parse
 from io import StringIO
+from signal import alarm
 from time import sleep
 
 import cv2
@@ -262,6 +262,37 @@ class ApiServer:
         return render_template('logs.html', log=log_out)
 
     @ staticmethod
+    @ app.route('/download_logs', methods=['POST', 'GET'])
+    def download_logs():
+        """ download message logs """
+        from zipfile import ZipFile
+
+        with ZipFile(f'{config.log_dir}/log.zip', 'w') as _zip:
+            files = ['game.log', 'messages.log', 'video.html']
+            for f in files:
+                if os.path.exists(f'{config.log_dir}/{f}'):
+                    _zip.write(f'{config.log_dir}/{f}')
+        ApiServer.last_msg = 'download logs'
+        return send_from_directory(f'{config.log_dir}', 'log.zip', as_attachment=True)
+
+    @ staticmethod
+    @ app.route('/delete_logs', methods=['POST', 'GET'])
+    def delete_logs():
+        """ delete message logs """
+        import glob
+        logging.debug(f'path {config.log_dir}')
+        fileList = glob.glob(f'{config.log_dir}/*')
+        # Iterate over the list of filepaths & remove each file.
+        for filePath in fileList:
+            try:
+                os.remove(filePath)
+                ApiServer.last_msg += f'delete: {filePath}\n'
+            except OSError:
+                ApiServer.last_msg += f'error: {filePath}\n'
+        logging.debug(ApiServer.last_msg)
+        return redirect(url_for('get_defaults'))
+
+    @ staticmethod
     @ app.route('/upgrade_linux')
     def update_linux():
         """ start linux upgrade """
@@ -397,20 +428,6 @@ class ApiServer:
         else:
             ApiServer.last_msg = 'not in State START'
         return redirect(url_for('get_defaults'))
-
-    @ staticmethod
-    @ app.route('/download_logs', methods=['POST', 'GET'])
-    def download_logs():
-        """ download message logs """
-        from zipfile import ZipFile
-
-        with ZipFile(f'{config.log_dir}/log.zip', 'w') as _zip:
-            files = ['game.log', 'messages.log', 'video.html']
-            for f in files:
-                if os.path.exists(f'{config.log_dir}/{f}'):
-                    _zip.write(f'{config.log_dir}/{f}')
-        ApiServer.last_msg = 'download logs'
-        return send_from_directory(f'{config.log_dir}', 'log.zip', as_attachment=True)
 
     @ staticmethod
     @ app.route('/game_status', methods=['POST', 'GET'])
