@@ -301,8 +301,12 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
         move_number = len(game.moves)
         cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}.jpg', img)
-        gameRecording.info(f'{game_id}:warp ({move_number}): {get_last_warp()}')
-        gameRecording.info(f'{game_id}:{game.moves[-1].json_str()}')
+        gameRecording.info(f'{game_id} warp: ({move_number}): {get_last_warp()}')
+        gameRecording.info(f'{game_id} board: {game.moves[-1].board}')
+        gameRecording.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
+        gameRecording.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
+        gameRecording.info(f'{game_id} points: {game.moves[-1].points}')
+        gameRecording.info(f'{game_id} score: {game.moves[-1].score}')
     store_move(current_move, warped)                                           # 10. store move on hd
     upload_ftp(current_move)                                                   # 11. upload move to ftp
 
@@ -326,7 +330,11 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         logging.info('game recording')
         gameRecording = logging.getLogger("gameRecordingLogger")
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
-        gameRecording.info(f'{game_id}:{game.moves[-1].json_str()}')
+        gameRecording.info(f'{game_id} board: {game.moves[-1].board}')
+        gameRecording.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
+        gameRecording.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
+        gameRecording.info(f'{game_id} points: {game.moves[-1].points}')
+        gameRecording.info(f'{game_id} score: {game.moves[-1].score}')
     store_move(game.moves[-1], None)                                           # 10. store move on hd
     upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
 
@@ -350,7 +358,11 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         logging.info('game recording')
         gameRecording = logging.getLogger("gameRecordingLogger")
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
-        gameRecording.info(f'{game_id}:{game.moves[-1].json_str()}')
+        gameRecording.info(f'{game_id} board: {game.moves[-1].board}')
+        gameRecording.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
+        gameRecording.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
+        gameRecording.info(f'{game_id} points: {game.moves[-1].points}')
+        gameRecording.info(f'{game_id} score: {game.moves[-1].score}')
     store_move(game.moves[-1], None)                                           # 10. store move on hd
     upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
 
