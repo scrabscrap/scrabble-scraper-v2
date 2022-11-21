@@ -91,6 +91,11 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         return self.config.get('development', 'simulate_path', fallback=self.work_dir + '/simulate/image-{:d}.jpg')
 
     @property
+    def development_recording(self) -> bool:
+        """record images in hires and moves to disk"""
+        return self.config.getboolean('development', 'recording', fallback=False)
+
+    @property
     def malus_doubt(self) -> int:
         """malus for wrong doubt"""
         return self.config.getint('scrabble', 'malus_doubt', fallback=10)

@@ -293,6 +293,39 @@ class ApiServer:
         return redirect(url_for('get_defaults'))
 
     @ staticmethod
+    @ app.route('/download_recording', methods=['POST', 'GET'])
+    def download_recording():
+        """ download recordings """
+        import glob
+        from zipfile import ZipFile
+
+        with ZipFile(f'{config.work_dir}/recording/recording.zip', 'w') as _zip:
+            fileList = glob.glob(f'{config.work_dir}/recording/*.jpg')
+            fileList += glob.glob(f'{config.work_dir}/recording/gameRecording.*')
+            for f in fileList:
+                if os.path.exists(f'{config.work_dir}/recording/{f}'):
+                    _zip.write(f'{config.work_dir}/recording/{f}')
+        ApiServer.last_msg = 'download recording'
+        return send_from_directory(f'{config.work_dir}/recording', 'recording.zip', as_attachment=True)
+
+    @ staticmethod
+    @ app.route('/delete_recording', methods=['POST', 'GET'])
+    def delete_recording():
+        """ delete recording(s) """
+        import glob
+        logging.debug(f'path {config.work_dir}/recording')
+        fileList = glob.glob(f'{config.work_dir}/recording/*')
+        # Iterate over the list of filepaths & remove each file.
+        for filePath in fileList:
+            try:
+                os.remove(filePath)
+                ApiServer.last_msg += f'delete: {filePath}\n'
+            except OSError:
+                ApiServer.last_msg += f'error: {filePath}\n'
+        logging.debug(ApiServer.last_msg)
+        return redirect(url_for('get_defaults'))
+
+    @ staticmethod
     @ app.route('/upgrade_linux')
     def update_linux():
         """ start linux upgrade """

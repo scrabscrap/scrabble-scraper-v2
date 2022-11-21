@@ -15,6 +15,7 @@ WORKDIR=$PYTHONDIR/work
 # create directories
 mkdir -p "$WORKDIR/log"
 mkdir -p "$WORKDIR/web"
+mkdir -p "$WORKDIR/recording"
 
 # copy defaults if not exists
 cp -n "$PYTHONDIR/defaults/scrabble.ini" "$WORKDIR/scrabble.ini"

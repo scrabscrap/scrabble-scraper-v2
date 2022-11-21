@@ -235,6 +235,7 @@ class Game():
 
     def __init__(self, nicknames: Optional[Tuple[str, str]]):
         self._nicknames: Tuple[str, str] = ('Spieler1', 'Spieler2') if nicknames is None else nicknames
+        self.gamestart: Optional[datetime.datetime] = datetime.datetime.now()
         self.moves: List[Move] = []
 
     def __str__(self) -> str:
@@ -289,6 +290,7 @@ class Game():
         """Reset to a new game (nicknames, moves)"""
         # with python > 3.11 return type: -> Self
         self.nicknames = ('Spieler1', 'Spieler2')
+        self.gamestart = datetime.datetime.now()
         self.moves.clear()
         return self
 

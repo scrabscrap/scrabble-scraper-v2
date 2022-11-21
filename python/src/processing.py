@@ -169,24 +169,24 @@ def recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     for i in range(to_inspect, 0):
         mov = game.moves[i]
         for coord in changed.keys():
-            if coord in mov.board.keys():                                 # tiles on board are changed
+            if coord in mov.board.keys():                                      # tiles on board are changed
                 logging.debug(f'need correction {mov.board[coord]} -> {changed[coord]} {mov.score}/{mov.points}')
                 mov.board[coord] = changed[coord]
                 must_recalculate = True
         if must_recalculate:
             _word = ''
             (col, row) = mov.coord
-            for i, char in enumerate(mov.word):                                 # fix mov.word
+            for i, char in enumerate(mov.word):                                # fix mov.word
                 if mov.is_vertical:
                     _word += board[(col, row + i)][0] if char != '.' else '.'
                 else:
                     _word += board[(col + i, row)][0] if char != '.' else '.'
             mov.word = _word
             mov.points, prev_score, mov.is_scrabble = mov.calculate_score(prev_score)
-            mov.score = prev_score                                         # store previous score
+            mov.score = prev_score                                             # store previous score
             logging.debug(f'move {mov.move} after recalculate {prev_score}')
         else:
-            prev_score = mov.score                                         # store previous score
+            prev_score = mov.score                                             # store previous score
 
 
 @trace
@@ -247,28 +247,12 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     def chunkify(lst, chunks):
         return [lst[i::chunks] for i in range(chunks)]
 
-    #  1. warped = warp_image(img)
-    #  2. warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
-    #  3. filtered, tiles_candidates = filter_image(image, board_layout)
-    #  4. filtered_candidates = filter_candidates(tiles_candidates, game)
-    #  5. splitted_list = np.array_split(filtered_candidates.toList(),3)
-    #  6. board = game.current_board.copy()
-    #  7. future1 = threadpool.submit(analyze_image, warped_gray, board, splitted_list[0] )
-    #  8. future2 = threadpool.submit(analyze_image, warped_gray, board, splitted_list[1] )
-    #  9. result3 = analyze_image(warped_gray, board, splitted_list[2])
-    # 10. done, not_done = futures.waitfor({future1, furture2})
-    # 11. move = calculate_move(board, game)
-    # 12. game.add(move)
-    # 13. store_move(move)
-    # (14. Ftp.upload_move(move) -> use threadpool)
-
     if waitfor is not None:                                                    # wait for previous moves
         done, not_done = futures.wait({waitfor})
         assert len(not_done) == 0, 'error while waiting for future'
-
-    warped = warp_image(img)                                                   # warp image if necessary
-    warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # grayscale image
-    _, tiles_candidates = filter_image(warped)                                 # find potential tiles on board
+    warped = warp_image(img)                                                   # 1. warp image if necessary
+    warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # 2. grayscale image
+    _, tiles_candidates = filter_image(warped)                                 # 3. find potential tiles on board
     ignore_coords = set()
     if len(game.moves) > config.scrabble_verify_moves:
         # if opponents move has a valid challenge
@@ -278,22 +262,22 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
             ignore_coords = set(game.moves[-config.scrabble_verify_moves].board.keys())
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
 
-    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # previous board information
+    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # get previous board information
     previous_board = board.copy()
     previous_score = game.moves[-1].score if len(game.moves) > 0 else (0, 0)
 
-    chunks = chunkify(list(filtered_candidates), 3)                            # picture analysis
-    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))         # 1. thread
-    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))         # 2. thread
-    analyze(warped_gray, board, set(chunks[2]))                                # 3. (this) thread
-    done, _ = futures.wait({future1, future2})                                 # blocking wait
+    chunks = chunkify(list(filtered_candidates), 3)                            # 5. picture analysis
+    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))           # 1. thread
+    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))           # 2. thread
+    analyze(warped_gray, board, set(chunks[2]))                                  # 3. (this) thread
+    done, _ = futures.wait({future1, future2})                                 # 6. blocking wait
     assert len(done) == 2, 'error on wait to futures'
 
     current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
-    if len(changed_tiles) > 0:                                                 # fix old moves
+    if len(changed_tiles) > 0:                                                 # 7. fix old moves
         recalculate_score_on_tiles_change(game, board, changed_tiles)
         previous_score = game.moves[-1].score                                  # reapply previous score
-    try:                                                                       # find word and create move
+    try:                                                                       # 8. find word and create move
         is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
         current_move = Move(MoveType.REGULAR, player=player, coord=coord, is_vertical=is_vertical, word=word,
                             new_tiles=new_tiles, removed_tiles=removed_tiles, board=current_board, played_time=played_time,
@@ -307,15 +291,23 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
                             removed_tiles=removed_tiles, board=current_board, played_time=played_time,
                             previous_score=previous_score)
 
-    game.add_move(current_move)                                                        # add move
+    game.add_move(current_move)                                                # 9. add move
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'\n{game.moves[-1].json_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
-    store_move(current_move, warped)                                                      # store move on hd
-    upload_ftp(current_move)
+    if config.development_recording:
+        logging.info('game recording')
+        gameRecording = logging.getLogger("gameRecordingLogger")
+        game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
+        move_number = len(game.moves)
+        cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}.jpg', img)
+        gameRecording.info(f'{game_id}:warp ({move_number}): {get_last_warp()}')
+        gameRecording.info(f'{game_id}:{game.moves[-1].json_str()}')
+    store_move(current_move, warped)                                           # 10. store move on hd
+    upload_ftp(current_move)                                                   # 11. upload move to ftp
 
 
-@trace
+@ trace
 def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int]):
     """Process a valid challenge
 
@@ -327,14 +319,19 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
     """
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
-    game.add_valid_challenge(player, played_time)
+    game.add_valid_challenge(player, played_time)                              # 9. add move
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
-    store_move(game.moves[-1], None)                                           # store move on hd
-    upload_ftp(game.moves[-1])
+    if config.development_recording:
+        logging.info('game recording')
+        gameRecording = logging.getLogger("gameRecordingLogger")
+        game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
+        gameRecording.info(f'{game_id}:{game.moves[-1].json_str()}')
+    store_move(game.moves[-1], None)                                           # 10. store move on hd
+    upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
 
 
-@trace
+@ trace
 def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int]):
     """Process an invalid challenge
 
@@ -346,14 +343,19 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
     """
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
-    game.add_invalid_challenge(player, played_time)
+    game.add_invalid_challenge(player, played_time)                            # 9. add move
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
-    store_move(game.moves[-1], None)                                           # store move on hd
-    upload_ftp(game.moves[-1])
+    if config.development_recording:
+        logging.info('game recording')
+        gameRecording = logging.getLogger("gameRecordingLogger")
+        game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
+        gameRecording.info(f'{game_id}:{game.moves[-1].json_str()}')
+    store_move(game.moves[-1], None)                                           # 10. store move on hd
+    upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
 
 
-@trace
+@ trace
 def start_of_game():
     """ start of game """
     from ftp import Ftp
@@ -361,7 +363,7 @@ def start_of_game():
     pool.submit(Ftp.delete_files, ['image', 'data'])  # first delete images and data files on ftp server
 
 
-@trace
+@ trace
 def end_of_game(waitfor: Optional[Future], game: Game):
     """Process end of game
 
