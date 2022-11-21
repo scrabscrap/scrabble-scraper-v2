@@ -291,6 +291,9 @@ class ApiServer:
                 ApiServer.last_msg += f'delete: {filePath}\n'
             except OSError:
                 ApiServer.last_msg += f'error: {filePath}\n'
+        for f in ignoreList:
+            with open(f, 'w'):
+                pass  # empty log file
         logging.debug(ApiServer.last_msg)
         return redirect(url_for('get_defaults'))
 
@@ -326,6 +329,8 @@ class ApiServer:
                 ApiServer.last_msg += f'delete: {filePath}\n'
             except OSError:
                 ApiServer.last_msg += f'error: {filePath}\n'
+        with open(f'{config.work_dir}/recording/gameRecording.log', 'w'):
+            pass  # empty log file
         logging.debug(ApiServer.last_msg)
         return redirect(url_for('get_defaults'))
 
