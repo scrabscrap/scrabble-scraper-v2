@@ -281,7 +281,9 @@ class ApiServer:
         """ delete message logs """
         import glob
         logging.debug(f'path {config.log_dir}')
+        ignoreList = [f'{config.log_dir}/messages.log', f'{config.log_dir}/video.html', f'{config.log_dir}/game.log']
         fileList = glob.glob(f'{config.log_dir}/*')
+        fileList = [f for f in fileList if f not in ignoreList]
         # Iterate over the list of filepaths & remove each file.
         for filePath in fileList:
             try:
@@ -300,8 +302,9 @@ class ApiServer:
         from zipfile import ZipFile
 
         with ZipFile(f'{config.work_dir}/recording/recording.zip', 'w') as _zip:
-            fileList = glob.glob(f'{config.work_dir}/recording/*.jpg')
-            fileList += glob.glob(f'{config.work_dir}/recording/gameRecording.*')
+            ignoreList = [f'{config.work_dir}/recording/recording.zip']
+            fileList = glob.glob(f'{config.work_dir}/recording/*')
+            fileList = [f for f in fileList if f not in ignoreList]
             for f in fileList:
                 _zip.write(f'{f}')
         ApiServer.last_msg = 'download recording'
@@ -313,8 +316,9 @@ class ApiServer:
         """ delete recording(s) """
         import glob
         logging.debug(f'path {config.work_dir}/recording')
-        fileList = glob.glob(f'{config.work_dir}/recording/*.jpg')
-        fileList += glob.glob(f'{config.work_dir}/recording/*.zip')
+        ignoreList = [f'{config.work_dir}/recording/recording.log']
+        fileList = glob.glob(f'{config.work_dir}/recording/*')
+        fileList = [f for f in fileList if f not in ignoreList]
         # Iterate over the list of filepaths & remove each file.
         for filePath in fileList:
             try:
