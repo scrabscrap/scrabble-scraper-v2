@@ -301,6 +301,7 @@ class ApiServer:
 
         with ZipFile(f'{config.work_dir}/recording/recording.zip', 'w') as _zip:
             fileList = glob.glob(f'{config.work_dir}/recording/*.jpg')
+            fileList += glob.glob(f'{config.work_dir}/recording/gameRecording.*')
             for f in fileList:
                 _zip.write(f'{f}')
         ApiServer.last_msg = 'download recording'
@@ -312,7 +313,8 @@ class ApiServer:
         """ delete recording(s) """
         import glob
         logging.debug(f'path {config.work_dir}/recording')
-        fileList = glob.glob(f'{config.work_dir}/recording/*')
+        fileList = glob.glob(f'{config.work_dir}/recording/*.jpg')
+        fileList += glob.glob(f'{config.work_dir}/recording/*.zip')
         # Iterate over the list of filepaths & remove each file.
         for filePath in fileList:
             try:
