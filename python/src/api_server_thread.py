@@ -316,7 +316,7 @@ class ApiServer:
         """ delete recording(s) """
         import glob
         logging.debug(f'path {config.work_dir}/recording')
-        ignoreList = [f'{config.work_dir}/recording/recording.log']
+        ignoreList = [f'{config.work_dir}/recording/gameRecording.log']
         fileList = glob.glob(f'{config.work_dir}/recording/*')
         fileList = [f for f in fileList if f not in ignoreList]
         # Iterate over the list of filepaths & remove each file.
