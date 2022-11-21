@@ -303,8 +303,7 @@ class ApiServer:
             fileList = glob.glob(f'{config.work_dir}/recording/*.jpg')
             fileList += glob.glob(f'{config.work_dir}/recording/gameRecording.*')
             for f in fileList:
-                if os.path.exists(f'{config.work_dir}/recording/{f}'):
-                    _zip.write(f'{config.work_dir}/recording/{f}')
+                _zip.write(f'{config.work_dir}/recording/{f}')
         ApiServer.last_msg = 'download recording'
         return send_from_directory(f'{config.work_dir}/recording', 'recording.zip', as_attachment=True)
 
