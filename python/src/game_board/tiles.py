@@ -33,7 +33,7 @@ class OneTile:  # pylint: disable=R0903 # too few public methods
 
 scores = config.tiles_scores
 bag = config.tiles_bag
-bag_as_list = sum([[k] * bag[k] for k in bag], [])
+bag_as_list: List = sum([[k] * bag[k] for k in bag], [])
 tiles: List[OneTile] = []
 
 

@@ -48,10 +48,6 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     flask_shutdown_blocked = False
     scrabscrap_version = ''
 
-    def __init__(self) -> None:
-        self.server = None
-        self.ctx = None
-
     @staticmethod
     @app.get('/')
     @app.get('/index')
@@ -68,12 +64,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         try:
             must_save = False
             for i in request.args.items():
-                if request.args.get('setting') is None:
-                    path = i[0]
-                    value = i[1]
-                else:
-                    path = request.args.get('setting')
-                    value = request.args.get('value')
+                path = request.args.get('setting') or i[0]
+                value = request.args.get('value') or i[1]
                 section, option = str(path).split('.', maxsplit=2)
                 if value is not None and value != '':
                     if section not in config.config.sections():
@@ -124,10 +116,13 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         player2 = request.args.get('player2')
         logging.debug(f'player1={player1} player2={player2}')
         # state holds the current game
-        State().game.nicknames = (player1, player2)
+        if player1 is not None and player2 is not None:
+            State().game.nicknames = (player1, player2)
+            ApiServer.last_msg = f'player1={player1}\nplayer2={player2}'
+        else:
+            ApiServer.last_msg = f'can not set: player1={player1}\nplayer2={player2}'
         if State().current_state == START:
             State().do_ready()
-        ApiServer.last_msg = f'player1={player1}\nplayer2={player2}'
         return redirect(url_for('get_defaults'))
 
     @staticmethod
@@ -525,8 +520,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         ApiServer.scrabscrap_version = version_info.stdout.decode()[:7]
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
-        self.server = make_server(host=host, port=port, app=self.app)
-        self.ctx = self.app.app_context()
+        self.server = make_server(host=host, port=port, app=self.app)  # pylint: disable=W0201
+        self.ctx = self.app.app_context()   # pylint: disable=W0201
         self.ctx.push()
         self.server.serve_forever()
 
@@ -535,9 +530,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         logging.info(f'server shutdown blocked: {ApiServer.flask_shutdown_blocked}')
         while ApiServer.flask_shutdown_blocked:
             sleep(0.1)
-        if self.server is not None:
-            self.server.shutdown()
-            self.server = None
+        self.server.shutdown()
 
 
 def main():
