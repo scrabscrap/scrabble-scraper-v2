@@ -257,9 +257,11 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     if len(game.moves) > config.scrabble_verify_moves:
         # if opponents move has a valid challenge
         if game.moves[-config.scrabble_verify_moves + 1].type is MoveType.WITHDRAW:
-            ignore_coords = set(game.moves[-config.scrabble_verify_moves + 1].board.keys())
+            ignore_coords = set(
+                {i: i for i in game.moves[-config.scrabble_verify_moves + 1].board.keys() if i in game.moves[-1].board.keys()})
         else:
-            ignore_coords = set(game.moves[-config.scrabble_verify_moves].board.keys())
+            ignore_coords = set(
+                {i: i for i in game.moves[-config.scrabble_verify_moves].board.keys() if i in game.moves[-1].board.keys()})
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
 
     board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # get previous board information
