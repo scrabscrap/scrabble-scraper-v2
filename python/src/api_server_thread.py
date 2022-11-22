@@ -269,9 +269,9 @@ class ApiServer:
 
         with ZipFile(f'{config.log_dir}/log.zip', 'w') as _zip:
             files = ['game.log', 'messages.log', 'video.html']
-            for f in files:
-                if os.path.exists(f'{config.log_dir}/{f}'):
-                    _zip.write(f'{config.log_dir}/{f}')
+            for filename in files:
+                if os.path.exists(f'{config.log_dir}/{filename}'):
+                    _zip.write(f'{config.log_dir}/{filename}')
         ApiServer.last_msg = 'download logs'
         return send_from_directory(f'{config.log_dir}', 'log.zip', as_attachment=True)
 
@@ -281,18 +281,18 @@ class ApiServer:
         """ delete message logs """
         import glob
         logging.debug(f'path {config.log_dir}')
-        ignoreList = [f'{config.log_dir}/messages.log', f'{config.log_dir}/video.html', f'{config.log_dir}/game.log']
-        fileList = glob.glob(f'{config.log_dir}/*')
-        fileList = [f for f in fileList if f not in ignoreList]
+        ignore_list = [f'{config.log_dir}/messages.log', f'{config.log_dir}/video.html', f'{config.log_dir}/game.log']
+        file_list = glob.glob(f'{config.log_dir}/*')
+        file_list = [f for f in file_list if f not in ignore_list]
         # Iterate over the list of filepaths & remove each file.
-        for filePath in fileList:
+        for file_path in file_list:
             try:
-                os.remove(filePath)
-                ApiServer.last_msg += f'delete: {filePath}\n'
+                os.remove(file_path)
+                ApiServer.last_msg += f'delete: {file_path}\n'
             except OSError:
-                ApiServer.last_msg += f'error: {filePath}\n'
-        for f in ignoreList:
-            with open(f, 'w'):
+                ApiServer.last_msg += f'error: {file_path}\n'
+        for filename in ignore_list:
+            with open(filename, 'w', encoding='UTF-8'):
                 pass  # empty log file
         logging.debug(ApiServer.last_msg)
         return redirect(url_for('get_defaults'))
@@ -305,11 +305,11 @@ class ApiServer:
         from zipfile import ZipFile
 
         with ZipFile(f'{config.work_dir}/recording/recording.zip', 'w') as _zip:
-            ignoreList = [f'{config.work_dir}/recording/recording.zip']
-            fileList = glob.glob(f'{config.work_dir}/recording/*')
-            fileList = [f for f in fileList if f not in ignoreList]
-            for f in fileList:
-                _zip.write(f'{f}')
+            ignore_list = [f'{config.work_dir}/recording/recording.zip']
+            file_list = glob.glob(f'{config.work_dir}/recording/*')
+            file_list = [f for f in file_list if f not in ignore_list]
+            for filename in file_list:
+                _zip.write(f'{filename}')
         ApiServer.last_msg = 'download recording'
         return send_from_directory(f'{config.work_dir}/recording', 'recording.zip', as_attachment=True)
 
@@ -319,17 +319,17 @@ class ApiServer:
         """ delete recording(s) """
         import glob
         logging.debug(f'path {config.work_dir}/recording')
-        ignoreList = [f'{config.work_dir}/recording/gameRecording.log']
-        fileList = glob.glob(f'{config.work_dir}/recording/*')
-        fileList = [f for f in fileList if f not in ignoreList]
+        ignore_list = [f'{config.work_dir}/recording/gameRecording.log']
+        file_list = glob.glob(f'{config.work_dir}/recording/*')
+        file_list = [f for f in file_list if f not in ignore_list]
         # Iterate over the list of filepaths & remove each file.
-        for filePath in fileList:
+        for file_path in file_list:
             try:
-                os.remove(filePath)
-                ApiServer.last_msg += f'delete: {filePath}\n'
+                os.remove(file_path)
+                ApiServer.last_msg += f'delete: {file_path}\n'
             except OSError:
-                ApiServer.last_msg += f'error: {filePath}\n'
-        with open(f'{config.work_dir}/recording/gameRecording.log', 'w'):
+                ApiServer.last_msg += f'error: {file_path}\n'
+        with open(f'{config.work_dir}/recording/gameRecording.log', 'w', encoding='UTF-8'):
             pass  # empty log file
         logging.debug(ApiServer.last_msg)
         return redirect(url_for('get_defaults'))

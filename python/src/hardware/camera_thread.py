@@ -60,7 +60,6 @@ class Camera(metaclass=Singleton):  # type: ignore
 
     def read(self, peek=False) -> Mat:
         """read next picture (no counter increment if peek=True when using CameraFile)"""
-        from .camera_file import CameraFile
         if isinstance(self.stream, CameraFile):
             return self.stream.read(peek=peek)
         return self.stream.read()

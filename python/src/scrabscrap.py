@@ -19,6 +19,7 @@ import atexit
 import logging
 import logging.config
 import signal
+import sys
 from signal import pause
 from threading import Event
 from time import sleep
@@ -30,6 +31,7 @@ logging.config.fileConfig(fname=f'{config.work_dir}/log.conf',
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
+
 from api_server_thread import ApiServer
 from hardware.button import Button
 from hardware.camera_thread import Camera
@@ -38,14 +40,14 @@ from state import State
 from threadpool import pool
 from timer_thread import RepeatedTimer
 
-cleanup_done = False
+cleanup_done = False  # pylint: disable=C0103 # not a contant see _cleanup()
 
 
 def main() -> None:
     """entry point for scrabscrap"""
 
     def _cleanup():
-        global cleanup_done
+        global cleanup_done  # pylint: disable=W0603,C0103 # not a contant see _cleanup()
 
         logging.debug(f'main-_atexit {cleanup_done}')
         if not cleanup_done:
@@ -66,10 +68,10 @@ def main() -> None:
         signal.alarm(0)
         if config.system_quit in ('reboot'):
             os.system('sudo shutdown -r now')
-            exit()
+            sys.exit(0)
         elif config.system_quit in ('shutdown'):
             os.system('sudo shutdown now')
-            exit()
+            sys.exit(0)
 
     # def signal_handler(signum, _) -> None:
     #     logging.debug(f'Signal handler called with signal {signum}')

@@ -22,10 +22,11 @@ from typing import Optional
 
 import adafruit_ssd1306  # type: ignore
 import board  # type: ignore
-from config import config
-from display import Display
 from PIL import Image, ImageDraw, ImageFont
 from smbus import SMBus  # type: ignore
+
+from config import config
+from display import Display
 from util import Singleton
 
 
@@ -161,14 +162,14 @@ class PlayerDisplay(Display, metaclass=Singleton):
     def add_time(self, player, time1, played1, time2, played2) -> None:
         assert player in [0, 1], "invalid player number"
 
-        time = time1 if player == 0 else time2
-        played_time = played1 if player == 0 else played2
-        minutes, seconds = divmod(abs(config.max_time - time), 60)
-        text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - time < 0 else f'{minutes:02d}:{seconds:02d}'
+        player_time = time1 if player == 0 else time2
+        move_time = played1 if player == 0 else played2
+        minutes, seconds = divmod(abs(config.max_time - player_time), 60)
+        text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - player_time < 0 else f'{minutes:02d}:{seconds:02d}'
         self.image[player].paste(self.empty)
         self.draw[player].text((1, 22), text, font=self.font, fill=255)
-        self.draw[player].text((80, 1), f'{played_time:4d}', font=self.font1, fill=255)
-        if played_time <= config.doubt_timeout:
+        self.draw[player].text((80, 1), f'{move_time:4d}', font=self.font1, fill=255)
+        if move_time <= config.doubt_timeout:
             msg = '\u2049'  # \u2718
             self.draw[player].text((1, 0), msg, font=self.font1, fill=255)
         self.show(player=player)

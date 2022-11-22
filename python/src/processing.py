@@ -297,18 +297,18 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     logging.debug(f'new scores {game.moves[-1].score}')
     if config.development_recording:
         logging.info('game recording')
-        gameRecording = logging.getLogger("gameRecordingLogger")
+        recording_logger = logging.getLogger("gameRecordingLogger")
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
         move_number = len(game.moves)
         cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}.jpg', img)
         warp_str = np.array2string(get_last_warp(), formatter={  # type: ignore
                                    'float_kind': lambda x: f'{x:.1f}'}, separator=',')
-        gameRecording.info(f'{game_id} warp: ({move_number}): {warp_str}')
-        gameRecording.info(f'{game_id} board: {game.moves[-1].board}')
-        gameRecording.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
-        gameRecording.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
-        gameRecording.info(f'{game_id} points: {game.moves[-1].points}')
-        gameRecording.info(f'{game_id} score: {game.moves[-1].score}')
+        recording_logger.info(f'{game_id} warp: ({move_number}): {warp_str}')
+        recording_logger.info(f'{game_id} board: {game.moves[-1].board}')
+        recording_logger.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
+        recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
+        recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
+        recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
     store_move(current_move, warped)                                           # 10. store move on hd
     upload_ftp(current_move)                                                   # 11. upload move to ftp
 
@@ -330,14 +330,14 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
     logging.debug(f'new scores {game.moves[-1].score}')
     if config.development_recording:
         logging.info('game recording')
-        gameRecording = logging.getLogger("gameRecordingLogger")
+        recording_logger = logging.getLogger("gameRecordingLogger")
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
-        gameRecording.info(f'{game_id} move: ({len(game.moves)}')
-        gameRecording.info(f'{game_id} board: {game.moves[-1].board}')
-        gameRecording.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
-        gameRecording.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
-        gameRecording.info(f'{game_id} points: {game.moves[-1].points}')
-        gameRecording.info(f'{game_id} score: {game.moves[-1].score}')
+        recording_logger.info(f'{game_id} move: ({len(game.moves)}')
+        recording_logger.info(f'{game_id} board: {game.moves[-1].board}')
+        recording_logger.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
+        recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
+        recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
+        recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
     store_move(game.moves[-1], None)                                           # 10. store move on hd
     upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
 
@@ -359,14 +359,14 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
     logging.debug(f'new scores {game.moves[-1].score}')
     if config.development_recording:
         logging.info('game recording')
-        gameRecording = logging.getLogger("gameRecordingLogger")
+        recording_logger = logging.getLogger("gameRecordingLogger")
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
-        gameRecording.info(f'{game_id} move: ({len(game.moves)}')
-        gameRecording.info(f'{game_id} board: {game.moves[-1].board}')
-        gameRecording.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
-        gameRecording.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
-        gameRecording.info(f'{game_id} points: {game.moves[-1].points}')
-        gameRecording.info(f'{game_id} score: {game.moves[-1].score}')
+        recording_logger.info(f'{game_id} move: ({len(game.moves)}')
+        recording_logger.info(f'{game_id} board: {game.moves[-1].board}')
+        recording_logger.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
+        recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
+        recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
+        recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
     store_move(game.moves[-1], None)                                           # 10. store move on hd
     upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
 
