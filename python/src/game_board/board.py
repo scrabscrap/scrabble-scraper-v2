@@ -90,15 +90,15 @@ def calc_y_position(y: int) -> int:
 
 
 def get_x_position(pos: int) -> int:
-    """ return 25..750 """
-    c = int(OFFSET + (pos * GRID_W))
-    return c
+    """ return col 25..750 """
+    col = int(OFFSET + (pos * GRID_W))
+    return col
 
 
 def get_y_position(pos: int) -> int:
-    """ return 25..750 """
-    c = int(OFFSET + (pos * GRID_H))
-    return c
+    """ return row 25..750 """
+    row = int(OFFSET + (pos * GRID_H))
+    return row
 
 
 def overlay_grid(image: ndarray) -> ndarray:

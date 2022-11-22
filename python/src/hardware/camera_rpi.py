@@ -34,7 +34,7 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 class CameraRPI(metaclass=Singleton):  # type: ignore
     """implement a camera with rpi native"""
 
-    def __init__(self, resolution=(config.video_width, config.video_height), framerate=config.video_fps, **kwargs):
+    def __init__(self, resolution=(config.video_width, config.video_height), framerate=config.video_fps):
         logging.info('### init PiCamera')
         self.frame = []
         self.camera = PiCamera()

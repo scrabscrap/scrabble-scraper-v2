@@ -40,13 +40,17 @@ from state import START, State
 from threadpool import pool
 
 
-class ApiServer:
+class ApiServer:  # pylint: disable=R0904 # too many public methods
     """ definition of flask server """
     app = Flask(__name__)
     last_msg = ''
     cam = None
     flask_shutdown_blocked = False
     scrabscrap_version = ''
+
+    def __init__(self) -> None:
+        self.server = None
+        self.ctx = None
 
     @staticmethod
     @app.get('/')
@@ -531,7 +535,9 @@ class ApiServer:
         logging.info(f'server shutdown blocked: {ApiServer.flask_shutdown_blocked}')
         while ApiServer.flask_shutdown_blocked:
             sleep(0.1)
-        self.server.shutdown()
+        if self.server is not None:
+            self.server.shutdown()
+            self.server = None
 
 
 def main():

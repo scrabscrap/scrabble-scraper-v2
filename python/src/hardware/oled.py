@@ -34,11 +34,11 @@ class PlayerDisplay(Display, metaclass=Singleton):
     """Implementation of class Display with OLED"""
 
     def __init__(self):
-        self.TCA9548A_select(0)
+        self.tca9548a_select(0)
         i2c = board.I2C()
         self.oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c, addr=0x3C)
         self.oled.init_display()
-        self.TCA9548A_select(1)
+        self.tca9548a_select(1)
         self.oled.init_display()
         self.font_family = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
         self.font = ImageFont.truetype(self.font_family, 42)
@@ -49,7 +49,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
         self.draw = [ImageDraw.Draw(self.image[0]), ImageDraw.Draw(self.image[1])]
         atexit.register(self.stop)
 
-    def TCA9548A_select(self, channel: int) -> None:
+    def tca9548a_select(self, channel: int) -> None:
         """select channel on multiplexer"""
         assert channel in [0, 1], "invalid channel number"
         channel_array = [0b00000001, 0b00000010]
@@ -60,7 +60,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
     def stop(self) -> None:
         logging.debug('display stop')
         for i in range(2):
-            self.TCA9548A_select(i)
+            self.tca9548a_select(i)
             self.oled.poweroff()
 
     def show_boot(self) -> None:
@@ -159,7 +159,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
             self.draw[i].text(coord, msg, font=self.font, fill=255)
         self.show()
 
-    def add_time(self, player, time1, played1, time2, played2) -> None:
+    def add_time(self, player, time1, played1, time2, played2) -> None:  # pylint: disable=R0913 # too many arguments
         assert player in [0, 1], "invalid player number"
 
         player_time = time1 if player == 0 else time2
@@ -192,14 +192,14 @@ class PlayerDisplay(Display, metaclass=Singleton):
     def show(self, player: Optional[int] = None, invert: Optional[bool] = None) -> None:
         if player is None:
             for i in range(2):
-                self.TCA9548A_select(i)
+                self.tca9548a_select(i)
                 if invert is not None:
                     self.oled.invert(invert)
                 self.oled.image(self.image[i])
                 self.oled.show()
         else:
             assert player in [0, 1], "invalid display"
-            self.TCA9548A_select(player)
+            self.tca9548a_select(player)
             if invert is not None:
                 self.oled.invert(invert)
             self.oled.image(self.image[player])

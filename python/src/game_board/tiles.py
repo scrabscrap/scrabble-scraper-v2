@@ -21,7 +21,8 @@ import cv2
 from config import config
 
 
-class OneTile:
+class OneTile:  # pylint: disable=R0903 # too few public methods
+    """representation of a tile"""
 
     def __init__(self):
         self.name = "Placeholder"
@@ -37,6 +38,8 @@ tiles: List[OneTile] = []
 
 
 def load_tiles(filepath: Optional[str] = None) -> List[OneTile]:
+    """load tile images from disk"""
+
     tiles.clear()
     filepath = config.tiles_image_path
     tile_list = [*scores]
