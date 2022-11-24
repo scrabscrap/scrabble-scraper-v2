@@ -22,6 +22,7 @@ from typing import Optional
 
 import adafruit_ssd1306  # type: ignore
 import board  # type: ignore
+import netifaces
 from PIL import Image, ImageDraw, ImageFont
 from smbus import SMBus  # type: ignore
 
@@ -43,6 +44,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
         self.font_family = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
         self.font = ImageFont.truetype(self.font_family, 42)
         self.font1 = ImageFont.truetype(self.font_family, 20)
+        self.font2 = ImageFont.truetype(self.font_family, 12)
         self.empty = Image.new('1', (self.oled.width, self.oled.height))
         self.image = [Image.new('1', (self.oled.width, self.oled.height)),
                       Image.new('1', (self.oled.width, self.oled.height))]
@@ -63,13 +65,23 @@ class PlayerDisplay(Display, metaclass=Singleton):
             self.tca9548a_select(i)
             self.oled.poweroff()
 
-    def show_boot(self) -> None:
+    def show_boot(self, ip=('', '')) -> None:
         logging.debug('Boot message')
+        try:
+            wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']
+        except KeyError:
+            wip = 'n/a'
+        try:
+            eip: str = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']
+        except KeyError:
+            eip = 'n/a'
+        ip = (wip, eip)
         msg = 'Boot'
         width = self.font.getlength(msg)
         coord = (self.oled.width // 2 - width // 2, 20)
         for i in range(2):
             self.image[i].paste(self.empty)
+            self.draw[i].text((12, 0), ip[i], font=self.font2, fill=255)
             self.draw[i].text(coord, msg, font=self.font, fill=255)
         self.show()
 
