@@ -148,94 +148,25 @@ siehe FAQ
 
 ## Automatischer HotSpot
 
-siehe Artikel [Automatischer HotSpot](https://raspberrypi.stackexchange.com/questions/100134/wpa-supplicant-dnsmasq-fallback-to-ap-mode-if-no-wifi-connection).
+siehe [GitHub Projekt https://github.com/gitbls/autoAP](https://github.com/gitbls/autoAP)
 
 ```bash
-sudo apt install -y dnsmasq
+sudo curl -L https://github.com/gitbls/autoAP/raw/master/autoAP.sh -o /usr/local/bin/autoAP.sh
+sudo curl -L https://github.com/gitbls/autoAP/raw/master/install-autoAP -o /usr/local/bin/install-autoAP
+sudo curl -L https://github.com/gitbls/autoAP/raw/master/rpi-networkconfig -o /usr/local/bin/rpi-networkconfig
+sudo chmod 755 /usr/local/bin/autoAP.sh /usr/local/bin/install-autoAP /usr/local/bin/rpi-networkconfig
+sudo /usr/local/bin/install-autoAP
 ```
 
-`sudo nano /etc/dnsmasq.conf`
+Als AP folgende Werte eingeben
 
-```text
-port=0
+- ssid = ScrabScrap
+- psk = scrabscrap
+- ip = 10.0.0.1
 
-interface=wlan0
-dhcp-authoritative
-dhcp-leasefile=/tmp/dhcp.leases
-dhcp-range=10.0.0.2,10.0.0.10,24h
-#subnet mask
-dhcp-option=1,255.0.0.0
+Zusätzlich muss noch ein lokales WLAN angegeben werden (i.d.R. das WLAN mit dem gerade eine Verbindung besteht).
 
-#Do not send gateway to client
-dhcp-option=3
-#Disable DNS
-dhcp-option=6
-```
-
-`sudo nano /etc/network/interfaces`
-
-```text
-# interfaces(5) file used by ifup(8) and ifdown(8)
-# Include files from /etc/network/interfaces.d:
-auto lo
-iface lo inet loopback
-
-auto wlan0
-iface wlan0 inet manual
-  pre-up sleep 3 
-  wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
-
-iface dhcp_server inet static
-  address 10.0.0.1
-  netmask 255.0.0.0
-
-iface dhcp_client inet dhcp
-
-auto eth0
-
-source /etc/network/interfaces.d/*
-```
-
-`sudo nano /etc/wpa_supplicant/wpa_supplicant.conf`
-
-```text
-country=DE
-ctrl_interface=DIR=/var/run/wpa_supplicant
-ap_scan=1
-
-update_config=1
-
-network={
-    # ap entry - do not delete
-    ssid="ScrabScrap"
-    mode=2
-    key_mgmt=WPA-PSK
-    proto=RSN
-    pairwise=CCMP
-    group=CCMP
-    psk="scrabscrap"
-    id_str="dhcp_server"
-    priority=-10
-}
-
-network={
-    # dummy entry - do not delete
-    ssid="DummySSID_do_not_delete"
-    key_mgmt=WPA-PSK
-    psk="invalidpassword"
-    id_str="dhcp_client"
-}
-```
-
-Damit das automatische Umschalten auf den Access-Point funktioniert, muss ein WPA Eintrag
-für den "dhcp_client" vorhanden sein. Dieser sollte ungültige Werte enthalten, damit
-der Access-Point Fallback aktiviert wird.
-
-Service dnsmasq aktivieren
-
-```bash
-sudo systemctl enable dnsmasq.service
-```
+Am Ende ggf. mit `sudo /usr/local/bin/rpi-networkconfig` auf `systemd-networkd` einstellen.
 
 Befehle für den Zugriff auf die Netzwerkkonfiguration
 

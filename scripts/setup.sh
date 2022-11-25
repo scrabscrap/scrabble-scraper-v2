@@ -17,15 +17,6 @@ sudo apt full-upgrade
 sudo apt install -y git python3-venv python3-dev
 # tool to detect i2c ports (i2cdetect -y 1)
 sudo apt install -y i2c-tools
-# hotspot configuration
-sudo apt install -y dnsmasq
-
-sudo cp $SCRIPTPATH/config/dnsmasq.conf /etc/dnsmasq.conf
-sudo cp $SCRIPTPATH/config/interfaces /etc/network/interfaces
-
-if ! wpa_cli list_network -i wlan0 | grep ScrabScrap; then
-  sudo cat $SCRIPTPATH/config/wpa_supplicant.scrabscrap >> /etc/wpa_supplicant/wpa_supplicant.conf
-fi
 
 # install libraries and tools
 # install libs for OpenCV
@@ -44,7 +35,7 @@ libgraphite2-3 libhdf5-103-1 libgfortran5 libsoxr0 libpgm-5.3-0 libopenmpt0 libx
 libdatrie1 libgdk-pixbuf-2.0-0 libopenjp2-7 libwebpmux3 --fix-missing
 
 # create an OpenCV Python environment
-python3 -m venv ~/.venv/cv --system-site-packages
+python3 -m venv ~/.venv/cv
 
 # update pip
 source ~/.venv/cv/bin/activate
@@ -57,6 +48,13 @@ pip install -r requirements.txt
 
 # run scrabscrap at reboot
 crontab -u pi $SCRIPTPATH/config/crontab.user
+
+# Auto AP
+sudo curl -L https://github.com/gitbls/autoAP/raw/master/autoAP.sh -o /usr/local/bin/autoAP.sh
+sudo curl -L https://github.com/gitbls/autoAP/raw/master/install-autoAP -o /usr/local/bin/install-autoAP
+sudo curl -L https://github.com/gitbls/autoAP/raw/master/rpi-networkconfig -o /usr/local/bin/rpi-networkconfig
+sudo chmod 755 /usr/local/bin/autoAP.sh /usr/local/bin/install-autoAP /usr/local/bin/rpi-networkconfig
+sudo /usr/local/bin/install-autoAP
 
 echo "------------------------------"
 echo "before using scrapscrap activate camera, spi, i2c with:"
