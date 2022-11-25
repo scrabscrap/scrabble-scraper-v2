@@ -22,7 +22,7 @@ from typing import Optional
 
 import adafruit_ssd1306  # type: ignore
 import board  # type: ignore
-import netifaces
+import netifaces  # type: ignore
 from PIL import Image, ImageDraw, ImageFont
 from smbus import SMBus  # type: ignore
 
