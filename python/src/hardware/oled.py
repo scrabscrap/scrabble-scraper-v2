@@ -18,10 +18,10 @@
 import logging
 from typing import Optional
 
-from luma.core.interface.serial import i2c   # type: ignore
-from luma.core.render import canvas   # type: ignore
-from luma.oled.device import ssd1306   # type: ignore
 import netifaces  # type: ignore
+from luma.core.interface.serial import i2c  # type: ignore
+from luma.core.render import canvas  # type: ignore
+from luma.oled.device import ssd1306  # type: ignore
 from PIL import ImageFont
 
 from config import config
@@ -78,12 +78,25 @@ class PlayerDisplay(Display, metaclass=Singleton):
 
     def show_reset(self) -> None:
         logging.debug('Reset message')
-        msg = 'Reset'
-        width = self.font.getlength(msg)
+        with canvas(self.device[0]) as draw:
+            msg = 'New'
+            width = self.font.getlength(msg)
+            coord = (self.device[0].width // 2 - width // 2, 20)
+            draw.text(coord, msg, font=self.font, fill=WHITE)
+        with canvas(self.device[1]) as draw:
+            msg = 'Game'
+            width = self.font.getlength(msg)
+            coord = (self.device[1].width // 2 - width // 2, 20)
+            draw.text(coord, msg, font=self.font, fill=WHITE)
+
+    def show_accesspoint(self) -> None:
+        logging.debug('AP Mode message')
+        msg = 'AP Mode'
+        width = self.font1.getlength(msg)
         for i in range(2):
             coord = (self.device[i].width // 2 - width // 2, 20)
             with canvas(self.device[i]) as draw:
-                draw.text(coord, msg, font=self.font, fill=WHITE)
+                draw.text(coord, msg, font=self.font1, fill=WHITE)
 
     def show_ready(self, msg=('Ready', 'Ready')) -> None:
         logging.debug('Ready message')

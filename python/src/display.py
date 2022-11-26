@@ -16,8 +16,9 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
-from typing import Optional
 from abc import abstractmethod
+from typing import Optional
+
 from config import config
 
 
@@ -41,6 +42,11 @@ class Display:
     def show_reset(self) -> None:
         """show reset message"""
         logging.debug('Reset message')
+
+    @abstractmethod
+    def show_accesspoint(self) -> None:
+        """show AP Mode message"""
+        logging.debug('AP Mode message')
 
     @abstractmethod
     def show_ready(self, msg=('Ready', 'Ready')) -> None:

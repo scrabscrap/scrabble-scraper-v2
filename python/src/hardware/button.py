@@ -38,7 +38,7 @@ class ButtonEnum(Enum):
     DOUBT0 = 12  # GPIO12 - pin 32 - Button doubt0 (green)
     DOUBT1 = 25  # GPIO25 - pin 22 - Button doubt1 (red)
 
-    # CONFIG = 13  # GPIO13 - pin 33 - Button config
+    AP = 13  # GPIO13 - pin 33 - Button ap
     RESET = 19  # GPIO19 - pin 35 - Button reset (black)
     REBOOT = 26  # GPIO26 - pin 37 - Button reboot (blue)
 

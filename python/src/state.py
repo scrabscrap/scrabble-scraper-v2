@@ -46,7 +46,7 @@ DOUBT0 = 'DOUBT0'
 DOUBT1 = 'DOUBT1'
 RESET = 'RESET'
 REBOOT = 'REBOOT'
-CONFIG = 'CONFIG'
+AP = 'AP'
 
 
 class State(metaclass=Singleton):
@@ -58,7 +58,7 @@ class State(metaclass=Singleton):
         self.cam = cam
         self.last_submit: Optional[Future] = None  # last submit to thread pool; waiting for processing of the last move
         self.bounce = {GREEN: .0, RED: .0, YELLOW: .0, DOUBT0: .0,
-                       DOUBT1: .0, RESET: .0, CONFIG: .0, REBOOT: .0}
+                       DOUBT1: .0, RESET: .0, REBOOT: .0, AP: .0}
         self.game: Game = Game(None)
         atexit.register(self._atexit)
 
@@ -213,8 +213,25 @@ class State(metaclass=Singleton):
         LED.switch_on({})  # type: ignore
         end_of_game(self.last_submit, self.game)
         self.watch.display.stop()
-        current_state = 'START'
+        current_state = START
         alarm(1)  # raise alarm for reboot
+        return current_state
+
+    def do_accesspoint(self) -> str:
+        """Switch to AP Mode"""
+        import subprocess
+
+        logging.debug(f'{self.current_state} - (switch to AP Mode) -> {START}')
+        process1 = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        wifi_raw = process1.stdout.decode().split(sep='\n')[1:-1]
+        wifi_list = [element.split(sep='\t') for element in wifi_raw]
+        for elem in wifi_list:
+            if elem[1] in ('ScrabScrap', 'ScrabScrapTest'):
+                _ = subprocess.call(f'sudo -n /usr/sbin/wpa_cli select_network {elem[0]} -i wlan0', shell=True)
+                self.watch.display.show_accesspoint()  # Display message AP Mode
+                LED.switch_on({})  # type: ignore
+        current_state = START
         return current_state
 
     def press_button(self, button: str) -> None:
@@ -252,6 +269,7 @@ class State(metaclass=Singleton):
         (P0, DOUBT1): do_invalid_challenge0,
         (P0, RESET): do_reset,
         (P0, REBOOT): do_reboot,
+        (P0, AP): do_accesspoint,
         (S1, RED): do_move1,
         (S1, YELLOW): do_pause1,
         (P1, GREEN): do_resume1,
@@ -260,4 +278,5 @@ class State(metaclass=Singleton):
         (P1, DOUBT0): do_invalid_challenge1,
         (P1, RESET): do_reset,
         (P1, REBOOT): do_reboot,
+        (P1, AP): do_accesspoint,
     }
