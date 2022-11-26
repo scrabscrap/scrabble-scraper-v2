@@ -75,7 +75,6 @@ class State(metaclass=Singleton):
         """Start playing with player 0"""
         logging.debug(f'{self.current_state} - (start) -> {S0}')
         start_of_game()
-        self.watch.display.show()
         self.watch.start(0)
         LED.switch_on({LEDEnum.green})  # turn on LED green
         return S0
@@ -84,7 +83,6 @@ class State(metaclass=Singleton):
         """Start playing with player 1"""
         logging.debug(f'{self.current_state} - (start) -> {S1}')
         start_of_game()
-        self.watch.display.show()
         self.watch.start(1)
         LED.switch_on({LEDEnum.red})  # turn on LED red
         return S1
@@ -92,11 +90,10 @@ class State(metaclass=Singleton):
     def do_move0(self) -> str:
         """analyze players 0 move"""
         logging.debug(f'{self.current_state} - (move) -> {S1}')
-        _, time0, _, time1, _ = self.watch.get_status()
+        _, (time0, time1), _ = self.watch.status()
         # next player
         self.watch.start(1)
         LED.switch_on({LEDEnum.red})  # turn on LED red
-
         picture = self.cam.read()  # type: ignore
         self.last_submit = pool.submit(move, self.last_submit, self.game, picture, 0, (time0, time1))
         return S1
@@ -104,7 +101,7 @@ class State(metaclass=Singleton):
     def do_move1(self) -> str:
         """analyze players 1 move"""
         logging.debug(f'{self.current_state} - (move) -> {S0}')
-        _, time0, _, time1, _ = self.watch.get_status()
+        _, (time0, time1), _ = self.watch.status()
         # next player
         self.watch.start(0)
         LED.switch_on({LEDEnum.green})  # turn on LED green
@@ -144,13 +141,13 @@ class State(metaclass=Singleton):
     def do_valid_challenge0(self) -> str:
         """player 0 has a valid challenge for the last move from player 1"""
         logging.debug(f'{self.current_state} - (valid challenge) -> {P0}')
-        _, time0, current_time, time1, _ = self.watch.get_status()
-        if current_time > config.doubt_timeout:
-            self.watch.display.add_doubt_timeout(0)
-            logging.info(f'no challenge possible, because of timeout {current_time}')
+        _, played_time, current = self.watch.status()
+        if current[0] > config.doubt_timeout:
+            self.watch.display.add_doubt_timeout(0, played_time, current)
+            logging.info(f'no challenge possible, because of timeout {current[0]}')
         else:
-            self.watch.display.add_remove_tiles(1)  # player 1 has to remove the last move
-            self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 0, (time0, time1))
+            self.watch.display.add_remove_tiles(1, played_time, current)  # player 1 has to remove the last move
+            self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 0, (played_time[0], played_time[1]))
             LED.switch_on({LEDEnum.yellow})  # turn on LED green (blink), yellow
             LED.blink_on({LEDEnum.green})
         return P0
@@ -158,13 +155,13 @@ class State(metaclass=Singleton):
     def do_valid_challenge1(self) -> str:
         """player 1 has a valid challenge for the last move from player 0"""
         logging.debug(f'{self.current_state} - (valid challenge) -> {P1}')
-        _, time0, _, time1, current_time = self.watch.get_status()
-        if current_time > config.doubt_timeout:
-            self.watch.display.add_doubt_timeout(1)
-            logging.info(f'no challenge possible, because of timeout {current_time}')
+        _, played_time, current = self.watch.status()
+        if current[1] > config.doubt_timeout:
+            self.watch.display.add_doubt_timeout(1, played_time, current)
+            logging.info(f'no challenge possible, because of timeout {current[1]}')
         else:
-            self.watch.display.add_remove_tiles(0)  # player 0 has to remove the last move
-            self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 1, (time0, time1))
+            self.watch.display.add_remove_tiles(0, played_time, current)  # player 0 has to remove the last move
+            self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 1, (played_time[0], played_time[1]))
             LED.switch_on({LEDEnum.yellow})  # turn on LED red (blink), yellow
             LED.blink_on({LEDEnum.red})
         return P1
@@ -173,13 +170,13 @@ class State(metaclass=Singleton):
         """player 0 has an invalid challenge for the last move from player 1"""
         logging.debug(
             f'{self.current_state} - (invalid challenge) -> {P0} (-{config.malus_doubt:2d})')  # -10
-        _, time0, current_time, time1, _ = self.watch.get_status()
-        if current_time > config.doubt_timeout:
-            self.watch.display.add_doubt_timeout(0)
-            logging.info(f'no challenge possible, because of timeout {current_time}')
+        _, played_time, current = self.watch.status()
+        if current[0] > config.doubt_timeout:
+            self.watch.display.add_doubt_timeout(0, played_time, current)
+            logging.info(f'no challenge possible, because of timeout {current[0]}')
         else:
-            self.watch.display.add_malus(0)  # player 0 gets a malus
-            self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 0, (time0, time1))
+            self.watch.display.add_malus(0, played_time, current)  # player 0 gets a malus
+            self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 0, (played_time[0], played_time[1]))
             LED.switch_on({LEDEnum.yellow})  # turn on LED green (blink), yellow
             LED.blink_on({LEDEnum.green})
         return P0
@@ -188,13 +185,13 @@ class State(metaclass=Singleton):
         """player 1 has an invalid challenge for the last move from player 0"""
         logging.debug(
             f'{self.current_state} - (invalid challenge) -> {P1} (-{config.malus_doubt:2d})')  # -10
-        _, time0, _, time1, current_time = self.watch.get_status()
-        if current_time > config.doubt_timeout:
-            self.watch.display.add_doubt_timeout(1)
-            logging.info(f'no challenge possible, because of timeout {current_time}')
+        _, played_time, current = self.watch.status()
+        if current[1] > config.doubt_timeout:
+            self.watch.display.add_doubt_timeout(1, played_time, current)
+            logging.info(f'no challenge possible, because of timeout {current[1]}')
         else:
-            self.watch.display.add_malus(1)  # player 1 gets a malus
-            self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 1, (time0, time1))
+            self.watch.display.add_malus(1, played_time, current)  # player 1 gets a malus
+            self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 1, (played_time[0], played_time[1]))
             LED.switch_on({LEDEnum.yellow})  # turn on LED red (blink), yellow
             LED.blink_on({LEDEnum.red})
         return P1

@@ -16,7 +16,7 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
-import time
+from time import sleep
 import unittest
 
 from hardware.oled import PlayerDisplay
@@ -67,19 +67,22 @@ class DisplayTestCase(unittest.TestCase):
             watch.tick()
         logging.debug('pause')
         watch.pause()
-        time.sleep(1)
+        sleep(1)
 
         logging.debug('0: add malus')
-        watch.display.add_malus(0)
-        time.sleep(1)
+        _, time, current = watch.status()
+        watch.display.add_malus(0, time, current)
+        sleep(1)
 
         logging.debug('1: remove tiles')
-        watch.display.add_remove_tiles(1)
-        time.sleep(1)
+        _, time, current = watch.status()
+        watch.display.add_remove_tiles(1, time, current)
+        sleep(1)
 
         logging.debug('0: remove tiles')
-        watch.display.add_doubt_timeout(1)
-        time.sleep(1)
+        _, time, current = watch.status()
+        watch.display.add_doubt_timeout(1, time, current)
+        sleep(1)
 
         logging.debug('resume')
         watch.resume()
@@ -90,15 +93,17 @@ class DisplayTestCase(unittest.TestCase):
             watch.tick()
         logging.debug('pause')
         watch.pause()
-        time.sleep(1)
+        sleep(1)
 
         logging.debug('1: add malus')
-        watch.display.add_malus(1)
-        time.sleep(1)
+        _, time, current = watch.status()
+        watch.display.add_malus(1, time, current)
+        sleep(1)
 
         logging.debug('0: remove tiles')
-        watch.display.add_remove_tiles(0)
-        time.sleep(1)
+        _, time, current = watch.status()
+        watch.display.add_remove_tiles(0, time, current)
+        sleep(1)
 
         logging.debug('resume')
         watch.resume()
@@ -109,12 +114,12 @@ class DisplayTestCase(unittest.TestCase):
         watch.start(0)
         for _ in range(10):
             watch.tick()
-        time.sleep(1)
+        sleep(1)
 
         watch.start(1)
         for _ in range(10):
             watch.tick()
-        time.sleep(2)
+        sleep(2)
 
 
 if __name__ == '__main__':

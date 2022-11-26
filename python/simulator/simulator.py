@@ -134,7 +134,7 @@ def simulator() -> str:
     # get simulate folders
     list_of_dir = [f for f in os.listdir(f'{config.work_dir}/simulate') if os.path.isdir(f'{config.work_dir}/simulate/{f}')]
     # display time
-    _, time0, _, time1, _ = State().watch.get_status()
+    _, (time0, time1), _ = State().watch.status()
     minutes, seconds = divmod(abs(1800 - time0), 60)
     left = f'-{minutes:1d}:{seconds:02d}' if 1800 - time0 < 0 else f'{minutes:02d}:{seconds:02d}'
     minutes, seconds = divmod(abs(1800 - time1), 60)
