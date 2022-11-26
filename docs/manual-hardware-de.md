@@ -9,7 +9,6 @@
 * Schalter Grün
 * Schalter Rot
 * Schalter Gelb, Schwarz, Blau
-* [Multiplexer I2C (AZDelivery PCA9548A I2C Multiplexer 8-Kanal-Multiplexer)](https://www.az-delivery.de/products/tca9548a-i2c-iic-multiplexer)
 * [2 * Display (AZDelivery 5 x 0,96 Zoll OLED Display I2C SSD1306 Chip 128 x 64 Pixel)](https://www.az-delivery.de/products/0-96zolldisplay)
 * [RTC (AZDelivery Real Time Clock RTC DS3231 I2C)](https://www.az-delivery.de/products/ds3231-real-time-clock)
 * [Kamera Extender](https://www.berrybase.de/kamerakabelverbinder-fuer-raspberry-pi-15-pin-zu-15-pin)
@@ -23,21 +22,23 @@
 
 Pin | GPiO | Funktion | Ziel
 ----|------|----------|-----
-1   | 3V3  | I2C      | MUX vcc
-3   | 2    | I2C /SDA | MUX sda
-5   | 3    | I2C /SCL | MUX scl
+1   | 3V3  | I2C      | OLED1 / RTC vcc
+3   | 2    | I2C /SDA | OLED1 / RTC sda
+5   | 3    | I2C /SCL | OLED1 / RTC scl
 9   | Gnd  | B yellow | button/led Gnd
 11  | 17   | B yellow | button yellow
 13  | 27   | L yellow | led yellow
-17  | 3V3  | Pwr      | Pwr (3*) => OLED, OLED, RTC
-25  | Gnd  | Pwr      | Gnd (3*) => OLED, OLED, RTC
+17  | 3V3  | Pwr      | Pwr (3*) => OLED2
+25  | Gnd  | Pwr      | Gnd (3*) => OLED2
+29  | 5    | I2C SDA  | OLED2
+31  | 6    | I2C SCL  | OLED2
 35  | 19   | S black  | switch black => reset
 37  | 26   | S blue   | switch blue  => reboot
 39  | Gnd  | B blk,bl | switch black/blue Gnd
 
 Pin | GPiO | Funktion | Ziel
 ----|------|----------|-----
-6   | Gnd  | I2C /Gnd | MUX Gnd
+6   | Gnd  | I2C /Gnd | OLED1 / RTC Gnd
 14  | Gnd  | B red    | button/led Gnd
 16  | 23   | B red    | button red
 18  | 24   | L red    | led red
@@ -54,51 +55,34 @@ so müssen geeignete Vorwiderstände ergänzt werden.
 
 <div style="display:none;page-break-after: always;">\pagebreak</div>
 
-## Anschluss an den Muliplexer
-
-| Multiplexer                                  | OLED                             |
-|----------------------------------------------|----------------------------------|
-| ![I2C Multiplexer](images/multiplexer.png)   | ![OLED Display](images/oled.png) |
-
-### Anschluss Raspberry PI an Multiplexer
-
-| Raspberry PI       | Multiplex |
-|--------------------|-----------|
-| PIN 1 (GPIO 3V3)   | VCC       |
-| PIN 3 (GPIO 2/SDA) | SDA       |
-| PIN 5 (GPIO 3/SCL) | SCL       |
-| PIN 6 (GPIO Gnd)   | Gnd       |
-
 ### Anschluss OLED (Display 1 - Grün) an Multiplexer
-
-| OLED | Raspberry PI          | Multiplex |
-|------|-----------------------|-----------|
-| SDA  |                       | SD0       |
-| SCL  |                       | SC0       |
-| VCC  | RPI PIN 17 (GPIO 3V3) |           |
-| Gnd  | RPI PIN 25 (GPIO Gnd) |           |
-
-### Anschluss OLED (Display 2 - Rot) an Multiplexer
-
-| OLED | Raspberry PI          | Multiplex |
-|------|-----------------------|-----------|
-| SDA  |                       | SD1       |
-| SCL  |                       | SC1       |
-| VCC  | RPI PIN 17 (GPIO 3V3) |           |
-| Gnd  | RPI PIN 25 (GPIO Gnd) |           |
-
-### Anschluss RTC
-
-Die RTC wird parallel zum Multiplexer angeschlossen, damit ein Zugriff
-nicht über den Multiplexer erfolgen muss. Dies ist unproblematisch,
-da der Multiplexer und die RTC unterschiedliche Adressen verwenden.
 
 | OLED | Raspberry PI          |
 |------|-----------------------|
-| SDA  | PIN 3 (GPIO 2/SDA)    |
-| SCL  | PIN 5 (GPIO 3/SCL)    |
+| SDA  | RPI PIN 3  (GPIO 2)   |
+| SCL  | RPI PIN 5  (GPIO 2)   |
+| VCC  | RPI PIN 1  (GPIO 3V3) |
+| Gnd  | RPI PIN 6  (GPIO Gnd) |
+
+### Anschluss OLED (Display 2 - Rot) an Multiplexer
+
+| OLED | Raspberry PI          |
+|------|-----------------------|
+| SDA  | RPI PIN 29  (GPIO 5)  |
+| SCL  | RPI PIN 31  (GPIO 6)  |
 | VCC  | RPI PIN 17 (GPIO 3V3) |
 | Gnd  | RPI PIN 25 (GPIO Gnd) |
+
+### Anschluss RTC
+
+Die RTC wird parallel zum OLED1 angeschlossen.
+
+| RTC  | Raspberry PI          |
+|------|-----------------------|
+| SDA  | RPI PIN 3  (GPIO 2)   |
+| SCL  | RPI PIN 5  (GPIO 2)   |
+| VCC  | RPI PIN 1  (GPIO 3V3) |
+| Gnd  | RPI PIN 6  (GPIO Gnd) |
 
 ## Schaltplan
 

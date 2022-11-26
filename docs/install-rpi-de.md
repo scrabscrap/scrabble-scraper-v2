@@ -29,7 +29,6 @@ sudo raspi-config
 Es müssen aktiviert werden
 
 - Kamera
-- spi
 - i2c
 
 Im nächsten Schritt werden allgemeine Hilfsmittel installiert
@@ -105,16 +104,6 @@ Prüfen des Zugriffes auf den i2c Bus
 sudo i2cdetect -y 1
 ```
 
-Hier sollte die Adresse des Multiplexers angezeigt werden (0x70). Die weiteren Adressen (RTC / OLED Display 0x3c)
-werden erst nach dem Aktivieren über den Multiplexer angezeigt.
-
-```python
-from smbus import SMBus
-
-i2cbus = SMBus(1)
-i2cbus.write_byte(0x70, 1 << <port auf dem mux>)
-```
-
 ## Weitere Konfigurationen
 
 Eine Datei ``~/.alias`` anlegen:
@@ -140,6 +129,44 @@ die Konfiguration der crontab-Einträge des Benutzers vornehmen:
 
 ```bash
 @reboot /home/pi/scrabble-scraper-v2/scripts/scrabscrap.sh &
+```
+
+## boot/config.txt einstellen
+
+- i2c mit Baudrate 400000
+- spi=off
+- i2c bus 3 auf GPIO5 und GPIO6
+- Power LED ausschalten
+- Bluetooth ausschalten
+- Audio aus
+
+```text
+# Uncomment some or all of these to enable the optional hardware interfaces
+dtparam=i2c_arm=on,i2c_baudrate=400000
+#dtparam=i2s=on
+dtparam=spi=off
+
+# use gpio5 (pin 29) as sda and gpio6 (pin 31) as scl
+# see https://www.instructables.com/Raspberry-PI-Multiple-I2c-Devices/
+dtoverlay=i2c-gpio,bus=3,i2c_gpio_delay_us=1,i2c_gpio_sda=5,i2c_gpio_scl=6
+
+#Power-LED ausschalten
+dtparam=pwr_led_trigger=none
+dtparam=pwr_led_activelow=off
+# Disable Bluetooth
+dtoverlay=disable-bt
+
+#Camera LED off
+# disable_camera_led=1
+
+# Uncomment this to enable infrared communication.
+#dtoverlay=gpio-ir,gpio_pin=17
+#dtoverlay=gpio-ir-tx,gpio_pin=18
+
+# Additional overlays and parameters are documented /boot/overlays/README
+
+# Enable audio (loads snd_bcm2835)
+dtparam=audio=off
 ```
 
 ## Installation eines Develepment Rechners
@@ -181,30 +208,6 @@ wpa_passphrase {ssid} {key}
 ```
 
 ## Sonstiges
-
-### Rote Power LED ausschalten
-
-in `/boot/config.txt`` ergänzen
-
-```text
-#Power-LED ausschalten
-dtparam=pwr_led_trigger=none
-dtparam=pwr_led_activelow=off
-```
-
-in `/etc/crontab`
-
-```text
-@reboot echo 0 >/sys/class/leds/led1/brightness
-```
-
-### Kamera LED ausschalten
-
-in `/boot/config.txt`
-
-```text
-disable_camera_led=1
-```
 
 ### Installation RTC
 

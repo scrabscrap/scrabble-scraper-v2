@@ -425,7 +425,7 @@ aufgerufen werden.
 
 ### Reboot
 
-_Hinweis:_ nach einem Reboot immer vor dem Spielbeginn prüfen, ob eine korrekte Betzverbindung
+_Hinweis:_ nach einem Reboot immer vor dem Spielbeginn prüfen, ob eine korrekte Netzverbindung
 besteht (z.B. durch Aufruf der Web-Oberfläche).
 
 Nach einem Reboot kann es vorkommen, dass keine korrekte Netzwerkverbindung aufgebaut wird.
