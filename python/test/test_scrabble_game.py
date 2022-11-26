@@ -74,13 +74,17 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
     def test_game_12(self):
         """Test game 12"""
+        from display import Display
         from state import State
+        from scrabblewatch import ScrabbleWatch
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
+        display = Display()
+        watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game-12/board-{{:02d}}.png'  # type: ignore
-        state = State(cam=cam)
+        state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_reset()
         state.game.nicknames = ('A', 'S')
@@ -99,14 +103,18 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
     def test_game_13(self):
         """"Test game 13"""
+        from display import Display
         from state import State
+        from scrabblewatch import ScrabbleWatch
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
+        display = Display()
+        watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game-13/board-{{:02d}}.png'  # type: ignore
 
-        state = State(cam=cam)
+        state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_reset()
         state.game.nicknames = ('A', 'B')
@@ -126,14 +134,18 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
     def test_game_14(self):
         """Test game 14"""
+        from display import Display
         from state import State
+        from scrabblewatch import ScrabbleWatch
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
+        display = Display()
+        watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game-14/board-{{:02d}}.png'  # type: ignore
 
-        state = State(cam=cam)
+        state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_reset()
         state.game.nicknames = ('INESSA', 'STEFAN')
@@ -152,14 +164,18 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
     def test_game_15(self):
         """Test game 15"""
+        from display import Display
         from state import State
+        from scrabblewatch import ScrabbleWatch
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
+        display = Display()
+        watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game-15/board-{{:02d}}.png'  # type: ignore
 
-        state = State(cam=cam)
+        state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_reset()
         state.game.nicknames = ('JO', 'ST')

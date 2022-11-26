@@ -25,6 +25,8 @@ logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/t
 
 from scrabble import Move, MoveType
 from state import State
+from display import Display
+from scrabblewatch import ScrabbleWatch
 
 
 class AlgorithmTestCase(unittest.TestCase):
@@ -33,7 +35,9 @@ class AlgorithmTestCase(unittest.TestCase):
     def setUp(self):
         # logging.disable(logging.DEBUG)  # falls Info-Ausgaben erfolgen sollen
         # logging.disable(logging.ERROR)
-        pass
+        display = Display()
+        watch = ScrabbleWatch(display)
+        self.state = State(watch=watch)
 
     def test_10(self):
         """Test 10 - hand on board"""

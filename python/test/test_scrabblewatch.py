@@ -25,6 +25,7 @@ logging.basicConfig(
 
 from hardware.led import LED
 from scrabblewatch import ScrabbleWatch
+from display import Display
 
 
 # noinspection PyMethodMayBeStatic
@@ -44,7 +45,8 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         """test: timer"""
         display_pause = 0.1
 
-        watch = ScrabbleWatch()
+        display = Display()
+        watch = ScrabbleWatch(display)
         logging.info('without start')
         watch.display.show_boot()
         time.sleep(display_pause)
@@ -63,11 +65,11 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         watch.pause()
         time.sleep(display_pause)
         logging.info('pause mit malus')
-        watch.display.add_malus(0)
+        watch.display.add_malus(0, [100, 100], [10, 10])
         watch.pause()
         time.sleep(display_pause)
         logging.info('pause mit remove')
-        watch.display.add_remove_tiles(1)
+        watch.display.add_remove_tiles(1, [100, 100], [10, 10])
         watch.pause()
         time.sleep(display_pause)
         logging.info('resume')

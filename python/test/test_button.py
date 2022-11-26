@@ -21,18 +21,21 @@ import os
 import time
 import unittest
 
-
 logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/test_log.conf',
                           disable_existing_loggers=False)
 
 
-from hardware.button import Button, ButtonEnum
+from time import sleep
+
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
+
+from display import Display
+from hardware.button import Button, ButtonEnum
 from hardware.led import LED, LEDEnum
-from state import State
+from scrabblewatch import ScrabbleWatch
 from simulate.mockcamera import MockCamera
-from time import sleep
+from state import State
 
 
 class ButtonTestCase(unittest.TestCase):
@@ -64,8 +67,11 @@ class ButtonTestCase(unittest.TestCase):
         self.pin_reset = Device.pin_factory.pin(ButtonEnum.RESET.value)
         self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
         # self.pin_config = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
+        display = Display()
+        watch = ScrabbleWatch(display)
+
         cam = MockCamera()
-        self.state = State(cam=cam)
+        self.state = State(cam=cam, watch=watch)
         self.state.cam = cam
         self.button_handler = Button()
         self.button_handler.start(self.state)
