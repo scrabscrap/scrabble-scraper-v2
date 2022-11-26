@@ -459,9 +459,6 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             watch.display.show_ready()
             logging.debug('Display show ready')
             sleep(0.5)
-            watch.display.clear()
-            logging.debug('Display clear display')
-            watch.display.show()
             ApiServer.flask_shutdown_blocked = False
             ApiServer.last_msg = 'display_test ended'
         else:
