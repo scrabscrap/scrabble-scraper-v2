@@ -261,6 +261,7 @@ class State(metaclass=Singleton):
         (START, RED): do_start0,
         (START, RESET): do_reset,
         (START, REBOOT): do_reboot,
+        (START, AP): do_accesspoint,
         (S0, GREEN): do_move0,
         (S0, YELLOW): do_pause0,
         (P0, RED): do_resume0,
