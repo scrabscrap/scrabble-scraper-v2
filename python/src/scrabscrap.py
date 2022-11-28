@@ -99,8 +99,7 @@ def main() -> None:
         logging.error(f'can not open camera {oops}')
 
     # start api server
-    api = ApiServer()
-    ApiServer.cam = cam  # type: ignore
+    api = ApiServer(cam=cam)
     api_future = pool.submit(api.start_server)
 
     # start Button-Handler

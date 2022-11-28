@@ -47,6 +47,10 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     flask_shutdown_blocked = False
     scrabscrap_version = ''
 
+    def __init__(self, cam=None) -> None:
+        if cam:
+            self.cam = cam
+
     @staticmethod
     @app.get('/')
     @app.get('/index')
@@ -544,8 +548,7 @@ def main():
     cam_event = Event()
     _ = pool.submit(cam.update, cam_event)
 
-    api = ApiServer()
-    ApiServer.cam = cam  # type: ignore
+    api = ApiServer(cam=cam)
     pool.submit(api.start_server)
 
     sleep(240)  # stop after 2 min
