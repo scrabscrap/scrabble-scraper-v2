@@ -18,7 +18,6 @@
 import atexit
 import gc
 import logging
-import time
 from concurrent.futures import Future
 from signal import alarm
 from typing import Callable, Optional
@@ -57,8 +56,6 @@ class State(metaclass=Singleton):
         self.watch: ScrabbleWatch = watch if watch is not None else ScrabbleWatch()
         self.cam = cam
         self.last_submit: Optional[Future] = None  # last submit to thread pool; waiting for processing of the last move
-        self.bounce = {GREEN: .0, RED: .0, YELLOW: .0, DOUBT0: .0,
-                       DOUBT1: .0, RESET: .0, REBOOT: .0, AP: .0}
         self.game: Game = Game(None)
         atexit.register(self._atexit)
 
@@ -240,11 +237,7 @@ class State(metaclass=Singleton):
         before sending the next event, press button will wait for self.bounce
         """
         try:
-            press = time.time()
-            if press < self.bounce[button] + 0.1:
-                pass
-            else:
-                self.current_state = self.state[(self.current_state, button)](self)
+            self.current_state = self.state[(self.current_state, button)](self)
         except KeyError:
             logging.debug('Key Error - ignore')
 
@@ -253,7 +246,7 @@ class State(metaclass=Singleton):
 
         sets the release time to self.bounce
         """
-        self.bounce[button] = time.time()
+        pass
 
     # START, pause => not supported
     state: dict[tuple[str, str], Callable] = {

@@ -17,6 +17,7 @@
 """
 import atexit
 import logging
+import time
 from enum import Enum
 from typing import Optional
 
@@ -48,6 +49,7 @@ class Button:
 
     def __init__(self) -> None:
         self.state: Optional[State] = None
+        self.bounce: dict = {}
         atexit.register(self.cleanup_atexit)
 
     def cleanup_atexit(self) -> None:
@@ -58,10 +60,13 @@ class Button:
 
     def button_pressed(self, button: GpioButton) -> None:  # callback
         """perform button press"""
-        self.state.press_button(ButtonEnum(button.pin.number).name)  # type: ignore
+        press = time.time()
+        if press > self.bounce[ButtonEnum(button.pin.number).name] + 0.1:  # type: ignore
+            self.state.press_button(ButtonEnum(button.pin.number).name)    # type: ignore
 
     def button_released(self, button: GpioButton) -> None:  # callback
         """perform button release"""
+        self.bounce[ButtonEnum(button.pin.number).name] = time.time()  # type: ignore
         self.state.release_button(ButtonEnum(button.pin.number).name)  # type: ignore
 
     def start(self, _state: State) -> None:
@@ -74,10 +79,12 @@ class Button:
                 input_button = GpioButton(button.value)
                 input_button.when_pressed = self.button_pressed
                 input_button.when_released = self.button_released
+                self.bounce[button.name] = .0
             else:
                 logging.debug(f'Button {button.name} when held')
                 input_button = GpioButton(button.value)
                 input_button.hold_time = 3
                 input_button.when_held = self.button_pressed
                 input_button.when_released = self.button_released
+                self.bounce[button.name] = .0
         self.state.do_ready()
