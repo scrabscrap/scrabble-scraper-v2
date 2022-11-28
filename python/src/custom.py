@@ -163,8 +163,8 @@ class Custom:
         tmp_img = cv2.GaussianBlur(_image, (7, 7), 0)
         tmp_img = cv2.resize(tmp_img, (200, 200), interpolation=cv2.INTER_AREA)
         lab = cv2.cvtColor(tmp_img, cv2.COLOR_BGR2LAB)
-        _, a, b = cv2.split(lab)
-        image = cv2.merge((a, b))
+        _, channel_a, channel_b = cv2.split(lab)
+        image = cv2.merge((channel_a, channel_b))
         image = image.reshape((200 * 200, 2))
         image = np.float32(image)
 
@@ -184,8 +184,8 @@ class Custom:
         y = 94  # 47  # (3,125 + (7*6,25)
         x = 94  # 47  # (3,125 + (7*6,25)
         field = kmeans_image[y:y + 12, x:x + 12]
-        a, cnts = np.unique(field, return_counts=True)
-        high_freq_element = a[cnts.argmax()]
+        channel_a, cnts = np.unique(field, return_counts=True)
+        high_freq_element = channel_a[cnts.argmax()]
         kmeans_image[kmeans_image != high_freq_element] = 0
 
         # auf gesamte Fläche ausdehnen
@@ -195,8 +195,8 @@ class Custom:
                 y = int(6.25 + (row * 12.5))
                 x = int(6.25 + (col * 12.5))
                 field = kmeans_image[y:y + 12, x:x + 12]
-                a, cnts = np.unique(field, return_counts=True)
-                if a[cnts.argmax()] != 0:
+                channel_a, cnts = np.unique(field, return_counts=True)
+                if channel_a[cnts.argmax()] != 0:
                     logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {cnts} ")
                     set_of_tiles.add((col, row))
 
