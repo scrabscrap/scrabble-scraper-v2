@@ -60,7 +60,7 @@ jobs:
         id: mypy
         run: |
           cd python
-          mypy src/*.py src/hardware/*.py src/simulate/*.py simulator/*.py --config-file mypy.ini
+          mypy src/*.py src/hardware/*.py simulator/*.py --config-file mypy.ini
 
   pylint:
     runs-on: ubuntu-latest
