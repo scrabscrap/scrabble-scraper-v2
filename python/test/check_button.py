@@ -21,9 +21,9 @@ from signal import pause
 
 from display import Display
 from hardware.button import Button
+from hardware.camera_thread import Camera, CameraEnum
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
-from simulate.mockcamera import MockCamera
 from state import DOUBT0, DOUBT1, GREEN, REBOOT, RED, RESET, YELLOW, State
 
 logging.basicConfig(
@@ -71,7 +71,7 @@ class CheckButtonTestCase(unittest.TestCase):
         """start button event handler - display LED on Button press"""
         display = Display()
         watch = ScrabbleWatch(display)
-        cam = MockCamera()
+        cam = Camera(use_camera=CameraEnum.FILE)
 
         state = SimulateState(cam=cam, watch=watch)
         # start Button-Handler

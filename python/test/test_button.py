@@ -32,9 +32,9 @@ from gpiozero.pins.mock import MockFactory
 
 from display import Display
 from hardware.button import Button, ButtonEnum
+from hardware.camera_thread import Camera, CameraEnum
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
-from simulate.mockcamera import MockCamera
 from state import State
 
 
@@ -70,7 +70,7 @@ class ButtonTestCase(unittest.TestCase):
         display = Display()
         watch = ScrabbleWatch(display)
 
-        cam = MockCamera()
+        cam = Camera(use_camera=CameraEnum.FILE)
         self.state = State(cam=cam, watch=watch)
         self.state.cam = cam
         self.button_handler = Button()
