@@ -32,8 +32,8 @@ from gpiozero.pins.mock import MockFactory
 
 from display import Display
 from hardware.button import ButtonEnum
-from hardware.camera_thread import Camera, CameraEnum
 from hardware.led import LED, LEDEnum
+from hardware.camera_file import CameraFile
 from scrabblewatch import ScrabbleWatch
 from state import State
 
@@ -70,8 +70,11 @@ class ButtonTestCase(unittest.TestCase):
         display = Display()
         watch = ScrabbleWatch(display)
 
-        cam = Camera(use_camera=CameraEnum.FILE)
+        cam = CameraFile()
+        cam.cnt = 0
         self.state = State(cam=cam, watch=watch)
+        self.state.cam = cam  # reapply cam and watch because of singleton
+        self.state.watch = watch
         self.state.init()
         return super().setUp()
 
