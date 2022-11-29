@@ -49,7 +49,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
 
     def __init__(self, cam=None) -> None:
         if cam:
-            self.cam = cam
+            ApiServer.cam = cam
 
     @staticmethod
     @app.get('/')
