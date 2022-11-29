@@ -121,7 +121,7 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
     return board
 
 
-def store_move(current_move: Move, img: Optional[Mat]):
+def store_move(game: Game, img: Optional[Mat]):
     """store move to filesystem
 
     Args:
@@ -129,16 +129,16 @@ def store_move(current_move: Move, img: Optional[Mat]):
         img(Mat): current picture
     """
     if config.output_web or config.output_ftp:
-        with open(f'{config.web_dir}/data-{current_move.move}.json', "w", encoding='UTF-8') as handle:
-            handle.write(current_move.json_str())
+        with open(f'{config.web_dir}/data-{game.moves[-1].move}.json', "w", encoding='UTF-8') as handle:
+            handle.write(game.json_str())
         with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
-            handle.write(current_move.json_str())
+            handle.write(game.json_str())
         if img is None:
             import shutil
-            shutil.copyfile(f'{config.web_dir}/image-{current_move.move - 1}.jpg',
-                            f'{config.web_dir}/image-{current_move.move}.jpg')
+            shutil.copyfile(f'{config.web_dir}/image-{game.moves[-1].move - 1}.jpg',
+                            f'{config.web_dir}/image-{game.moves[-1].move}.jpg')
         else:
-            cv2.imwrite(f'{config.web_dir}/image-{current_move.move}.jpg', img)
+            cv2.imwrite(f'{config.web_dir}/image-{game.moves[-1].move}.jpg', img)
 
 
 def upload_ftp(current_move: Move):
@@ -295,7 +295,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
 
     game.add_move(current_move)                                                # 9. add move
     logging.debug(f'\n{game.board_str()}')
-    logging.debug(f'\n{game.moves[-1].json_str()}')
+    logging.debug(f'\n{game.json_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
     if config.development_recording:
         logging.info('game recording')
@@ -311,7 +311,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
         recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
         recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
-    store_move(current_move, warped)                                           # 10. store move on hd
+    store_move(game, warped)                                           # 10. store move on hd
     upload_ftp(current_move)                                                   # 11. upload move to ftp
 
 
@@ -340,7 +340,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
         recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
         recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
-    store_move(game.moves[-1], None)                                           # 10. store move on hd
+    store_move(game, None)                                           # 10. store move on hd
     upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
 
 
@@ -369,7 +369,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
         recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
         recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
-    store_move(game.moves[-1], None)                                           # 10. store move on hd
+    store_move(game, None)                                           # 10. store move on hd
     upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
 
 

@@ -97,15 +97,15 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
 
     def __str__(self) -> str:
         """move as json string"""
-        return self.json_str()
+        return self.gcg_str()
 
-    def gcg_str(self) -> str:
+    def gcg_str(self, nicknames: Optional[Tuple[str, str]] = None) -> str:
         """move as gcg string"""
-        from state import State
 
-        game = State().game
-        nickname = game.nicknames[self.player]
-        result = ">" + nickname + ": "
+        if nicknames:
+            result = f'> {nicknames[self.player]}: '
+        else:
+            result = f'> Spieler {self.player}: '
         if self.type == MoveType.REGULAR:
             (col, row) = self.coord
             result += str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(
@@ -129,41 +129,6 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
             result += "(unknown) "
         result += f"{self.points:+d} {self.score[self.player]:+d}"
         return result
-
-    def json_str(self) -> str:
-        """Return the json represention of the move"""
-        from state import State
-
-        game = State().game
-        keys = self.board.keys()
-        values = self.board.values()
-        keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in keys]
-        values1 = [t for (t, p) in values]
-        bag = bag_as_list.copy()
-        _ = [i for i in values1 if i not in bag or bag.remove(i)]  # type: ignore # side effect remove v1 from bag
-        (name1, name2) = game.nicknames
-
-        gcg_moves = []
-        for i in game.moves:
-            gcg_moves.append(i.gcg_str())
-            if i == self:
-                break
-        to_json = json.dumps(
-            {
-                'time': self.time,
-                'move': self.move,
-                'score1': self.score[0],
-                'score2': self.score[1],
-                'time1': config.max_time - self.played_time[0],
-                'time2': config.max_time - self.played_time[1],
-                'name1': name1,
-                'name2': name2,
-                'onmove': game.nicknames[self.player],
-                'moves': gcg_moves,
-                'board': dict(zip(*[keys1, values1])),
-                'bag': bag
-            })
-        return to_json
 
     def calculate_score(self, previous_score: Tuple[int, int]) -> Tuple[int, Tuple[int, int], bool]:
         """calculate score of the current move"""
@@ -239,11 +204,39 @@ class Game():
         self.moves: List[Move] = []
 
     def __str__(self) -> str:
-        return f'\"nicknames\" : [ \"{self._nicknames[0]}\" , \"{self._nicknames[1]}\" ]'
+        return self.json_str()
 
     def json_str(self) -> str:
         """Return the json represention of the board"""
-        return f'{{ {str(self)} }}'
+        keys = self.moves[-1].board.keys()
+        values = self.moves[-1].board.values()
+        keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in keys]
+        values1 = [t for (t, p) in values]
+        bag = bag_as_list.copy()
+        _ = [i for i in values1 if i not in bag or bag.remove(i)]  # type: ignore # side effect remove v1 from bag
+        (name1, name2) = self.nicknames
+
+        gcg_moves = []
+        for i in self.moves:
+            gcg_moves.append(i.gcg_str())
+            if i == self:
+                break
+        to_json = json.dumps(
+            {
+                'time': self.moves[-1].time,
+                'move': self.moves[-1].move,
+                'score1': self.moves[-1].score[0],
+                'score2': self.moves[-1].score[1],
+                'time1': config.max_time - self.moves[-1].played_time[0],
+                'time2': config.max_time - self.moves[-1].played_time[1],
+                'name1': name1,
+                'name2': name2,
+                'onmove': self.nicknames[self.moves[-1].player],
+                'moves': gcg_moves,
+                'board': dict(zip(*[keys1, values1])),
+                'bag': bag
+            })
+        return to_json
 
     def board_str(self) -> str:
         """Return the textual represention of the board"""
