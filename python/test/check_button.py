@@ -20,7 +20,6 @@ import unittest
 from signal import pause
 
 from display import Display
-from hardware.button import Button
 from hardware.camera_thread import Camera, CameraEnum
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
@@ -32,6 +31,10 @@ logging.basicConfig(
 
 class SimulateState(State):
     """Mock: simulate State"""
+
+    def init(self) -> None:
+        """init state machine"""
+        self.button_handler.start(func_pressed=self.press_button)
 
     def press_button(self, button: str) -> None:
         """process button press
@@ -60,9 +63,6 @@ class SimulateState(State):
             logging.info("pressed reboot")
             LED.blink_on({LEDEnum.green, LEDEnum.red})
 
-    def release_button(self, button: str) -> None:
-        pass
-
 
 class CheckButtonTestCase(unittest.TestCase):
     """check physical button"""
@@ -74,11 +74,7 @@ class CheckButtonTestCase(unittest.TestCase):
         cam = Camera(use_camera=CameraEnum.FILE)
 
         state = SimulateState(cam=cam, watch=watch)
-        # start Button-Handler
-        button_handler = Button()
-
-        # set callback for Button Events
-        button_handler.start(state)
+        state.init()
         pause()
 
 

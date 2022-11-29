@@ -23,6 +23,7 @@ from signal import alarm
 from typing import Callable, Optional
 
 from config import config
+from hardware.button import Button
 from hardware.led import LED, LEDEnum
 from processing import (end_of_game, invalid_challenge, move, start_of_game,
                         valid_challenge)
@@ -51,9 +52,10 @@ AP = 'AP'
 class State(metaclass=Singleton):
     """State machine of the scrabble game"""
 
-    def __init__(self, cam=None, watch: Optional[ScrabbleWatch] = None) -> None:
+    def __init__(self, cam=None, watch: Optional[ScrabbleWatch] = None, button_handler: Optional[Button] = None) -> None:
         self.current_state: str = START
-        self.watch: ScrabbleWatch = watch if watch is not None else ScrabbleWatch()
+        self.watch: ScrabbleWatch = watch if watch else ScrabbleWatch()
+        self.button_handler: Button = button_handler if button_handler else Button()
         self.cam = cam
         self.last_submit: Optional[Future] = None  # last submit to thread pool; waiting for processing of the last move
         self.game: Game = Game(None)
@@ -61,6 +63,10 @@ class State(metaclass=Singleton):
 
     def _atexit(self) -> None:
         logging.info('atexit State')
+
+    def init(self) -> None:
+        """init state machine"""
+        self.button_handler.start(func_pressed=self.press_button)
 
     def do_ready(self) -> str:
         """Game can be started"""
