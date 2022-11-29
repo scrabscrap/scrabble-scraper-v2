@@ -182,14 +182,12 @@ def main():
 
     # set Mock-Camera
     cam = Camera(useCamera=CameraEnum.FILE)
-    cam_event = Event()
-    _ = pool.submit(cam.update, cam_event)
+    _ = pool.submit(cam.update, Event())
 
     # set Watch
     watch = ScrabbleWatch()
     timer = RepeatedTimer(1, watch.tick)
-    timer_event = Event()
-    _ = pool.submit(timer.tick, timer_event)
+    _ = pool.submit(timer.tick, Event())
 
     api = ApiServer()
     ApiServer.cam = cam  # type: ignore
@@ -214,8 +212,8 @@ def main():
     api.start_server(port=5050)
 
     api.stop_server()
-    cam_event.set()
-    timer_event.set()
+    cam.cancel()
+    timer.cancel()
 
 
 if __name__ == '__main__':

@@ -545,15 +545,14 @@ def main():
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
     cam = Camera()
-    cam_event = Event()
-    _ = pool.submit(cam.update, cam_event)
+    _ = pool.submit(cam.update, Event())
 
     api = ApiServer(cam=cam)
     pool.submit(api.start_server)
 
     sleep(240)  # stop after 2 min
     api.stop_server()
-    cam_event.set()
+    cam.cancel()
 
 
 if __name__ == '__main__':
