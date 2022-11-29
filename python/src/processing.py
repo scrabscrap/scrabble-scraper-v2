@@ -25,9 +25,9 @@ import cv2
 import imutils
 import numpy as np
 
-from classic import Classic
+from classicboard import ClassicBoard
 from config import config
-from custom import Custom
+from customboard import CustomBoard
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from game_board.tiles import tiles
 from scrabble import Game, InvalidMoveExeption, Move, MoveType, NoMoveException
@@ -40,33 +40,33 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 def get_last_warp() -> Optional[Mat]:
     """Delegates the warp of the ``img`` according to the configured board style"""
     if config.video_warp and config.board_layout == 'classic':
-        return Classic.last_warp
-    return Custom.last_warp
+        return ClassicBoard.last_warp
+    return CustomBoard.last_warp
 
 
 def clear_last_warp():
     """Delegates the warp of the ``img`` according to the configured board style"""
     if config.board_layout == 'classic':
-        Classic.last_warp = None
+        ClassicBoard.last_warp = None
     else:
-        Custom.last_warp = None
+        CustomBoard.last_warp = None
 
 
 def warp_image(img: Mat) -> Mat:
     """Delegates the warp of the ``img`` according to the configured board style"""
     if config.video_warp and config.board_layout == 'custom':
-        return Custom.warp(img)
+        return CustomBoard.warp(img)
     if config.video_warp and config.board_layout == 'classic':
-        return Classic.warp(img)
+        return ClassicBoard.warp(img)
     return img
 
 
 def filter_image(img: Mat) -> tuple[Optional[Mat], set]:
     """Delegates the image filter of the ``img`` according to the configured board style"""
     if config.board_layout == 'custom':
-        return Custom.filter_image(img)
+        return CustomBoard.filter_image(img)
     if config.board_layout == 'classic':
-        return Classic.filter_image(img)
+        return ClassicBoard.filter_image(img)
     return None, set()
 
 

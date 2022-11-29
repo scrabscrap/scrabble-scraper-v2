@@ -19,12 +19,11 @@ import logging
 import logging.config
 
 import cv2
-import imutils
 import numpy as np
 from vlogging import VisualRecord
 
-from config import config
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
+from gameboard import GameBoard
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
@@ -44,8 +43,8 @@ visualLogger = logging.getLogger("visualLogger")
 # 19mm x 19mm
 
 
-class Classic:
-    """ Implentation classic scrabble board analysis """
+class ClassicBoard(GameBoard):
+    """ Implementation classic scrabble board analysis """
     last_warp = None
 
     def __init__(self):
@@ -55,46 +54,7 @@ class Classic:
     def warp(__image):
         """" implement warp of a classic board """
 
-        if config.video_warp_coordinates is not None:
-            rect = np.array(config.video_warp_coordinates, dtype="float32")
-        else:
-            # based on: https://www.pyimagesearch.com/2014/08/25/4-point-opencv-getperspective-transform-example/
-            (blue, _, _) = cv2.split(__image.copy())
-
-            # Otsu's thresholding after Gaussian filtering
-            blur = cv2.GaussianBlur(blue, (5, 5), 0)
-            _, th3 = cv2.threshold(
-                blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-
-            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
-            dilated = cv2.dilate(th3, kernel)
-
-            cnts = cv2.findContours(
-                dilated.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            cnts = imutils.grab_contours(cnts)
-            cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:1]
-            contour = cnts[0]
-            peri = 1
-            approx = cv2.approxPolyDP(contour, peri, True)
-            while len(approx) > 4:
-                peri += 1
-                approx = cv2.approxPolyDP(contour, peri, True)
-
-            pts = approx.reshape(4, 2)
-            rect = np.zeros((4, 2), dtype="float32")
-
-            # the top-left point has the smallest sum whereas the
-            # bottom-right has the largest sum
-            sums = pts.sum(axis=1)
-            rect[0] = pts[np.argmin(sums)]
-            rect[2] = pts[np.argmax(sums)]
-
-            # compute the difference between the points -- the top-right
-            # will have the minumum difference and the bottom-left will
-            # have the maximum difference
-            diff = np.diff(pts, axis=1)
-            rect[1] = pts[np.argmin(diff)]
-            rect[3] = pts[np.argmax(diff)]
+        rect = ClassicBoard.find_board(__image)
 
         # now that we have our rectangle of points, let's compute
         # the width of our new image
@@ -119,7 +79,7 @@ class Classic:
             [max_width, max_height],
             [0, max_height]], dtype="float32")
 
-        Classic.last_warp = rect
+        ClassicBoard.last_warp = rect
         # calculate the perspective transform matrix and warp
         # the perspective to grab the screen
         matrix = cv2.getPerspectiveTransform(rect, dst)
@@ -154,7 +114,7 @@ class Classic:
         _, mark_grid = cv2.threshold(mark_grid, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         _tiles_candidates: set = set()
         _blank_candidates: dict = {}
-        Classic._mark_grid((7, 7), mark_grid, blank_grid, _tiles_candidates, _blank_candidates)  # starte in der Mitte
+        ClassicBoard._mark_grid((7, 7), mark_grid, blank_grid, _tiles_candidates, _blank_candidates)  # starte in der Mitte
 
         return _gray, _tiles_candidates
 
@@ -178,7 +138,7 @@ class Classic:
             percentage = np.count_nonzero(_img_blank) * 100 // _img_blank.size
             if percentage > 85:
                 _blank_candidates[coord] = ('_', 76 + (percentage - 90) * 2)
-            Classic._mark_grid((col + 1, row), _grid, _blank_grid, _board, _blank_candidates)
-            Classic._mark_grid((col - 1, row), _grid, _blank_grid, _board, _blank_candidates)
-            Classic._mark_grid((col, row + 1), _grid, _blank_grid, _board, _blank_candidates)
-            Classic._mark_grid((col, row - 1), _grid, _blank_grid, _board, _blank_candidates)
+            ClassicBoard._mark_grid((col + 1, row), _grid, _blank_grid, _board, _blank_candidates)
+            ClassicBoard._mark_grid((col - 1, row), _grid, _blank_grid, _board, _blank_candidates)
+            ClassicBoard._mark_grid((col, row + 1), _grid, _blank_grid, _board, _blank_candidates)
+            ClassicBoard._mark_grid((col, row - 1), _grid, _blank_grid, _board, _blank_candidates)
