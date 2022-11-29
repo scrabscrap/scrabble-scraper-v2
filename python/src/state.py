@@ -67,6 +67,7 @@ class State(metaclass=Singleton):
     def init(self) -> None:
         """init state machine"""
         self.button_handler.start(func_pressed=self.press_button)
+        self.do_ready()
 
     def do_ready(self) -> str:
         """Game can be started"""
