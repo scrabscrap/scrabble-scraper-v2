@@ -31,7 +31,7 @@ from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
 from display import Display
-from hardware.button import Button, ButtonEnum
+from hardware.button import ButtonEnum
 from hardware.camera_thread import Camera, CameraEnum
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
@@ -72,15 +72,12 @@ class ButtonTestCase(unittest.TestCase):
 
         cam = Camera(use_camera=CameraEnum.FILE)
         self.state = State(cam=cam, watch=watch)
-        self.state.cam = cam
-        self.button_handler = Button()
-        self.button_handler.start(self.state)
+        self.state.init()
         return super().setUp()
 
     def tearDown(self) -> None:
         self.state.do_reset()
         LED.switch_on({})  # type: ignore
-        self.state.watch.display.stop()
         Device.pin_factory.reset()  # type: ignore
         # for thread in threading.enumerate():
         #    if not thread.name.startswith('Main'):
@@ -109,6 +106,7 @@ class ButtonTestCase(unittest.TestCase):
         """Test doubt01"""
         # doubt invalid
         display_pause = 0.01
+        self.state.do_ready()
 
         time.sleep(display_pause)
         assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0

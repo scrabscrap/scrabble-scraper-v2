@@ -15,15 +15,14 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-import atexit
 import logging
 import time
 from enum import Enum
-from typing import Optional
+from typing import Callable, Optional
 
 from gpiozero import Button as GpioButton
 
-from state import State
+from util import Singleton
 
 
 class ButtonEnum(Enum):
@@ -44,34 +43,31 @@ class ButtonEnum(Enum):
     REBOOT = 26  # GPIO26 - pin 37 - Button reboot (blue)
 
 
-class Button:
+class Button(metaclass=Singleton):
     """Handle button press and release"""
 
     def __init__(self) -> None:
-        self.state: Optional[State] = None
         self.bounce: dict = {}
-        atexit.register(self.cleanup_atexit)
-
-    def cleanup_atexit(self) -> None:
-        """cleanup at program exit"""
-        # from gpiozero import Device
-        # Device.pin_factory.close()  # type: ignore
-        pass
+        self.func_pressed: Optional[Callable] = None
+        self.func_released: Optional[Callable] = None
 
     def button_pressed(self, button: GpioButton) -> None:  # callback
         """perform button press"""
         press = time.time()
         if press > self.bounce[ButtonEnum(button.pin.number).name] + 0.1:  # type: ignore
-            self.state.press_button(ButtonEnum(button.pin.number).name)    # type: ignore
+            if self.func_pressed:
+                self.func_pressed(ButtonEnum(button.pin.number).name)    # type: ignore
 
     def button_released(self, button: GpioButton) -> None:  # callback
         """perform button release"""
         self.bounce[ButtonEnum(button.pin.number).name] = time.time()  # type: ignore
-        self.state.release_button(ButtonEnum(button.pin.number).name)  # type: ignore
+        if self.func_released:
+            self.func_released(ButtonEnum(button.pin.number).name)  # type: ignore
 
-    def start(self, _state: State) -> None:
+    def start(self, func_pressed: Optional[Callable] = None, func_released: Optional[Callable] = None) -> None:
         """initialize the button handler"""
-        self.state = _state
+        self.func_pressed = func_pressed
+        self.func_released = func_released
         # create Buttons and configure listener
         for button in ButtonEnum:
             if button in [ButtonEnum.GREEN, ButtonEnum.YELLOW, ButtonEnum.RED, ButtonEnum.DOUBT0, ButtonEnum.DOUBT1]:
@@ -87,4 +83,3 @@ class Button:
                 input_button.when_held = self.button_pressed
                 input_button.when_released = self.button_released
                 self.bounce[button.name] = .0
-        self.state.do_ready()

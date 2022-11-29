@@ -33,7 +33,6 @@ logging.config.fileConfig(fname=f'{config.work_dir}/log.conf',
 
 
 from api_server_thread import ApiServer
-from hardware.button import Button
 from hardware.camera_thread import Camera
 from scrabblewatch import ScrabbleWatch
 from state import State
@@ -102,13 +101,10 @@ def main() -> None:
     api = ApiServer(cam=cam)
     api_future = pool.submit(api.start_server)
 
-    # start Button-Handler
-    button_handler = Button()
     # start State-Machine
     state = State(cam=cam, watch=watch)
-
     # set callback for Button Events
-    button_handler.start(state)
+    state.init()
 
     if cam is None:
         watch.display.show_cam_err()
