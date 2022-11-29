@@ -218,7 +218,7 @@ class Game():
 
         gcg_moves = []
         for i in self.moves:
-            gcg_moves.append(i.gcg_str())
+            gcg_moves.append(i.gcg_str(self.nicknames))
             if i == self:
                 break
         to_json = json.dumps(
