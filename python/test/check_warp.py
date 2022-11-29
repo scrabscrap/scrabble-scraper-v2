@@ -65,10 +65,10 @@ def print_board(board: dict) -> str:
 
 def main() -> None:
     """main entry for starting"""
+
     def main_cleanup(signum, _) -> None:
         logging.debug(f'Signal handler called with signal {signum}')
-        cam_future.cancel()
-        cam_event.set()
+        cam.cancel()
         # reset alarm
         signal.alarm(0)
 
@@ -80,8 +80,7 @@ def main() -> None:
     # open Camera
     cam = Camera()
     # cam = MockCamera()
-    cam_event = Event()
-    cam_future = pool.submit(cam.update, cam_event)
+    _ = pool.submit(cam.update, Event())
     sleep(1)  # camera warmup
 
     img = cam.read()
@@ -123,8 +122,8 @@ def main() -> None:
     overlay = overlay_tiles(overlay, board)
     visualLogger.info(VisualRecord("Overlayed", [overlay], fmt="png"))
 
-    cam_future.cancel()
-    cam_event.set()
+    cam.cancel()
+    pool.shutdown(cancel_futures=True)
 
 
 if __name__ == '__main__':

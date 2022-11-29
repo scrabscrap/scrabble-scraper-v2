@@ -39,25 +39,23 @@ from state import State
 from threadpool import pool
 from timer_thread import RepeatedTimer
 
-cleanup_done = False  # pylint: disable=C0103 # not a contant see _cleanup()
+cleanup_done = False  # pylint: disable=C0103 # not a constant see _cleanup()
 
 
 def main() -> None:
     """entry point for scrabscrap"""
 
     def _cleanup():
-        global cleanup_done  # pylint: disable=W0603,C0103 # not a contant see _cleanup()
+        global cleanup_done  # pylint: disable=W0603,C0103 # not a constant see _cleanup()
 
         logging.debug(f'main-_atexit {cleanup_done}')
         if not cleanup_done:
             cleanup_done = True
-            api_future.cancel()
-            cam_future.cancel()
-            timer_future.cancel()
             api.stop_server()
-            cam_event.set()
-            timer_event.set()
-            pool.shutdown()
+            timer.cancel()
+            if cam:
+                cam.cancel()
+            pool.shutdown(cancel_futures=True)
 
     def signal_alarm(signum, _) -> None:
         import os
@@ -72,42 +70,36 @@ def main() -> None:
             os.system('sudo shutdown now')
             sys.exit(0)
 
-    # def signal_handler(signum, _) -> None:
-    #     logging.debug(f'Signal handler called with signal {signum}')
-    #     _cleanup()
-
     signal.signal(signal.SIGALRM, signal_alarm)
-    # signal.signal(signal.SIGTERM, signal_handler)
     atexit.register(_cleanup)
+
     # create Timer
     watch = ScrabbleWatch()
     watch.display.show_boot()  # Boot Message
     timer = RepeatedTimer(1, watch.tick)
-    timer_event = Event()
-    timer_future = pool.submit(timer.tick, timer_event)
+    _ = pool.submit(timer.tick, Event())
 
+    # create cam
     cam = None
     sleep(2)  # wait for camera
     try:
-        # open Camera
         cam = Camera()
-        # cam = MockCamera()
-        cam_event = Event()
-        cam_future = pool.submit(cam.update, cam_event)
+        _ = pool.submit(cam.update, Event())
     except Exception as oops:  # type: ignore # pylint: disable=W0703
         logging.error(f'can not open camera {oops}')
 
     # start api server
     api = ApiServer(cam=cam)
-    api_future = pool.submit(api.start_server)
+    _ = pool.submit(api.start_server)
 
-    # start State-Machine
+    # State-Machine
     state = State(cam=cam, watch=watch)
-    # set callback for Button Events
+    # init State Machine
     state.init()
 
     if cam is None:
         watch.display.show_cam_err()
+
     # Run until Exit with alarm(1)
     pause()
 
