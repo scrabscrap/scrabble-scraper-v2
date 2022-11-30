@@ -153,7 +153,7 @@ class State(metaclass=Singleton):
             self.watch.display.add_remove_tiles(1, played_time, current)  # player 1 has to remove the last move
             self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 0, (played_time[0], played_time[1]))
             LED.switch_on({LEDEnum.yellow})  # turn on LED green (blink), yellow
-            LED.blink_on({LEDEnum.green})
+            LED.blink_on({LEDEnum.green}, switch_off=False)
         return P0
 
     def do_valid_challenge1(self) -> str:
@@ -167,7 +167,7 @@ class State(metaclass=Singleton):
             self.watch.display.add_remove_tiles(0, played_time, current)  # player 0 has to remove the last move
             self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 1, (played_time[0], played_time[1]))
             LED.switch_on({LEDEnum.yellow})  # turn on LED red (blink), yellow
-            LED.blink_on({LEDEnum.red})
+            LED.blink_on({LEDEnum.red}, switch_off=False)
         return P1
 
     def do_invalid_challenge0(self) -> str:
@@ -182,7 +182,7 @@ class State(metaclass=Singleton):
             self.watch.display.add_malus(0, played_time, current)  # player 0 gets a malus
             self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 0, (played_time[0], played_time[1]))
             LED.switch_on({LEDEnum.yellow})  # turn on LED green (blink), yellow
-            LED.blink_on({LEDEnum.green})
+            LED.blink_on({LEDEnum.green}, switch_off=False)
         return P0
 
     def do_invalid_challenge1(self) -> str:
@@ -197,7 +197,7 @@ class State(metaclass=Singleton):
             self.watch.display.add_malus(1, played_time, current)  # player 1 gets a malus
             self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 1, (played_time[0], played_time[1]))
             LED.switch_on({LEDEnum.yellow})  # turn on LED red (blink), yellow
-            LED.blink_on({LEDEnum.red})
+            LED.blink_on({LEDEnum.red}, switch_off=False)
         return P1
 
     def do_reset(self) -> str:

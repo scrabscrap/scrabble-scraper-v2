@@ -60,18 +60,20 @@ class LED:
         # Device.pin_factory.close()  # type: ignore
 
     @staticmethod
-    def switch_on(leds: Set[GpioLED]) -> None:
+    def switch_on(leds: Set[GpioLED], switch_off: bool = True) -> None:
         """switch all leds on"""
-        for i in LEDEnum.set().difference(leds):
-            i.off()
+        if switch_off:
+            for i in LEDEnum.set().difference(leds):
+                i.off()
         for i in leds:
             i.on()
 
     @staticmethod
-    def blink_on(leds: Set[GpioLED]) -> None:
+    def blink_on(leds: Set[GpioLED], switch_off: bool = True) -> None:
         """set all leds to blink"""
-        for i in LEDEnum.set().difference(leds):
-            i.off()
+        if switch_off:
+            for i in LEDEnum.set().difference(leds):
+                i.off()
         for i in leds:
             i.blink(on_time=0.2, off_time=0.2)  # type: ignore
 
