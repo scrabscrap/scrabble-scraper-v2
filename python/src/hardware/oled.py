@@ -125,7 +125,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
     def add_doubt_timeout(self, player: int, played_time: list[int], current: list[int]) -> None:
         assert player in [0, 1], "invalid player number"
         logging.debug(f'{player}: doubt timeout')
-        self.render_display(player, played_time, current, '\u21AFtimeout')
+        self.render_display(player, played_time, current, '\u21AFZeit')
 
     def show_cam_err(self) -> None:
         logging.debug('Cam err message')
