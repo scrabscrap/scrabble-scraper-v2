@@ -34,6 +34,7 @@ IC2_PORT_PLAYER2 = 3
 IC2_ADDRESS_PLAYER2 = 0x3c
 BLACK = 'black'
 WHITE = 'white'
+MIDDLE = (64, 42)
 
 # docu https://luma-oled.readthedocs.io/en/latest/index.html
 
@@ -69,43 +70,33 @@ class PlayerDisplay(Display, metaclass=Singleton):
             eip = 'n/a'
         current_ip = (wip, eip)
         msg = 'Boot'
-        width = self.font.getlength(msg)
-        coord = (self.device[0].width // 2 - width // 2, 20)
         for i in range(2):
             with canvas(self.device[i]) as draw:
-                draw.text((12, 0), current_ip[i], font=self.font2, fill=WHITE)
-                draw.text(coord, msg, font=self.font, fill=WHITE)
+                draw.text((1, 1), current_ip[i], font=self.font2, fill=WHITE)
+                draw.text(MIDDLE, msg, font=self.font, anchor='mm', align='center', fill=WHITE)
 
     def show_reset(self) -> None:
         logging.debug('Reset message')
         with canvas(self.device[0]) as draw:
             msg = 'New'
-            width = self.font.getlength(msg)
-            coord = (self.device[0].width // 2 - width // 2, 20)
-            draw.text(coord, msg, font=self.font, fill=WHITE)
+            draw.text(MIDDLE, msg, font=self.font, anchor='mm', align='center', fill=WHITE)
         with canvas(self.device[1]) as draw:
             msg = 'Game'
-            width = self.font.getlength(msg)
-            coord = (self.device[1].width // 2 - width // 2, 20)
-            draw.text(coord, msg, font=self.font, fill=WHITE)
+            draw.text(MIDDLE, msg, font=self.font, anchor='mm', align='center', fill=WHITE)
 
     def show_accesspoint(self) -> None:
         logging.debug('AP Mode message')
         msg = 'AP Mode'
-        width = self.font1.getlength(msg)
         for i in range(2):
-            coord = (self.device[i].width // 2 - width // 2, 20)
             with canvas(self.device[i]) as draw:
-                draw.text(coord, msg, font=self.font1, fill=WHITE)
+                draw.text(MIDDLE, msg, font=self.font1, anchor='mm', align='center', fill=WHITE)
 
     def show_ready(self, msg=('Ready', 'Ready')) -> None:
         logging.debug('Ready message')
         for i in range(2):
             with canvas(self.device[i]) as draw:
                 text = msg[i][:10]
-                width = self.font1.getlength(text)
-                coord = (self.device[i].width // 2 - width // 2, 20)
-                draw.text(coord, text, font=self.font1, fill=WHITE)
+                draw.text(MIDDLE, text, font=self.font1, anchor='mm', align='center', fill=WHITE)
 
     def show_pause(self, player: int, played_time: list[int], current: list[int]) -> None:
         assert player in [0, 1], "invalid player number"
@@ -131,19 +122,19 @@ class PlayerDisplay(Display, metaclass=Singleton):
         logging.debug('Cam err message')
         for i in range(2):
             with canvas(self.device[i]) as draw:
-                draw.text((1, 16), '\u2620Cam', font=self.font, fill=WHITE)
+                draw.text(MIDDLE, '\u2620Cam', font=self.font, anchor='mm', align='center', fill=WHITE)
 
     def show_ftp_err(self) -> None:
         logging.debug('FTP err message')
         for i in range(2):
             with canvas(self.device[i]) as draw:
-                draw.text((1, 16), '\u2620ftp', font=self.font, fill=WHITE)
+                draw.text(MIDDLE, '\u2620ftp', font=self.font, anchor='mm', align='center', fill=WHITE)
 
     def show_config(self) -> None:
         logging.debug('Cfg message')
         for i in range(2):
             with canvas(self.device[i]) as draw:
-                draw.text((1, 16), '\u270ECfg', font=self.font, fill=WHITE)
+                draw.text(MIDDLE, '\u270ECfg', font=self.font, anchor='mm', align='center', fill=WHITE)
 
     def render_display(self, player: int, played_time: list[int], current: list[int], info: Optional[str] = None) -> None:
         assert player in [0, 1], "invalid player number"
@@ -152,8 +143,10 @@ class PlayerDisplay(Display, metaclass=Singleton):
         text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
         with canvas(self.device[player]) as draw:
             if current[player] <= config.doubt_timeout:
-                draw.text((0, 1), '\u2049', font=self.font1, fill=WHITE)  # alternative \u2718
+                draw.text((1, 1), '\u2049', font=self.font1, fill=WHITE)  # alternative \u2718
             if info:
-                draw.text((24, 1), info, font=self.font1, fill=WHITE)
-            draw.text((80, 1), f'{current[player]:4d}', font=self.font1, fill=WHITE)
+                draw.text((22, 1), info, font=self.font1, fill=WHITE)
+            if current[player] != 0:
+                draw.text((90, 1), f'{current[player]:3d}', font=self.font1, fill=WHITE)
+
             draw.text((1, 22), text, font=self.font, fill=WHITE)
