@@ -16,15 +16,17 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
+import os
 from typing import Optional
 
 from util import Singleton
 
 try:
+    os.stat('/dev/i2c-1')
     from hardware.oled import PlayerDisplay
-except ImportError:
-    logging.warning('use mock as PlayerDisplay')
-    from display import Display as PlayerDisplay  # type: ignore # fallback on ImportError
+except (FileNotFoundError, ImportError):
+    logging.warning('no i2c device found or import error')
+    from display import Display as PlayerDisplay  # type: ignore
 
 
 class ScrabbleWatch(metaclass=Singleton):

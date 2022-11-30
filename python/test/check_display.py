@@ -16,10 +16,17 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
-from time import sleep
+import os
 import unittest
+from time import sleep
 
-from hardware.oled import PlayerDisplay
+try:
+    os.stat('/dev/i2c-1')
+    from hardware.oled import PlayerDisplay
+except (FileNotFoundError, ImportError):
+    logging.warning('no i2c device found or import error')
+    from display import Display as PlayerDisplay  # type: ignore # fallback on ImportError
+
 from scrabblewatch import ScrabbleWatch
 from util import trace
 
