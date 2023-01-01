@@ -20,7 +20,7 @@ class Moves extends React.Component {
             <td style={align}>{sp[2]}</td>
             <td style={align}>{sp[3]}</td>
           </tr>)
-        } else {
+        } else if (sp.length === 4) {
           items.push(<tr key={key + 1}>
             <td><a href={img_link} target="_scrabscrap_board">{key + 1}</a></td>
             <td>{sp[0]}</td>
@@ -28,6 +28,16 @@ class Moves extends React.Component {
             <td>{sp[2]}</td>
             <td style={align}>{sp[3]}</td>
             <td style={align}>{sp[4]}</td>
+          </tr>)
+        } else {
+          items.push(<tr key={key + 1}>
+            <td><a href={img_link} target="_scrabscrap_board">{key + 1}</a></td>
+            <td>{sp[0]}</td>
+            <td>{sp[1]}</td>
+            <td>{sp[2]}</td>
+            <td>{sp[3]}</td>
+            <td style={align}>{sp[4]}</td>
+            <td style={align}>{sp[5]}</td>
           </tr>)
         }
         // items.push(<li key={key}>{value}</li>)
