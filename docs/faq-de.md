@@ -76,8 +76,8 @@ Korrektur des Kamera-Armes den `Reload` Button drücken, damit das Bild neu aufg
 
 ## Settings
 
-Die Settings der Anwendung werden über die INI-Datei `scrabscrap.ini` und `ftp-secret.ini` konfiguriert.
-In der Datei `scrabscrap.ini` sind die Default-Werte in den einzelnen Sektionen unter dem Schlüssel
+Die Settings der Anwendung werden über die INI-Datei `scrabble.ini` und `ftp-secret.ini` konfiguriert.
+In der Datei `scrabble.ini` sind die Default-Werte in den einzelnen Sektionen unter dem Schlüssel
 `defaults` aufgeführt. Es müssen nur die geänderten Werte abgespeichert werden.
 
 Bei einem bereits gestartetem System können Änderungen über die Web-Oberfläche der

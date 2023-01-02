@@ -32,9 +32,10 @@ Pin | GPiO | Funktion | Ziel
 25  | Gnd  | Pwr      | Gnd (3*) => OLED2
 29  | 5    | I2C SDA  | OLED2
 31  | 6    | I2C SCL  | OLED2
+33  | 13   | S yellow | switch yellow => Access Point
 35  | 19   | S black  | switch black => reset
 37  | 26   | S blue   | switch blue  => reboot
-39  | Gnd  | B blk,bl | switch black/blue Gnd
+39  | Gnd  | B blk,bl | switch yellow/black/blue Gnd
 
 Pin | GPiO | Funktion | Ziel
 ----|------|----------|-----
@@ -55,7 +56,7 @@ so müssen geeignete Vorwiderstände ergänzt werden.
 
 <div style="display:none;page-break-after: always;">\pagebreak</div>
 
-### Anschluss OLED (Display 1 - Grün) an Multiplexer
+### Anschluss OLED (Display 1 - Grün)
 
 | OLED | Raspberry PI          |
 |------|-----------------------|
@@ -64,7 +65,7 @@ so müssen geeignete Vorwiderstände ergänzt werden.
 | VCC  | RPI PIN 1  (GPIO 3V3) |
 | Gnd  | RPI PIN 6  (GPIO Gnd) |
 
-### Anschluss OLED (Display 2 - Rot) an Multiplexer
+### Anschluss OLED (Display 2 - Rot)
 
 | OLED | Raspberry PI          |
 |------|-----------------------|
@@ -79,8 +80,8 @@ Die RTC wird parallel zum OLED1 angeschlossen.
 
 | RTC  | Raspberry PI          |
 |------|-----------------------|
-| SDA  | RPI PIN 3  (GPIO 2)   |
-| SCL  | RPI PIN 5  (GPIO 2)   |
+| SDA  | RPI PIN 3  (GPIO 13)  |
+| SCL  | RPI PIN 5  (GPIO 19)  |
 | VCC  | RPI PIN 1  (GPIO 3V3) |
 | Gnd  | RPI PIN 6  (GPIO Gnd) |
 
