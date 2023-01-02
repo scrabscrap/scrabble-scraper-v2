@@ -438,3 +438,14 @@ Einfluss auf Performance / Temperatur des Rechners zu haben.
 
 Eine Lösung für dieses Problem ist offen. Es kann sein, dass dies ein Fehler im aktuellen
 Linux-Kernel ist.
+
+### Es wird kein FTP Upload gemacht
+
+Folgende Konfigurationen sind zu prüfen
+
+* `scrabble.ini` ist FTP Output konfiguriert (setting: `output.ftp = True`)
+* `ftp-secret.ini` hier die Einträge prüfen
+  * ftp-server
+  * ftp-user
+  * ftp-password
+* sofern die Web-App erreichbar ist kann über den Menüpunkt `Tests -> FTP` ein Upload getestet werden

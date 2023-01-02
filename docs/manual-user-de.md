@@ -104,9 +104,10 @@
 
 ## Vorbereitungen
 
-Vor dem Spiel sollte die Kamera ausgerichtet werden. Dies kann
-durch den internen Web-Server von ScrabScrap komfortabel im Browser
-eingestellt werden.
+Vor dem Spiel sollte die Kamera ausgerichtet werden. Wird diese Kameraposition
+gespeichert, erhöht das die Stabilität der Bilderkennung, da nicht bei jedem
+Aufruf das Spielfeld ermittelt werden muss. Dies kann durch den internen Web-Server
+von ScrabScrap komfortabel im Browser eingestellt werden.
 
 Falls gewünscht können in der Web-Anwendung zudem die Spielernamen
 gesetzt werden.
@@ -128,7 +129,7 @@ Button Grün
 
 Zunächst sicherstellen, dass das Spiel pausiert ist. Also die gelbe LED leuchtet.
 Um ein Spiel zu beenden und zu archivieren, muss der **Taster "End"** für mehr
-als 3 Sekunden gedrückt werden. Es erscheint in den Displays der Hinweis "Reset".
+als 3 Sekunden gedrückt werden. Es erscheint in den Displays der Hinweis "New Game".
 Sobald die Daten des Spiels gesichert sind, beginnt ein neues Spiel.
 
 _Hinweis:_ es kann einen Augenblick dauern, da hier zunächst das gesamte Spiel
@@ -140,7 +141,7 @@ zusätzlich auf den Web-Server hochgeladen.
 Falls der Rechner nicht mehr auf das Drücken der farbigen Schaltflächen
 reagiert, oder die Displays über mehrere Züge keine korrekte Zeit mehr
 anzeigen, ist vermutlich ein Software-Fehler aufgetreten.
-In diesem Fall kann der gesamte Rechner durch Drücken des **Tasters "Reboot"**
+In diesem Fall kann der gesamte Rechner durch Drücken des **Tasters "Boot"**
 für mehr als 3 Sekunden neu gestartet werden.
 
 _Hinweis:_ in diesem Fall gehen alle nicht gespeicherten Daten verloren und
@@ -170,7 +171,7 @@ Hinter den Buttons befinden sich fünf Taster.
 
 * Grün/Rot: Taster für das Anzweifeln des Zugs  
   (einfaches Drücken)
-* Schwarz/Blau: Taster für Reset, Reboot
+* Gelb/Schwarz/Blau: Taster für Access Point, Reset, Reboot
   (halten von mehr als 3s)
 
 Die Funktion des Schalters ist jeweils beschriftet.
