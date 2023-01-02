@@ -43,7 +43,7 @@ class CameraRPI(metaclass=Singleton):  # type: ignore
         self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
         sleep(1)  # warmup camera
         self.stream = self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True)
-        if config.video_rotade:
+        if config.video_rotate:
             self.camera.rotation = 180
         self.event = None
         atexit.register(self._atexit)

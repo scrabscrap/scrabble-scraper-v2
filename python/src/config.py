@@ -164,7 +164,7 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         return self.config.getint('video', 'fps', fallback=30)
 
     @property
-    def video_rotade(self) -> bool:
+    def video_rotate(self) -> bool:
         """should the images rotated by 180° """
         return self.config.getboolean('video', 'rotate', fallback=False)
 

@@ -35,7 +35,7 @@ class CameraFile(metaclass=Singleton):  # type: ignore
         logging.info('### init MockCamera')
         self.frame = []
         self.resolution = resolution
-        if config.video_rotade:
+        if config.video_rotate:
             self.rotation = 180
         self.event = None
         self.cnt = 0

@@ -61,7 +61,7 @@ class CameraOpenCV(metaclass=Singleton):  # type: ignore
             valid, self.frame = self.stream.read()
             if not valid:
                 logging.warning('frame not valid')
-            if config.video_rotade:
+            if config.video_rotate:
                 self.frame = cv2.rotate(self.frame, cv2.ROTATE_180)
             if event.is_set():
                 break
