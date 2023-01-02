@@ -71,6 +71,10 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
                 value = request.args.get('value') or i[1]
                 section, option = str(path).split('.', maxsplit=2)
                 if value is not None and value != '':
+                    if value.lower() == 'true':
+                        value = 'True'
+                    if value.lower() == 'false':
+                        value = 'False'
                     if section not in config.config.sections():
                         config.config.add_section(section)
                     config.config.set(section, option, str(value))
