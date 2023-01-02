@@ -72,6 +72,36 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.config_setter('output', 'ftp', False)
         self.config_setter('output', 'web', False)
 
+    def test_game_04(self):
+        """Test game 12"""
+        from display import Display
+        from state import State
+        from scrabblewatch import ScrabbleWatch
+
+        self.config_setter('video', 'warp_coordinates', None)
+        self.config_setter('board', 'layout', 'custom')
+        display = Display()
+        watch = ScrabbleWatch(display)
+        cam = Camera(useCamera=CameraEnum.FILE)
+        cam.stream.formatter = f'{TEST_DIR}/game04/image-{{:d}}.jpg'  # type: ignore
+        state = State(cam=cam, watch=watch)
+        state.cam = cam
+        state.do_reset()
+        state.game.nicknames = ('Inessa', 'Stefan')
+        state.press_button('RED')  # green begins
+        for i in range(1, 28):
+            cam.stream.cnt = i  # type: ignore
+            if i % 2 == 1:
+                state.press_button('GREEN')
+            else:
+                state.press_button('RED')
+            if state.last_submit is not None:
+                while not state.last_submit.done():  # type: ignore
+                    sleep(0.1)
+        self.assertEqual(425, state.game.moves[-1].score[0])
+        # self.assertEqual(377, state.game.moves[-1].score[0])
+        self.assertEqual(362, state.game.moves[-1].score[1])
+
     def test_game_12(self):
         """Test game 12"""
         from display import Display
