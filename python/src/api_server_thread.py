@@ -408,6 +408,36 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         return redirect(url_for('get_defaults'))
 
     @ staticmethod
+    @ app.route('/test_ftp')
+    def test_ftp():
+        import configparser
+        import ftplib
+
+        ApiServer.last_msg = 'test ftp config entries\n'
+        cfg = configparser.ConfigParser()
+        try:
+            with open(f'{config.work_dir}/ftp-secret.ini', 'r', encoding="UTF-8") as config_file:
+                cfg.read_file(config_file)
+        except IOError as err:
+            ApiServer.last_msg += f'can not read ftp INI-File {err}\n'
+        ApiServer.last_msg += f"ftp-server={cfg.get('ftp', 'ftp-server', fallback='')}\n"
+        ApiServer.last_msg += f"ftp-user={cfg.get('ftp', 'ftp-user', fallback='')}\n"
+        if cfg.get('ftp', 'ftp-password', fallback=None):
+            ApiServer.last_msg += "password found\n"
+        else:
+            ApiServer.last_msg += "no password found\n"
+        try:
+            with ftplib.FTP(cfg.get('ftp', 'ftp-server', fallback=''),
+                            cfg.get('ftp', 'ftp-user', fallback=''),
+                            cfg.get('ftp', 'ftp-password', fallback='')) as session:
+                with open(f'{config.work_dir}/scrabble.ini', 'rb') as file:
+                    session.storbinary('STOR scrabble.ini', file)  # send the file
+                ApiServer.last_msg += "upload successful\n"
+        except IOError as err:
+            ApiServer.last_msg += f'ftp: upload failure {err}\n'
+        return redirect(url_for('get_defaults'))
+
+    @ staticmethod
     @ app.route('/test_led')
     def test_led():
         """ start simple led test """
