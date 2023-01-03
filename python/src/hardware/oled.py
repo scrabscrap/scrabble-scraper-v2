@@ -142,7 +142,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
         minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
         text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
         with canvas(self.device[player]) as draw:
-            if current[player] <= config.doubt_timeout:
+            if 0 < current[player] <= config.doubt_timeout:
                 draw.text((1, 1), '\u2049', font=self.font1, fill=WHITE)  # alternative \u2718
             if info:
                 draw.text((22, 1), info, font=self.font1, fill=WHITE)
