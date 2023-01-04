@@ -72,6 +72,7 @@ class State(metaclass=Singleton):
     def do_ready(self) -> str:
         """Game can be started"""
         self.watch.display.show_ready(self.game.nicknames)
+        self.watch.display.set_game(self.game)
         self.current_state = START
         return self.current_state
 

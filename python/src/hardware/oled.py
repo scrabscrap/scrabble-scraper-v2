@@ -26,6 +26,7 @@ from PIL import ImageFont
 
 from config import config
 from display import Display
+from scrabble import Game
 from util import Singleton
 
 IC2_PORT_PLAYER1 = 1
@@ -52,6 +53,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
             i2c(port=IC2_PORT_PLAYER2, address=IC2_ADDRESS_PLAYER2))
         self.device: tuple[ssd1306, ssd1306] = (
             ssd1306(self.serial[0]), ssd1306(self.serial[1]))
+        self.game: Optional[Game] = None
 
     def stop(self) -> None:
         logging.debug('display stop')
@@ -136,6 +138,9 @@ class PlayerDisplay(Display, metaclass=Singleton):
             with canvas(self.device[i]) as draw:
                 draw.text(MIDDLE, '\u270ECfg', font=self.font, anchor='mm', align='center', fill=WHITE)
 
+    def set_game(self, game: Game) -> None:
+        self.game = game
+
     def render_display(self, player: int, played_time: list[int], current: list[int], info: Optional[str] = None) -> None:
         assert player in [0, 1], "invalid player number"
 
@@ -145,7 +150,20 @@ class PlayerDisplay(Display, metaclass=Singleton):
             if 0 < current[player] <= config.doubt_timeout:
                 draw.text((1, 1), '\u2049', font=self.font1, fill=WHITE)  # alternative \u2718
             if info:
-                draw.text((22, 1), info, font=self.font1, fill=WHITE)
+                left, top, right, bottom = draw.textbbox((20, 1), info, font=self.font1)
+                draw.rectangle((left - 2, top - 2, right + 2, bottom + 2), fill=WHITE)
+                draw.text((20, 1), info, font=self.font1, fill=BLACK)
+            elif config.show_score and self.game:
+                nickname = self.game.nicknames[player]
+                if len(nickname) > 5:
+                    nickname = nickname[:2] + '\u2026' + nickname[-2:]
+                if len(self.game.moves):
+                    draw.text((20, 1), f'{nickname} {self.game.moves[-1].score[player]:3d}', font=self.font2, fill=WHITE)
+                else:
+                    draw.text((20, 1), f'{nickname}   0', font=self.font2, fill=WHITE)
+            elif self.game:
+                nickname = self.game.nicknames[player][:10]
+                draw.text((20, 1), f'{nickname}', font=self.font2, fill=WHITE)
             if current[player] != 0:
                 draw.text((90, 1), f'{current[player]:3d}', font=self.font1, fill=WHITE)
 

@@ -20,6 +20,7 @@ from abc import abstractmethod
 from typing import Optional
 
 from config import config
+from scrabble import Game
 
 
 class Display:
@@ -91,6 +92,11 @@ class Display:
     def show_config(self) -> None:
         """show config message"""
         logging.debug('Cfg message')
+
+    @abstractmethod
+    def set_game(self, game: Game) -> None:
+        """set current game to display scores"""
+        pass
 
     @abstractmethod
     def render_display(self, player: int, played_time: list[int], current: list[int], info: Optional[str] = None) -> None:
