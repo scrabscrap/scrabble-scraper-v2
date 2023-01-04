@@ -82,6 +82,7 @@ class State(metaclass=Singleton):
         start_of_game()
         self.watch.start(0)
         LED.switch_on({LEDEnum.green})  # turn on LED green
+        self.watch.display.render_display(1, [0, 0], [0, 0])
         return S0
 
     def do_start1(self) -> str:
@@ -90,6 +91,7 @@ class State(metaclass=Singleton):
         start_of_game()
         self.watch.start(1)
         LED.switch_on({LEDEnum.red})  # turn on LED red
+        self.watch.display.render_display(0, [0, 0], [0, 0])
         return S1
 
     def do_move0(self) -> str:
