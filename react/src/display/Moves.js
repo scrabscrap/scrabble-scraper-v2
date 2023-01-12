@@ -16,16 +16,18 @@ class Moves extends React.Component {
             <td><a href={img_link} target="_scrabscrap_board">{key + 1}</a></td>
             <td>{sp[0]}</td>
             <td>{sp[1]}</td>
-            <td></td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
             <td style={align}>{sp[2]}</td>
             <td style={align}>{sp[3]}</td>
           </tr>)
-        } else if (sp.length === 4) {
+        } else if (sp.length === 5) {
           items.push(<tr key={key + 1}>
             <td><a href={img_link} target="_scrabscrap_board">{key + 1}</a></td>
             <td>{sp[0]}</td>
             <td>{sp[1]}</td>
             <td>{sp[2]}</td>
+            <td>&nbsp;</td>
             <td style={align}>{sp[3]}</td>
             <td style={align}>{sp[4]}</td>
           </tr>)
