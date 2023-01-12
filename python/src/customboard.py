@@ -83,9 +83,9 @@ class CustomBoard(GameBoard):
         visualLogger.debug(VisualRecord("lab", [lab], fmt="png"))
 
         # Color Quantization
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 2.0)
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 1.0)
         k = 4
-        _, labels_, _ = cv2.kmeans(image, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+        _, labels_, _ = cv2.kmeans(image, k, None, criteria, 10, cv2.KMEANS_PP_CENTERS)
         clustering = np.reshape(np.array(labels_, dtype=np.uint8), (200, 200))
         logging.debug(f"clustering {clustering} ")
         # Sort the cluster labels in order of the frequency with which they occur.
