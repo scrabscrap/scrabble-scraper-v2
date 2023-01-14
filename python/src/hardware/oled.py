@@ -102,8 +102,12 @@ class PlayerDisplay(Display, metaclass=Singleton):
 
     def show_pause(self, player: int, played_time: list[int], current: list[int]) -> None:
         assert player in [0, 1], "invalid player number"
+        msg = 'Pause'
         logging.debug('Pause message')
-        self.render_display(player, played_time, current, 'Pause')
+        if config.show_score and self.game:
+            if len(self.game.moves):
+                msg = f'\u23F8 {self.game.moves[-1].score[player]:3d}'
+        self.render_display(player, played_time, current, msg)
 
     def add_malus(self, player: int, played_time: list[int], current: list[int]) -> None:
         assert player in [0, 1], "invalid player number"
