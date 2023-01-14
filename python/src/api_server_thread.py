@@ -16,6 +16,7 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import base64
+import configparser
 import json
 import logging
 import logging.config
@@ -252,6 +253,46 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
                                img_data=urllib.parse.quote(png_output), warp_data=urllib.parse.quote(png_overlay),
                                warp_coord=urllib.parse.quote(warp_coord), warp_coord_raw=warp_coord,
                                warp_coord_cnf=warp_coord_cnf)
+
+    @ staticmethod
+    @ app.route('/loglevel')
+    def loglevel():
+        """ settings loglevel, recording """
+        loglevel = logging.getLogger('root').getEffectiveLevel()
+        return render_template('loglevel.html', recording=f'{config.development_recording}', loglevel=f'{loglevel}')
+
+    @staticmethod
+    @app.post('/set_loglevel')
+    def set_loglevel():
+        """ set log level / development recording """
+        try:
+            if 'loglevel' in request.form.keys():
+                new_level = int(request.form.get('loglevel'))  # type: ignore
+                root_logger = logging.getLogger('root')
+                prev_level = root_logger.getEffectiveLevel()
+                if new_level != prev_level:
+                    logging.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
+                    root_logger.setLevel(new_level)
+                    log_config = configparser.ConfigParser()
+                    with open(f'{config.work_dir}/log.conf', 'r', encoding="UTF-8") as config_file:
+                        log_config.read_file(config_file)
+                        if 'logger_root' not in log_config.sections():
+                            log_config.add_section('logger_root')
+                        log_config.set('logger_root', 'level', logging.getLevelName(new_level))
+                    with open(f'{config.work_dir}/log.conf', 'w', encoding="UTF-8") as config_file:
+                        log_config.write(config_file)
+
+            recording = True if 'recording' in request.form.keys() else False
+            if config.development_recording != recording:
+                logging.debug(f'development.recording changed to {recording}')
+                if 'development' not in config.config.sections():
+                    config.config.add_section('development')
+                config.config.set('development', 'recording', str(recording))
+                config.save()
+        except IOError as oops:
+            ApiServer.last_msg = f'I/O error({oops.errno}): {oops.strerror}'
+            return redirect(url_for('/'))
+        return redirect(url_for('loglevel'))
 
     @ staticmethod
     @ app.route('/logs')
