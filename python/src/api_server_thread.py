@@ -421,7 +421,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         """ start scrabscrap upgrade """
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
-            process1 = subprocess.run(['git', 'fetch', '--tags', '--prune'], check=False,
+            process1 = subprocess.run(['git', 'fetch', '--tags', '--prune', '--all', '-f'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             process2 = subprocess.run(['git', 'stash'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
