@@ -78,7 +78,7 @@ class State(metaclass=Singleton):
 
     def do_start0(self) -> str:
         """Start playing with player 0"""
-        logging.debug(f'{self.current_state} - (start) -> {S0}')
+        logging.info(f'{self.current_state} - (start) -> {S0}')
         start_of_game()
         self.watch.start(0)
         LED.switch_on({LEDEnum.green})  # turn on LED green
@@ -87,7 +87,7 @@ class State(metaclass=Singleton):
 
     def do_start1(self) -> str:
         """Start playing with player 1"""
-        logging.debug(f'{self.current_state} - (start) -> {S1}')
+        logging.info(f'{self.current_state} - (start) -> {S1}')
         start_of_game()
         self.watch.start(1)
         LED.switch_on({LEDEnum.red})  # turn on LED red
@@ -96,7 +96,7 @@ class State(metaclass=Singleton):
 
     def do_move0(self) -> str:
         """analyze players 0 move"""
-        logging.debug(f'{self.current_state} - (move) -> {S1}')
+        logging.info(f'{self.current_state} - (move) -> {S1}')
         _, (time0, time1), _ = self.watch.status()
         # next player
         self.watch.start(1)
@@ -107,7 +107,7 @@ class State(metaclass=Singleton):
 
     def do_move1(self) -> str:
         """analyze players 1 move"""
-        logging.debug(f'{self.current_state} - (move) -> {S0}')
+        logging.info(f'{self.current_state} - (move) -> {S0}')
         _, (time0, time1), _ = self.watch.status()
         # next player
         self.watch.start(0)
@@ -119,35 +119,35 @@ class State(metaclass=Singleton):
 
     def do_pause0(self) -> str:
         """pause pressed while player 0 is active"""
-        logging.debug(f'{self.current_state} - (pause) -> {P0}')
+        logging.info(f'{self.current_state} - (pause) -> {P0}')
         self.watch.pause()
         LED.switch_on({LEDEnum.green, LEDEnum.yellow})  # turn on LED green, yellow
         return P0
 
     def do_pause1(self) -> str:
         """pause pressed while player 1 is active"""
-        logging.debug(f'{self.current_state} - (pause) -> {P1}')
+        logging.info(f'{self.current_state} - (pause) -> {P1}')
         self.watch.pause()
         LED.switch_on({LEDEnum.red, LEDEnum.yellow})  # turn on LED red, yellow
         return P1
 
     def do_resume0(self) -> str:
         """resume from pause while player 0 is active"""
-        logging.debug(f'{self.current_state} - (resume) -> {S0}')
+        logging.info(f'{self.current_state} - (resume) -> {S0}')
         self.watch.resume()
         LED.switch_on({LEDEnum.green})  # turn on LED green
         return S0
 
     def do_resume1(self) -> str:
         """resume from pause while player 1 is active"""
-        logging.debug(f'{self.current_state} - (resume) -> {S1}')
+        logging.info(f'{self.current_state} - (resume) -> {S1}')
         self.watch.resume()
         LED.switch_on({LEDEnum.red})  # turn on LED red
         return S1
 
     def do_valid_challenge0(self) -> str:
         """player 0 has a valid challenge for the last move from player 1"""
-        logging.debug(f'{self.current_state} - (valid challenge) -> {P0}')
+        logging.info(f'{self.current_state} - (valid challenge) -> {P0}')
         _, played_time, current = self.watch.status()
         if current[0] > config.doubt_timeout:
             self.watch.display.add_doubt_timeout(0, played_time, current)
@@ -161,7 +161,7 @@ class State(metaclass=Singleton):
 
     def do_valid_challenge1(self) -> str:
         """player 1 has a valid challenge for the last move from player 0"""
-        logging.debug(f'{self.current_state} - (valid challenge) -> {P1}')
+        logging.info(f'{self.current_state} - (valid challenge) -> {P1}')
         _, played_time, current = self.watch.status()
         if current[1] > config.doubt_timeout:
             self.watch.display.add_doubt_timeout(1, played_time, current)
@@ -175,7 +175,7 @@ class State(metaclass=Singleton):
 
     def do_invalid_challenge0(self) -> str:
         """player 0 has an invalid challenge for the last move from player 1"""
-        logging.debug(
+        logging.info(
             f'{self.current_state} - (invalid challenge) -> {P0} (-{config.malus_doubt:2d})')  # -10
         _, played_time, current = self.watch.status()
         if current[0] > config.doubt_timeout:
@@ -190,7 +190,7 @@ class State(metaclass=Singleton):
 
     def do_invalid_challenge1(self) -> str:
         """player 1 has an invalid challenge for the last move from player 0"""
-        logging.debug(
+        logging.info(
             f'{self.current_state} - (invalid challenge) -> {P1} (-{config.malus_doubt:2d})')  # -10
         _, played_time, current = self.watch.status()
         if current[1] > config.doubt_timeout:
@@ -205,7 +205,7 @@ class State(metaclass=Singleton):
 
     def do_reset(self) -> str:
         """Resets state and game to default"""
-        logging.debug(f'{self.current_state} - (reset) -> {START}')
+        logging.info(f'{self.current_state} - (reset) -> {START}')
         LED.switch_on({})  # type: ignore
         self.watch.reset()
         end_of_game(None, self.game)
@@ -215,7 +215,7 @@ class State(metaclass=Singleton):
 
     def do_reboot(self) -> str:
         """Perform a reboot"""
-        logging.debug(f'{self.current_state} - (reboot) -> {START}')
+        logging.info(f'{self.current_state} - (reboot) -> {START}')
         self.watch.display.show_boot()  # Display message REBOOT
         LED.switch_on({})  # type: ignore
         end_of_game(self.last_submit, self.game)
@@ -228,7 +228,7 @@ class State(metaclass=Singleton):
         """Switch to AP Mode"""
         import subprocess
 
-        logging.debug(f'{self.current_state} - (switch to AP Mode) -> {START}')
+        logging.info(f'{self.current_state} - (switch to AP Mode) -> {START}')
         process1 = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         wifi_raw = process1.stdout.decode().split(sep='\n')[1:-1]
@@ -249,7 +249,7 @@ class State(metaclass=Singleton):
         try:
             self.current_state = self.state[(self.current_state, button)](self)
         except KeyError:
-            logging.debug('Key Error - ignore')
+            logging.info('Key Error - ignore')
 
     def release_button(self, button: str) -> None:
         """process button release

@@ -581,7 +581,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
 
     def start_server(self, host: str = '0.0.0.0', port=5050):
         """ start flask server """
-        logging.debug('start api server')
+        logging.info('start api server')
         # flask log only error
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
@@ -601,7 +601,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
 
     def stop_server(self):
         """ stop flask server """
-        logging.info(f'server shutdown blocked: {ApiServer.flask_shutdown_blocked}')
+        logging.warning(f'server shutdown blocked: {ApiServer.flask_shutdown_blocked} ... waiting')
         while ApiServer.flask_shutdown_blocked:
             sleep(0.1)
         self.server.shutdown()

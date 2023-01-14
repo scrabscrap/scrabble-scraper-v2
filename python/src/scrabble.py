@@ -299,6 +299,7 @@ class Game():
         # with python > 3.11 return type: -> Self
         self.moves.append(move)
         move.move = len(self.moves)  # set move number
+        logging.info(f'add move: player {move.player} points {move.points} score {move.score}')
         return self
 
     def get_moves(self) -> List[Move]:
@@ -320,7 +321,7 @@ class Game():
             raise Exception('challenge: no previous move available')
         last_move = self.moves[-1]
         if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):
-            logging.info(f'(last move {last_move.type.name}): invalid challenge not allowed')
+            logging.warning(f'(last move {last_move.type.name}): invalid challenge not allowed')
             return self
 
         logging.debug('scrabble: create move invalid challenge')
@@ -336,6 +337,7 @@ class Game():
                       ) if player == 0 else (move.score[0], move.score[1] - config.malus_doubt)
         self.moves.append(move)
         move.move = len(self.moves)  # set move number
+        logging.info(f'invalid challenge: player {move.player} points {move.points} score {move.score}')
         return self
 
     def add_valid_challenge(self, player: int, played_time: Tuple[int, int]) -> object:
@@ -353,7 +355,7 @@ class Game():
             raise Exception('challenge: no previous move available')
         last_move = self.moves[-1]
         if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):
-            logging.info(f'(last move {last_move.type.name}): valid challenge not allowed')
+            logging.warning(f'(last move {last_move.type.name}): valid challenge not allowed')
             return self
 
         logging.debug('scrabble: create move valid challenge')
@@ -372,4 +374,5 @@ class Game():
         move.new_tiles = {}
         self.moves.append(move)
         move.move = len(self.moves)  # set move number
+        logging.info(f'valid challenge: player {move.player} points {move.points}')
         return self

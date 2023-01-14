@@ -39,11 +39,11 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
             self.config['path'] = {}
             self.config['path']['src_dir'] = os.path.dirname(__file__) or '.'
             self.ini_path = ini_file if ini_file is not None else f'{self.work_dir}/scrabble.ini'
-            logging.info(f'load {self.ini_path}')
+            logging.info(f'reload {self.ini_path}')
             with open(self.ini_path, 'r', encoding="UTF-8") as config_file:
                 self.config.read_file(config_file)
-        except IOError as err:
-            logging.exception(f'can not read INI-File {err}')
+        except IOError as oops:
+            logging.error(f'can not read INI-File: error({oops.errno}): {oops.strerror}')
 
     def save(self) -> None:
         """ save configuration to file """

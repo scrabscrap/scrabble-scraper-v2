@@ -127,4 +127,5 @@ class CustomBoard(GameBoard):
                 (8, 7) not in set_of_tiles and \
                 (7, 8) not in set_of_tiles:
             return kmeans_image, set()
+        logging.debug(f'candidates {set_of_tiles}')
         return kmeans_image, set_of_tiles

@@ -162,7 +162,7 @@ def recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
         changed(dict): modified tiles of previous moves
     """
 
-    logging.debug(f'changed tiles: {changed}')
+    logging.info(f'changed tiles: {changed}')
     to_inspect = min(config.scrabble_verify_moves, len(game.moves)) * -1
     prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
     must_recalculate = False
@@ -170,7 +170,7 @@ def recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
         mov = game.moves[i]
         for coord in changed.keys():
             if coord in mov.board.keys():                                      # tiles on board are changed
-                logging.debug(f'need correction {mov.board[coord]} -> {changed[coord]} {mov.score}/{mov.points}')
+                logging.info(f'need correction {mov.board[coord]} -> {changed[coord]} {mov.score}/{mov.points}')
                 mov.board[coord] = changed[coord]
                 must_recalculate = True
         if must_recalculate:
@@ -298,7 +298,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     logging.debug(f'\n{game.json_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
     if config.development_recording:
-        logging.info('game recording')
+        logging.debug('game recording')
         recording_logger = logging.getLogger("gameRecordingLogger")
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
         move_number = len(game.moves)
@@ -331,7 +331,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
     if config.development_recording:
-        logging.info('game recording')
+        logging.debug('game recording')
         recording_logger = logging.getLogger("gameRecordingLogger")
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
         recording_logger.info(f'{game_id} move: ({len(game.moves)}')
@@ -360,7 +360,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
     logging.debug(f'\n{game.board_str()}')
     logging.debug(f'new scores {game.moves[-1].score}')
     if config.development_recording:
-        logging.info('game recording')
+        logging.debug('game recording')
         recording_logger = logging.getLogger("gameRecordingLogger")
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
         recording_logger.info(f'{game_id} move: ({len(game.moves)}')

@@ -43,8 +43,8 @@ class Ftp:
             try:
                 with open(f'{config.work_dir}/ftp-secret.ini', 'r', encoding="UTF-8") as config_file:
                     self.config.read_file(config_file)
-            except IOError as err:
-                logging.exception(f'can not read ftp INI-File {err}')
+            except IOError as oops:
+                logging.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
 
         @property
         def ftp_server(self) -> Optional[str]:
@@ -69,7 +69,7 @@ class Ftp:
         logging.debug(f'ftp: upload_move {move}')
         if cls.ftp_config.ftp_server is not None:
             try:
-                logging.info('ftp: start transfer move files')
+                logging.debug('ftp: start transfer move files')
                 with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
                     with open(f'{config.web_dir}/image-{move}.jpg', 'rb') as file:
                         session.storbinary(f'STOR image-{move}.jpg', file)  # send the file
@@ -77,10 +77,10 @@ class Ftp:
                         session.storbinary(f'STOR data-{move}.json', file)  # send the file
                     with open(f'{config.web_dir}/data-{move}.json', 'rb') as file:
                         session.storbinary('STOR status.json', file)  # send the file
-                logging.debug('ftp: end of transfer')
+                logging.info('ftp: end of transfer')
                 return True
-            except IOError as err:
-                logging.error(f'ftp: upload failure {err}')
+            except IOError as oops:
+                logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False
 
     @classmethod
@@ -89,14 +89,14 @@ class Ftp:
         logging.debug(f'ftp: upload_game {filename}')
         if cls.ftp_config.ftp_server is not None:
             try:
-                logging.info('ftp: start transfer zip file')
+                logging.debug('ftp: start transfer zip file')
                 with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
                     with open(f'{config.web_dir}/{filename}.zip', 'rb') as file:
                         session.storbinary(f'STOR {filename}.zip', file)  # send the file
                 logging.info(f'ftp: end of upload {filename} to ftp-server')
                 return True
-            except IOError as err:
-                logging.error(f'ftp: upload failure {err}')
+            except IOError as oops:
+                logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False
 
     @classmethod
@@ -105,7 +105,7 @@ class Ftp:
         logging.debug(f'ftp: delete files with prefix {prefixes}*')
         if cls.ftp_config.ftp_server is not None:
             try:
-                logging.info('ftp: delete files')
+                logging.debug('ftp: delete files')
                 with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
                     files = session.nlst()
                     for filename in files:
@@ -114,6 +114,6 @@ class Ftp:
                                 session.delete(filename)
                 logging.info(f'ftp: end of delete {prefixes} ')
                 return True
-            except IOError as err:
-                logging.error(f'ftp: delete failure {err}')
+            except IOError as oops:
+                logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False

@@ -115,7 +115,7 @@ class ClassicBoard(GameBoard):
         _tiles_candidates: set = set()
         _blank_candidates: dict = {}
         ClassicBoard._mark_grid((7, 7), mark_grid, blank_grid, _tiles_candidates, _blank_candidates)  # starte in der Mitte
-
+        logging.debug(f'candidates {_tiles_candidates}')
         return _gray, _tiles_candidates
 
     @staticmethod
