@@ -208,6 +208,8 @@ class Game():
 
     def json_str(self) -> str:
         """Return the json represention of the board"""
+        if len(self.moves) < 1:
+            return '{}'
         keys = self.moves[-1].board.keys()
         values = self.moves[-1].board.values()
         keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in keys]
