@@ -150,8 +150,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
                 ApiServer.last_msg = f'invalid move number {move_number}'
                 return redirect(url_for('get_defaults'))
 
-            mv = re.compile('([A-Oa-o])(\\d+)').match(coord)
-            mh = re.compile('(\\d+)([A-Oa-o])').match(coord)
+            mv = re.compile('(\\d+)([A-Oa-o])').match(coord)
+            mh = re.compile('([A-Oa-o])(\\d+)').match(coord)
             if mv:
                 vertical = True
                 col = int(mv.group(2)) - 1
