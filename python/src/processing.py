@@ -176,7 +176,7 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
         mov.is_vertical = isvertical
 
         tiles_to_remove = mov.new_tiles.copy()
-        tiles_to_add = dict()
+        tiles_to_add: dict = dict()
         for elem in tiles_to_remove:
             del mov.board[elem]  # remove tiles on board from incorrect move
         if word == '':
