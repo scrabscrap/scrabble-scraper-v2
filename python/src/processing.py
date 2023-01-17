@@ -153,6 +153,75 @@ def upload_ftp(current_move: Move):
         pool.submit(Ftp.upload_move, current_move.move)
 
 
+def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str):
+    """fix move (direct call from admin)
+
+    The provided tiles (word) will be set on the board with a probability of 99%
+
+    Args:
+        game(Move): the game to fix
+        move_number: the move to fix (beginning with 1)
+        coord: coordinates on board (0<=col<15, 0<=row<15)
+        isvertical: if this corrected move is vertical
+        word: the new word valid chars (A-Z._) crossing chars will replaced with '.'
+    """
+    moves = game.moves
+    if len(moves) >= move_number and move_number > 0:
+        assert moves[move_number - 1].move == move_number
+        assert 0 <= coord[0] < 15
+        assert 0 <= coord[1] < 15
+
+        mov = moves[move_number - 1]
+        mov.coord = coord
+        mov.is_vertical = isvertical
+
+        tiles_to_remove = mov.new_tiles.copy()
+        tiles_to_add = dict()
+        for elem in tiles_to_remove:
+            del mov.board[elem]  # remove tiles on board from incorrect move
+        if word == '':
+            mov.type = MoveType.EXCHANGE
+            mov.word = word
+            mov.new_tiles = tiles_to_add
+            mov.points = 0
+            mov.score = moves[move_number - 2].score if move_number > 1 else (0, 0)
+            pass
+        else:
+            word_as_list = list(word)
+            (col, row) = coord
+            for i, char in enumerate(word):
+                if isvertical and char != '.':
+                    if (col, row + i) not in mov.board:
+                        tiles_to_add[(col, row + i)] = (char, 99)
+                    else:
+                        word_as_list[i] = '.'
+                elif char != '.':
+                    if (col + i, row) not in mov.board:
+                        tiles_to_add[(col + i, row)] = (char, 99)
+                    else:
+                        word_as_list[i] = '.'
+            word = ''.join(word_as_list)  # fixed word
+            for key in tiles_to_add.keys():
+                mov.board[key] = tiles_to_add[key]
+            mov.word = word
+            mov.new_tiles = tiles_to_add
+            prev_score = moves[move_number - 2].score if move_number > 1 else (0, 0)
+            mov.points, mov.score, mov.is_scrabble = mov.calculate_score(prev_score)
+        prev_score = mov.score
+        logging.info(f'recalculate move #{mov.move} new points {mov.points} new score {mov.score}')
+
+        for i in range(move_number, len(moves)):
+            for elem in tiles_to_remove:
+                moves[i].board[elem] = None  # remove tiles from board
+            for key in tiles_to_add.keys():
+                moves[i].board[key] = tiles_to_add[key]
+            moves[i].points, moves[i].score, moves[i].is_scrabble = moves[i].calculate_score(prev_score)
+            prev_score = moves[i].score
+            logging.info(f'recalculate move #{moves[i].move} new points {moves[i].points} new score {moves[i].score}')
+    else:
+        raise ValueError("invalid move number")
+
+
 def recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     """fix scores on changed tile recognition
 
@@ -264,10 +333,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
                 {i: i for i in game.moves[-config.scrabble_verify_moves].board.keys() if i in game.moves[-1].board.keys()})
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
 
-    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # get previous board information
-    previous_board = board.copy()
-    previous_score = game.moves[-1].score if len(game.moves) > 0 else (0, 0)
-
+    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # copy board for analyze
     chunks = chunkify(list(filtered_candidates), 3)                            # 5. picture analysis
     future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))           # 1. thread
     future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))           # 2. thread
@@ -275,10 +341,13 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     done, _ = futures.wait({future1, future2})                                 # 6. blocking wait
     assert len(done) == 2, 'error on wait to futures'
 
+    previous_board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}   # get previous board information
     current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
     if len(changed_tiles) > 0:                                                 # 7. fix old moves
         recalculate_score_on_tiles_change(game, board, changed_tiles)
         previous_score = game.moves[-1].score                                  # reapply previous score
+    else:
+        previous_score = game.moves[-1].score if len(game.moves) > 0 else (0, 0)
     try:                                                                       # 8. find word and create move
         is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
         current_move = Move(MoveType.REGULAR, player=player, coord=coord, is_vertical=is_vertical, word=word,

@@ -35,7 +35,7 @@ from werkzeug.serving import make_server
 
 from config import config
 from game_board.board import overlay_grid
-from processing import get_last_warp, warp_image
+from processing import get_last_warp, warp_image, recalculate_score_on_admin_change
 from state import START, State
 from threadpool import pool
 
@@ -134,7 +134,55 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         return redirect(url_for('get_defaults'))
 
     @staticmethod
-    @app.post('/wifi')
+    @app.route('/fixmove')  # type: ignore
+    def fixmove():
+        """ fix an incorrect move """
+        import re
+
+        move_number = request.args.get('move')
+        coord = request.args.get('coord')
+        word = request.args.get('word')
+        logging.info(f'data: {move_number} {coord} {word}')
+        if move_number and coord and word:
+            game = State().game
+            moveRe = re.compile('[\\d+]')
+            if not moveRe.match(move_number) or int(move_number) <= 0 or int(move_number) > len(game.moves):
+                ApiServer.last_msg = f'invalid move number {move_number}'
+                return redirect(url_for('get_defaults'))
+
+            mv = re.compile('([A-Oa-o])(\\d+)').match(coord)
+            mh = re.compile('(\\d+)([A-Oa-o])').match(coord)
+            if mv:
+                vertical = True
+                col = int(mv.group(2)) - 1
+                row = int(ord(mv.group(1).capitalize()) - ord('A'))
+            elif mh:
+                vertical = False
+                col = int(mh.group(1)) - 1
+                row = int(ord(mh.group(2).capitalize()) - ord('A'))
+            elif '-' == coord:
+                ApiServer.last_msg = f'correct move #{move_number} to exchange'
+                recalculate_score_on_admin_change(game, int(move_number), (0, 0), True, '')
+                return redirect(url_for('get_defaults'))
+            else:
+                ApiServer.last_msg = f'invalid coord {coord}'
+                return redirect(url_for('get_defaults'))
+            if col > 14:
+                ApiServer.last_msg = f'invalid coord {coord}'
+                return redirect(url_for('get_defaults'))
+
+            word = word.upper().replace(' ', '_')
+            if re.compile('[A-Z_\\.]+').match(word):
+                recalculate_score_on_admin_change(game, int(move_number), (col, row), vertical, word)
+                ApiServer.last_msg = f'correct move {move_number} on {coord} with {word} (v = {vertical} (c,r) = {(col, row)})'
+            else:
+                ApiServer.last_msg = f'invalid character in word {word}'
+        else:
+            ApiServer.last_msg = 'missing parameter on api call'
+        return redirect(url_for('get_defaults'))
+
+    @ staticmethod
+    @ app.post('/wifi')
     def post_wifi():
         """ set wifi param (ssid, psk) via post request """
         ssid = request.form.get('ssid')
@@ -151,8 +199,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         logging.debug(ApiServer.last_msg)
         return redirect(url_for('get_wifi'))
 
-    @staticmethod
-    @app.get('/wifi')
+    @ staticmethod
+    @ app.get('/wifi')
     def get_wifi():
         """ display wifi web page """
         process1 = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
@@ -162,8 +210,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         return render_template('wifi.html', version=ApiServer.scrabscrap_version, wifi_list=wifi_list,
                                message=ApiServer.last_msg)
 
-    @staticmethod
-    @app.post('/delete_wifi')
+    @ staticmethod
+    @ app.post('/delete_wifi')
     def delete_wifi():
         """ delete a wifi entry """
         for i in request.form.keys():
@@ -175,8 +223,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
                 "sudo -n /usr/sbin/wpa_cli save_config -i wlan0", shell=True)
         return redirect(url_for('get_wifi'))
 
-    @staticmethod
-    @app.post('/select_wifi')
+    @ staticmethod
+    @ app.post('/select_wifi')
     def select_wifi():
         """ select a wifi entry """
         for i in request.form.keys():
@@ -185,8 +233,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
                 f"sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0", shell=True)
         return redirect(url_for('get_wifi'))
 
-    @staticmethod
-    @app.route('/scan_wifi')
+    @ staticmethod
+    @ app.route('/scan_wifi')
     def scan_wifi():
         """ start wifi scan process """
         _ = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'], check=False,
@@ -198,16 +246,16 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         logging.debug(ApiServer.last_msg)
         return redirect(url_for('get_wifi'))
 
-    @staticmethod
-    @app.route('/cam/clearwarp')
+    @ staticmethod
+    @ app.route('/cam/clearwarp')
     def cam_clear_warp():
         """clear warp configuration"""
         logging.debug('clear warp')
         config.config.remove_option('video', 'warp_coordinates')
         return redirect(url_for('get_cam'))
 
-    @staticmethod
-    @app.route('/cam')
+    @ staticmethod
+    @ app.route('/cam')
     def get_cam():
         """ display current camera picture """
         logging.debug(f'request args {request.args.keys()}')
@@ -261,8 +309,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         loglevel = logging.getLogger('root').getEffectiveLevel()
         return render_template('loglevel.html', recording=f'{config.development_recording}', loglevel=f'{loglevel}')
 
-    @staticmethod
-    @app.post('/set_loglevel')
+    @ staticmethod
+    @ app.post('/set_loglevel')
     def set_loglevel():
         """ set log level / development recording """
         try:
@@ -397,8 +445,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         logging.debug(ApiServer.last_msg)
         return redirect(url_for('get_defaults'))
 
-    @staticmethod
-    @app.route('/upgrade_pip')
+    @ staticmethod
+    @ app.route('/upgrade_pip')
     def update_pip():
         """ start pip upgrade """
         if State().current_state == 'START':
@@ -407,7 +455,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
                                       check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             process1 = subprocess.run([f'{os.path.expanduser("~")}/.venv/cv/bin/pip', 'install',
                                        '--upgrade', '--upgrade-strategy', 'eager',
-                                       '-r', f'{config.src_dir}/../requirements.txt'], check=False,
+                                      '-r', f'{config.src_dir}/../requirements.txt'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.flask_shutdown_blocked = False
             ApiServer.last_msg = f'{process0.stdout.decode()}\n{process1.stdout.decode()}\n## please reboot ##'

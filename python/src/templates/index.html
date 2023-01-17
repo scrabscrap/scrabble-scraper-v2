@@ -30,6 +30,35 @@
                 </div>
             </div>
         </div>
+        <div class="col-6">
+            <div class="py-2">
+                <div class="card">
+                    <div class="card-header bg-info">
+                        Fix Move
+                    </div>
+                    <div class="card-body">
+                        <form action="/fixmove" method="get">
+                            <div class="row">
+                                <div class="col-2">
+                                    <input type="text" class="form-control" name="move" placeholder="# Move"
+                                        maxlength="2" required>
+                                </div>
+                                <div class="col-2">
+                                    <input type="text" class="form-control" name="coord" placeholder="Position"
+                                        maxlength="3" required>
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control" name="word" placeholder="Word" required>
+                                </div>
+                                <div class="col-4">
+                                    <input type="submit" class="form-control btn-primary" value="Submit">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="col-12">
             <div class="py-2">
 
