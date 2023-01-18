@@ -154,12 +154,12 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             mh = re.compile('([A-Oa-o])(\\d+)').match(coord)
             if mv:
                 vertical = True
-                col = int(mv.group(2)) - 1
-                row = int(ord(mv.group(1).capitalize()) - ord('A'))
+                col = int(mv.group(1)) - 1
+                row = int(ord(mv.group(2).capitalize()) - ord('A'))
             elif mh:
                 vertical = False
-                col = int(mh.group(1)) - 1
-                row = int(ord(mh.group(2).capitalize()) - ord('A'))
+                col = int(mh.group(2)) - 1
+                row = int(ord(mh.group(1).capitalize()) - ord('A'))
             elif '-' == coord:
                 ApiServer.last_msg = f'correct move #{move_number} to exchange'
                 recalculate_score_on_admin_change(game, int(move_number), (0, 0), True, '')
