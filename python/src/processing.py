@@ -187,6 +187,8 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
             mov.score = moves[move_number - 2].score if move_number > 1 else (0, 0)
             pass
         else:
+            if mov.type == MoveType.UNKNOWN:
+                mov.type = MoveType.REGULAR
             word_as_list = list(word)
             (col, row) = coord
             for i, char in enumerate(word):
