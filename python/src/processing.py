@@ -214,7 +214,7 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
 
         for i in range(move_number, len(moves)):
             for elem in tiles_to_remove:
-                moves[i].board[elem] = None  # remove tiles from board
+                del moves[i].board[elem]  # remove tiles from board
             for key in tiles_to_add.keys():
                 moves[i].board[key] = tiles_to_add[key]
             moves[i].points, moves[i].score, moves[i].is_scrabble = moves[i].calculate_score(prev_score)
