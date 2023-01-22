@@ -144,6 +144,25 @@ class PlayerDisplay(Display, metaclass=Singleton):
 
     def set_game(self, game: Game) -> None:
         self.game = game
+        self.last_score = (0, 0)
+
+    def _refresh_points(self, player: int, played_time: list[int], current: list[int]) -> None:
+        assert player in [0, 1], "invalid player number"
+
+        minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
+        text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
+        with canvas(self.device[player]) as draw:
+            if config.show_score and self.game:
+                nickname = self.game.nicknames[player]
+                if len(nickname) > 5:
+                    nickname = nickname[:4] + '\u2026'
+                if len(self.game.moves):
+                    draw.text((20, 1), f'{nickname} {self.game.moves[-1].score[player]:3d}', font=self.font2, fill=WHITE)
+                else:
+                    draw.text((20, 1), f'{nickname}   0', font=self.font2, fill=WHITE)
+            if current[player] != 0:
+                draw.text((90, 1), f'{current[player]:3d}', font=self.font1, fill=WHITE)
+            draw.text((1, 22), text, font=self.font, fill=WHITE)
 
     def render_display(self, player: int, played_time: list[int], current: list[int], info: Optional[str] = None) -> None:
         assert player in [0, 1], "invalid player number"
@@ -163,6 +182,9 @@ class PlayerDisplay(Display, metaclass=Singleton):
                     nickname = nickname[:4] + '\u2026'
                 if len(self.game.moves):
                     draw.text((20, 1), f'{nickname} {self.game.moves[-1].score[player]:3d}', font=self.font2, fill=WHITE)
+                    if self.last_score != self.game.moves[-1].score:
+                        self._refresh_points(0 if player == 1 else 1, played_time=played_time, current=current)
+                        self.last_score = self.game.moves[-1].score
                 else:
                     draw.text((20, 1), f'{nickname}   0', font=self.font2, fill=WHITE)
             elif self.game:
