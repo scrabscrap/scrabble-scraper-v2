@@ -87,7 +87,7 @@ class CustomBoard(GameBoard):
         k = 4
         _, labels_, _ = cv2.kmeans(image, k, None, criteria, 10, cv2.KMEANS_PP_CENTERS)
         clustering = np.reshape(np.array(labels_, dtype=np.uint8), (200, 200))
-        logging.debug(f"clustering {clustering} ")
+        # logging.debug(f"clustering {clustering} ")
         # Sort the cluster labels in order of the frequency with which they occur.
         sorted_labels = sorted([n for n in range(k)], key=lambda _x: -np.sum(clustering == _x))
         logging.debug(f"sorted labels {sorted_labels} ")
@@ -114,7 +114,7 @@ class CustomBoard(GameBoard):
                 x = int(6.25 + (col * 12.5))
                 field = kmeans_image[y:y + 12, x:x + 12]
                 channel_a, cnts = np.unique(field, return_counts=True)
-                logging.debug(f">> {chr(ord('A') + row)}{col + 1:2}: {cnts} -- {channel_a} ")
+                # logging.debug(f">> {chr(ord('A') + row)}{col + 1:2}: {cnts} -- {channel_a} ")
                 if channel_a[cnts.argmax()] != 0:
                     logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {cnts} ")
                     set_of_tiles.add((col, row))
