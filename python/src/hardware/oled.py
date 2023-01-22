@@ -106,7 +106,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
         logging.debug('Pause message')
         if config.show_score and self.game:
             if len(self.game.moves):
-                msg = f'\u23F8 {self.game.moves[-1].score[player]:3d}'
+                msg = f'P {self.game.moves[-1].score[player]:3d}'
         self.render_display(player, played_time, current, msg)
 
     def add_malus(self, player: int, played_time: list[int], current: list[int]) -> None:
