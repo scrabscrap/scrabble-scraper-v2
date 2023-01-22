@@ -199,7 +199,7 @@ class Game():
     """Represents the current game"""
 
     def __init__(self, nicknames: Optional[Tuple[str, str]]):
-        self._nicknames: Tuple[str, str] = ('Spieler1', 'Spieler2') if nicknames is None else nicknames
+        self._nicknames: Tuple[str, str] = ('Name1', 'Name2') if nicknames is None else nicknames
         self.gamestart: Optional[datetime.datetime] = datetime.datetime.now()
         self.moves: List[Move] = []
 
@@ -265,7 +265,7 @@ class Game():
 
     @property
     def nicknames(self) -> Tuple[str, str]:
-        """Return the nicknames (default: Spieler1, Spieler2)
+        """Return the nicknames (default: Name1, Name2)
 
         Returns:
             nicknames((str, str)): the player names
@@ -274,7 +274,7 @@ class Game():
 
     @nicknames.setter
     def nicknames(self, nicknames):
-        """Set the nicknames (default: Spieler1, Spieler2)
+        """Set the nicknames (default: Name1, Name2)
 
         Arguments:
             nicknames((str, str)): the player names
@@ -284,7 +284,7 @@ class Game():
     def new_game(self) -> object:
         """Reset to a new game (nicknames, moves)"""
         # with python > 3.11 return type: -> Self
-        self.nicknames = ('Spieler1', 'Spieler2')
+        self.nicknames = ('Name1', 'Name2')
         self.gamestart = datetime.datetime.now()
         self.moves.clear()
         return self

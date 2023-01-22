@@ -160,7 +160,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
             elif config.show_score and self.game:
                 nickname = self.game.nicknames[player]
                 if len(nickname) > 5:
-                    nickname = nickname[:2] + '\u2026' + nickname[-2:]
+                    nickname = nickname[:4] + '\u2026'
                 if len(self.game.moves):
                     draw.text((20, 1), f'{nickname} {self.game.moves[-1].score[player]:3d}', font=self.font2, fill=WHITE)
                 else:
