@@ -206,12 +206,13 @@ class Game():
     def __str__(self) -> str:
         return self.json_str()
 
-    def json_str(self) -> str:
+    def json_str(self, move_number: int = -1) -> str:
         """Return the json represention of the board"""
         if len(self.moves) < 1:
             return '{}'
-        keys = self.moves[-1].board.keys()
-        values = self.moves[-1].board.values()
+        move_index = len(self.moves) - 1 if move_number == -1 else move_number - 1
+        keys = self.moves[move_index].board.keys()
+        values = self.moves[move_index].board.values()
         keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in keys]
         values1 = [t for (t, p) in values]
         bag = bag_as_list.copy()
@@ -219,21 +220,19 @@ class Game():
         (name1, name2) = self.nicknames
 
         gcg_moves = []
-        for i in self.moves:
-            gcg_moves.append(i.gcg_str(self.nicknames))
-            if i == self:
-                break
+        for i in range(0, move_index + 1):
+            gcg_moves.append(self.moves[i].gcg_str(self.nicknames))
         to_json = json.dumps(
             {
-                'time': self.moves[-1].time,
-                'move': self.moves[-1].move,
-                'score1': self.moves[-1].score[0],
-                'score2': self.moves[-1].score[1],
-                'time1': config.max_time - self.moves[-1].played_time[0],
-                'time2': config.max_time - self.moves[-1].played_time[1],
+                'time': self.moves[move_index].time,
+                'move': self.moves[move_index].move,
+                'score1': self.moves[move_index].score[0],
+                'score2': self.moves[move_index].score[1],
+                'time1': config.max_time - self.moves[move_index].played_time[0],
+                'time2': config.max_time - self.moves[move_index].played_time[1],
                 'name1': name1,
                 'name2': name2,
-                'onmove': self.nicknames[self.moves[-1].player],
+                'onmove': self.nicknames[self.moves[move_index].player],
                 'moves': gcg_moves,
                 'board': dict(zip(*[keys1, values1])),
                 'bag': bag

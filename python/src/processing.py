@@ -177,6 +177,8 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
         previous_score = new_move.score
         moves[move_number - 1] = new_move
         logging.info(f'recalculate move #{new_move.move} new points {new_move.points} new score {new_move.score}')
+        _store_fixed_move(game, moves[move_number - 1])
+        _upload_ftp(moves[move_number - 1])
 
         for i in range(move_number, len(moves)):
             mov = moves[i]
@@ -191,6 +193,8 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
             previous_score = new_move.score
             moves[i] = new_move
             logging.info(f'recalculate move #{moves[i].move} new points {moves[i].points} new score {moves[i].score}')
+            _store_fixed_move(game, moves[i])
+            _upload_ftp(moves[i])
     else:
         raise ValueError("invalid move number")
 
@@ -452,6 +456,15 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
         else:
             prev_score = mov.score                                             # store previous score
     return prev_score
+
+
+def _store_fixed_move(game: Game, move: Move):
+    if config.output_web or config.output_ftp:
+        with open(f'{config.web_dir}/data-{move.move}.json', "w", encoding='UTF-8') as handle:
+            handle.write(game.json_str(move.move))
+        if len(game.moves) == move.move:
+            with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
+                handle.write(game.json_str())
 
 
 def _store_move(game: Game, img: Optional[Mat]):
