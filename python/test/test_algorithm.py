@@ -904,8 +904,7 @@ class AlgorithmTestCase(unittest.TestCase):
 
     def test_130(self):
         """Test 130 - Algorithm: changed tile with higher propability"""
-        from processing import recalculate_score_on_tiles_change
-
+        from processing import _recalculate_score_on_tiles_change  # type: ignore
         state = State()
         game = state.game
         game.new_game()
@@ -927,7 +926,7 @@ class AlgorithmTestCase(unittest.TestCase):
 
         # simulate changed tiles
         changed = {(4, 7): ('I', 85)}
-        recalculate_score_on_tiles_change(game=game, board=board, changed=changed)
+        _recalculate_score_on_tiles_change(game=game, board=board, changed=changed)
         score = game.moves[-1].score
 
         # next move

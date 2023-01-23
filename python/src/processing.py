@@ -121,39 +121,8 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
     return board
 
 
-def store_move(game: Game, img: Optional[Mat]):
-    """store move to filesystem
-
-    Args:
-        current_move(Move): the current move
-        img(Mat): current picture
-    """
-    if config.output_web or config.output_ftp:
-        with open(f'{config.web_dir}/data-{game.moves[-1].move}.json', "w", encoding='UTF-8') as handle:
-            handle.write(game.json_str())
-        with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
-            handle.write(game.json_str())
-        if img is None:
-            import shutil
-            shutil.copyfile(f'{config.web_dir}/image-{game.moves[-1].move - 1}.jpg',
-                            f'{config.web_dir}/image-{game.moves[-1].move}.jpg')
-        else:
-            cv2.imwrite(f'{config.web_dir}/image-{game.moves[-1].move}.jpg', img)
-
-
-def upload_ftp(current_move: Move):
-    """upload move to ftp server
-
-    Args:
-        current_move(Move): the current move
-    """
-    from ftp import Ftp
-    if config.output_ftp:
-        # start thread for upload and return immediatly
-        pool.submit(Ftp.upload_move, current_move.move)
-
-
 def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str):
+    # pylint: disable=R0914, R0912
     """fix move (direct call from admin)
 
     The provided tiles (word) will be set on the board with a probability of 99%
@@ -166,98 +135,64 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
         word: the new word valid chars (A-Z._) crossing chars will replaced with '.'
     """
     moves = game.moves
-    if len(moves) >= move_number and move_number > 0:
+    if 0 < move_number <= len(moves):
         assert moves[move_number - 1].move == move_number
         assert 0 <= coord[0] < 15
         assert 0 <= coord[1] < 15
 
+        logging.debug(f'try to fix move {move_number} at {coord} vertical={isvertical} with {word}')
         mov = moves[move_number - 1]
         mov.coord = coord
         mov.is_vertical = isvertical
 
-        tiles_to_remove = mov.new_tiles.copy()
-        tiles_to_add: dict = dict()
+        tiles_to_remove = mov.new_tiles.copy()                                 # tiles to delete
+        logging.debug(f'tiles_to_remove {tiles_to_remove}')
         for elem in tiles_to_remove:
-            del mov.board[elem]  # remove tiles on board from incorrect move
-        if word == '':
-            mov.type = MoveType.EXCHANGE
-            mov.word = word
-            mov.new_tiles = tiles_to_add
-            mov.points = 0
-            mov.score = moves[move_number - 2].score if move_number > 1 else (0, 0)
-            pass
-        else:
-            if mov.type == MoveType.UNKNOWN:
-                mov.type = MoveType.REGULAR
-            word_as_list = list(word)
-            (col, row) = coord
-            for i, char in enumerate(word):
-                if isvertical and char != '.':
-                    if (col, row + i) not in mov.board:
-                        tiles_to_add[(col, row + i)] = (char, 99)
-                    else:
-                        word_as_list[i] = '.'
-                elif char != '.':
-                    if (col + i, row) not in mov.board:
-                        tiles_to_add[(col + i, row)] = (char, 99)
-                    else:
-                        word_as_list[i] = '.'
-            word = ''.join(word_as_list)  # fixed word
-            for key in tiles_to_add.keys():
-                mov.board[key] = tiles_to_add[key]
-            mov.word = word
-            mov.new_tiles = tiles_to_add
-            prev_score = moves[move_number - 2].score if move_number > 1 else (0, 0)
-            mov.points, mov.score, mov.is_scrabble = mov.calculate_score(prev_score)
-        prev_score = mov.score
-        logging.info(f'recalculate move #{mov.move} new points {mov.points} new score {mov.score}')
+            del mov.board[elem]                                                # remove tiles on board from incorrect move
+        tiles_to_add: dict = {}                                                # tiles to add
+        word_as_list = list(word)
+        (col, row) = coord
+        for i, char in enumerate(word):
+            if isvertical and char != '.':
+                if (col, row + i) not in mov.board:
+                    tiles_to_add[(col, row + i)] = (char, 99)
+                else:
+                    word_as_list[i] = '.'
+            elif char != '.':
+                if (col + i, row) not in mov.board:
+                    tiles_to_add[(col + i, row)] = (char, 99)
+                else:
+                    word_as_list[i] = '.'
+        word = ''.join(word_as_list)                                           # fixed word
+
+        logging.debug(f'tiles_to_add {tiles_to_add}')
+        for key in tiles_to_add.keys():  # pylint: disable=C0206, C0201
+            mov.board[key] = tiles_to_add[key]
+
+        previous_board = game.moves[move_number - 2].board if move_number > 1 else {}
+        previous_score = game.moves[move_number - 2].score if move_number > 1 else (0, 0)
+        new_move = _move_processing(game, mov.player, mov.played_time, mov.img, mov.board, previous_board, previous_score)
+        new_move.move = move_number
+        previous_board = new_move.board
+        previous_score = new_move.score
+        moves[move_number - 1] = new_move
+        logging.info(f'recalculate move #{new_move.move} new points {new_move.points} new score {new_move.score}')
 
         for i in range(move_number, len(moves)):
+            mov = moves[i]
             for elem in tiles_to_remove:
-                del moves[i].board[elem]  # remove tiles from board
-            for key in tiles_to_add.keys():
-                moves[i].board[key] = tiles_to_add[key]
-            moves[i].points, moves[i].score, moves[i].is_scrabble = moves[i].calculate_score(prev_score)
-            prev_score = moves[i].score
+                if mov.board[elem] == tiles_to_remove[elem]:
+                    del mov.board[elem]                                        # remove tiles from board
+            for key in tiles_to_add.keys():  # pylint: disable=C0206, C0201
+                mov.board[key] = tiles_to_add[key]
+            new_move = _move_processing(game, mov.player, mov.played_time, mov.img, mov.board, previous_board, previous_score)
+            new_move.move = i + 1
+            previous_board = new_move.board
+            previous_score = new_move.score
+            moves[i] = new_move
             logging.info(f'recalculate move #{moves[i].move} new points {moves[i].points} new score {moves[i].score}')
     else:
         raise ValueError("invalid move number")
-
-
-def recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
-    """fix scores on changed tile recognition
-
-    Args:
-        game(Move): the game to fix
-        board(dict): last analyzed board
-        changed(dict): modified tiles of previous moves
-    """
-
-    logging.info(f'changed tiles: {changed}')
-    to_inspect = min(config.scrabble_verify_moves, len(game.moves)) * -1
-    prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
-    must_recalculate = False
-    for i in range(to_inspect, 0):
-        mov = game.moves[i]
-        for coord in changed.keys():
-            if coord in mov.board.keys():                                      # tiles on board are changed
-                logging.info(f'need correction {mov.board[coord]} -> {changed[coord]} {mov.score}/{mov.points}')
-                mov.board[coord] = changed[coord]
-                must_recalculate = True
-        if must_recalculate:
-            _word = ''
-            (col, row) = mov.coord
-            for i, char in enumerate(mov.word):                                # fix mov.word
-                if mov.is_vertical:
-                    _word += board[(col, row + i)][0] if char != '.' else '.'
-                else:
-                    _word += board[(col + i, row)][0] if char != '.' else '.'
-            mov.word = _word
-            mov.points, prev_score, mov.is_scrabble = mov.calculate_score(prev_score)
-            mov.score = prev_score                                             # store previous score
-            logging.debug(f'move {mov.move} after recalculate {prev_score}')
-        else:
-            prev_score = mov.score                                             # store previous score
 
 
 @trace
@@ -272,118 +207,18 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         player (int): active player
         played_time (int, int): current player times
     """
-    def _changes(board: dict, previous_board: dict):
-        for i in previous_board.keys():
-            if i in board.keys() and previous_board[i][1] > board[i][1]:
-                logging.debug(f'use value from old board {i}')
-                board[i] = previous_board[i]
-        new_tiles = {i: board[i] for i in set(board.keys()).difference(previous_board)}
-        removed_tiles = {i: previous_board[i] for i in set(previous_board.keys()).difference(board)}
-        changed_tiles = {i: board[i] for i in previous_board if
-                         i not in removed_tiles and previous_board[i][0] != board[i][0]}
-        return board, new_tiles, removed_tiles, changed_tiles
-
-    def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
-        if len(changed) < 1:
-            logging.info('move: no new tiles detected')
-            raise NoMoveException('move: no new tiles')
-        horizontal = len({col for col, _ in changed}) > 1
-        vertical = len({row for _, row in changed}) > 1
-        if vertical and horizontal:
-            logging.warning(f'illegal move: {changed}')
-            raise InvalidMoveExeption('move: illegal move horizontal and vertical changes detected')
-        if len(changed) == 1:  # only 1 tile
-            (col, row) = changed[-1]
-            horizontal = ((col - 1, row) in board) or ((col + 1, row) in board)
-            vertical = ((col, row - 1) in board) or ((col, row + 1) in board) if not horizontal else False
-        (col, row) = changed[0]
-        (minx, miny) = changed[0]
-        _word = ''
-        if vertical:
-            while row > 0 and (col, row - 1) in board:
-                row -= 1
-            miny = row
-            while row < 15 and (col, row) in board:
-                _word += board[(col, row)][0] if (col, row) in changed else '.'
-                row += 1
-        else:
-            while col > 0 and (col - 1, row) in board:
-                col -= 1
-            minx = col
-            while col < 15 and (col, row) in board:
-                _word += board[(col, row)][0] if (col, row) in changed else '.'
-                col += 1
-        return vertical, (minx, miny), _word
-
-    def chunkify(lst, chunks):
-        return [lst[i::chunks] for i in range(chunks)]
-
-    if waitfor is not None:                                                    # wait for previous moves
-        done, not_done = futures.wait({waitfor})
-        assert len(not_done) == 0, 'error while waiting for future'
-    warped = warp_image(img)                                                   # 1. warp image if necessary
-    warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # 2. grayscale image
-    _, tiles_candidates = filter_image(warped)                                 # 3. find potential tiles on board
-    ignore_coords = set()
-    if len(game.moves) > config.scrabble_verify_moves:
-        # if opponents move has a valid challenge
-        if game.moves[-config.scrabble_verify_moves + 1].type is MoveType.WITHDRAW:
-            ignore_coords = set(
-                {i: i for i in game.moves[-config.scrabble_verify_moves + 1].board.keys() if i in game.moves[-1].board.keys()})
-        else:
-            ignore_coords = set(
-                {i: i for i in game.moves[-config.scrabble_verify_moves].board.keys() if i in game.moves[-1].board.keys()})
-    filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
-
-    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # copy board for analyze
-    chunks = chunkify(list(filtered_candidates), 3)                            # 5. picture analysis
-    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))           # 1. thread
-    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))           # 2. thread
-    analyze(warped_gray, board, set(chunks[2]))                                  # 3. (this) thread
-    done, _ = futures.wait({future1, future2})                                 # 6. blocking wait
-    assert len(done) == 2, 'error on wait to futures'
+    warped, board = _image_processing(waitfor, game, img)
 
     previous_board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}   # get previous board information
-    current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
-    if len(changed_tiles) > 0:                                                 # 7. fix old moves
-        recalculate_score_on_tiles_change(game, board, changed_tiles)
-        previous_score = game.moves[-1].score                                  # reapply previous score
-    else:
-        previous_score = game.moves[-1].score if len(game.moves) > 0 else (0, 0)
-    try:                                                                       # 8. find word and create move
-        is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
-        current_move = Move(MoveType.REGULAR, player=player, coord=coord, is_vertical=is_vertical, word=word,
-                            new_tiles=new_tiles, removed_tiles=removed_tiles, board=current_board, played_time=played_time,
-                            previous_score=previous_score, img=warped)
-    except NoMoveException:
-        current_move = Move(MoveType.EXCHANGE, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
-                            removed_tiles=removed_tiles, board=current_board, played_time=played_time,
-                            previous_score=previous_score)
-    except InvalidMoveExeption:
-        current_move = Move(MoveType.UNKNOWN, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
-                            removed_tiles=removed_tiles, board=current_board, played_time=played_time,
-                            previous_score=previous_score)
+    previous_score = game.moves[-1].score if len(game.moves) > 0 else (0, 0)
+
+    current_move = _move_processing(game, player, played_time, warped, board, previous_board, previous_score)
 
     game.add_move(current_move)                                                # 9. add move
-    logging.debug(f'\n{game.board_str()}')
-    logging.debug(f'\n{game.json_str()}')
-    logging.debug(f'new scores {game.moves[-1].score}')
-    if config.development_recording:
-        logging.debug('game recording')
-        recording_logger = logging.getLogger("gameRecordingLogger")
-        game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
-        move_number = len(game.moves)
-        cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}.jpg', img)
-        warp_str = np.array2string(get_last_warp(), formatter={  # type: ignore
-                                   'float_kind': lambda x: f'{x:.1f}'}, separator=',')
-        recording_logger.info(f'{game_id} warp: ({move_number}): {warp_str}')
-        recording_logger.info(f'{game_id} board: {game.moves[-1].board}')
-        recording_logger.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
-        recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
-        recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
-        recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
-    store_move(game, warped)                                           # 10. store move on hd
-    upload_ftp(current_move)                                                   # 11. upload move to ftp
+    logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
+    _development_recording(game, img)
+    _store_move(game, warped)                                                  # 10. store move on hd
+    _upload_ftp(current_move)
 
 
 @ trace
@@ -399,20 +234,10 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     game.add_valid_challenge(player, played_time)                              # 9. add move
-    logging.debug(f'\n{game.board_str()}')
-    logging.debug(f'new scores {game.moves[-1].score}')
-    if config.development_recording:
-        logging.debug('game recording')
-        recording_logger = logging.getLogger("gameRecordingLogger")
-        game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
-        recording_logger.info(f'{game_id} move: ({len(game.moves)}')
-        recording_logger.info(f'{game_id} board: {game.moves[-1].board}')
-        recording_logger.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
-        recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
-        recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
-        recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
-    store_move(game, None)                                           # 10. store move on hd
-    upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
+    logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
+    _development_recording(game, None)
+    _store_move(game, None)                                                    # 10. store move on hd
+    _upload_ftp(game.moves[-1])
 
 
 @ trace
@@ -428,20 +253,10 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     game.add_invalid_challenge(player, played_time)                            # 9. add move
-    logging.debug(f'\n{game.board_str()}')
-    logging.debug(f'new scores {game.moves[-1].score}')
-    if config.development_recording:
-        logging.debug('game recording')
-        recording_logger = logging.getLogger("gameRecordingLogger")
-        game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
-        recording_logger.info(f'{game_id} move: ({len(game.moves)}')
-        recording_logger.info(f'{game_id} board: {game.moves[-1].board}')
-        recording_logger.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
-        recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
-        recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
-        recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
-    store_move(game, None)                                           # 10. store move on hd
-    upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
+    logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
+    _development_recording(game, None)
+    _store_move(game, None)                                                     # 10. store move on hd
+    _upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
 
 
 @ trace
@@ -482,3 +297,190 @@ def end_of_game(waitfor: Optional[Future], game: Game):
 
     if config.output_ftp:
         Ftp.upload_game(filename)
+
+
+def _changes(board: dict, previous_board: dict) -> Tuple[dict, dict, dict, dict]:
+    for i in previous_board.keys():
+        if i in board.keys() and previous_board[i][1] > board[i][1]:
+            logging.debug(f'use value from old board {i}')
+            board[i] = previous_board[i]
+    new_tiles = {i: board[i] for i in set(board.keys()).difference(previous_board)}
+    removed_tiles = {i: previous_board[i] for i in set(previous_board.keys()).difference(board)}
+    changed_tiles = {i: board[i] for i in previous_board if
+                     i not in removed_tiles and previous_board[i][0] != board[i][0]}
+    return board, new_tiles, removed_tiles, changed_tiles
+
+
+def _chunkify(lst, chunks):
+    return [lst[i::chunks] for i in range(chunks)]
+
+
+def _development_recording(game: Game, img: Optional[Mat]):
+    if config.development_recording:
+        logging.debug('game recording')
+        recording_logger = logging.getLogger("gameRecordingLogger")
+        game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
+        if img is not None:
+            move_number = len(game.moves)
+            cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}.jpg', img)
+            warp_str = np.array2string(get_last_warp(), formatter={  # type: ignore
+                'float_kind': lambda x: f'{x:.1f}'}, separator=',')
+            recording_logger.info(f'{game_id} warp: ({move_number}): {warp_str}')
+        recording_logger.info(f'{game_id} board: {game.moves[-1].board}')
+        recording_logger.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
+        recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
+        recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
+        recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
+
+
+def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
+    if len(changed) < 1:
+        logging.info('move: no new tiles detected')
+        raise NoMoveException('move: no new tiles')
+    horizontal = len({col for col, _ in changed}) > 1
+    vertical = len({row for _, row in changed}) > 1
+    if vertical and horizontal:
+        logging.warning(f'illegal move: {changed}')
+        raise InvalidMoveExeption('move: illegal move horizontal and vertical changes detected')
+    if len(changed) == 1:  # only 1 tile
+        (col, row) = changed[-1]
+        horizontal = ((col - 1, row) in board) or ((col + 1, row) in board)
+        vertical = ((col, row - 1) in board) or ((col, row + 1) in board) if not horizontal else False
+    (col, row) = changed[0]
+    (minx, miny) = changed[0]
+    _word = ''
+    if vertical:
+        while row > 0 and (col, row - 1) in board:
+            row -= 1
+        miny = row
+        while row < 15 and (col, row) in board:
+            _word += board[(col, row)][0] if (col, row) in changed else '.'
+            row += 1
+    else:
+        while col > 0 and (col - 1, row) in board:
+            col -= 1
+        minx = col
+        while col < 15 and (col, row) in board:
+            _word += board[(col, row)][0] if (col, row) in changed else '.'
+            col += 1
+    return vertical, (minx, miny), _word
+
+
+def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[Mat, dict]:
+    if waitfor is not None:                                                    # wait for previous moves
+        done, not_done = futures.wait({waitfor})
+        assert len(not_done) == 0, 'error while waiting for future'
+    warped = warp_image(img)                                                   # 1. warp image if necessary
+    warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # 2. grayscale image
+    _, tiles_candidates = filter_image(warped)                                 # 3. find potential tiles on board
+    ignore_coords = set()
+    if len(game.moves) > config.scrabble_verify_moves:
+        # if opponents move has a valid challenge
+        if game.moves[-config.scrabble_verify_moves + 1].type is MoveType.WITHDRAW:
+            ignore_coords = set(
+                {i: i for i in game.moves[-config.scrabble_verify_moves + 1].board.keys() if i in game.moves[-1].board.keys()})
+        else:
+            ignore_coords = set(
+                {i: i for i in game.moves[-config.scrabble_verify_moves].board.keys() if i in game.moves[-1].board.keys()})
+    filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
+
+    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # copy board for analyze
+    chunks = _chunkify(list(filtered_candidates), 3)                           # 5. picture analysis
+    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))           # 1. thread
+    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))           # 2. thread
+    analyze(warped_gray, board, set(chunks[2]))                                  # 3. (this) thread
+    done, _ = futures.wait({future1, future2})                                 # 6. blocking wait
+    assert len(done) == 2, 'error on wait to futures'
+    return warped, board
+
+
+def _move_processing(game: Game, player: int, played_time: Tuple[int, int], warped, board: dict, previous_board: dict,
+                     previous_score: Tuple[int, int]) -> Move:
+    # pylint: disable=R0913
+    current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
+    if len(changed_tiles) > 0:                                                 # 7. fix old moves
+        previous_score = _recalculate_score_on_tiles_change(game, board, changed_tiles)
+    try:                                                                       # 8. find word and create move
+        is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
+        current_move = Move(MoveType.REGULAR, player=player, coord=coord, is_vertical=is_vertical, word=word,
+                            new_tiles=new_tiles, removed_tiles=removed_tiles, board=current_board, played_time=played_time,
+                            previous_score=previous_score, img=warped)
+    except NoMoveException:
+        current_move = Move(MoveType.EXCHANGE, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
+                            removed_tiles=removed_tiles, board=current_board, played_time=played_time,
+                            previous_score=previous_score)
+    except InvalidMoveExeption:
+        current_move = Move(MoveType.UNKNOWN, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
+                            removed_tiles=removed_tiles, board=current_board, played_time=played_time,
+                            previous_score=previous_score)
+
+    return current_move
+
+
+def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
+    """fix scores on changed tile recognition
+
+    Args:
+        game(Move): the game to fix
+        board(dict): last analyzed board
+        changed(dict): modified tiles of previous moves
+    """
+
+    logging.info(f'changed tiles: {changed}')
+    to_inspect = min(config.scrabble_verify_moves, len(game.moves)) * -1
+    prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
+    must_recalculate = False
+    for i in range(to_inspect, 0):
+        mov = game.moves[i]
+        for coord in changed.keys():
+            if coord in mov.board.keys():                                      # tiles on board are changed
+                logging.info(f'need correction {mov.board[coord]} -> {changed[coord]} {mov.score}/{mov.points}')
+                mov.board[coord] = changed[coord]
+                must_recalculate = True
+        if must_recalculate:
+            _word = ''
+            (col, row) = mov.coord
+            for i, char in enumerate(mov.word):                                # fix mov.word
+                if mov.is_vertical:
+                    _word += board[(col, row + i)][0] if char != '.' else '.'
+                else:
+                    _word += board[(col + i, row)][0] if char != '.' else '.'
+            mov.word = _word
+            mov.points, prev_score, mov.is_scrabble = mov.calculate_score(prev_score)
+            mov.score = prev_score                                             # store previous score
+            logging.debug(f'move {mov.move} after recalculate {prev_score}')
+        else:
+            prev_score = mov.score                                             # store previous score
+    return prev_score
+
+
+def _store_move(game: Game, img: Optional[Mat]):
+    """store move to filesystem
+
+    Args:
+        current_move(Move): the current move
+        img(Mat): current picture
+    """
+    if config.output_web or config.output_ftp:
+        with open(f'{config.web_dir}/data-{game.moves[-1].move}.json', "w", encoding='UTF-8') as handle:
+            handle.write(game.json_str())
+        with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
+            handle.write(game.json_str())
+        if img is None:
+            import shutil
+            shutil.copyfile(f'{config.web_dir}/image-{game.moves[-1].move - 1}.jpg',
+                            f'{config.web_dir}/image-{game.moves[-1].move}.jpg')
+        else:
+            cv2.imwrite(f'{config.web_dir}/image-{game.moves[-1].move}.jpg', img)
+
+
+def _upload_ftp(current_move: Move):
+    """upload move to ftp server
+
+    Args:
+        current_move(Move): the current move
+    """
+    from ftp import Ftp
+    if config.output_ftp:
+        # start thread for upload and return immediatly
+        pool.submit(Ftp.upload_move, current_move.move)
