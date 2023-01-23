@@ -62,7 +62,7 @@ def trace(func):
             logging.debug(f'entering {func.__name__}')
             return func(*args, **kwargs)
         except Exception:  # type: ignore
-            logging.debug(f'exception in {func.__name__}')
+            logging.exception(f'exception in {func.__name__}')
             raise
         finally:
             logging.debug(f'leaving {func.__name__}')
