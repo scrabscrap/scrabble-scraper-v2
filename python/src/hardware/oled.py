@@ -41,6 +41,7 @@ MIDDLE = (64, 42)
 
 
 class PlayerDisplay(Display, metaclass=Singleton):
+    # pylint: disable=R0902
     """Implementation of class Display with OLED"""
 
     def __init__(self):
@@ -54,6 +55,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
         self.device: tuple[ssd1306, ssd1306] = (
             ssd1306(self.serial[0]), ssd1306(self.serial[1]))
         self.game: Optional[Game] = None
+        self.last_score = (0, 0)
 
     def stop(self) -> None:
         logging.debug('display stop')

@@ -458,11 +458,11 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     return prev_score
 
 
-def _store_fixed_move(game: Game, move: Move):
+def _store_fixed_move(game: Game, move_to_store: Move):
     if config.output_web or config.output_ftp:
-        with open(f'{config.web_dir}/data-{move.move}.json', "w", encoding='UTF-8') as handle:
-            handle.write(game.json_str(move.move))
-        if len(game.moves) == move.move:
+        with open(f'{config.web_dir}/data-{move_to_store.move}.json', "w", encoding='UTF-8') as handle:
+            handle.write(game.json_str(move_to_store.move))
+        if len(game.moves) == move_to_store.move:
             with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
                 handle.write(game.json_str())
 

@@ -145,21 +145,21 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         logging.info(f'data: {move_number} {coord} {word}')
         if move_number and coord and word:
             game = State().game
-            moveRe = re.compile('[\\d+]')
-            if not moveRe.match(move_number) or int(move_number) <= 0 or int(move_number) > len(game.moves):
+            move_re = re.compile('[\\d+]')
+            if not move_re.match(move_number) or int(move_number) <= 0 or int(move_number) > len(game.moves):
                 ApiServer.last_msg = f'invalid move number {move_number}'
                 return redirect(url_for('get_defaults'))
 
-            mv = re.compile('(\\d+)([A-Oa-o])').match(coord)
-            mh = re.compile('([A-Oa-o])(\\d+)').match(coord)
-            if mv:
+            mvert = re.compile('(\\d+)([A-Oa-o])').match(coord)
+            mhoriz = re.compile('([A-Oa-o])(\\d+)').match(coord)
+            if mvert:
                 vertical = True
-                col = int(mv.group(1)) - 1
-                row = int(ord(mv.group(2).capitalize()) - ord('A'))
-            elif mh:
+                col = int(mvert.group(1)) - 1
+                row = int(ord(mvert.group(2).capitalize()) - ord('A'))
+            elif mhoriz:
                 vertical = False
-                col = int(mh.group(2)) - 1
-                row = int(ord(mh.group(1).capitalize()) - ord('A'))
+                col = int(mhoriz.group(2)) - 1
+                row = int(ord(mhoriz.group(1).capitalize()) - ord('A'))
             elif '-' == coord:
                 ApiServer.last_msg = f'correct move #{move_number} to exchange'
                 recalculate_score_on_admin_change(game, int(move_number), (0, 0), True, '')
@@ -330,7 +330,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
                     with open(f'{config.work_dir}/log.conf', 'w', encoding="UTF-8") as config_file:
                         log_config.write(config_file)
 
-            recording = True if 'recording' in request.form.keys() else False
+            recording = 'recording' in request.form.keys()
             if config.development_recording != recording:
                 logging.debug(f'development.recording changed to {recording}')
                 if 'development' not in config.config.sections():
@@ -500,7 +500,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     @ staticmethod
     @ app.route('/test_ftp')
     def test_ftp():
-        import configparser
+        """ is ftp accessible  """
         import ftplib
 
         ApiServer.last_msg = 'test ftp config entries\n'
