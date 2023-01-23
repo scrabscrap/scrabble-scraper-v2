@@ -117,16 +117,23 @@ export default class Display extends React.Component {
         <div className="container-fluid">
           <div className="row">
             <div className="col-md-12">
-              Scrabble-Scraper - {'\u27F3'} {this.state.countdown}s {(this.state.reloadError > 0) ? 
+              Scrabble-Scraper - {'\u27F3'} {this.state.countdown}s {(this.state.reloadError > 0) ?
                 "(" + this.state.reloadError + " Refresh-Fehler)" : ""}
             </div>
-            <div className="col-md-6">
+            <div className="col-md-4">
               <Player name={this.state.name1} score={this.state.score1}
                 time={this.state.time1} current={this.state.current} />
             </div>
-            <div className="col-md-6">
+            <div className="col-md-4">
               <Player name={this.state.name2} score={this.state.score2}
                 time={this.state.time2} current={this.state.current} />
+            </div>
+            <div className="col-md-4">
+              <div className="card player">
+                <div className="card-header">
+                  {this.state.time}
+                </div>
+              </div>
             </div>
 
 
@@ -138,9 +145,9 @@ export default class Display extends React.Component {
             </div>
             <div className="col-auto mb-3">
               <Board board={this.state.board} />
-              </div>
+            </div>
             <div className="col-auto mb-3" >
-              <Picture move={this.state.move} time={this.state.time}/>
+              <Picture move={this.state.move} time={this.state.time} />
             </div>
 
           </div>
