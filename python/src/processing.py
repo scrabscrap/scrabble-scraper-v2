@@ -272,7 +272,7 @@ def start_of_game():
 
 
 @ trace
-def end_of_game(waitfor: Optional[Future], game: Game):
+def end_of_game(waitfor: Optional[Future], game: Game):  # pragma: no cover # no ftp upload on tests
     """Process end of game
 
     Args:
@@ -487,7 +487,7 @@ def _store_move(game: Game, img: Optional[Mat]):
             cv2.imwrite(f'{config.web_dir}/image-{game.moves[-1].move}.jpg', img)
 
 
-def _upload_ftp(current_move: Move):
+def _upload_ftp(current_move: Move):  # pragma: no cover # no ftp upload on tests
     """upload move to ftp server
 
     Args:

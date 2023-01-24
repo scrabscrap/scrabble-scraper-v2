@@ -208,7 +208,7 @@ class State(metaclass=Singleton):
         gc.collect()
         return self.do_ready()
 
-    def do_reboot(self) -> str:
+    def do_reboot(self) -> str:  # pragma: no cover
         """Perform a reboot"""
         logging.info(f'{self.current_state} - (reboot) -> {START}')
         self.watch.display.show_boot()  # Display message REBOOT
@@ -219,7 +219,7 @@ class State(metaclass=Singleton):
         alarm(1)  # raise alarm for reboot
         return current_state
 
-    def do_accesspoint(self) -> str:
+    def do_accesspoint(self) -> str:  # pragma: no cover
         """Switch to AP Mode"""
         import subprocess
 
