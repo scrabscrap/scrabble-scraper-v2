@@ -319,7 +319,7 @@ def _chunkify(lst, chunks):
     return [lst[i::chunks] for i in range(chunks)]
 
 
-def _development_recording(game: Game, img: Optional[Mat]):
+def _development_recording(game: Game, img: Optional[Mat]):  # pragma: no cover # no dev recording on tests
     if config.development_recording:
         logging.debug('game recording')
         recording_logger = logging.getLogger("gameRecordingLogger")
