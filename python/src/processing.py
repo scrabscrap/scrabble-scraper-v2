@@ -380,7 +380,7 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[
     ignore_coords = set()
     if len(game.moves) > config.scrabble_verify_moves:
         # if opponents move has a valid challenge
-        if game.moves[-config.scrabble_verify_moves + 1].type is MoveType.WITHDRAW:
+        if game.moves[-config.scrabble_verify_moves + 1].type in (MoveType.PASS_TURN, MoveType.EXCHANGE, MoveType.WITHDRAW):
             ignore_coords = set(
                 {i: i for i in game.moves[-config.scrabble_verify_moves + 1].board.keys() if i in game.moves[-1].board.keys()})
         else:
