@@ -17,6 +17,7 @@ autopep8>=2.0.0
 flake8>=5.0.4
 mypy>=0.982
 pylint>=2.15.5
+coverage>=7.0.5
 # debug, misc
 cPython>=0.0.6
 pipdeptree>=2.3.3

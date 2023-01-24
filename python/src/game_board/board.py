@@ -101,7 +101,7 @@ def get_y_position(pos: int) -> int:
     return row
 
 
-def overlay_grid(image: ndarray) -> ndarray:
+def overlay_grid(image: ndarray) -> ndarray:  # pragma: no cover
     """ returns an image with an overlayed grid """
     img = image.copy()
     x1 = get_x_position(0)
@@ -117,7 +117,7 @@ def overlay_grid(image: ndarray) -> ndarray:
     return img
 
 
-def overlay_tiles(image: ndarray, board: dict[tuple[int, int], tuple[str, int]]) -> ndarray:
+def overlay_tiles(image: ndarray, board: dict[tuple[int, int], tuple[str, int]]) -> ndarray:  # pragma: no cover
     """ returns an image with overlayed characters from the board dictionary """
     img = image.copy()
     for (col, row), (value, _) in board.items():
