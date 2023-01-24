@@ -99,18 +99,3 @@ def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type
             pass
     for handler in handlers:
         handler.doRollover()  # type: ignore # flase positive on mypy
-
-
-def get_ipv4() -> str:
-    """try to get an ipv4 adress"""
-    import socket
-
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        server_socket.connect(('10.255.255.255', 1))
-        ip_addr = server_socket.getsockname()[0]
-    except socket.error:
-        ip_addr = '127.0.0.1'
-    finally:
-        server_socket.close()
-    return ip_addr

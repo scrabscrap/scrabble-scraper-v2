@@ -303,10 +303,6 @@ class Game():
         logging.info(f'add move: player {move.player} points {move.points} score {move.score}')
         return self
 
-    def get_moves(self) -> List[Move]:
-        """Return the moves of the current game"""
-        return self.moves
-
     def add_invalid_challenge(self, player: int, played_time: Tuple[int, int]) -> object:
         """Add an invalid challenge to the game
 

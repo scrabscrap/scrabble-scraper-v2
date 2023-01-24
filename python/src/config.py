@@ -135,10 +135,10 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         """should ftp upload used"""
         return self.config.getboolean('output', 'ftp', fallback=False)
 
-    @property
-    def keyboard(self) -> bool:
-        """should keyboard used as input device"""
-        return self.simulate or self.config.getboolean('input', 'keyboard', fallback=False)
+    # @property
+    # def keyboard(self) -> bool:
+    #     """should keyboard used as input device"""
+    #     return self.simulate or self.config.getboolean('input', 'keyboard', fallback=False)
 
     @property
     def video_warp(self) -> bool:
@@ -221,25 +221,25 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         """git tag or branch to use for updates"""
         return self.config.get('system', 'gittag', fallback='main').replace('"', '')
 
-    @property
-    def motion_detection(self) -> str:
-        """"which mode for motion detection is used"""
-        return self.config.get('motion', 'detection', fallback='KNN')
+    # @property
+    # def motion_detection(self) -> str:
+    #     """"which mode for motion detection is used"""
+    #     return self.config.get('motion', 'detection', fallback='KNN')
 
-    @property
-    def motion_learning_rate(self) -> float:
-        """motion learning rate"""
-        return self.config.getfloat('motion', 'learningRate', fallback=0.1)
+    # @property
+    # def motion_learning_rate(self) -> float:
+    #     """motion learning rate"""
+    #     return self.config.getfloat('motion', 'learningRate', fallback=0.1)
 
-    @property
-    def motion_wait(self) -> float:
-        """pause between motion detections"""
-        return self.config.getfloat('motion', 'wait', fallback=0.3)
+    # @property
+    # def motion_wait(self) -> float:
+    #     """pause between motion detections"""
+    #     return self.config.getfloat('motion', 'wait', fallback=0.3)
 
-    @property
-    def motion_area(self) -> int:
-        """minimum size of the motion area"""
-        return self.config.getint('motion', 'area', fallback=1500)
+    # @property
+    # def motion_area(self) -> int:
+    #     """minimum size of the motion area"""
+    #     return self.config.getint('motion', 'area', fallback=1500)
 
 
 config = Config()

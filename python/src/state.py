@@ -15,7 +15,6 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-import atexit
 import gc
 import logging
 from concurrent.futures import Future
@@ -59,10 +58,6 @@ class State(metaclass=Singleton):
         self.cam = cam
         self.last_submit: Optional[Future] = None  # last submit to thread pool; waiting for processing of the last move
         self.game: Game = Game(None)
-        atexit.register(self._atexit)
-
-    def _atexit(self) -> None:
-        logging.info('atexit State')
 
     def init(self) -> None:
         """init state machine"""
