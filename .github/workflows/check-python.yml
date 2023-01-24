@@ -132,4 +132,5 @@ jobs:
       - name: Coverage report
         id: report
         run: |
+          cd python
           coverage report
