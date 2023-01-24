@@ -105,7 +105,7 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
         if nicknames:
             result = f'> {nicknames[self.player]}: '
         else:
-            result = f'> Spieler {self.player}: '
+            result = f'> Name{self.player}: '
         if self.type == MoveType.REGULAR:
             (col, row) = self.coord
             result += str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(
