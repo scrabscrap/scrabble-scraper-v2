@@ -129,4 +129,7 @@ jobs:
           cd python
           cp defaults/* work/
           coverage run -m unittest discover
+      - name: Coverage report
+        id: report
+        run: |
           coverage report
