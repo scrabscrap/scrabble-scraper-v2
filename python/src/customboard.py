@@ -74,11 +74,11 @@ class CustomBoard(GameBoard):
 
         # tmp_img = cv2.GaussianBlur(_image, (7, 7), 0)
         tmp_img = cv2.bilateralFilter(_image, 9, 75, 75)  # blur but preserve edges
-        tmp_img = cv2.resize(tmp_img, (200, 200), interpolation=cv2.INTER_AREA)
+        tmp_img = cv2.resize(tmp_img, (400, 400), interpolation=cv2.INTER_AREA)
         lab = cv2.cvtColor(tmp_img, cv2.COLOR_BGR2LAB)
         _, channel_a, channel_b = cv2.split(lab)
         image = cv2.merge((channel_a, channel_b))
-        image = image.reshape((200 * 200, 2))
+        image = image.reshape((400 * 400, 2))
         image = np.float32(image)
         visualLogger.debug(VisualRecord("lab", [lab], fmt="png"))
 
@@ -86,21 +86,21 @@ class CustomBoard(GameBoard):
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 1.0)
         k = 4
         _, labels_, _ = cv2.kmeans(image, k, None, criteria, 10, cv2.KMEANS_PP_CENTERS)
-        clustering = np.reshape(np.array(labels_, dtype=np.uint8), (200, 200))
+        clustering = np.reshape(np.array(labels_, dtype=np.uint8), (400, 400))
         # logging.debug(f"clustering {clustering} ")
         # Sort the cluster labels in order of the frequency with which they occur.
         sorted_labels = sorted([n for n in range(k)], key=lambda _x: -np.sum(clustering == _x))
         logging.debug(f"sorted labels {sorted_labels} ")
 
         # Initialize K-means grayscale image; set pixel colors based on clustering.
-        kmeans_image = np.zeros((200, 200), dtype=np.uint8)
+        kmeans_image = np.zeros((400, 400), dtype=np.uint8)
         for i, label in enumerate(sorted_labels):
             kmeans_image[clustering == label] = int(255 / (k - 1)) * i * 50
 
         # Farbe des Mittelsteines
-        y = 94  # 47  # (3,125 + (7*6,25)
-        x = 94  # 47  # (3,125 + (7*6,25)
-        field = kmeans_image[y:y + 12, x:x + 12]
+        y = 13 + 7 * 25  # 94  # 47  # (3,125 + (7*6,25)
+        x = 13 + 7 * 25  # 94  # 47  # (3,125 + (7*6,25)
+        field = kmeans_image[y:y + 25, x:x + 25]
         channel_a, cnts = np.unique(field, return_counts=True)
         high_freq_element = channel_a[cnts.argmax()]
         kmeans_image[kmeans_image != high_freq_element] = 0
@@ -110,9 +110,9 @@ class CustomBoard(GameBoard):
         set_of_tiles = set()
         for row in range(0, 15):
             for col in range(0, 15):
-                y = int(6.25 + (row * 12.5))
-                x = int(6.25 + (col * 12.5))
-                field = kmeans_image[y:y + 12, x:x + 12]
+                y = int(13 + (row * 25))  # int(6.25 + (row * 12.5))
+                x = int(13 + (col * 25))  # int(6.25 + (col * 12.5))
+                field = kmeans_image[y:y + 25, x:x + 25]
                 channel_a, cnts = np.unique(field, return_counts=True)
                 # logging.debug(f">> {chr(ord('A') + row)}{col + 1:2}: {cnts} -- {channel_a} ")
                 if channel_a[cnts.argmax()] != 0:
