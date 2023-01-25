@@ -102,6 +102,50 @@ class ScrabbleGameTestCase(unittest.TestCase):
         # self.assertEqual(377, state.game.moves[-1].score[0])
         self.assertEqual(362, state.game.moves[-1].score[1])
 
+    def test_game_05(self):
+        """Test game 05"""
+        from display import Display
+        from state import State
+        from scrabblewatch import ScrabbleWatch
+
+        self.config_setter('video', 'warp_coordinates', [[9.0, 16.0], [967.0, 0.0], [991.0, 963.0], [15.0, 975.0]])
+        self.config_setter('board', 'layout', 'custom')
+        display = Display()
+        watch = ScrabbleWatch(display)
+        cam = Camera(useCamera=CameraEnum.FILE)
+        cam.stream.formatter = f'{TEST_DIR}/game05/image-{{:d}}.jpg'  # type: ignore
+        state = State(cam=cam, watch=watch)
+        state.cam = cam
+        state.do_reset()
+        state.game.nicknames = ('Inessa', 'Stefan')
+        state.press_button('RED')                                              # green begins
+        for i in range(1, 14):                                                 # odd image # => green
+            cam.stream.cnt = i  # type: ignore
+            if i % 2 == 1:
+                state.press_button('GREEN')
+            else:
+                state.press_button('RED')
+            if state.last_submit is not None:
+                while not state.last_submit.done():  # type: ignore
+                    sleep(0.1)
+        self.assertEqual((94, 126), state.game.moves[-1].score)
+        state.press_button('YELLOW')
+        sleep(0.1)
+        state.press_button('DOUBT1')                                           # valid challenge
+        sleep(0.1)
+        state.press_button('YELLOW')
+        self.assertEqual((77, 126), state.game.moves[-1].score)
+        for i in range(15, 36):                                                # odd image # => red
+            cam.stream.cnt = i  # type: ignore
+            if i % 2 == 0:
+                state.press_button('GREEN')
+            else:
+                state.press_button('RED')
+            if state.last_submit is not None:
+                while not state.last_submit.done():  # type: ignore
+                    sleep(0.1)
+        self.assertEqual((416, 344), state.game.moves[-1].score)
+
     def test_game_12(self):
         """Test game 12"""
         from display import Display
