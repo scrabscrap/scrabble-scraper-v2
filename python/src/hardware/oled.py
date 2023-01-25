@@ -26,7 +26,7 @@ from PIL import ImageFont
 
 from config import config
 from display import Display
-from scrabble import Game
+from scrabble import Game, MoveType
 from util import Singleton
 
 IC2_PORT_PLAYER1 = 1
@@ -159,7 +159,10 @@ class PlayerDisplay(Display, metaclass=Singleton):
                 if len(nickname) > 5:
                     nickname = nickname[:4] + '\u2026'
                 if len(self.game.moves):
-                    draw.text((20, 1), f'{nickname} {self.game.moves[-1].score[player]:3d}', font=self.font2, fill=WHITE)
+                    if self.game.moves[-1].type == MoveType.UNKNOWN:
+                        draw.text((20, 1), f'{nickname} ???', font=self.font2, fill=WHITE)
+                    else:
+                        draw.text((20, 1), f'{nickname} {self.game.moves[-1].score[player]:3d}', font=self.font2, fill=WHITE)
                 else:
                     draw.text((20, 1), f'{nickname}   0', font=self.font2, fill=WHITE)
             if current[player] != 0:
