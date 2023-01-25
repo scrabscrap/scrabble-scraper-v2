@@ -277,5 +277,5 @@ class State(metaclass=Singleton):
         (P1, DOUBT0): do_invalid_challenge1,
         (P1, RESET): do_reset,
         (P1, REBOOT): do_reboot,
-        (P1, AP): do_accesspoint,
+        (P1, AP): do_accesspoint
     }
