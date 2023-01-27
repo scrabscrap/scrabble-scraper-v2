@@ -362,7 +362,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         from zipfile import ZipFile
 
         with ZipFile(f'{config.log_dir}/log.zip', 'w') as _zip:
-            files = ['game.log', 'messages.log', 'video.html']
+            files = ['game.log', 'messages.log']
             for filename in files:
                 if os.path.exists(f'{config.log_dir}/{filename}'):
                     _zip.write(f'{config.log_dir}/{filename}')
@@ -375,7 +375,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         """ delete message logs """
         import glob
         logging.debug(f'path {config.log_dir}')
-        ignore_list = [f'{config.log_dir}/messages.log', f'{config.log_dir}/video.html', f'{config.log_dir}/game.log']
+        ignore_list = [f'{config.log_dir}/messages.log', f'{config.log_dir}/game.log']
         file_list = glob.glob(f'{config.log_dir}/*')
         file_list = [f for f in file_list if f not in ignore_list]
         # Iterate over the list of filepaths & remove each file.

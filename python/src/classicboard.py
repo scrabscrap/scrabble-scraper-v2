@@ -16,18 +16,15 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
-import logging.config
 
 import cv2
 import numpy as np
-from vlogging import VisualRecord
 
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from gameboard import GameBoard
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
-visualLogger = logging.getLogger("visualLogger")
 
 # dimensions board classic
 # ------------------------
@@ -94,7 +91,6 @@ class ClassicBoard(GameBoard):
         crop_bottom = int((max_height / 360) * 23)
         crop = result[crop_top:max_height - crop_bottom, crop_width:max_width - crop_width]
         resized = cv2.resize(crop, (800, 800))
-        visualLogger.debug(VisualRecord("warp_classic", [resized, result, crop], fmt="png"))
         return resized
 
     @staticmethod

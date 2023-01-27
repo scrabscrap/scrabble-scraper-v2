@@ -16,17 +16,14 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
-import logging.config
 
 import cv2
 import numpy as np
-from vlogging import VisualRecord
 
 from gameboard import GameBoard
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
-visualLogger = logging.getLogger("visualLogger")
 
 # dimension board custom
 # ----------------------
@@ -65,7 +62,6 @@ class CustomBoard(GameBoard):
         CustomBoard.last_warp = rect
         matrix = cv2.getPerspectiveTransform(rect, dst)
         result = cv2.warpPerspective(__image, matrix, (800, 800))
-        visualLogger.debug(VisualRecord("warp_custom", [result], fmt="png"))
         return result
 
     @staticmethod
@@ -80,7 +76,6 @@ class CustomBoard(GameBoard):
         image = cv2.merge((channel_a, channel_b))
         image = image.reshape((400 * 400, 2))
         image = np.float32(image)
-        visualLogger.debug(VisualRecord("lab", [lab], fmt="png"))
 
         # Color Quantization
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 1.0)
@@ -120,8 +115,6 @@ class CustomBoard(GameBoard):
                     set_of_tiles.add((col, row))
 
         # kein Wort gelegt
-        visualLogger.debug(VisualRecord("kmeans", [kmeans_image], fmt="png"))
-
         if (6, 7) not in set_of_tiles and \
                 (7, 6) not in set_of_tiles and \
                 (8, 7) not in set_of_tiles and \

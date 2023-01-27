@@ -23,8 +23,8 @@ from threading import Event
 from time import sleep
 
 import cv2
+
 from config import config
-from vlogging import VisualRecord
 
 logging.config.fileConfig(fname=config.work_dir + '/log.conf', disable_existing_loggers=False,
                           defaults={'level': 'DEBUG',
@@ -34,10 +34,6 @@ from game_board.board import overlay_grid, overlay_tiles
 from hardware.camera_thread import Camera
 from processing import analyze, filter_candidates, filter_image, warp_image
 from threadpool import pool
-from util import rotate_logs
-
-rotate_logs('visualLogger')
-visualLogger = logging.getLogger("visualLogger")
 
 
 def print_board(board: dict) -> str:
@@ -85,16 +81,13 @@ def main() -> None:
 
     img = cam.read()
     # _, img = cv2.imencode(".jpg", img)
-    visualLogger.info(VisualRecord("Camera", [img], fmt="png"))
-    # cv2.imwrite('log/img.jpg', img)
+    cv2.imwrite('log/img.jpg', img)
 
     warped = warp_image(img)
-    visualLogger.info(VisualRecord("Warped", [warped], fmt="png"))
-    # cv2.imwrite('log/warped.jpg', warped)
+    cv2.imwrite('log/warped.jpg', warped)
 
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # grayscale image
-    visualLogger.info(VisualRecord("Warped-Gray", [warped_gray], fmt="png"))
-    # cv2.imwrite('log/warped_gray.jpg', warped_gray)
+    cv2.imwrite('log/warped_gray.jpg', warped_gray)
 
     _, tiles_candidates = filter_image(warped)                          # find potential tiles on board
     logging.debug(f'tiles candidated: {tiles_candidates}')
@@ -120,7 +113,7 @@ def main() -> None:
 
     overlay = overlay_grid(warped)
     overlay = overlay_tiles(overlay, board)
-    visualLogger.info(VisualRecord("Overlayed", [overlay], fmt="png"))
+    cv2.imwrite('log/overlay.jpg', overlay)
 
     cam.cancel()
     pool.shutdown(cancel_futures=True)

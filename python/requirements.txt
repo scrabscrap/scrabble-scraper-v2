@@ -7,7 +7,7 @@ opencv-python==4.5.5.62
 opencv-contrib-python==4.5.5.62
 picamera>=1.13; sys_platform != "darwin" and platform_machine != "x86_64"
 Pillow>=9.3.0
-visual-logging>=1.0
+#visual-logging>=1.0
 netifaces>=0.11
 luma.oled>=3.9
 # tools #

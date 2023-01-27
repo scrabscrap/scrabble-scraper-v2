@@ -220,7 +220,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
 
     game.add_move(current_move)                                                # 9. add move
     logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
-    _development_recording(game, img)
+    _development_recording(game, img, info=True)
     _store_move(game, warped)                                                  # 10. store move on hd
     _upload_ftp(current_move)
 
@@ -239,7 +239,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         time.sleep(0.05)
     game.add_valid_challenge(player, played_time)                              # 9. add move
     logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
-    _development_recording(game, None)
+    _development_recording(game, None, info=True)
     _store_move(game, None)                                                    # 10. store move on hd
     _upload_ftp(game.moves[-1])
 
@@ -258,7 +258,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         time.sleep(0.05)
     game.add_invalid_challenge(player, played_time)                            # 9. add move
     logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
-    _development_recording(game, None)
+    _development_recording(game, None, info=True)
     _store_move(game, None)                                                     # 10. store move on hd
     _upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
 
@@ -279,9 +279,9 @@ def end_of_game(waitfor: Optional[Future], game: Game):  # pragma: no cover # no
         waitfor (futures): wait for jobs to complete
         game(Game): the current game data
     """
+    import glob
     import os
     import uuid
-    from datetime import datetime
     from zipfile import ZipFile
 
     from ftp import Ftp
@@ -289,18 +289,26 @@ def end_of_game(waitfor: Optional[Future], game: Game):  # pragma: no cover # no
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     time.sleep(1.5)
-    filename = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-") + str(uuid.uuid4())
+    game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
+    zip_filename = f'{game_id}-{str(uuid.uuid4())}'
     if config.output_web or config.output_ftp:
-        with ZipFile(f'{config.web_dir}/{filename}.zip', 'w') as _zip:
+        with ZipFile(f'{config.web_dir}/{zip_filename}.zip', 'w') as _zip:
             logging.info(f"create zip with {len(game.moves):d} files")
             for i in range(1, len(game.moves) + 1):
-                _zip.write(f'{config.web_dir}/image-{i}.jpg')
-                _zip.write(f'{config.web_dir}/data-{i}.json')
-            if os.path.exists(f'{config.web_dir}/../log/messages.log'):
-                _zip.write(f'{config.web_dir}/../log/messages.log')
+                _zip.write(f'{config.web_dir}/image-{i}.jpg', arcname=f'image-{i}.jpg')
+                _zip.write(f'{config.web_dir}/data-{i}.json', arcname=f'data-{i}.json')
+            if os.path.exists(f'{config.log_dir}/messages.log'):
+                _zip.write(f'{config.log_dir}/messages.log', arcname='messages.log')
+            if config.development_recording:
+                logging.debug('add development recording')
+                file_list = glob.glob(f'{config.work_dir}/recording/{game_id}-*')
+                for filename in file_list:
+                    _zip.write(f'{filename}', arcname=os.path.basename(filename))
+                if os.path.exists(f'{config.work_dir}/recording/gameRecording.log'):
+                    _zip.write(f'{config.work_dir}/recording/gameRecording.log', arcname='gameRecording.log')
 
     if config.output_ftp:
-        Ftp.upload_game(filename)
+        Ftp.upload_game(f'{zip_filename}')
 
 
 def _changes(board: dict, previous_board: dict) -> Tuple[dict, dict, dict, dict]:
@@ -319,22 +327,28 @@ def _chunkify(lst, chunks):
     return [lst[i::chunks] for i in range(chunks)]
 
 
-def _development_recording(game: Game, img: Optional[Mat]):  # pragma: no cover # no dev recording on tests
+def _development_recording(game: Game, img: Optional[Mat], suffix: str = '', info: bool = False):  # pragma: no cover
+    # no dev recording on tests
     if config.development_recording:
         logging.debug('game recording')
         recording_logger = logging.getLogger("gameRecordingLogger")
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
         if img is not None:
             move_number = len(game.moves)
-            cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}.jpg', img)
+            cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}{suffix}.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 99])
+        if info:
             warp_str = np.array2string(get_last_warp(), formatter={  # type: ignore
                 'float_kind': lambda x: f'{x:.1f}'}, separator=',')
-            recording_logger.info(f'{game_id} warp: ({move_number}): {warp_str}')
-        recording_logger.info(f'{game_id} board: {game.moves[-1].board}')
-        recording_logger.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
-        recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
-        recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
-        recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
+            recording_logger.info(f'{game_id} move: {game.moves[-1].move}')
+            recording_logger.info(f'{game_id} warp: {warp_str}')
+            recording_logger.info(f'{game_id} player: {game.moves[-1].player}')
+            recording_logger.info(f'{game_id} coord: {game.moves[-1].coord} vertical: {game.moves[-1].is_vertical}')
+            recording_logger.info(f'{game_id} word: {game.moves[-1].points}')
+            recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
+            recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
+            recording_logger.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
+            recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
+            recording_logger.info(f'{game_id} board: {game.moves[-1].board}')
 
 
 def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
@@ -376,7 +390,8 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[
         assert len(not_done) == 0, 'error while waiting for future'
     warped = warp_image(img)                                                   # 1. warp image if necessary
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # 2. grayscale image
-    _, tiles_candidates = filter_image(warped)                                 # 3. find potential tiles on board
+    filtered_image, tiles_candidates = filter_image(warped)                    # 3. find potential tiles on board
+    _development_recording(game, filtered_image, suffix='-filter')
     ignore_coords = set()
     if len(game.moves) > config.scrabble_verify_moves:
         # if opponents move has a valid challenge
@@ -484,7 +499,7 @@ def _store_move(game: Game, img: Optional[Mat]):
             shutil.copyfile(f'{config.web_dir}/image-{game.moves[-1].move - 1}.jpg',
                             f'{config.web_dir}/image-{game.moves[-1].move}.jpg')
         else:
-            cv2.imwrite(f'{config.web_dir}/image-{game.moves[-1].move}.jpg', img)
+            cv2.imwrite(f'{config.web_dir}/image-{game.moves[-1].move}.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 99])
 
 
 def _upload_ftp(current_move: Move):  # pragma: no cover # no ftp upload on tests
