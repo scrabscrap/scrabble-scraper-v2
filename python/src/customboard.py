@@ -16,11 +16,17 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
+from concurrent import futures
+from itertools import product
 
 import cv2
 import numpy as np
 
+from config import config
+from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W, OFFSET,
+                              TRIPLE_LETTER, TRIPLE_WORDS)
 from gameboard import GameBoard
+from threadpool import pool
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
@@ -37,6 +43,16 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 # tiles
 # -----
 # 19mm x 19mm
+
+
+green_lower = np.array([20, 75, 35])
+green_upper = np.array([100, 255, 255])
+blue_lower = np.array([90, 80, 50])
+blue_upper = np.array([150, 255, 255])
+red_lower = np.array([0, 80, 50])
+red_upper = np.array([10, 255, 255])
+red_lower1 = np.array([120, 50, 50])
+red_upper1 = np.array([180, 255, 255])
 
 
 class CustomBoard(GameBoard):
@@ -65,60 +81,96 @@ class CustomBoard(GameBoard):
         return result
 
     @staticmethod
+    def _is_tile(coord: tuple[int, int], color: tuple[int, int, int]) -> bool:
+        if color[1] < 60:  # this is a grey image
+            return True
+        elif color[1] < 90:  # and color[2] > 165:  # maybe a grey image
+            # return True
+            if coord in TRIPLE_WORDS or coord in DOUBLE_WORDS:  # check for red
+                if (red_lower[0] <= color[0] <= red_upper[0] and red_lower[1] <= color[1] and red_lower[2] <= color[2]) \
+                        or (red_lower1[0] <= color[0] <= red_upper1[0]
+                            and red_lower1[1] <= color[1] and red_lower1[2] <= color[2]):  # noqa: W503
+                    return False
+            elif coord in TRIPLE_LETTER or coord in DOUBLE_LETTER:  # check for blue
+                if blue_lower[0] <= color[0] <= blue_upper[0] \
+                        and blue_lower[1] <= color[1] \
+                        and blue_lower[2] <= color[2]:
+                    return False
+            else:  # check for green
+                if green_lower[0] <= color[0] <= green_upper[0] \
+                        and green_lower[1] <= color[1] \
+                        and green_lower[2] <= color[2]:
+                    return False
+            return True
+        return False
+
+    @staticmethod
+    def _filter_set_of_positions(coord: set, img: Mat, result: Mat, color_table: dict) -> dict:
+        offset = int(OFFSET / 2)  # use 400x400 instead of 800x800
+        grid_h = int(GRID_H / 2)
+        grid_w = int(GRID_W / 2)
+        for (col, row) in coord:
+            px_col = int(offset + (row * grid_h))
+            px_row = int(offset + (col * grid_w))
+            segment = img[px_col + 1:px_col + grid_h - 1, px_row + 1:px_row + grid_w - 1]
+            data = segment.reshape((-1, 3))
+            data = np.float32(data)  # type: ignore
+
+            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 1.0)
+            k = 4
+            _, label, center = cv2.kmeans(data, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+            reduced = np.uint8(center)[label.flatten()]  # type: ignore
+            reduced = reduced.reshape((segment.shape))
+            unique, counts = np.unique(reduced.reshape(-1, 3), axis=0, return_counts=True)
+            color = unique[np.argmax(counts)]
+
+            color_table[(col, row)] = color
+            segment[:, :, 0], segment[:, :, 1], segment[:, :, 2] = color
+
+            if config.development_recording:
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                fontScale = 0.33
+                if CustomBoard._is_tile((col, row), color):
+                    font_color = (170, 255, 255)
+                    segment[:, :, 2] = 255
+                else:
+                    font_color = (24, 1, 255)
+                    # reduced[:, :, 2] = 40  # dim ignored tiles
+                segment = cv2.putText(segment, f'{color[0]}', (1, 10), font, fontScale, font_color, 1, cv2.FILLED)  # (H)SV
+                segment = cv2.putText(segment, f'{color[1]}', (1, 20), font, fontScale, font_color, 1, cv2.FILLED)  # H(S)V
+                # segment = cv2.putText(segment, f'{color[2]}', (1, 30), font, fontScale, font_color, 1, cv2.FILLED) # HS(V)
+            result[px_col + 1:px_col + grid_h - 1, px_row + 1:px_row + grid_w - 1] = segment
+        return color_table
+
+    @staticmethod
     def filter_image(_image: Mat) -> tuple[Mat, set]:
         """ implement filter for custom board """
 
-        # tmp_img = cv2.GaussianBlur(_image, (7, 7), 0)
-        tmp_img = cv2.bilateralFilter(_image, 9, 75, 75)  # blur but preserve edges
-        tmp_img = cv2.resize(tmp_img, (400, 400), interpolation=cv2.INTER_AREA)
-        lab = cv2.cvtColor(tmp_img, cv2.COLOR_BGR2LAB)
-        _, channel_a, channel_b = cv2.split(lab)
-        image = cv2.merge((channel_a, channel_b))
-        image = image.reshape((400 * 400, 2))
-        image = np.float32(image)
+        # image = cv2.erode(_image, None, iterations=2)
+        img = cv2.bilateralFilter(_image, 5, 75, 75)
+        img = cv2.resize(img, (400, 400), interpolation=cv2.INTER_AREA)
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        result = np.zeros(hsv.shape, dtype="uint8")
 
-        # Color Quantization
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 1.0)
-        k = 4
-        _, labels_, _ = cv2.kmeans(image, k, None, criteria, 10, cv2.KMEANS_PP_CENTERS)
-        clustering = np.reshape(np.array(labels_, dtype=np.uint8), (400, 400))
-        # logging.debug(f"clustering {clustering} ")
-        # Sort the cluster labels in order of the frequency with which they occur.
-        sorted_labels = sorted([n for n in range(k)], key=lambda _x: -np.sum(clustering == _x))
-        logging.debug(f"sorted labels {sorted_labels} ")
+        color_table: dict = {}
+        partitions = [set(product(range(0, 5), range(0, 15))),
+                      set(product(range(5, 10), range(0, 15))),
+                      set(product(range(10, 15), range(0, 15)))]
+        future1 = pool.submit(CustomBoard._filter_set_of_positions, partitions[0], hsv, result, color_table)
+        future2 = pool.submit(CustomBoard._filter_set_of_positions, partitions[1], hsv, result, color_table)
+        CustomBoard._filter_set_of_positions(partitions[2], hsv, result, color_table)
+        futures.wait({future1, future2})
 
-        # Initialize K-means grayscale image; set pixel colors based on clustering.
-        kmeans_image = np.zeros((400, 400), dtype=np.uint8)
-        for i, label in enumerate(sorted_labels):
-            kmeans_image[clustering == label] = int(255 / (k - 1)) * i * 50
-
-        # Farbe des Mittelsteines
-        y = 13 + 7 * 25  # 94  # 47  # (3,125 + (7*6,25)
-        x = 13 + 7 * 25  # 94  # 47  # (3,125 + (7*6,25)
-        field = kmeans_image[y:y + 25, x:x + 25]
-        channel_a, cnts = np.unique(field, return_counts=True)
-        high_freq_element = channel_a[cnts.argmax()]
-        kmeans_image[kmeans_image != high_freq_element] = 0
-        logging.debug(f">> middle: {cnts} -- {channel_a} ")
-
-        # auf gesamte Fläche ausdehnen
         set_of_tiles = set()
-        for row in range(0, 15):
-            for col in range(0, 15):
-                y = int(13 + (row * 25))  # int(6.25 + (row * 12.5))
-                x = int(13 + (col * 25))  # int(6.25 + (col * 12.5))
-                field = kmeans_image[y:y + 25, x:x + 25]
-                channel_a, cnts = np.unique(field, return_counts=True)
-                # logging.debug(f">> {chr(ord('A') + row)}{col + 1:2}: {cnts} -- {channel_a} ")
-                if channel_a[cnts.argmax()] != 0:
-                    logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {cnts} ")
-                    set_of_tiles.add((col, row))
+        for col, row in product(range(0, 15), range(0, 15)):
+            if CustomBoard._is_tile((col, row), color_table[(col, row)]):
+                set_of_tiles.add((col, row))
 
-        # kein Wort gelegt
-        if (6, 7) not in set_of_tiles and \
-                (7, 6) not in set_of_tiles and \
-                (8, 7) not in set_of_tiles and \
-                (7, 8) not in set_of_tiles:
-            return kmeans_image, set()
-        logging.debug(f'candidates {set_of_tiles}')
-        return kmeans_image, set_of_tiles
+        result = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
+        result = cv2.hconcat([img, result])  # type: ignore
+        if any(x in set_of_tiles for x in [(6, 7), (7, 6), (8, 7), (7, 8)]):
+            logging.debug(f'candidates {set_of_tiles}')
+            return result, set_of_tiles
+        else:
+            logging.debug('no word detected')
+            return result, set()
