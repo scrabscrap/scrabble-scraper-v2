@@ -80,6 +80,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
+        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
@@ -110,6 +111,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', [[9.0, 16.0], [967.0, 0.0], [991.0, 963.0], [15.0, 975.0]])
         self.config_setter('board', 'layout', 'custom')
+        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
@@ -154,6 +156,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
+        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
@@ -183,6 +186,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
+        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
@@ -214,6 +218,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
+        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
@@ -244,6 +249,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
+        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
