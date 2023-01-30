@@ -391,7 +391,7 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[
     warped = warp_image(img)                                                   # 1. warp image if necessary
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # 2. grayscale image
     filtered_image, tiles_candidates = filter_image(warped)                    # 3. find potential tiles on board
-    _development_recording(game, filtered_image, suffix='-filter')
+    _development_recording(game, filtered_image, suffix='~filter')
     ignore_coords = set()
     if len(game.moves) > config.scrabble_verify_moves:
         # if opponents move has a valid challenge
