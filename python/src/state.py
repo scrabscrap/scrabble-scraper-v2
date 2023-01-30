@@ -66,6 +66,7 @@ class State(metaclass=Singleton):
 
     def do_ready(self) -> str:
         """Game can be started"""
+        logging.debug(f'{self.game.nicknames}')
         self.watch.display.show_ready(self.game.nicknames)
         self.watch.display.set_game(self.game)
         self.current_state = START
@@ -243,6 +244,7 @@ class State(metaclass=Singleton):
         """
         try:
             self.current_state = self.state[(self.current_state, button)](self)
+            logging.debug(f'{button}')
         except KeyError:
             logging.info('Key Error - ignore')
 

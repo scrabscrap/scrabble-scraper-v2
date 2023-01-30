@@ -300,7 +300,7 @@ class Game():
         # with python > 3.11 return type: -> Self
         self.moves.append(move)
         move.move = len(self.moves)  # set move number
-        logging.info(f'add move: player {move.player} points {move.points} score {move.score}')
+        logging.info(f'add move: #{move.move} player {move.player} points {move.points} score {move.score}')
         return self
 
     def add_invalid_challenge(self, player: int, played_time: Tuple[int, int]) -> object:

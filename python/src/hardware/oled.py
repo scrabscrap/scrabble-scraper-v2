@@ -45,6 +45,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
     """Implementation of class Display with OLED"""
 
     def __init__(self):
+        logging.info('### init OLED Display')
         self.font_family = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
         self.font = ImageFont.truetype(self.font_family, 42)
         self.font1 = ImageFont.truetype(self.font_family, 20)

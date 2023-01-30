@@ -54,6 +54,7 @@ def clear_last_warp():
 
 def warp_image(img: Mat) -> Mat:
     """Delegates the warp of the ``img`` according to the configured board style"""
+    logging.debug(f'({config.board_layout})')
     if config.video_warp and config.board_layout == 'custom':
         return CustomBoard.warp(img)
     if config.video_warp and config.board_layout == 'classic':
@@ -63,6 +64,7 @@ def warp_image(img: Mat) -> Mat:
 
 def filter_image(img: Mat) -> tuple[Optional[Mat], set]:
     """Delegates the image filter of the ``img`` according to the configured board style"""
+    logging.debug(f'({config.board_layout})')
     if config.board_layout == 'custom':
         return CustomBoard.filter_image(img)
     if config.board_layout == 'classic':
@@ -199,7 +201,7 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
         raise ValueError("invalid move number")
 
 
-@trace
+@ trace
 def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_time: Tuple[int, int]):
     # pylint: disable=R0915,R0914
     """Process a move
@@ -219,7 +221,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     current_move = _move_processing(game, player, played_time, warped, board, previous_board, previous_score)
 
     game.add_move(current_move)                                                # 9. add move
-    logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
+    logging.debug(f'scores {game.moves[-1].score} game status:\n{game.json_str()}\n{game.board_str()}')
     _development_recording(game, img, info=True)
     _store_move(game, warped)                                                  # 10. store move on hd
     _upload_ftp(current_move)
@@ -330,7 +332,7 @@ def _chunkify(lst, chunks):
 def _development_recording(game: Game, img: Optional[Mat], suffix: str = '', info: bool = False):  # pragma: no cover
     # no dev recording on tests
     if config.development_recording:
-        logging.debug('game recording')
+        logging.debug(f'suffix "{suffix}" info {info}')
         recording_logger = logging.getLogger("gameRecordingLogger")
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
         if img is not None:
