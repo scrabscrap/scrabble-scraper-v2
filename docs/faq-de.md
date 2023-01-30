@@ -431,14 +431,6 @@ besteht (z.B. durch Aufruf der Web-Oberfläche).
 Nach einem Reboot kann es vorkommen, dass keine korrekte Netzwerkverbindung aufgebaut wird.
 In diesem Fall muss ScrabScrap aus- und wieder eingeschaltet werden.
 
-### Hohe "Load average"
-
-Es wird durchgängig eine "Load average" von > 0.7 angezeigt. Das Verhalten scheint keinen
-Einfluss auf Performance / Temperatur des Rechners zu haben.
-
-Eine Lösung für dieses Problem ist offen. Es kann sein, dass dies ein Fehler im aktuellen
-Linux-Kernel ist.
-
 ### Es wird kein FTP Upload gemacht
 
 Folgende Konfigurationen sind zu prüfen
