@@ -25,7 +25,7 @@ from hardware.camera_thread import Camera, CameraEnum
 
 TEST_DIR = os.path.dirname(__file__)
 
-logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/test_log.conf',
+logging.config.fileConfig(fname=f'{os.path.dirname(os.path.abspath(__file__))}/test_log.conf',
                           disable_existing_loggers=False)
 
 
@@ -71,6 +71,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         clear_last_warp()
         self.config_setter('output', 'ftp', False)
         self.config_setter('output', 'web', False)
+        self.config_setter('development', 'recording', False)
 
     def test_game_04(self):
         """Test game 12"""
@@ -80,7 +81,6 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
-        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
@@ -111,7 +111,6 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', [[9.0, 16.0], [967.0, 0.0], [991.0, 963.0], [15.0, 975.0]])
         self.config_setter('board', 'layout', 'custom')
-        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
@@ -156,7 +155,6 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
-        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
@@ -186,7 +184,6 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
-        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
@@ -218,7 +215,6 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
-        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
@@ -249,7 +245,6 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
-        self.config_setter('development', 'recording', True)
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(useCamera=CameraEnum.FILE)
