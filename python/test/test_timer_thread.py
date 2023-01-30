@@ -39,3 +39,7 @@ class RepeatedTestCase(unittest.TestCase):
         sleep(2.5)
         timer.cancel()
         self.assertGreaterEqual(self.counter, 2)
+
+
+if __name__ == '__main__':
+    unittest.main(module='test_timer_thread')

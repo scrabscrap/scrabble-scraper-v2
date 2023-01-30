@@ -23,9 +23,9 @@ import unittest
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
+from display import Display
 from hardware.led import LED
 from scrabblewatch import ScrabbleWatch
-from display import Display
 
 
 # noinspection PyMethodMayBeStatic
@@ -88,4 +88,4 @@ class ScrabbleWatchTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(module='test_scrabblewatch')

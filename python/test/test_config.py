@@ -15,9 +15,9 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
+import json
 import os
 import unittest
-import json
 
 from config import config
 
@@ -72,4 +72,4 @@ class ConfigTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(module='test_config')

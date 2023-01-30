@@ -32,8 +32,8 @@ from gpiozero.pins.mock import MockFactory
 
 from display import Display
 from hardware.button import ButtonEnum
-from hardware.led import LED, LEDEnum
 from hardware.camera_file import CameraFile
+from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
 
@@ -270,4 +270,4 @@ class ButtonTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(module='test_button')

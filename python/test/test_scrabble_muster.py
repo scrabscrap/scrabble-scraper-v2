@@ -21,6 +21,7 @@ import os
 import unittest
 
 import cv2
+
 from processing import analyze, filter_candidates, filter_image, warp_image
 
 TEST_DIR = os.path.dirname(__file__)
@@ -189,4 +190,4 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
 # unit tests per commandline
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(module='test_scrabble_muster')

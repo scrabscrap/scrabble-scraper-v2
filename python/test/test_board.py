@@ -39,3 +39,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.calc_x_position(board.get_x_position(0)), 0)
         self.assertEqual(board.calc_x_position(board.get_x_position(3)), 3)
         self.assertEqual(board.calc_x_position(board.get_x_position(14)), 14)
+
+
+if __name__ == '__main__':
+    unittest.main(module='test_board')

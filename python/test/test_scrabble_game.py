@@ -75,8 +75,8 @@ class ScrabbleGameTestCase(unittest.TestCase):
     def test_game_04(self):
         """Test game 12"""
         from display import Display
-        from state import State
         from scrabblewatch import ScrabbleWatch
+        from state import State
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
@@ -106,8 +106,8 @@ class ScrabbleGameTestCase(unittest.TestCase):
     def test_game_05(self):
         """Test game 05"""
         from display import Display
-        from state import State
         from scrabblewatch import ScrabbleWatch
+        from state import State
 
         self.config_setter('video', 'warp_coordinates', [[9.0, 16.0], [967.0, 0.0], [991.0, 963.0], [15.0, 975.0]])
         self.config_setter('board', 'layout', 'custom')
@@ -151,8 +151,8 @@ class ScrabbleGameTestCase(unittest.TestCase):
     def test_game_12(self):
         """Test game 12"""
         from display import Display
-        from state import State
         from scrabblewatch import ScrabbleWatch
+        from state import State
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
@@ -181,8 +181,8 @@ class ScrabbleGameTestCase(unittest.TestCase):
     def test_game_13(self):
         """"Test game 13"""
         from display import Display
-        from state import State
         from scrabblewatch import ScrabbleWatch
+        from state import State
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
@@ -213,8 +213,8 @@ class ScrabbleGameTestCase(unittest.TestCase):
     def test_game_14(self):
         """Test game 14"""
         from display import Display
-        from state import State
         from scrabblewatch import ScrabbleWatch
+        from state import State
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
@@ -244,8 +244,8 @@ class ScrabbleGameTestCase(unittest.TestCase):
     def test_game_15(self):
         """Test game 15"""
         from display import Display
-        from state import State
         from scrabblewatch import ScrabbleWatch
+        from state import State
 
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
@@ -305,4 +305,4 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
 # unit tests per commandline
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(module='test_scrabble_game')

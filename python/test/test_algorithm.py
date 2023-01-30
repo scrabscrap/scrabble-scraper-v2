@@ -23,10 +23,10 @@ import unittest
 logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/test_log.conf',
                           disable_existing_loggers=False)
 
-from scrabble import Move, MoveType
-from state import State
 from display import Display
+from scrabble import Move, MoveType
 from scrabblewatch import ScrabbleWatch
+from state import State
 
 
 class AlgorithmTestCase(unittest.TestCase):
@@ -904,7 +904,8 @@ class AlgorithmTestCase(unittest.TestCase):
 
     def test_130(self):
         """Test 130 - Algorithm: changed tile with higher propability"""
-        from processing import _recalculate_score_on_tiles_change  # type: ignore
+        from processing import \
+            _recalculate_score_on_tiles_change  # type: ignore
         state = State()
         game = state.game
         game.new_game()
@@ -1165,4 +1166,4 @@ class AlgorithmTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(module='test_algorithm')
