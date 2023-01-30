@@ -110,17 +110,17 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
             (col, row) = self.coord
             result += str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(
                 ord('A') + row) + str(col + 1)
-            result += " " + self.word + " "
+            result += f' {self.word} '
         elif self.type == MoveType.PASS_TURN:
             result += "- "
         elif self.type == MoveType.EXCHANGE:
-            result += "- "  # + self.exchange + " "
+            result += "- "  # f'- {self.exchange} '
         elif self.type == MoveType.WITHDRAW:
             result += "-- "
         # elif self.type == MoveType.last_rack_bonus:
-        #     result += "(" + self.opp_rack + ") "
+        #     result += f'({self.opp_rack}) '
         # elif self.type == MoveType.last_rack_malus:
-        #     result += "(" + self.rack + ") "
+        #     result += f'({self.rack}) '
         elif self.type == MoveType.CHALLENGE_BONUS:
             result += "(challenge) "
         elif self.type == MoveType.TIME_MALUS:

@@ -663,7 +663,7 @@ def main():
 
     from hardware.camera_thread import Camera
 
-    logging.config.fileConfig(fname=config.work_dir + '/log.conf',
+    logging.config.fileConfig(fname=f'{config.work_dir}/log.conf',
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})

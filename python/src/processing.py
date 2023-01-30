@@ -288,7 +288,7 @@ def end_of_game(waitfor: Optional[Future], game: Game):  # pragma: no cover # no
 
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
-    time.sleep(1.5)
+    # time.sleep(1.5)
     game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
     zip_filename = f'{game_id}-{str(uuid.uuid4())}'
     if config.output_web or config.output_ftp:
