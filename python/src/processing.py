@@ -404,6 +404,7 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[
             ignore_coords = set(
                 {i: i for i in game.moves[-config.scrabble_verify_moves].board.keys() if i in game.moves[-1].board.keys()})
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
+    logging.debug(f'filtered_candidates {filter_candidates}')
 
     board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # copy board for analyze
     chunks = _chunkify(list(filtered_candidates), 3)                           # 5. picture analysis
