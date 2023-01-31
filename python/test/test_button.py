@@ -268,6 +268,25 @@ class ButtonTestCase(unittest.TestCase):
         assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 1
         time.sleep(display_pause)
 
+    def test_button_enum(self):
+        assert str(ButtonEnum.GREEN) == 'GREEN'
+        assert str(ButtonEnum.YELLOW) == 'YELLOW'
+        assert str(ButtonEnum.RED) == 'RED'
+        assert str(ButtonEnum.DOUBT0) == 'DOUBT0'
+        assert str(ButtonEnum.DOUBT1) == 'DOUBT1'
+        assert str(ButtonEnum.AP) == 'AP'
+        assert str(ButtonEnum.RESET) == 'RESET'
+        assert str(ButtonEnum.REBOOT) == 'REBOOT'
+
+        assert ButtonEnum.GREEN.value == 16
+        assert ButtonEnum.YELLOW.value == 17
+        assert ButtonEnum.RED.value == 23
+        assert ButtonEnum.DOUBT0.value == 12
+        assert ButtonEnum.DOUBT1.value == 25
+        assert ButtonEnum.AP.value == 13
+        assert ButtonEnum.RESET.value == 19
+        assert ButtonEnum.REBOOT.value == 26
+
 
 if __name__ == '__main__':
     unittest.main(module='test_button')
