@@ -85,6 +85,88 @@ API-Schnittstelle vorgenommen werden. Hierzu einfach die URL `http://<ipadresse>
 aufrufen. Einige Funktionen sind nur möglich, wenn sich die Anwendung entweder im Modus
 `Start` oder `Pause` befindet.
 
+## Settings für den Test- / Einführungs- / Produktions-Betrieb
+
+Für den Test-Betrieb empfiehlt sich die erweiterte Ausgabe von Log-Informationen. Diese Einstellungen erzeugen
+aber Einschränkungen in der Performance.
+
+* in der Web-App: Settings => "development.recording=True"
+* in der Web-App: Logs => Settings => "Set Loglevel" => (*) Debug
+* scrabble.ini
+
+  ```text
+  [development]
+  recording = True
+  ```
+
+* log.conf:
+
+  ```text
+  [logger_root]
+  level = DEBUG
+  ...
+  ```
+
+Beim Einführungs-Betrieb sollten folgende Einstellungen verwendet werden. Hier sind nur geringe Einschränkungen
+in der Performane zu erwarten.
+
+* in der Web-App: Settings => "development.recording=False"
+* in der Web-App: Logs => Settings => "Set Loglevel" => (*) debug
+* scrabble.ini
+
+  ```text
+  [development]
+  recording = False
+  ```
+
+* log.conf
+
+  ```text
+  [logger_root]
+  level = DEBUG
+  ...
+  ```
+
+Im Produktionsbetrieb sollte das Logging auf ein Minimum beschränkt werden, damit die höchste Performance
+erreicht werden kann.
+
+* in der Web-App: Settings => "development.recording=False"
+* in der Web-App: Logs => Settings => "Set Loglevel" => (*) info
+* scrabble.ini
+
+  ```text
+  [development]
+  recording = False
+  ```
+
+* log.conf:
+
+  ```text
+  [logger_root]
+  level = INFO
+  ...
+  ```
+
+Der vollständige Verzicht auf Logging ist nicht empfohlen. Hier werden weder Informationen noch Warnungen ins das
+Log geschrieben.
+
+* in der Web-App: Settings => "development.recording=False"
+* in der Web-App: Logs => Settings => "Set Loglevel"  => (*) error
+* scrabble.ini
+
+  ```text
+  [development]
+  recording = False
+  ```
+
+* log.conf:
+
+  ```text
+  [logger_root]
+  level = ERROR
+  ...
+  ```
+
 ## Test der Hardware
 
 Wenn `scrabscrap` gestartet ist, kann über die API-Web-Anwendung ein Test der LEDs und der Displays
@@ -119,7 +201,8 @@ Spielernamen die Anzeige wieder auf den Ausgangszustand versetzt werden.
 ### Abweichende Steine benutzen
 
 Soll ein abweichender Satz an Scrabble-Steinen verwendet werden, müssen diese in einem geeigneten Format
-als Bilder zur Verfügung stehen. Schwarzer Hintergrund mit weißem Text in der (Stein-)Größe ?x?. Es ist
+als Bilder zur Verfügung stehen. Schwarzer Hintergrund mit weißem Text. Die Steingröße muss dabei im
+gleichen Verhältnis wie das Spielfeld skaliert werden (Zielspielfeldgröße: 800x800 px). Es ist
 möglich nur einen Ausschnitt des Steines zu speichern, dabei muss allerdings das Größenverhältnis
 erhalten bleiben.
 
@@ -297,6 +380,7 @@ _Hinweis:_ auf GitHub sind Workflows konfiguriert, die eine Prüfung mittels
 * flake8
 * pylint
 * mypy
+* coverage
 
 vornehmen. Die Konfiguration von etwaigen Ausnahmen sind im Source-Code bzw. in den
 jweiligen Konfigurationsdateien hinterlegt.
@@ -383,6 +467,36 @@ aufgerufen werden.
 
 Sollte ein Zugriff über `localhost` nicht funktionieren, bitte statt `localhost` die IPv4 Adresse des
 Rechners verwenden.
+
+### Code-Coverage der Tests
+
+```bash
+cd python
+cp -n defaults/* work/
+coverage run -m unittest discover
+```
+
+Falls eine HTML Ausgabe erzeugt werden soll:
+
+```bash
+coverage html
+```
+
+### Performance-Analyse
+
+Hier am Beispiel test_scrabble_game.py.
+
+```bash
+cd python
+cp -n defaults/* work/
+python -m cProfile -o test_scrabble_game.prof test/test_scrabble_game.py
+```
+
+Die Anzeige der Profiling-Informationen kann dann mit snakeviz erfolgen.
+
+```bash
+snakeviz test_scrabble_game.prof
+```
 
 ## Start der Web-Anwendung
 
