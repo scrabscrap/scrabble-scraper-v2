@@ -14,15 +14,20 @@
                         <form action="/player" method="get">
                             <div class="row">
                                 <div class="col-4">
-                                    <input type="text" class="form-control" name="player1" placeholder="Name 1"
-                                        required>
+                                    <input type="text" class="form-control" name="player1" placeholder="Name1" required>
                                 </div>
                                 <div class="col-4">
-                                    <input type="text" class="form-control" name="player2" placeholder="Name 2"
-                                        required>
+                                    <input type="text" class="form-control" name="player2" placeholder="Name2" required>
                                 </div>
                                 <div class="col-4">
                                     <input type="submit" class="form-control btn-primary" value="Submit">
+                                </div>
+                                <div class="col-12">
+                                    <p>
+                                    <ul>
+                                        <li>Hinweis: bei einigen Anzeigen wird der Name auf 5 Buchstaben gekürzt.</li>
+                                    </ul>
+                                    </p>
                                 </div>
                             </div>
                         </form>
@@ -53,6 +58,15 @@
                                 <div class="col-4">
                                     <input type="submit" class="form-control btn-primary" value="Submit">
                                 </div>
+                            </div>
+                            <div class="col-12">
+                                <p>
+                                <ul>
+                                    <li>die Position wird in Scrabble-Notation angegeben</li>
+                                    <li>"-" in Position / beliebige Eingabe bei Wort für einen "Tausch"</li>
+                                    <li>bereits liegende Steine mit "." und Blanko mit "_" kennzeichnen</li>
+                                </ul>
+                                </p>
                             </div>
                         </form>
                     </div>
