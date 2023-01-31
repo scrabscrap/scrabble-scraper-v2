@@ -71,7 +71,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         clear_last_warp()
         self.config_setter('output', 'ftp', False)
         self.config_setter('output', 'web', False)
-        self.config_setter('development', 'recording', False)
+        self.config_setter('development', 'recording', True)
 
     def test_game_04(self):
         """Test game 12"""
@@ -146,6 +146,51 @@ class ScrabbleGameTestCase(unittest.TestCase):
                 while not state.last_submit.done():  # type: ignore
                     sleep(0.1)
         self.assertEqual((416, 344), state.game.moves[-1].score)
+
+    def test_game_06(self):
+        """Test game 06"""
+        from display import Display
+        from scrabblewatch import ScrabbleWatch
+        from state import State
+
+        self.config_setter('video', 'warp_coordinates', None)
+        # self.config_setter('video', 'warp', False)
+        self.config_setter('board', 'layout', 'custom')
+        display = Display()
+        watch = ScrabbleWatch(display)
+        cam = Camera(useCamera=CameraEnum.FILE)
+        cam.stream.formatter = f'{TEST_DIR}/game06/image-{{:d}}.jpg'  # type: ignore
+        state = State(cam=cam, watch=watch)
+        state.cam = cam
+        state.do_reset()
+        state.game.nicknames = ('Inessa', 'Stefan')
+        state.press_button('RED')                                              # green begins
+        for i in range(1, 17):                                                 # odd image # => green
+            cam.stream.cnt = i  # type: ignore
+            if i % 2 == 1:
+                state.press_button('GREEN')
+            else:
+                state.press_button('RED')
+            if state.last_submit is not None:
+                while not state.last_submit.done():  # type: ignore
+                    sleep(0.1)
+        self.assertEqual((270, 196), state.game.moves[-1].score)
+        state.press_button('YELLOW')
+        sleep(0.1)
+        state.press_button('DOUBT0')                                           # valid challenge
+        sleep(0.1)
+        state.press_button('YELLOW')
+        self.assertEqual((270, 177), state.game.moves[-1].score)
+        for i in range(18, 34):                                                # odd image # => red
+            cam.stream.cnt = i  # type: ignore
+            if i % 2 == 0:
+                state.press_button('GREEN')
+            else:
+                state.press_button('RED')
+            if state.last_submit is not None:
+                while not state.last_submit.done():  # type: ignore
+                    sleep(0.1)
+        self.assertEqual((438, 379), state.game.moves[-1].score)
 
     def test_game_12(self):
         """Test game 12"""
