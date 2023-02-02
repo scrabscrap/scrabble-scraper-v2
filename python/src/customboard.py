@@ -166,6 +166,24 @@ class CustomBoard(GameBoard):
             if CustomBoard._is_tile((col, row), color_table[(col, row)]):
                 set_of_tiles.add((col, row))
 
+        if logging.getLogger('root').isEnabledFor(logging.DEBUG):
+            tmp = '(H)SV'
+            for row in range(0, 15):
+                tmp += f'\n{row+1:2d}|'
+                for col in range(0, 15):
+                    tmp += f' {color_table[(col, row)][0]:-4d} '
+            tmp += '\nH(S)V'
+            for row in range(0, 15):
+                tmp += f'\n{row+1:2d}|'
+                for col in range(0, 15):
+                    tmp += f' {color_table[(col, row)][1]:-4d} '
+            tmp += '\nHS(V)'
+            for row in range(0, 15):
+                tmp += f'\n{row+1:2d}|'
+                for col in range(0, 15):
+                    tmp += f' {color_table[(col, row)][2]:-4d} '
+            logging.debug(f'{tmp}')
+
         result = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
         result = cv2.hconcat([img, result])  # type: ignore
         if any(x in set_of_tiles for x in [(6, 7), (7, 6), (8, 7), (7, 8)]):
