@@ -221,7 +221,13 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     current_move = _move_processing(game, player, played_time, warped, board, previous_board, previous_score)
 
     game.add_move(current_move)                                                # 9. add move
-    logging.debug(f'scores {game.moves[-1].score} game status:\n{game.json_str()}\n{game.board_str()}')
+    if logging.getLogger('root').isEnabledFor(logging.DEBUG):
+        msg = ''
+        msg = f'game status: {game.json_str()}\n\nscores {game.moves[-1].score}\n'
+        for i in range(0, len(game.moves)):
+            msg += f'{game.moves[i].gcg_str(game.nicknames)}\n'
+        msg += f'{game.board_str()}'
+        logging.debug(msg)
     _development_recording(game, img, info=True)
     _store_move(game, warped)                                                  # 10. store move on hd
     _upload_ftp(current_move)

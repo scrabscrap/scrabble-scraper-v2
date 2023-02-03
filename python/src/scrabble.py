@@ -236,7 +236,7 @@ class Game():
                 'moves': gcg_moves,
                 'board': dict(zip(*[keys1, values1])),
                 'bag': bag
-            }, indent=2)
+            })
         return to_json
 
     def board_str(self) -> str:
