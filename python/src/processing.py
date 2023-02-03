@@ -107,9 +107,9 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
             return _board[coord]
         (tile, prop) = match(gray, tile, prop)
         if prop < 90:
-            (tile, prop) = match(imutils.rotate(gray, -15), tile, prop)
+            (tile, prop) = match(imutils.rotate(gray, -10), tile, prop)
         if prop < 90:
-            (tile, prop) = match(imutils.rotate(gray, 15), tile, prop)
+            (tile, prop) = match(imutils.rotate(gray, 10), tile, prop)
         _board[coord] = (tile, prop) if tile is not None else ('_', 76)
         return _board[coord]
 
