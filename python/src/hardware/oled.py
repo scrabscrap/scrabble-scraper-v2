@@ -47,7 +47,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
     def __init__(self):
         logging.info('### init OLED Display')
         self.font_family = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
-        self.font = ImageFont.truetype(self.font_family, 42)
+        self.font = ImageFont.truetype(self.font_family, 44)
         self.font1 = ImageFont.truetype(self.font_family, 20)
         self.font2 = ImageFont.truetype(self.font_family, 12)
         self.serial: tuple[i2c, i2c] = (
