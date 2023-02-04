@@ -113,6 +113,16 @@ class PlayerDisplay(Display, metaclass=Singleton):
                 text = msg[i][:10]
                 draw.text(MIDDLE, text, font=self.font1, anchor='mm', align='center', fill=WHITE)
 
+    def show_end_of_game(self) -> None:
+        if self.game:
+            for i in range(0, 2):
+                with canvas(self.device[i]) as draw:
+                    nickname = self.game.nicknames[i][:10]
+                    draw.text((2, 5), f'{nickname}', font=self.font1, fill=WHITE)
+                    minutes, seconds = divmod(abs(config.max_time - self.game.moves[-1].played_time[i]), 60)
+                    score = self.game.moves[-1].score[i]
+                    draw.text((2, 30), f'{minutes:02d}:{seconds:02d}  {score:3d}', font=self.font1, fill=WHITE)
+
     def show_pause(self, player: int, played_time: list[int], current: list[int]) -> None:
         assert player in [0, 1], "invalid player number"
         msg = 'Pause'

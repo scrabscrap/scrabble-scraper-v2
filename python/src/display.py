@@ -55,6 +55,11 @@ class Display:
         logging.debug('Ready message')
 
     @abstractmethod
+    def show_end_of_game(self) -> None:
+        """show ready message"""
+        logging.debug('end of game message')
+
+    @abstractmethod
     def show_pause(self, player: int, played_time: list[int], current: list[int]) -> None:
         """show pause hint"""
         assert player in [0, 1], "invalid player number"

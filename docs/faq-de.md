@@ -22,7 +22,9 @@ Folgende Schritte sind nach dem Aufbau des Systems empfohlen
 ### Nach jedem Spiel
 
 1. Prüfen, ob das Spiel korrekt beendet wurde (Schalter "End" länger als 3s gedrückt)
-2. Es sollte "Spieler1" und "Spieler2" im Display angezeigt werden
+2. Danach blinkt der gelbe Button. Es wird das aktuelle Spiel komprimiert und ggf. an den Server hochgeladen
+3. Um ein neues Spiel zu beginnen, einen beliebigen Button drücken
+4. Es sollte "Name1" und "Name2" im Display angezeigt werden
 
 ## Einrichten der WLAN Verbindung
 

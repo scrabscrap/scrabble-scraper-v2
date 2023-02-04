@@ -129,8 +129,10 @@ Button Grün
 
 Zunächst sicherstellen, dass das Spiel pausiert ist. Also die gelbe LED leuchtet.
 Um ein Spiel zu beenden und zu archivieren, muss der **Taster "End"** für mehr
-als 3 Sekunden gedrückt werden. Es erscheint in den Displays der Hinweis "New Game".
-Sobald die Daten des Spiels gesichert sind, beginnt ein neues Spiel.
+als 3 Sekunden gedrückt werden. Es erscheint in den Displays der aktuelle Spielstand
+un der gelbe Button blinkt.
+Ein neues Spiel kann durch Drücken auf einen beliebigen Button gestartet werden. Es
+erscheint dann "Name1" und "Name2" im Display.
 
 _Hinweis:_ es kann einen Augenblick dauern, da hier zunächst das gesamte Spiel
 inklusive aller Bilder in einer ZIP-Datei gespeichert wird. Diese wird dann
@@ -171,7 +173,7 @@ Hinter den Buttons befinden sich fünf Taster.
 
 * Grün/Rot: Taster für das Anzweifeln des Zugs  
   (einfaches Drücken)
-* Gelb/Schwarz/Blau: Taster für Access Point, Reset, Reboot
+* Gelb/Schwarz/Blau: Taster für Access Point, Ende des Spiels, Reboot
   (halten von mehr als 3s)
 
 Die Funktion des Schalters ist jeweils beschriftet.

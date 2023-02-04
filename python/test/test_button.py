@@ -79,7 +79,7 @@ class ButtonTestCase(unittest.TestCase):
         return super().setUp()
 
     def tearDown(self) -> None:
-        self.state.do_reset()
+        self.state.do_new_game()
         LED.switch_on({})  # type: ignore
         Device.pin_factory.reset()  # type: ignore
         # for thread in threading.enumerate():
@@ -249,7 +249,7 @@ class ButtonTestCase(unittest.TestCase):
         assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 1 and LEDEnum.red.value == 0
         time.sleep(display_pause)
 
-        State().do_reset()
+        State().do_new_game()
         assert State().current_state == 'START'
         assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
 

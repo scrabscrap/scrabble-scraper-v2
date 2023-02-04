@@ -87,7 +87,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         cam.stream.formatter = f'{TEST_DIR}/game04/image-{{:d}}.jpg'  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
-        state.do_reset()
+        state.do_new_game()
         state.game.nicknames = ('Inessa', 'Stefan')
         state.press_button('RED')  # green begins
         for i in range(1, 28):
@@ -117,7 +117,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         cam.stream.formatter = f'{TEST_DIR}/game05/image-{{:d}}.jpg'  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
-        state.do_reset()
+        state.do_new_game()
         state.game.nicknames = ('Inessa', 'Stefan')
         state.press_button('RED')                                              # green begins
         for i in range(1, 14):                                                 # odd image # => green
@@ -162,7 +162,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         cam.stream.formatter = f'{TEST_DIR}/game06/image-{{:d}}.jpg'  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
-        state.do_reset()
+        state.do_new_game()
         state.game.nicknames = ('Inessa', 'Stefan')
         state.press_button('RED')                                              # green begins
         for i in range(1, 17):                                                 # odd image # => green
@@ -207,7 +207,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         cam.stream.formatter = f'{TEST_DIR}/game07/image-{{:d}}.jpg'  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
-        state.do_reset()
+        state.do_new_game()
         state.game.nicknames = ('Inessa', 'Stefan')
         state.press_button('GREEN')                                            # red begins
         for i in range(1, 19):
@@ -236,7 +236,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         cam.stream.formatter = f'{TEST_DIR}/game08/image-{{:d}}.jpg'  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
-        state.do_reset()
+        state.do_new_game()
         state.game.nicknames = ('Inessa', 'Stefan')
         state.press_button('GREEN')                                            # red begins
         for i in range(1, 19):
@@ -264,7 +264,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         cam.stream.formatter = f'{TEST_DIR}/game12/board-{{:02d}}.png'  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
-        state.do_reset()
+        state.do_new_game()
         state.game.nicknames = ('A', 'S')
         state.press_button('RED')  # green begins
         for i in range(1, 21):
@@ -294,7 +294,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         state = State(cam=cam, watch=watch)
         state.cam = cam
-        state.do_reset()
+        state.do_new_game()
         state.game.nicknames = ('A', 'B')
         state.press_button('RED')  # green begins
         for i in range(1, 26):
@@ -325,7 +325,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         state = State(cam=cam, watch=watch)
         state.cam = cam
-        state.do_reset()
+        state.do_new_game()
         state.game.nicknames = ('INESSA', 'STEFAN')
         state.press_button('RED')  # green begins
         for i in range(1, 28):
@@ -355,7 +355,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
 
         state = State(cam=cam, watch=watch)
         state.cam = cam
-        state.do_reset()
+        state.do_new_game()
         state.game.nicknames = ('JO', 'ST')
         state.press_button('GREEN')  # red begins
 

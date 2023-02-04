@@ -37,6 +37,7 @@ S0 = 'S0'
 S1 = 'S1'
 P0 = 'P0'
 P1 = 'P1'
+EOG = 'EOG'  # end of game
 # buttons
 GREEN = 'GREEN'
 YELLOW = 'YELLOW'
@@ -62,7 +63,7 @@ class State(metaclass=Singleton):
     def init(self) -> None:
         """init state machine"""
         self.button_handler.start(func_pressed=self.press_button)
-        self.do_ready()
+        self.do_new_game()
 
     def do_ready(self) -> str:
         """Game can be started"""
@@ -75,7 +76,6 @@ class State(metaclass=Singleton):
     def do_start0(self) -> str:
         """Start playing with player 0"""
         logging.info(f'{self.current_state} - (start) -> {S0}')
-        start_of_game()
         self.watch.start(0)
         LED.switch_on({LEDEnum.green})  # turn on LED green
         self.watch.display.render_display(1, [0, 0], [0, 0])
@@ -84,7 +84,6 @@ class State(metaclass=Singleton):
     def do_start1(self) -> str:
         """Start playing with player 1"""
         logging.info(f'{self.current_state} - (start) -> {S1}')
-        start_of_game()
         self.watch.start(1)
         LED.switch_on({LEDEnum.red})  # turn on LED red
         self.watch.display.render_display(0, [0, 0], [0, 0])
@@ -199,15 +198,23 @@ class State(metaclass=Singleton):
             LED.blink_on({LEDEnum.red}, switch_off=False)
         return P1
 
-    def do_reset(self) -> str:
-        """Resets state and game to default"""
-        logging.info(f'{self.current_state} - (reset) -> {START}')
+    def do_new_game(self) -> str:
         LED.switch_on({})  # type: ignore
+        start_of_game()
         self.watch.reset()
-        end_of_game(None, self.game)
         self.game.new_game()
         gc.collect()
         return self.do_ready()
+
+    def do_end_of_game(self) -> str:
+        """Resets state and game to default"""
+        logging.info(f'{self.current_state} - (reset) -> {START}')
+        LED.switch_on({})  # type: ignore
+        LED.blink_on({LEDEnum.yellow})
+        end_of_game(None, self.game)
+        self.watch.display.show_end_of_game()
+        current_state = EOG
+        return current_state
 
     def do_reboot(self) -> str:  # pragma: no cover
         """Perform a reboot"""
@@ -259,7 +266,7 @@ class State(metaclass=Singleton):
     state: dict[tuple[str, str], Callable] = {
         (START, GREEN): do_start1,
         (START, RED): do_start0,
-        (START, RESET): do_reset,
+        (START, RESET): do_new_game,
         (START, REBOOT): do_reboot,
         (START, AP): do_accesspoint,
         (S0, GREEN): do_move0,
@@ -268,7 +275,7 @@ class State(metaclass=Singleton):
         (P0, YELLOW): do_resume0,
         (P0, DOUBT0): do_valid_challenge0,
         (P0, DOUBT1): do_invalid_challenge0,
-        (P0, RESET): do_reset,
+        (P0, RESET): do_end_of_game,
         (P0, REBOOT): do_reboot,
         (P0, AP): do_accesspoint,
         (S1, RED): do_move1,
@@ -277,7 +284,12 @@ class State(metaclass=Singleton):
         (P1, YELLOW): do_resume1,
         (P1, DOUBT1): do_valid_challenge1,
         (P1, DOUBT0): do_invalid_challenge1,
-        (P1, RESET): do_reset,
+        (P1, RESET): do_end_of_game,
         (P1, REBOOT): do_reboot,
-        (P1, AP): do_accesspoint
+        (P1, AP): do_accesspoint,
+        (EOG, GREEN): do_new_game,
+        (EOG, RED): do_new_game,
+        (EOG, YELLOW): do_new_game,
+        (EOG, REBOOT): do_reboot,
+        (EOG, AP): do_accesspoint
     }
