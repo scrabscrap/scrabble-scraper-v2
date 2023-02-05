@@ -24,7 +24,7 @@ from typing import Callable, Optional
 from config import config
 from hardware.button import Button
 from hardware.led import LED, LEDEnum
-from processing import (end_of_game, invalid_challenge, move, start_of_game,
+from processing import (end_of_game, invalid_challenge, move, start_of_game, store_status,
                         valid_challenge)
 from scrabble import Game
 from scrabblewatch import ScrabbleWatch
@@ -198,12 +198,20 @@ class State(metaclass=Singleton):
             LED.blink_on({LEDEnum.red}, switch_off=False)
         return P1
 
+    def do_new_player_names(self, name1: str, name2: str) -> None:
+        "set new player names and upload status, if state is START"
+        self.game.nicknames = (name1, name2)
+        if self.state == START:
+            store_status(self.game)
+            self.do_ready()
+
     def do_new_game(self) -> str:
+        """Starts a new game"""
         LED.switch_on({})  # type: ignore
-        start_of_game()
         self.watch.reset()
         self.game.new_game()
         gc.collect()
+        start_of_game(self.game)
         return self.do_ready()
 
     def do_end_of_game(self) -> str:

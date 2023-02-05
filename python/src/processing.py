@@ -272,11 +272,21 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
 
 
 @ trace
-def start_of_game():
+def store_status(game: Game):
+    """store current status.json - does not update data-*.json !"""
+    from ftp import Ftp
+    if config.output_web or config.output_ftp:
+        with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
+            handle.write(game.json_str())
+        pool.submit(Ftp.upload_status)                    # upload empty status
+
+
+@ trace
+def start_of_game(game: Game):
     """ start of game """
     from ftp import Ftp
-
     pool.submit(Ftp.delete_files, ['image', 'data'])  # first delete images and data files on ftp server
+    store_status(game)
 
 
 @ trace

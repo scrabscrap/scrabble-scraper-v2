@@ -84,6 +84,22 @@ class Ftp:
         return False
 
     @classmethod
+    def upload_status(cls) -> bool:
+        """ upload status to ftp server """
+        logging.debug('ftp: upload status.json')
+        if cls.ftp_config.ftp_server is not None:
+            try:
+                logging.debug('ftp: start transfer move files')
+                with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
+                    with open(f'{config.web_dir}/status.json', 'rb') as file:
+                        session.storbinary('STOR status.json', file)  # send the file
+                logging.info('ftp: end of transfer')
+                return True
+            except IOError as oops:
+                logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
+        return False
+
+    @classmethod
     def upload_game(cls, filename: str) -> bool:
         """ upload a zpped game file to ftp """
         logging.debug(f'ftp: upload_game {filename}')

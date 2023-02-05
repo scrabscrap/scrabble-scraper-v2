@@ -29,14 +29,13 @@ from time import sleep
 
 import cv2
 import numpy as np
-from flask import (Flask, jsonify, redirect, render_template, request,
-                   send_from_directory, url_for)
+from flask import (Flask, jsonify, redirect, render_template, request, send_from_directory, url_for)
 from werkzeug.serving import make_server
 
 from config import config
 from game_board.board import overlay_grid
 from processing import get_last_warp, warp_image, recalculate_score_on_admin_change
-from state import START, State
+from state import State
 from threadpool import pool
 
 
@@ -125,12 +124,10 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         logging.debug(f'player1={player1} player2={player2}')
         # state holds the current game
         if player1 is not None and player2 is not None:
-            State().game.nicknames = (player1, player2)
+            State().do_new_player_names(player1, player2)
             ApiServer.last_msg = f'player1={player1}\nplayer2={player2}'
         else:
             ApiServer.last_msg = f'can not set: player1={player1}\nplayer2={player2}'
-        if State().current_state == START:
-            State().do_ready()
         return redirect(url_for('get_defaults'))
 
     @staticmethod
