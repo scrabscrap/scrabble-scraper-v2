@@ -208,8 +208,24 @@ class Game():
 
     def json_str(self, move_number: int = -1) -> str:
         """Return the json represention of the board"""
+        (name1, name2) = self.nicknames
         if len(self.moves) < 1:
-            return '{}'
+            to_json = json.dumps(
+                {
+                    'time': str(self.gamestart),
+                    'move': 0,
+                    'score1': 0,
+                    'score2': 0,
+                    'time1': config.max_time,
+                    'time2': config.max_time,
+                    'name1': name1,
+                    'name2': name2,
+                    'onmove': name1,
+                    'moves': [],
+                    'board': {},
+                    'bag': bag_as_list.copy()
+                })
+            return to_json
         move_index = len(self.moves) - 1 if move_number == -1 else move_number - 1
         keys = self.moves[move_index].board.keys()
         values = self.moves[move_index].board.values()
@@ -217,8 +233,6 @@ class Game():
         values1 = [t for (t, p) in values]
         bag = bag_as_list.copy()
         _ = [i for i in values1 if i not in bag or bag.remove(i)]  # type: ignore # side effect remove v1 from bag
-        (name1, name2) = self.nicknames
-
         gcg_moves = []
         for i in range(0, move_index + 1):
             gcg_moves.append(self.moves[i].gcg_str(self.nicknames))

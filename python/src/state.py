@@ -201,7 +201,7 @@ class State(metaclass=Singleton):
     def do_new_player_names(self, name1: str, name2: str) -> None:
         "set new player names and upload status, if state is START"
         self.game.nicknames = (name1, name2)
-        if self.state == START:
+        if self.current_state == START:
             store_status(self.game)
             self.do_ready()
 
