@@ -87,14 +87,19 @@ export default class Display extends React.Component {
   counter = () => {
     var next = this.state.countdown - 1
     var cnt_moves = 0
+    var time_stamp = null
     if (this.state.moves != null) {
       cnt_moves = this.state.moves.length
+    }
+    if (this.state.time != null) {
+      time_stamp = this.state.moves.time
     }
     if (next <= 0) {
       next = 5
       this.getData()
     }
-    if (this.state.moves == null || this.state.moves.length === cnt_moves) {
+    if (this.state.moves == null || this.state.time == null
+      || this.state.moves.length === cnt_moves || this.state.time === time_stamp) {
       this.setState({ timeout_counter: this.state.timeout_counter + 1 })
     }
     /* wenn sich nichts ändert -> nach 30min kein automatischer reload mehr */
@@ -138,7 +143,9 @@ export default class Display extends React.Component {
             <div className="col-md-1 clearfix">
               <div className="card player">
                 <button type="button" data-toggle="tooltip" data-placement="top" title="Refresh page"
-                  class="btn btn-primary btn-sm btn-block float-right" onClick={() => window.location.reload()}>
+                  class={(this.state.countdown < 0) ?
+                    "btn btn-danger btn-sm btn-block float-right" : "btn btn-light btn-sm btn-block float-right"}
+                  onClick={() => window.location.reload()}>
                   &#x21BB;
                 </button>
               </div>
@@ -159,7 +166,7 @@ export default class Display extends React.Component {
 
           </div>
         </div>
-      </div>
+      </div >
     );
   }
 }
