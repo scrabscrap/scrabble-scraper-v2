@@ -128,14 +128,21 @@ export default class Display extends React.Component {
               <Player name={this.state.name2} score={this.state.score2}
                 time={this.state.time2} current={this.state.current} />
             </div>
-            <div className="col-md-4">
+            <div className="col-md-3">
               <div className="card player">
                 <div className="card-header">
                   {this.state.time}
                 </div>
               </div>
             </div>
-
+            <div className="col-md-1 clearfix">
+              <div className="card player">
+                <button type="button" data-toggle="tooltip" data-placement="top" title="Refresh page"
+                  class="btn btn-primary btn-sm btn-block float-right" onClick={() => window.location.reload()}>
+                  &#x21BB;
+                </button>
+              </div>
+            </div>
 
             <div className="col-md-12">
               <Bag bag={this.state.bag} />
