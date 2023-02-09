@@ -169,6 +169,8 @@ def main():
     """used to start the simulator"""
 
     from threading import Event
+
+    from display import Display
     from hardware.camera_thread import Camera, CameraEnum
 
     logging.config.fileConfig(fname=config.work_dir + '/log.conf',
@@ -181,11 +183,11 @@ def main():
     log.setLevel(logging.ERROR)
 
     # set Mock-Camera
-    cam = Camera(useCamera=CameraEnum.FILE)
+    cam = Camera(use_camera=CameraEnum.FILE)
     _ = pool.submit(cam.update, Event())
 
     # set Watch
-    watch = ScrabbleWatch()
+    watch = ScrabbleWatch(Display())
     timer = RepeatedTimer(1, watch.tick)
     _ = pool.submit(timer.tick, Event())
 
