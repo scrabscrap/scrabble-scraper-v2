@@ -19,14 +19,14 @@ import logging
 import unittest
 from signal import pause
 
+logging.basicConfig(
+    level=logging.INFO, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+
 from display import Display
 from hardware.camera_thread import Camera, CameraEnum
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
-from state import DOUBT0, DOUBT1, GREEN, REBOOT, RED, RESET, YELLOW, State
-
-logging.basicConfig(
-    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+from state import DOUBT0, DOUBT1, GREEN, REBOOT, RED, RESET, YELLOW, AP, State
 
 
 class SimulateState(State):
@@ -57,10 +57,13 @@ class SimulateState(State):
             logging.info("pressed doubt1 (switch red)")
             LED.blink_on({LEDEnum.red})
         elif button == RESET:
-            logging.info("pressed reset")
-            LED.blink_on({LEDEnum.yellow})
+            logging.info("pressed end")
+            LED.blink_on({LEDEnum.green, LEDEnum.yellow})
         elif button == REBOOT:
             logging.info("pressed reboot")
+            LED.blink_on({LEDEnum.yellow, LEDEnum.red})
+        elif button == AP:
+            logging.info("pressed ap")
             LED.blink_on({LEDEnum.green, LEDEnum.red})
 
 
