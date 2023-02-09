@@ -32,9 +32,9 @@ if [ ! -d "$PYTHONDIR/.venv" ]; then
     pip install --force-reinstall -r requirements.txt --only-binary=:all:
 fi
 source $PYTHONDIR/.venv/bin/activate
-if [ -d "~/.venv" ]; then
+if [ -d "/home/pi/.venv" ]; then
     # cleanup
-    rm -rf  "~/.venv"
+    rm -rf  "/home/pi/.venv"
 fi
 
 cd "$PYTHONDIR"
