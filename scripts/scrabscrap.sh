@@ -32,6 +32,10 @@ if [ ! -d "$PYTHONDIR/.venv" ]; then
     pip install --force-reinstall -r requirements.txt --only-binary=:all:
 fi
 source $PYTHONDIR/.venv/bin/activate
+if [ -d "~/.venv" ]; then
+    # cleanup
+    rm -rf  "~/.venv"
+fi
 
 cd "$PYTHONDIR"
 python -m scrabscrap >> "$WORKDIR/log/game.log"
