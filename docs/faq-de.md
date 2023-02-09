@@ -266,13 +266,6 @@ git config --global user.name "..."
 git config --global user.email "..."
 ```
 
-Danach wird mittels Python die virtuelle Umgebung einrichtet.
-
-```bash
-python3 -m venv ~/.venv/cv
-source ~/.venv/cv/bin/activate
-```
-
 Das Repository kann nun in das Zielverzeichnis gecloned werden.
 
 ```bash
@@ -280,13 +273,21 @@ cd <zielordner>
 git clone https://github.com/scrabscrap/scrabble-scraper-v2.git
 ```
 
+Danach wird mittels Python die virtuelle Umgebung einrichtet.
+
+```bash
+cd ~/scrabble-scraper-v2/python
+python3 -m venv .venv --prompt cv
+source ~/scrabble-scraper-v2/python/.venv/bin/activate
+```
+
 Im Anschluss können die Python Bibliotheken installiert werden.
 
 ```bash
 cd scrabble-scraper-v2/python
-source ~/.venv/cv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+source .venv/bin/activate
+pip install -U pip setuptools wheel
+pip install --force-reinstall -r requirements.txt --only-binary=:all:
 ```
 
 Bibliotheken, die nicht unter MacOS lauffähig sind, werden in den "requirements.txt"
@@ -396,7 +397,7 @@ alias ll='ls -al'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias cd..='cd ..'
-alias workon='f(){ source ~/.venv/$1/bin/activate; }; f'
+alias workon='f(){ source ~/scrabble-scraper-v2/python/.venv/bin/activate; }; f'
 ```
 
 #### Einstellung .zshrc

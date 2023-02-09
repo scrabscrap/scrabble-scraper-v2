@@ -10,17 +10,18 @@ read -p "Press any key to continue or <ctrl>+<c> to abort..."
 SCRIPTPATH=$(dirname "$0")
 
 # update os
-sudo apt update
-sudo apt full-upgrade
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get autoremove
 
 # ensure python environment and git
-sudo apt install -y git python3-venv python3-dev
+sudo apt-get install -yq git python3-venv python3-dev
 # tool to detect i2c ports (i2cdetect -y 1)
-sudo apt install -y i2c-tools
+sudo apt-get install -yq i2c-tools
 
 # install libraries and tools
 # install libs for OpenCV
-sudo apt install -y libgsm1 libatk1.0-0 libavcodec58 libcairo2 libvpx6 libvorbisenc2 \
+sudo apt-get install -yq libgsm1 libatk1.0-0 libavcodec58 libcairo2 libvpx6 libvorbisenc2 \
 libwayland-egl1 libva-drm2 libwavpack1 libshine3 libdav1d4 libwayland-client0 libxcursor1 \
 libopus0 libchromaprint1 libxinerama1 libpixman-1-0 libzmq5 libmp3lame0 libxcb-shm0 libsz2 \
 libgtk-3-0 libharfbuzz0b libilmbase25 libvdpau1 libssh-gcrypt-4 libpangocairo-1.0-0 \
@@ -35,16 +36,17 @@ libgraphite2-3 libhdf5-103-1 libgfortran5 libsoxr0 libpgm-5.3-0 libopenmpt0 libx
 libdatrie1 libgdk-pixbuf-2.0-0 libopenjp2-7 libwebpmux3 --fix-missing
 
 # create an OpenCV Python environment
-python3 -m venv ~/.venv/cv
+cd ~/scrabble-scraper-v2/python
+python3 -m venv .venv --prompt cv
 
 # update pip
-source ~/.venv/cv/bin/activate
-pip install --upgrade pip
+source ~/scrabble-scraper-v2/python/.venv/bin/activate
+pip install -U pip setuptools wheel
 
 # install python requirements
 cd ~/scrabscrap2/python
-source ~/.venv/cv/bin/activate
-pip install -r requirements.txt
+source .venv/bin/activate
+pip install --force-reinstall -r requirements.txt --only-binary=:all:
 
 # run scrabscrap at reboot
 crontab -u pi $SCRIPTPATH/config/crontab.user
@@ -69,12 +71,12 @@ echo "source ~/.venv/cv/bin/activate"
 echo "python3"
 echo ">> import cv2"
 echo ">> cv2.__version__"
-echo "output OpenCV version number like: 4.x.x"
+echo "output OpenCV version number like: 4.5.5"
 echo ">> quit()"
 echo "------------------------------"
 echo "test the i2c bus:"
 echo "sudo i2cdetect -y 1"
-echo "this should show the adress of the multiplexer (0x70)"
+echo "this should show the adress of the display / rtc (0x3c)"
 echo "------------------------------"
 
 read -p "Press any key to continue ..."

@@ -448,10 +448,10 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         """ start pip upgrade """
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
-            process0 = subprocess.run([f'{os.path.expanduser("~")}/.venv/cv/bin/pip', 'install', '--upgrade', 'pip'],
+            process0 = subprocess.run([f'{config.src_dir}/../.venv/bin/pip', 'install', '--upgrade', 'pip'],
                                       check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            process1 = subprocess.run([f'{os.path.expanduser("~")}/.venv/cv/bin/pip', 'install',
-                                       '--upgrade', '--upgrade-strategy', 'eager',
+            process1 = subprocess.run([f'{config.src_dir}/../.venv/bin/pip', 'install',
+                                       '--upgrade', '--only-binary=:all:',
                                       '-r', f'{config.src_dir}/../requirements.txt'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             ApiServer.flask_shutdown_blocked = False

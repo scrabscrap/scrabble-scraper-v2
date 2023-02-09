@@ -24,7 +24,14 @@ cp -n "$PYTHONDIR/defaults/log.conf" "$WORKDIR/log.conf"
 
 # start app
 export PYTHONPATH=src:
-source ~/.venv/cv/bin/activate
+if [ ! -d "$PYTHONDIR/.venv" ]; then
+    cd "$PYTHONDIR"
+    python -m venv .venv --prompt cv
+    source .venv/bin/activate
+    pip install -U pip setuptools wheel
+    pip install --force-reinstall -r requirements.txt --only-binary=:all:
+fi
+source $PYTHONDIR/.venv/bin/activate
 
 cd "$PYTHONDIR"
 python -m scrabscrap >> "$WORKDIR/log/game.log"

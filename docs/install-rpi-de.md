@@ -16,8 +16,9 @@ Bei dem Erzeugen der SD Karte ggf. folgende Optionen konfigurieren
 Nachdem der RPI gestartet wurde, per ssh eine Verbindung zum Rechner aufbauen.
 
 ```bash
-sudo apt update
-sudo apt full-upgrade
+sudo apt-get update
+sudo apt-get upgrade
+sudp apt-get autoremove
 ```
 
 Nach dem Update technische Einstellungen auf dem RPI vornehmen
@@ -36,11 +37,11 @@ Im nächsten Schritt werden allgemeine Hilfsmittel installiert
 ### Git und Python installieren
 
 ```bash
-sudo apt install -y git python3-venv python3-dev
+sudo apt-get install -y git python3-venv python3-dev
 #installation des Tools, um die ic2 Ports zu ermitteln (i2cdetect -y 1)
-sudo apt install -y i2c-tools
+sudo apt-get install -y i2c-tools
 #Installation der Libs für OpenCV
-sudo apt install -y libgsm1 libatk1.0-0 libavcodec58 libcairo2 libvpx6 libvorbisenc2 
+sudo apt-get install -y libgsm1 libatk1.0-0 libavcodec58 libcairo2 libvpx6 libvorbisenc2 
 libwayland-egl1 libva-drm2 libwavpack1 libshine3 libdav1d4 libwayland-client0 libxcursor1 
 libopus0 libchromaprint1 libxinerama1 libpixman-1-0 libzmq5 libmp3lame0 libxcb-shm0 libsz2 
 libgtk-3-0 libharfbuzz0b libilmbase25 libvdpau1 libssh-gcrypt-4 libpangocairo-1.0-0 
@@ -63,6 +64,9 @@ die GitHub Userkennung gesetzt werden.
 ```bash
 git config --global user.name
 git config --global user.email
+git config --global credential.helper store
+git config --global pull.rebase true
+git config --global pull.autostash true
 ```
 
 Danach kann das Repository geladen werden
@@ -75,13 +79,12 @@ git clone https://github.com/scrabscrap/scrabble-scraper-v2.git
 ### Python Konfiguration erzeugen
 
 ```bash
-python3 -m venv ~/.venv/cv
-#update pip
-source ~/.venv/cv/bin/activate
-pip install --upgrade pip
-
 cd ~/scrabble-scraper-v2/python
-pip install -r requirements.txt
+python3 -m venv .venv --prompt cv
+#update pip
+source .venv/bin/activate
+pip install -U pip setuptools wheel
+pip install --force-reinstall -r requirements.txt --only-binary=:all:
 ```
 
 ## Testen der RPI Installation
@@ -90,7 +93,7 @@ Die Installation von OpenCV kann wie folgt geprüft werden
 
 ```bash
 #venv cv aktivieren
-source ~/.venv/cv/bin/activate
+source ~/scrabble-scraper-v2/python/.venv/bin/activate
 python
 >> import cv2
 >> cv2.__version__
@@ -106,20 +109,14 @@ sudo i2cdetect -y 1
 
 ## Weitere Konfigurationen
 
-Eine Datei ``~/.alias`` anlegen:
+Eine Datei `~/.bash_aliases` anlegen:
 
 ```bash
 alias ll='ls -al'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias cd..='cd ..'
-alias workon='f(){ source ~/.venv/$1/bin/activate; }; f'
-```
-
-In der `~/.bashrc` bzw. `~/.zshrc` ergänzen:
-
-```text
-source ~/.alias
+alias workon='f(){ source ~/scrabble-scraper-v2/python/.venv/bin/activate; }; f'
 ```
 
 ## Autostart von ScrabScrap konfigurieren
