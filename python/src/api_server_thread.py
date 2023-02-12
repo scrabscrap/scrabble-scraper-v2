@@ -52,6 +52,12 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             ApiServer.cam = cam
 
     @staticmethod
+    @app.route('/webapp/<path:path>')
+    def static_file(path):
+        """static routing for web app on rpi"""
+        return ApiServer.app.send_static_file(f'webapp/{path}')
+
+    @staticmethod
     @app.get('/')
     @app.get('/index')
     def get_defaults():

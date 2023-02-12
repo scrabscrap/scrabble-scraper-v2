@@ -1,6 +1,7 @@
 {
   "name": "scrabscrap",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "homepage": "./",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",

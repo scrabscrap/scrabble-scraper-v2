@@ -5,9 +5,9 @@ import Display from './display/Display';
 
 const App = () => {
   return (
-      <Routes>
-        <Route exact path='/' element={<Display/>}></Route>
-      </Routes>
+    <Routes>
+      <Route path='/*' element={<Display />}></Route>
+    </Routes>
   );
 }
 

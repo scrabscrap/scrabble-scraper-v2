@@ -145,7 +145,7 @@ export default class Display extends React.Component {
                 <button type="button" data-toggle="tooltip" data-placement="top" title="Refresh page"
                   class={(this.state.countdown < 0) ?
                     "btn btn-danger btn-sm btn-block float-right" : "btn btn-light btn-sm btn-block float-right"}
-                  onClick={() => window.location.reload()}>
+                  onClick={() => window.location.reload(true)}>
                   &#x21BB;
                 </button>
               </div>

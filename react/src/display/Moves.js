@@ -12,7 +12,7 @@ class Moves extends React.Component {
         let name = value.slice(1, value.indexOf(':') + 1)
         let rest = value.slice(value.indexOf(':') + 1).trim()
         let sp = rest.split(' ')
-        let img_link = "/web/image-" + (key + 1) + ".jpg"
+        let img_link = "./web/image-" + (key + 1) + ".jpg"
         if (sp.length === 3) {
           items.push(<tr key={key + 1}>
             <td><a href={img_link} target="_scrabscrap_board">{key + 1}</a></td>
