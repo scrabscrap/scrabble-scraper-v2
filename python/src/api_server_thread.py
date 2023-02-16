@@ -23,6 +23,7 @@ import logging.config
 import os
 import subprocess
 import urllib.parse
+import re
 from io import StringIO
 from signal import alarm
 from time import sleep
@@ -46,6 +47,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     cam = None
     flask_shutdown_blocked = False
     scrabscrap_version = ''
+    simulator = False
 
     def __init__(self, cam=None) -> None:
         if cam:
@@ -63,8 +65,60 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     def get_defaults():
         """ index web page """
         (player1, player2) = State().game.nicknames
-        return render_template('index.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg,
-                               player1=player1, player2=player2)
+        return render_template('index.html', apiserver=ApiServer, player1=player1, player2=player2)
+
+    @staticmethod
+    @app.get('/edit_moves')
+    def edit_moves():
+        """ edit moves """
+        game = State().game
+        return render_template('editmove.html', apiserver=ApiServer, move_list=game.moves)
+
+    @staticmethod
+    @app.post('/edit_move')  # type: ignore
+    def edit_move():
+        """correct game moves"""
+        data = request.form
+        logging.info(f'{data}')
+        move_number = int(request.form.get('move.move'))  # type: ignore
+        # player = request.form.get('move.player')
+        move_type = request.form.get('move.type')
+        coord = request.form.get('move.coord')
+        word = request.form.get('move.word')
+        word = word.upper().replace(' ', '_') if word else ''
+        game = State().game
+        logging.debug(f'len moves {len(game.moves)}')
+        move = game.moves[move_number - 1]
+        vert, col, row = move.calc_coord(coord)  # type: ignore
+        if str(move.type.name) != move_type or move.coord != (col, row) or move.word != word or move.is_vertical != vert:
+            logging.info(
+                f'move edit: move: {move_number} player: {move.player}\n{move.type.name}->{move_type}\n'
+                f'{move.is_vertical}->{vert}\n{move.coord}->{(col, row)}\n{move.word}->{word}')  # type: ignore
+            if move_type == 'EXCHANGE':
+                ApiServer.last_msg = f'try to correct move #{move_number} to exchange'
+                logging.debug(f'{ApiServer.last_msg}')
+                recalculate_score_on_admin_change(game, int(move_number), (0, 0), True, '')
+            elif re.compile('[A-Z_\\.]+').match(word):
+                ApiServer.last_msg = f'try to correct move {move_number} {move.get_coord()}: {move.word} to {coord}:{word}'
+                logging.debug(f'{ApiServer.last_msg}')
+                recalculate_score_on_admin_change(game, int(move_number), (col, row), vert, word)
+            else:
+                ApiServer.last_msg = f'invalid character in word {word}'
+                logging.debug(f'{ApiServer.last_msg}')
+        else:
+            ApiServer.last_msg = ' no changes detected'
+            logging.debug(f'{ApiServer.last_msg}')
+        return redirect(url_for('edit_moves'))
+
+    @staticmethod
+    @app.post('/insert_move')  # type: ignore
+    def insert_move():
+        """insert a new move"""
+        data = request.form
+        logging.info(f'{data}')
+        ApiServer.last_msg = 'insert move not supported'
+        logging.debug(f'{ApiServer.last_msg}')
+        return redirect(url_for('edit_moves'))
 
     @staticmethod
     @app.get('/settings')
@@ -92,13 +146,13 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         except ValueError:
             logging.error(f'Error on settings: {request.args.items()}')
             ApiServer.last_msg = 'error: Value error in Parameter'
-            return render_template('settings.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
+            return render_template('settings.html', apiserver=ApiServer)
         if must_save:
             config.save()
         out = StringIO()
         config.config.write(out)
         ApiServer.last_msg = f'{out.getvalue()}'
-        return render_template('settings.html', version=ApiServer.scrabscrap_version, message=ApiServer.last_msg)
+        return render_template('settings.html', apiserver=ApiServer)
 
     @staticmethod
     @app.post('/settings')  # type: ignore
@@ -136,54 +190,6 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             ApiServer.last_msg = f'can not set: player1={player1}\nplayer2={player2}'
         return redirect(url_for('get_defaults'))
 
-    @staticmethod
-    @app.route('/fixmove')  # type: ignore
-    def fixmove():
-        """ fix an incorrect move """
-        import re
-
-        move_number = request.args.get('move')
-        coord = request.args.get('coord')
-        word = request.args.get('word')
-        logging.info(f'data: {move_number} {coord} {word}')
-        if move_number and coord and word:
-            game = State().game
-            move_re = re.compile('[\\d+]')
-            if not move_re.match(move_number) or int(move_number) <= 0 or int(move_number) > len(game.moves):
-                ApiServer.last_msg = f'invalid move number {move_number}'
-                return redirect(url_for('get_defaults'))
-
-            mvert = re.compile('(\\d+)([A-Oa-o])').match(coord)
-            mhoriz = re.compile('([A-Oa-o])(\\d+)').match(coord)
-            if mvert:
-                vertical = True
-                col = int(mvert.group(1)) - 1
-                row = int(ord(mvert.group(2).capitalize()) - ord('A'))
-            elif mhoriz:
-                vertical = False
-                col = int(mhoriz.group(2)) - 1
-                row = int(ord(mhoriz.group(1).capitalize()) - ord('A'))
-            elif '-' == coord:
-                ApiServer.last_msg = f'correct move #{move_number} to exchange'
-                recalculate_score_on_admin_change(game, int(move_number), (0, 0), True, '')
-                return redirect(url_for('get_defaults'))
-            else:
-                ApiServer.last_msg = f'invalid coord {coord}'
-                return redirect(url_for('get_defaults'))
-            if col > 14:
-                ApiServer.last_msg = f'invalid coord {coord}'
-                return redirect(url_for('get_defaults'))
-
-            word = word.upper().replace(' ', '_')
-            if re.compile('[A-Z_\\.]+').match(word):
-                recalculate_score_on_admin_change(game, int(move_number), (col, row), vertical, word)
-                ApiServer.last_msg = f'correct move {move_number} on {coord} with {word} (v = {vertical} (c,r) = {(col, row)})'
-            else:
-                ApiServer.last_msg = f'invalid character in word {word}'
-        else:
-            ApiServer.last_msg = 'missing parameter on api call'
-        return redirect(url_for('get_defaults'))
-
     @ staticmethod
     @ app.post('/wifi')
     def post_wifi():
@@ -210,8 +216,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         wifi_raw = process1.stdout.decode().split(sep='\n')[1:-1]
         wifi_list = [element.split(sep='\t') for element in wifi_raw]
-        return render_template('wifi.html', version=ApiServer.scrabscrap_version, wifi_list=wifi_list,
-                               message=ApiServer.last_msg)
+        return render_template('wifi.html', apiserver=ApiServer, wifi_list=wifi_list)
 
     @ staticmethod
     @ app.post('/delete_wifi')
@@ -300,7 +305,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             png_overlay = ''
             warp_coord = ''
         ApiServer.last_msg = ''
-        return render_template('cam.html', version=ApiServer.scrabscrap_version,
+        return render_template('cam.html', apiserver=ApiServer,
                                img_data=urllib.parse.quote(png_output), warp_data=urllib.parse.quote(png_overlay),
                                warp_coord=urllib.parse.quote(warp_coord), warp_coord_raw=warp_coord,
                                warp_coord_cnf=warp_coord_cnf)
@@ -310,7 +315,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     def loglevel():
         """ settings loglevel, recording """
         loglevel = logging.getLogger('root').getEffectiveLevel()
-        return render_template('loglevel.html', recording=f'{config.development_recording}', loglevel=f'{loglevel}')
+        return render_template('loglevel.html', apiserver=ApiServer, recording=f'{config.development_recording}',
+                               loglevel=f'{loglevel}')
 
     @ staticmethod
     @ app.post('/set_loglevel')
@@ -356,7 +362,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             log_out = process.stdout.decode()
         else:
             log_out = '## empty ##'
-        return render_template('logs.html', log=log_out)
+        return render_template('logs.html', apiserver=ApiServer, log=log_out)
 
     @ staticmethod
     @ app.route('/download_logs', methods=['POST', 'GET'])
@@ -517,17 +523,17 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         ApiServer.last_msg += f"ftp-user={cfg.get('ftp', 'ftp-user', fallback='')}\n"
         if cfg.get('ftp', 'ftp-password', fallback=None):
             ApiServer.last_msg += "password found\n"
+            try:
+                with ftplib.FTP(cfg.get('ftp', 'ftp-server', fallback=''),
+                                cfg.get('ftp', 'ftp-user', fallback=''),
+                                cfg.get('ftp', 'ftp-password', fallback='')) as session:
+                    with open(f'{config.work_dir}/scrabble.ini', 'rb') as file:
+                        session.storbinary('STOR scrabble.ini', file)  # send the file
+                    ApiServer.last_msg += "upload successful\n"
+            except IOError as err:
+                ApiServer.last_msg += f'ftp: upload failure {err}\n'
         else:
             ApiServer.last_msg += "no password found\n"
-        try:
-            with ftplib.FTP(cfg.get('ftp', 'ftp-server', fallback=''),
-                            cfg.get('ftp', 'ftp-user', fallback=''),
-                            cfg.get('ftp', 'ftp-password', fallback='')) as session:
-                with open(f'{config.work_dir}/scrabble.ini', 'rb') as file:
-                    session.storbinary('STOR scrabble.ini', file)  # send the file
-                ApiServer.last_msg += "upload successful\n"
-        except IOError as err:
-            ApiServer.last_msg += f'ftp: upload failure {err}\n'
         return redirect(url_for('get_defaults'))
 
     @ staticmethod
@@ -631,13 +637,13 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         alarm(1)
         return redirect(url_for('get_defaults'))
 
-    def start_server(self, host: str = '0.0.0.0', port=5050):
+    def start_server(self, host: str = '0.0.0.0', port=5050, simulator=False):
         """ start flask server """
         logging.info('start api server')
         # flask log only error
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
-
+        ApiServer.simulator = simulator
         version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if version_info.returncode > 0:

@@ -22,6 +22,15 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <i class="bi-grid-3x3-gap"></i> Game
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="/edit_moves"><i class="bi-pencil"></i> Edit Moves</a></li>
+            </ul>
+          </li>
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="/cam"><i class="bi-webcam"></i> Camera</a>
           </li>
@@ -34,7 +43,7 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              Logs
+              <i class="bi-file-earmark-text"></i> Logs
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li><a class="dropdown-item" href="/loglevel"><i class="bi-gear-fill"></i> Settings</a></li>
@@ -53,7 +62,7 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              Update
+              <i class="bi-arrow-up-right-circle"></i> Update
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li><a class="dropdown-item" href="/upgrade_linux">
@@ -67,21 +76,23 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              Tests
+              <i class="bi-card-checklist"></i> Tests
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li><a class="dropdown-item" href="/test_led"><i class="bi-lightbulb"></i> LED</a></li>
               <li><a class="dropdown-item" href="/test_display"><i class="bi-display"></i> Display</a></li>
               <div class="dropdown-divider"></div>
               <li><a class="dropdown-item" href="/test_ftp"><i class="bi-upload"></i> FTP</a></li>
+              {% if apiserver.simulator %}
               <div class="dropdown-divider"></div>
               <li><a class="dropdown-item" href="/simulator"><i class="bi-easel"></i> Simulator</a></li>
+              {% endif %}
             </ul>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              Exit
+              <i class="bi-box-arrow-right"></i> Exit
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li class="nav-item"><a class="nav-link" href="/end"><i class="bi-box-arrow-right"></i> Exit App</a></li>
@@ -92,7 +103,7 @@
           </li>
         </ul>
         <span class="navbar-text">
-          <i class="bi-info-circle"></i> {{version}}
+          <i class="bi-info-circle"></i> {{apiserver.scrabscrap_version}}
         </span>
       </div>
     </div>

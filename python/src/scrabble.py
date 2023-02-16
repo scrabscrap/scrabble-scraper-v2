@@ -19,6 +19,7 @@ import copy
 import datetime
 import json
 import logging
+import re
 from enum import Enum
 from typing import List, Optional, Tuple
 
@@ -129,6 +130,31 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
             result += "(unknown) "
         result += f"{self.points:+d} {self.score[self.player]:+d}"
         return result
+
+    def get_coord(self) -> str:
+        """get coord as gcg string"""
+        (col, row) = self.coord
+        result = str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(ord('A') + row) + str(col + 1)
+        return result
+
+    def calc_coord(self, coord: str) -> tuple[bool, int, int]:
+        """calc coord from gcg string"""
+        gcg_coord_h = re.compile("([A-Oa-o])(\\d+)")
+        gcg_coord_v = re.compile("(\\d+)([A-Oa-o])")
+
+        col, row = (0, 0)
+        vert = False
+        gcg_match = gcg_coord_v.match(coord)
+        if gcg_match:
+            col = int(gcg_match.group(1)) - 1
+            row = int(ord(gcg_match.group(2).capitalize()) - ord('A'))
+            vert = True
+        gcg_match = gcg_coord_h.match(coord)
+        if gcg_match:
+            col = int(gcg_match.group(2)) - 1
+            row = int(ord(gcg_match.group(1).capitalize()) - ord('A'))
+            vert = False
+        return vert, col, row
 
     def calculate_score(self, previous_score: Tuple[int, int]) -> Tuple[int, Tuple[int, int], bool]:
         """calculate score of the current move"""

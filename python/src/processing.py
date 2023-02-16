@@ -15,6 +15,7 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+import copy
 import logging
 import time
 from concurrent import futures
@@ -184,16 +185,43 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
 
         for i in range(move_number, len(moves)):
             mov = moves[i]
+            # repair board
             for elem in tiles_to_remove:
-                if mov.board[elem] == tiles_to_remove[elem]:
-                    del mov.board[elem]                                        # remove tiles from board
+                if elem in mov.board.keys() and mov.board[elem] == tiles_to_remove[elem]:
+                    del mov.board[elem]
             for key in tiles_to_add.keys():  # pylint: disable=C0206, C0201
                 mov.board[key] = tiles_to_add[key]
-            new_move = _move_processing(game, mov.player, mov.played_time, mov.img, mov.board, previous_board, previous_score)
-            new_move.move = i + 1
-            previous_board = new_move.board
-            previous_score = new_move.score
-            moves[i] = new_move
+
+            if mov.type == MoveType.CHALLENGE_BONUS:
+                mov.score = (previous_score[0] - config.malus_doubt, previous_score[1]
+                             ) if mov.player == 0 else (previous_score[0], previous_score[1] - config.malus_doubt)
+                previous_board = mov.board
+                previous_score = mov.score
+                moves[i] = mov
+            elif mov.type == MoveType.WITHDRAW:
+                if len(moves) < 2:
+                    # first move => create move with empty board
+                    new_move = Move(MoveType.WITHDRAW, mov.player, None, False, '', {}, {}, {}, mov.played_time, (0, 0))
+                else:
+                    new_move = copy.deepcopy(moves[i - 2])  # board, img, score
+                    new_move.type = MoveType.WITHDRAW
+                    new_move.played_time = mov.played_time
+                new_move.player = mov.player
+                new_move.points = -moves[i - 1].points
+                new_move.word = moves[i - 1].word
+                new_move.removed_tiles = moves[i - 1].new_tiles
+                new_move.new_tiles = {}
+                new_move.move = i + 1
+                previous_board = new_move.board
+                previous_score = new_move.score
+                moves[i] = new_move
+            else:
+                new_move = _move_processing(game, mov.player, mov.played_time, mov.img,
+                                            mov.board, previous_board, previous_score)
+                new_move.move = i + 1
+                previous_board = new_move.board
+                previous_score = new_move.score
+                moves[i] = new_move
             logging.info(f'recalculate move #{moves[i].move} new points {moves[i].points} new score {moves[i].score}')
             _store_fixed_move(game, moves[i])
             _upload_ftp(moves[i])

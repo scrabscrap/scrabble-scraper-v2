@@ -211,7 +211,7 @@ def main():
     state = State(cam=cam, watch=watch)
     state.do_ready()
 
-    api.start_server(port=5050)
+    api.start_server(port=5050, simulator=True)
 
     api.stop_server()
     cam.cancel()
