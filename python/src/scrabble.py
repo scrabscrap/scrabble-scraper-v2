@@ -28,6 +28,8 @@ from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER,
                               TRIPLE_WORDS)
 from game_board.tiles import bag_as_list, scores
 
+API_VERSION = '1.0'
+
 
 class MoveType(Enum):
     """Enumeration for move types"""
@@ -238,6 +240,7 @@ class Game():
         if len(self.moves) < 1:
             to_json = json.dumps(
                 {
+                    'api': API_VERSION,
                     'time': str(self.gamestart),
                     'move': 0,
                     'score1': 0,
@@ -264,6 +267,7 @@ class Game():
             gcg_moves.append(self.moves[i].gcg_str(self.nicknames))
         to_json = json.dumps(
             {
+                'api': API_VERSION,
                 'time': self.moves[move_index].time,
                 'move': self.moves[move_index].move,
                 'score1': self.moves[move_index].score[0],

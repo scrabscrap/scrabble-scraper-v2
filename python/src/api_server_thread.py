@@ -604,6 +604,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         return redirect(url_for('get_defaults'))
 
     @ staticmethod
+    @ app.route('/status', methods=['POST', 'GET'])
     @ app.route('/game_status', methods=['POST', 'GET'])
     def game_status():
         """ get request to current game state """
