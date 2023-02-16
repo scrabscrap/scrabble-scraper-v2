@@ -89,6 +89,11 @@
               {% endif %}
             </ul>
           </li>
+          {% if apiserver.local_webapp %}
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/webapp/index.html"><i class="bi-eye"></i> Web-App</a>
+          </li>
+          {% endif %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">

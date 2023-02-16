@@ -48,6 +48,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     flask_shutdown_blocked = False
     scrabscrap_version = ''
     simulator = False
+    local_webapp = False
 
     def __init__(self, cam=None) -> None:
         if cam:
@@ -650,6 +651,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         ApiServer.scrabscrap_version = version_info.stdout.decode()[:7]
+        if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
+            ApiServer.local_webapp = True
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
         self.server = make_server(host=host, port=port, threaded=True, app=self.app)  # pylint: disable=W0201
