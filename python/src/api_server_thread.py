@@ -652,7 +652,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         ApiServer.scrabscrap_version = version_info.stdout.decode()[:7]
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
-        self.server = make_server(host=host, port=port, app=self.app)  # pylint: disable=W0201
+        self.server = make_server(host=host, port=port, threaded=True, app=self.app)  # pylint: disable=W0201
         self.ctx = self.app.app_context()   # pylint: disable=W0201
         self.ctx.push()
         self.server.serve_forever()
