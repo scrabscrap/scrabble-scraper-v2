@@ -49,7 +49,7 @@ REBOOT = 'REBOOT'
 AP = 'AP'
 
 
-class State(metaclass=Singleton):
+class State(metaclass=Singleton):  # pylint: disable=R0904
     """State machine of the scrabble game"""
 
     def __init__(self, cam=None, watch: Optional[ScrabbleWatch] = None, button_handler: Optional[Button] = None) -> None:

@@ -84,12 +84,12 @@ class CustomBoard(GameBoard):
     def _is_tile(coord: tuple[int, int], color: tuple[int, int, int]) -> bool:
         if color[1] < 60:  # this is a grey image
             return True
-        elif color[1] < 90:  # and color[2] > 165:  # maybe a grey image
+        if color[1] < 90:  # and color[2] > 165:  # maybe a grey image
             # return True
             if coord in TRIPLE_WORDS or coord in DOUBLE_WORDS:  # check for red
-                if (red_lower[0] <= color[0] <= red_upper[0] and red_lower[1] <= color[1] and red_lower[2] <= color[2]) \
-                        or (red_lower1[0] <= color[0] <= red_upper1[0]
-                            and red_lower1[1] <= color[1] and red_lower1[2] <= color[2]):  # noqa: W503
+                if (red_lower[0] <= color[0] <= red_upper[0] and red_lower[1] <= color[1]         # pylint: disable=R0916
+                    and red_lower[2] <= color[2]) or (red_lower1[0] <= color[0] <= red_upper1[0]  # noqa: W503
+                        and red_lower1[1] <= color[1] and red_lower1[2] <= color[2]):             # noqa: W503, E128
                     return False
             elif coord in TRIPLE_LETTER or coord in DOUBLE_LETTER:  # check for blue
                 if blue_lower[0] <= color[0] <= blue_upper[0] \
@@ -119,7 +119,7 @@ class CustomBoard(GameBoard):
             criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 1.0)
             k = 4
             _, label, center = cv2.kmeans(data, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-            reduced = np.uint8(center)[label.flatten()]  # type: ignore
+            reduced = np.uint8(center)[label.flatten()]  # type: ignore # pylint: disable=E1136
             reduced = reduced.reshape((segment.shape))
             unique, counts = np.unique(reduced.reshape(-1, 3), axis=0, return_counts=True)
             color = unique[np.argmax(counts)]
@@ -129,15 +129,15 @@ class CustomBoard(GameBoard):
 
             if config.development_recording:
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                fontScale = 0.33
+                font_scale = 0.33
                 if CustomBoard._is_tile((col, row), color):
                     font_color = (170, 255, 255)
                     segment[:, :, 2] = 255
                 else:
                     font_color = (24, 1, 255)
                     # reduced[:, :, 2] = 40  # dim ignored tiles
-                segment = cv2.putText(segment, f'{color[0]}', (1, 10), font, fontScale, font_color, 1, cv2.FILLED)  # (H)SV
-                segment = cv2.putText(segment, f'{color[1]}', (1, 20), font, fontScale, font_color, 1, cv2.FILLED)  # H(S)V
+                segment = cv2.putText(segment, f'{color[0]}', (1, 10), font, font_scale, font_color, 1, cv2.FILLED)  # (H)SV
+                segment = cv2.putText(segment, f'{color[1]}', (1, 20), font, font_scale, font_color, 1, cv2.FILLED)  # H(S)V
                 # segment = cv2.putText(segment, f'{color[2]}', (1, 30), font, fontScale, font_color, 1, cv2.FILLED) # HS(V)
             result[px_col + 1:px_col + grid_h - 1, px_row + 1:px_row + grid_w - 1] = segment
         return color_table
@@ -189,6 +189,5 @@ class CustomBoard(GameBoard):
         if any(x in set_of_tiles for x in [(6, 7), (7, 6), (8, 7), (7, 8)]):
             logging.debug(f'candidates {set_of_tiles}')
             return result, set_of_tiles
-        else:
-            logging.debug('no word detected')
-            return result, set()
+        logging.debug('no word detected')
+        return result, set()
