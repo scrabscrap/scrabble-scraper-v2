@@ -283,8 +283,11 @@ class Game():
             })
         return to_json
 
-    def board_str(self) -> str:
+    def board_str(self, move_index: int = -1) -> str:
         """Return the textual represention of the board"""
+        if move_index > len(self.moves):
+            return ''
+        board = self.moves[move_index].board
         result = '  |'
         for i in range(15):
             result += f'{(i + 1):2d} '
@@ -295,14 +298,14 @@ class Game():
         for row in range(15):
             result += f"{chr(ord('A') + row)} |"
             for col in range(15):
-                if (col, row) in self.moves[-1].board:
-                    result += f'[{self.moves[-1].board[(col, row)][0]}]' \
-                        if (col, row) in self.moves[-1].new_tiles else f' {self.moves[-1].board[(col, row)][0]} '
+                if (col, row) in board:
+                    result += f'[{board[(col, row)][0]}]' \
+                        if (col, row) in self.moves[move_index].new_tiles else f' {board[(col, row)][0]} '
                 else:
-                    result += ' - ' if (col, row) in self.moves[-1].removed_tiles else ' . '
+                    result += ' - ' if (col, row) in self.moves[move_index].removed_tiles else ' . '
             result += ' | '
             for col in range(15):
-                result += f' {str(self.moves[-1].board[(col, row)][1])}' if (col, row) in self.moves[-1].board else ' . '
+                result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' . '
             result += ' | \n'
         return result
 

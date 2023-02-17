@@ -143,86 +143,59 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
         assert 0 <= coord[0] < 15
         assert 0 <= coord[1] < 15
 
-        logging.debug(f'try to fix move {move_number} at {coord} vertical={isvertical} with {word}')
-        mov = moves[move_number - 1]
-        mov.coord = coord
-        mov.is_vertical = isvertical
+        index = move_number - 1
+        assert moves[index].type == MoveType.REGULAR
 
-        tiles_to_remove = mov.new_tiles.copy()                                 # tiles to delete
-        logging.debug(f'tiles_to_remove {tiles_to_remove}')
+        logging.debug(f'try to fix move {move_number} at {coord} vertical={isvertical} with {word}')
+        board = moves[index].board.copy()
+
+        tiles_to_remove = moves[index].new_tiles.copy()                        # tiles to delete
         for elem in tiles_to_remove:
-            del mov.board[elem]                                                # remove tiles on board from incorrect move
+            del board[elem]                                                    # remove tiles on board from incorrect move
+        logging.debug(f'tiles_to_remove {tiles_to_remove}')
         tiles_to_add: dict = {}                                                # tiles to add
-        word_as_list = list(word)
         (col, row) = coord
         for i, char in enumerate(word):
-            if isvertical and char != '.':
-                if (col, row + i) not in mov.board:
-                    tiles_to_add[(col, row + i)] = (char, 99)
-                else:
-                    word_as_list[i] = '.'
-            elif char != '.':
-                if (col + i, row) not in mov.board:
-                    tiles_to_add[(col + i, row)] = (char, 99)
-                else:
-                    word_as_list[i] = '.'
-        word = ''.join(word_as_list)                                           # fixed word
-
+            if isvertical and char != '.' and (col, row + i) not in board:
+                tiles_to_add[(col, row + i)] = (char, 99)
+            elif char != '.' and (col + i, row) not in board:
+                tiles_to_add[(col + i, row)] = (char, 99)
         logging.debug(f'tiles_to_add {tiles_to_add}')
-        for key in tiles_to_add.keys():  # pylint: disable=C0206, C0201
-            mov.board[key] = tiles_to_add[key]
 
-        previous_board = game.moves[move_number - 2].board if move_number > 1 else {}
-        previous_score = game.moves[move_number - 2].score if move_number > 1 else (0, 0)
-        new_move = _move_processing(game, mov.player, mov.played_time, mov.img, mov.board, previous_board, previous_score)
-        new_move.move = move_number
-        previous_board = new_move.board
-        previous_score = new_move.score
-        moves[move_number - 1] = new_move
-        logging.info(f'recalculate move #{new_move.move} new points {new_move.points} new score {new_move.score}')
-        _store_fixed_move(game, moves[move_number - 1])
-        _upload_ftp(moves[move_number - 1])
+        previous_board = game.moves[index - 1].board if move_number > 1 else {}
+        previous_score = game.moves[index - 1].score if move_number > 1 else (0, 0)
 
-        for i in range(move_number, len(moves)):
-            mov = moves[i]
-            # repair board
-            for elem in tiles_to_remove:
-                if elem in mov.board.keys() and mov.board[elem] == tiles_to_remove[elem]:
-                    del mov.board[elem]
-            for key in tiles_to_add.keys():  # pylint: disable=C0206, C0201
-                mov.board[key] = tiles_to_add[key]
+        for i in range(index, len(moves)):
+            new_move = copy.deepcopy(moves[i])                                 # board, img, score
 
-            if mov.type == MoveType.CHALLENGE_BONUS:
-                mov.score = (previous_score[0] - config.malus_doubt, previous_score[1]
-                             ) if mov.player == 0 else (previous_score[0], previous_score[1] - config.malus_doubt)
-                previous_board = mov.board
-                previous_score = mov.score
-                moves[i] = mov
-            elif mov.type == MoveType.WITHDRAW:
-                if len(moves) < 2:
-                    # first move => create move with empty board
-                    new_move = Move(MoveType.WITHDRAW, mov.player, None, False, '', {}, {}, {}, mov.played_time, (0, 0))
-                else:
-                    new_move = copy.deepcopy(moves[i - 2])  # board, img, score
-                    new_move.type = MoveType.WITHDRAW
-                    new_move.played_time = mov.played_time
-                new_move.player = mov.player
-                new_move.points = -moves[i - 1].points
-                new_move.word = moves[i - 1].word
-                new_move.removed_tiles = moves[i - 1].new_tiles
-                new_move.new_tiles = {}
-                new_move.move = i + 1
-                previous_board = new_move.board
-                previous_score = new_move.score
-                moves[i] = new_move
+            for elem in tiles_to_remove:                                       # repair board
+                if elem in new_move.board.keys() and new_move.board[elem] == tiles_to_remove[elem]:
+                    del new_move.board[elem]
+            new_move.board |= tiles_to_add
+
+            if new_move.type == MoveType.CHALLENGE_BONUS and new_move.player == 0:
+                new_move.score = (previous_score[0] - config.malus_doubt, previous_score[1])
+            elif new_move.type == MoveType.CHALLENGE_BONUS and new_move.player == 1:
+                new_move.score = (previous_score[0], previous_score[1] - config.malus_doubt)
+            elif new_move.type == MoveType.WITHDRAW:
+                if len(moves) > 1:
+                    new_move.points = -moves[i - 1].points
+                    new_move.word = moves[i - 1].word
+                    new_move.removed_tiles = moves[i - 1].new_tiles
+                    new_move.new_tiles = {}
+            elif new_move.type == MoveType.EXCHANGE:
+                if len(moves) > 1:
+                    new_move.points = moves[i - 1].points
             else:
-                new_move = _move_processing(game, mov.player, mov.played_time, mov.img,
-                                            mov.board, previous_board, previous_score)
-                new_move.move = i + 1
-                previous_board = new_move.board
-                previous_score = new_move.score
-                moves[i] = new_move
-            logging.info(f'recalculate move #{moves[i].move} new points {moves[i].points} new score {moves[i].score}')
+                new_move = _move_processing(game, new_move.player, new_move.played_time, new_move.img,
+                                            new_move.board, previous_board, previous_score)
+            new_move.move = i + 1
+            previous_board = new_move.board
+            previous_score = new_move.score
+            moves[i] = new_move
+            logging.info(f'recalculate move #{moves[i].move} ({moves[i].type})')
+            logging.info(f'new points {moves[i].points} new score {moves[i].score}')
+            logging.debug(f'\n{game.board_str(i)}')
             _store_fixed_move(game, moves[i])
             _upload_ftp(moves[i])
     else:
