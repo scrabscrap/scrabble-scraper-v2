@@ -246,11 +246,15 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
     """
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
-    game.add_valid_challenge(player, played_time)                              # 9. add move
-    logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
-    _development_recording(game, None, info=True)
-    _store_move(game, None)                                                    # 10. store move on hd
-    _upload_ftp(game.moves[-1])
+    try:
+        game.add_valid_challenge(player, played_time)
+        logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
+        _development_recording(game, None, info=True)
+        _store_move(game, None)
+        _upload_ftp(game.moves[-1])
+    except Exception as oops:
+        logging.error(f'exception on valid_challenge {oops}')
+        logging.info('no new move')
 
 
 @ trace
