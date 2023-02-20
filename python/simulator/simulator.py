@@ -159,7 +159,7 @@ def simulator() -> str:
     else:
         log_out = '## empty ##'
 
-    return render_template('simulator.html', version=ApiServer.scrabscrap_version,
+    return render_template('simulator.html', apiserver=ApiServer,
                            img_next=png_next, img_current=png_current, log=log_out,
                            green=LEDEnum.green.value, yellow=LEDEnum.yellow.value, red=LEDEnum.red.value,
                            left=left, right=right, folder=list_of_dir, board=board)
