@@ -4,6 +4,8 @@
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/scrabscrap/scrabble-scraper-v2)
 
+## Über
+
 Die Idee zum Scrabble Scraper ist vor einem Scrabble Turnier in Hamburg
 2019 entstanden.  Da viele Partien parallel gespielt werden, ist es
 nicht einfach, in den Spielverlauf paralleler Partien nachträglich
@@ -48,7 +50,31 @@ Vielen Dank für die Unterstützung an
 Beratung und Diskussion bei der Umsetzung. Die Beispiele von den Partien
 sind dabei auf verschiedenen Scrabble-Turnieren entstanden.
 
-## Lizenz
+## About
+
+The idea for the Scrabble Scraper came up before a Scrabble tournament in Hamburg in 2019. Since many games are played in parallel, it is not easy to subsequently find the course of play in parallel games.
+
+The aim of this project is to observe the playing field with a camera and to recognise the letters that have been laid. In the process, the points of the individual moves are determined. The result is then made available via API or in a web application.
+
+A Raspberry PI 3 is used as the basis, as there is quite a lot of tinkering material available here and the costs for purchasing it are kept within limits. The aim was to keep the hardware under €100 if possible.
+
+However, the use of the Raspberry PI 3 led to many optimisations during the course of the project, as the performance (especially for image processing) is weak. If more powerful hardware is used, the recognition rate can probably be increased significantly, especially in the case of disturbances (a hand is in the picture).
+
+Version 2 is incompatible with version 1 in the hardware used, so this is kept as a separate project. There are also changes in the threading, the API, the state management and the workflow.
+
+---
+
+Disclaimer: the project is not an official project of J.W. Spear & Sons Limited, Mattel or Scrabble Germany.
+
+SCRABBLE® is a registered trademark of J.W. Spear & Sons Limited
+
+---
+
+If you want to know more about Scrabble, you can use [Wikipedia: Scrabble](https://de.wikipedia.org/wiki/Scrabble) as a starting point.
+
+Many thanks for the support to [Scrabble Deutschland eV](http://scrabble-info.de/) for the tests, advice and discussion during the implementation. Most of the examples were created at various Scrabble tournaments.
+
+## Lizenz / license
 
  This program is free software: you can redistribute it and/or modify  
  it under the terms of the GNU General Public License as published by  

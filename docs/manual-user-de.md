@@ -84,7 +84,7 @@
 | Button Gelb                               | **Taster** Grün \*                              | Button Gelb                               |
 | Pause                                     | Im Display von Rot: -10 Pkt.                    | Spiel fortsetzen                          |
 
-> \* falls ein Anzweifeln nicht mehr möglich ist, wird im Display Grün "Timeout" angezeigt
+> \* falls ein Anzweifeln nicht mehr möglich ist, wird im Display Rot "Timeout" angezeigt
 
 ### Ich habe nach dem Zug meinen Spiel-Button nicht betätigt
 
