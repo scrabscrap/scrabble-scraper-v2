@@ -74,7 +74,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.config_setter('development', 'recording', False)
 
     def test_game_04(self):
-        """Test game 12"""
+        """Test game 04"""
         from display import Display
         from scrabblewatch import ScrabbleWatch
         from state import State
@@ -85,6 +85,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         watch = ScrabbleWatch(display)
         cam = Camera(use_camera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game04/image-{{:d}}.jpg'  # type: ignore
+        cam.stream.cnt = 1  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_new_game()
@@ -115,6 +116,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         watch = ScrabbleWatch(display)
         cam = Camera(use_camera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game05/image-{{:d}}.jpg'  # type: ignore
+        cam.stream.cnt = 1  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_new_game()
@@ -160,6 +162,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         watch = ScrabbleWatch(display)
         cam = Camera(use_camera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game06/image-{{:d}}.jpg'  # type: ignore
+        cam.stream.cnt = 1  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_new_game()
@@ -205,6 +208,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         watch = ScrabbleWatch(display)
         cam = Camera(use_camera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game07/image-{{:d}}.jpg'  # type: ignore
+        cam.stream.cnt = 1  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_new_game()
@@ -234,6 +238,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         watch = ScrabbleWatch(display)
         cam = Camera(use_camera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game08/image-{{:d}}.jpg'  # type: ignore
+        cam.stream.cnt = 1  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_new_game()
@@ -262,6 +267,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         watch = ScrabbleWatch(display)
         cam = Camera(use_camera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game12/board-{{:02d}}.png'  # type: ignore
+        cam.stream.cnt = 1  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_new_game()
@@ -291,7 +297,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         watch = ScrabbleWatch(display)
         cam = Camera(use_camera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game13/board-{{:02d}}.png'  # type: ignore
-
+        cam.stream.cnt = 1  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_new_game()
@@ -322,7 +328,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         watch = ScrabbleWatch(display)
         cam = Camera(use_camera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game14/board-{{:02d}}.png'  # type: ignore
-
+        cam.stream.cnt = 1  # type: ignore
         state = State(cam=cam, watch=watch)
         state.cam = cam
         state.do_new_game()
@@ -352,6 +358,7 @@ class ScrabbleGameTestCase(unittest.TestCase):
         watch = ScrabbleWatch(display)
         cam = Camera(use_camera=CameraEnum.FILE)
         cam.stream.formatter = f'{TEST_DIR}/game15/board-{{:02d}}.png'  # type: ignore
+        cam.stream.cnt = 1  # type: ignore
 
         state = State(cam=cam, watch=watch)
         state.cam = cam
