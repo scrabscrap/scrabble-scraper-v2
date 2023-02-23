@@ -113,7 +113,17 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
             (col, row) = self.coord
             result += str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(
                 ord('A') + row) + str(col + 1)
-            result += f' {self.word} '
+            gcg_word = ''
+            for pos, char in enumerate(self.word):
+                if char == '.':
+                    if self.is_vertical:
+                        gcg_word += f'({self.board[(col, row + pos)][0]})'
+                    else:
+                        gcg_word += f'({self.board[(col + pos, row)][0]})'
+                else:
+                    gcg_word += char
+            gcg_word = gcg_word.replace(')(', '')
+            result += f' {gcg_word} '
         elif self.type == MoveType.PASS_TURN:
             result += "- "
         elif self.type == MoveType.EXCHANGE:
