@@ -1,31 +1,50 @@
-.player {
-  margin-bottom: 1rem;
+@media (prefers-color-scheme: dark) {
+
+  /* Overrides for Dark Mode. */
+  body {
+    background: #28a745;
+  }
 }
 
-.bag {
-  margin-bottom: 1rem;
+.obs-main-camera {
+  /* width: 1920; */
+  /* height: 1080px; */
+  width: 100%;
+  height: 100%;
+  border: thin solid black;
 }
 
-.board {
-  margin-bottom: 1rem;
+.obs-bank-camera {
+  height: 120px;
+  width: 450px;
+  border: thin solid black;
 }
 
-.moves {
-  margin-bottom: 1rem;
+.obs-move-panel {
+  max-height: 850px;
 }
 
-h1 {
-  text-align: right;
-  /* Border is the new background */
-  background: none;
+.hidden {
+  display: none;
+}
 
-  position: fixed;
-  top: 300px;
-  left: 0;
+.monospace {
+  font-family: monospace;
+}
 
-  /* Rotate from top left corner (not default) */
-  transform-origin: 0 0;
-  transform: rotate(270deg);
+/* picture */
+.picture {
+  width: 100%;
+  height: auto;
+  display: block;
+  background-color: white;
+  box-shadow: 0px 8px 6px -6px #888;
+}
+
+/* bag */
+.bag-body {
+  padding: .5rem !important;
+  max-width: 100%;
 }
 
 .tile {
@@ -44,7 +63,14 @@ span.tile {
   margin-top: 3px;
 }
 
+/* bank */
 .bank {
+  height: 150px;
+  width: 400px;
+  border: thin solid black;
+}
+
+.bank-body {
   display: block;
   width: 217px;
   height: 31px;
@@ -52,27 +78,48 @@ span.tile {
   box-shadow: 0px 8px 6px -6px #888
 }
 
-.tablemove {
-  max-height: 496px;
-  display: flex;
-  flex-direction: column-reverse;
-  overflow: auto;
-  padding-right: 30px;
+/* moves */
+.move-panel {
+  max-height: -moz-calc(100vh - 100px);
+  max-height: -webkit-calc(100vh - 100px);
+  max-height: calc(100vh - 100px);
+}
+
+.moves {
+  font: "Lucida Console", Monaco, monospace;
+}
+
+.table-move {
+  scrollbar-gutter: stable;
   border: 1px solid transparent;
+}
+
+.td-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  max-width: 30px;
+}
+
+/* board */
+.board {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .tableboard {
   width: 496px;
   height: 496px;
+  display: inline-block;
   padding: 2;
   background-color: #239b56;
-  border-collapse: collapse;
-  border: 1px solid white;
   box-shadow: 0px 8px 6px -6px #888;
 }
 
 .tableboard td {
-  border: 1px solid white;
+  border: thin solid white;
   text-align: center;
   padding: 2px;
   width: 31px;
@@ -80,7 +127,7 @@ span.tile {
 }
 
 .tableborder {
-  border: 1px transparent green;
+  border: thin transparent green;
   background-color: green;
   color: white;
   font-size: 70%;
@@ -100,28 +147,4 @@ span.tile {
 
 .tablelightblue {
   background-color: #0099cc;
-}
-
-ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-.counter {
-  position: fixed;
-  left: 5px;
-  top: 5px;
-}
-
-.moves {
-  font: "Lucida Console", Monaco, monospace;
-  font-size: 90%;
-}
-
-@media (prefers-color-scheme: dark) {
-
-  /* Overrides for Dark Mode. */
-  body {
-    background: #454545;
-  }
 }

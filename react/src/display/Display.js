@@ -1,172 +1,143 @@
-import React from 'react';
-import '../bootstrap.min.css';
-import '../App.css';
+import React, { Component } from 'react';
 
-import Player from './Player';
-import Picture from './Picture';
-import Moves from './Moves';
-import Board from './Board';
-import Bag from './Bag';
+import Header from './Header'
+import Bag from './Bag'
+import Player from './Player'
+import Moves from './Moves'
+import Board from './Board'
+import Picture from './Picture'
 
-export default class Display extends React.Component {
-  intervalID;
+class Display extends Component {
 
-  constructor(props) {
-    super(props);
+    render() {
+        const data = this.props.state
+        console.debug(data)
 
-    this.state = {
-      time: null,
-      move: null,
-      name1: null,
-      name2: null,
-      score1: 0,
-      score2: 0,
-      time1: 0,
-      time2: 0,
-      current: null,
-      bag: null,
-      board: null,
-      moves: null,
-      countdown: 5,
-      reloadError: 0,
-      timeout_counter: 0
-    };
-  }
+        var player_on_move = ''
+        // fileconnect: data.op represents last move, therefor switch player_on_move
+        if (data.op === 'S0') { player_on_move = (data.settings.websocket) ? '0' : '1' }
+        if (data.op === 'S1') { player_on_move = (data.settings.websocket) ? '1' : '0' }
 
-  componentDidMount() {
-    this.getData();
-    // den ersten Timer erzwingen
-    this.intervalID = setTimeout(this.counter.bind(this), 1000);
-  }
+        if (data.settings.obs) {
+            return (
+                <div className='container-fluid'>
+                    <div className='row py-1'>
+                        <div className='col-12'>
+                            <Header time={this.props.state.time} settings={this.props.state.settings}
+                                updateSettings={this.props.updateSettings} />
+                        </div>
+                    </div>
+                    <div className='row py-1'>
+                        <div className='col-auto'>
+                            <div className='row py-1'>
+                                <div className='col-12'>
+                                    <Player counter={(player_on_move === '0') && data.settings.websocket} obs={true}
+                                        unknown_move={data.unknown_move}
+                                        color={player_on_move === '0' ? 'bg-info' : data.op === 'P0' ? 'bg-warning' : ''}
+                                        name={data.name1} score={data.score1} time={data.clock1} />
+                                </div>
+                            </div>
+                            <div className='row py-1'>
+                                <div className='col-12'>
+                                    <Player counter={(player_on_move === '1') && data.settings.websocket} obs={true}
+                                        unknown_move={data.unknown_move}
+                                        color={player_on_move === '1' ? 'bg-info' : data.op === 'P1' ? 'bg-warning' : ''}
+                                        name={data.name2} score={data.score2} time={data.clock2} />
+                                </div>
+                            </div>
+                            <div className='row py-1'>
+                                <div className='col-12'>
+                                    <Board board={data.board} obs={data.settings.obs} />
+                                </div>
+                            </div>
 
-  componentWillUnmount() {
-    clearTimeout(this.intervalID);
-  }
+                        </div>
+                        <div className='col  move-panel'>
+                            <div className='row py-1'>
+                                <div className='col justify-content-center'>
+                                    <div className='card card-body'>
+                                        <div className='embed-responsive embed-responsive-16by9'>
+                                            <div className='embed-responsive-item '>
+                                                <div className='obs-main-camera pt-4'>
+                                                    <center><h2>&#x1F4F9;</h2></center>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-  getData = () => {
-    fetch('web/status.json')
-      .then(response => {
-        if (response.ok) {
-          let data = response;
-          // if the type is json return, interpret it as json
-          if (response.headers.get('Content-Type').indexOf('application/json')
-            > -1) {
-            data = response.json();
-          }
-          this.setState({ errorCount: 0 })
-          this.errorCount = 0
-          return data;
-        }
-      })
-      .then(data => {
-        this.setState({
-          time: data.time,
-          move: data.move,
-          name1: data.name1,
-          name2: data.name2,
-          score1: data.score1,
-          score2: data.score2,
-          time1: data.time1,
-          time2: data.time2,
-          current: data.onmove,
-          bag: data.bag,
-          board: data.board,
-          moves: data.moves
-        });
-      }).catch(error => {
-        var errorCnt = this.state.reloadError + 1
-        if (errorCnt > 15) {
-          this.setState({ countdown: -1 })
-          clearTimeout(this.intervalID);
-          errorCnt = 0;
-        }
-        this.setState({ reloadError: errorCnt })
-      });
-  }
-
-  counter = () => {
-    var next = this.state.countdown - 1
-    var cnt_moves = 0
-    var time_stamp = null
-    if (this.state.moves != null) {
-      cnt_moves = this.state.moves.length
-    }
-    if (this.state.time != null) {
-      time_stamp = this.state.moves.time
-    }
-    if (next <= 0) {
-      next = 5
-      this.getData()
-    }
-    if (this.state.moves == null || this.state.time == null
-      || this.state.moves.length === cnt_moves || this.state.time === time_stamp) {
-      this.setState({ timeout_counter: this.state.timeout_counter + 1 })
-    }
-    /* wenn sich nichts ändert -> nach 30min kein automatischer reload mehr */
-    if (this.state.timeout_counter > 1800) {
-      this.setState({ countdown: -1 })
-      this.setState({ timeout_counter: 0 })
-      clearTimeout(this.intervalID);
-    } else {
-      this.setState({ countdown: next })
-      this.intervalID = setTimeout(this.counter.bind(this), 1000);
-    }
-  }
-
-  render() {
-    const fontStyle = {
-      fontSize: 18
-    }
-    return (
-      <div>
-        <div className="container-fluid">
-          <div className="row">
-            <div className="col-md-12">
-              Scrabble-Scraper - {'\u27F3'} {this.state.countdown}s {(this.state.reloadError > 0) ?
-                "(" + this.state.reloadError + " Refresh-Fehler)" : ""}
-            </div>
-            <div className="col-md-4">
-              <Player name={this.state.name1} score={this.state.score1}
-                time={this.state.time1} current={this.state.current} />
-            </div>
-            <div className="col-md-4">
-              <Player name={this.state.name2} score={this.state.score2}
-                time={this.state.time2} current={this.state.current} />
-            </div>
-            <div className="col-md-3">
-              <div className="card player">
-                <div className="card-header">
-                  {this.state.time}
+                            <div className='row py-1 h-100'>
+                                <div className='col-6 h-auto'>
+                                    <Bag bag={data.bag} />
+                                </div>
+                                <div className='col-6 h-100'>
+                                    <Moves moves={data.moves} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div className="col-md-1 clearfix">
-              <div className="card player">
-                <button type="button" data-toggle="tooltip" data-placement="top" title="Refresh page"
-                  class={(this.state.countdown < 0) ?
-                    "btn btn-danger btn-sm btn-block float-right" : "btn btn-light btn-sm btn-block float-right"}
-                  onClick={() => window.location.reload(true)}>
-                  &#x21BB;
-                </button>
-              </div>
-            </div>
-
-            <div className="col-md-12">
-              <Bag bag={this.state.bag} />
-            </div>
-            <div className="col-auto mb-3">
-              <Moves moves={this.state.moves} />
-            </div>
-            <div className="col-auto mb-3">
-              <Board board={this.state.board} />
-            </div>
-            <div className="col-auto mb-3" >
-              <Picture move={this.state.move} time={this.state.time} />
-            </div>
-
-          </div>
-        </div>
-      </div >
-    );
-  }
+            )
+        } else {
+            return (
+                <div>
+                    <div className='container-fluid'>
+                        <div className='row py-1'>
+                            <div className='col-md-12'>
+                                <Header time={this.props.state.time} settings={this.props.state.settings}
+                                    updateSettings={this.props.updateSettings} />
+                            </div>
+                        </div>
+                        <div className='row'>
+                            <div className='col-sm-6 col-md-3'>
+                                <div className='row py-1'>
+                                    <div className='col-md-12 pr-1'>
+                                        <Player counter={(player_on_move === '0') && data.settings.websocket} obs={false}
+                                            unknown_move={data.unknown_move}
+                                            color={player_on_move === '0' ? 'bg-info' : data.op === 'P0' ? 'bg-warning' : ''}
+                                            name={data.name1} score={data.score1} time={data.clock1} />
+                                    </div>
+                                </div>
+                                <div className='row py-1'>
+                                    <div className='col-md-12 pr-1'>
+                                        <Player counter={(player_on_move === '1') && data.settings.websocket} obs={false}
+                                            unknown_move={data.unknown_move}
+                                            color={player_on_move === '1' ? 'bg-info' : data.op === 'P1' ? 'bg-warning' : ''}
+                                            name={data.name2} score={data.score2} time={data.clock2} />
+                                    </div>
+                                </div>
+                                <div className='row py-1'>
+                                    <div className='col pr-1'><Picture image={data.image} /></div>
+                                </div>
+                            </div>
+                            <div className='col-auto'>
+                                <div className='row py-1 justify-content-center'>
+                                    <div className='card'>
+                                        <div className='card-body'>
+                                            <Board board={data.board} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col move-panel'>
+                                <div className='row py-1'>
+                                    <div className='col-12'>
+                                        <Bag bag={data.bag} />
+                                    </div>
+                                </div>
+                                <div className='row py-1'>
+                                    <div className='col-12'>
+                                        <Moves moves={data.moves} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div >
+            );
+        }
+    }
 }
+
+export default Display;  
