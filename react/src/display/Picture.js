@@ -1,26 +1,22 @@
-import React from "react";
+import React, { Component } from 'react';
 
-class Picture extends React.Component {
+class Picture extends Component {
 
-  render() {
-    var img = 'web/image-' + this.props.move + '.jpg?' + this.props.time
-    if (this.props.move == null) {
-      return (
-        <div className="card moves">
-          <div className="card-body"></div>
-        </div>
-      );
-    } else {
-      return (
-        <div className="card moves">
-          <div className="card-body">
-            <center><img src={img} width={'500px'} alt=" " /></center>
-          </div>
-        </div>
-      );
+    render() {
+        if (this.props.image == null) {
+            return (<div className='card moves'>
+                <div className='card-body'>
+                    <center><div>picture not available</div></center>
+                </div>
+            </div>);
+        } else {
+            return (<div className='card moves'>
+                <div className='card-body justify-content-center'>
+                    <img src={this.props.image} className='img-fluid picture' alt=' ' />
+                </div>
+            </div>);
+        }
     }
-  }
-
 }
 
 export default Picture;
