@@ -13,7 +13,7 @@ picamera==1.13; sys_platform != "darwin" and platform_machine != "x86_64"
 Pillow==9.4.0
 # qs tools
 autopep8==2.0.1
-coverage==7.2.0
+coverage==7.2.1
 flake8==6.0.0
 mypy==1.0.1
 pylint==2.16.2
@@ -25,7 +25,7 @@ snakeviz==2.1.1
 # autopep8==2.0.1
 #   - pycodestyle [required: >=2.10.0, installed: 2.10.0]
 #   - tomli [required: Any, installed: 2.0.1]
-# coverage==7.2.0
+# coverage==7.2.1
 # cPython==0.0.6
 #   - pymongo [required: Any, installed: 4.3.2]
 #     - dnspython [required: >=1.16.0,<3.0.0, installed: 2.3.0]
