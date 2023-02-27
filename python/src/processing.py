@@ -145,7 +145,6 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
         assert 0 <= coord[1] < 15
 
         index = move_number - 1
-        assert moves[index].type == MoveType.REGULAR
 
         logging.debug(f'try to fix move {move_number} at {coord} vertical={isvertical} with {word}')
         board = moves[index].board.copy()
