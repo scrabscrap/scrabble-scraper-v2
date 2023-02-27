@@ -21,21 +21,25 @@ import json
 import logging
 import logging.config
 import os
+import re
 import subprocess
 import urllib.parse
-import re
 from io import StringIO
 from signal import alarm
 from time import sleep
 
 import cv2
+import netifaces
 import numpy as np
-from flask import (Flask, jsonify, redirect, render_template, request, send_from_directory, url_for)
+from flask import (Flask, jsonify, redirect, render_template, request,
+                   send_from_directory, url_for)
+from flask_sock import Sock
 from werkzeug.serving import make_server
 
 from config import config
 from game_board.board import overlay_grid
-from processing import get_last_warp, warp_image, recalculate_score_on_admin_change
+from processing import (get_last_warp, recalculate_score_on_admin_change,
+                        warp_image)
 from state import State
 from threadpool import pool
 
@@ -43,6 +47,7 @@ from threadpool import pool
 class ApiServer:  # pylint: disable=R0904 # too many public methods
     """ definition of flask server """
     app = Flask(__name__)
+    sock = Sock(app)
     last_msg = ''
     cam = None
     flask_shutdown_blocked = False
@@ -639,6 +644,35 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         alarm(1)
         return redirect(url_for('get_defaults'))
 
+    @ sock.route('/ws_status')
+    def echo(sock):
+        logging.debug('call /ws_status')
+        state = State()
+        _, (clock1, clock2), _ = state.watch.status()
+        clock1 = config.max_time - clock1
+        clock2 = config.max_time - clock2
+        json = state.game.json_str()
+        sock.send(f'{{"op": "{state.current_state}", "clock1": {clock1},"clock2": {clock2}, '  # type: ignore
+                  f'"status": {json}  }}')
+        while True:
+            state.op_event.wait()
+            _, (clock1, clock2), _ = state.watch.status()
+            clock1 = config.max_time - clock1
+            clock2 = config.max_time - clock2
+            json = state.game.json_str()
+            logging.debug(f'send socket {state.current_state} clock1 {clock1} clock2: {clock2}')
+            if (state.current_state == 'S0' or state.current_state == 'S1') and state.picture is not None:
+                _, im_buf_arr = cv2.imencode(".jpg", state.picture)
+                png_output = base64.b64encode(im_buf_arr)
+                logging.debug('b64encode')
+                sock.send(f'{{"op": "{state.current_state}", "clock1": {clock1},"clock2": {clock2}, '  # type: ignore
+                          f'"image": "{png_output}", "status": {json}  }}')
+            else:
+                sock.send(f'{{"op": "{state.current_state}", "clock1": {clock1},"clock2": {clock2}, '  # type:ignore
+                          f'"status": {json}  }}')
+            if state.op_event.is_set():
+                state.op_event.clear()
+
     def start_server(self, host: str = '0.0.0.0', port=5050, simulator=False):
         """ start flask server """
         logging.info('start api server')
@@ -654,6 +688,9 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         ApiServer.scrabscrap_version = version_info.stdout.decode()[:7]
         if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
             ApiServer.local_webapp = True
+            with open(f'{config.web_dir}/websocket.js', 'w') as f:
+                wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']
+                f.write(f'var WS_URL="ws://{wip}:{port}/ws_status"')
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
         self.server = make_server(host=host, port=port, threaded=True, app=self.app)  # pylint: disable=W0201

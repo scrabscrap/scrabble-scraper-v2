@@ -30,7 +30,7 @@ from scrabble import Game
 from scrabblewatch import ScrabbleWatch
 from threadpool import pool
 from util import Singleton
-
+import threading
 # states
 START = 'START'
 S0 = 'S0'
@@ -59,6 +59,8 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
         self.cam = cam
         self.last_submit: Optional[Future] = None  # last submit to thread pool; waiting for processing of the last move
         self.game: Game = Game(None)
+        self.picture = None
+        self.op_event = threading.Event()
 
     def init(self) -> None:
         """init state machine"""
@@ -70,6 +72,7 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
         logging.debug(f'{self.game.nicknames}')
         self.watch.display.show_ready(self.game.nicknames)
         self.watch.display.set_game(self.game)
+        self.picture = self.cam.read(peek=True)  # type: ignore
         self.current_state = START
         return self.current_state
 
@@ -96,8 +99,8 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
         # next player
         self.watch.start(1)
         LED.switch_on({LEDEnum.red})  # turn on LED red
-        picture = self.cam.read()  # type: ignore
-        self.last_submit = pool.submit(move, self.last_submit, self.game, picture, 0, (time0, time1))
+        self.picture = self.cam.read()  # type: ignore
+        self.last_submit = pool.submit(move, self.last_submit, self.game, self.picture, 0, (time0, time1), self.op_event)
         return S1
 
     def do_move1(self) -> str:
@@ -108,8 +111,8 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
         self.watch.start(0)
         LED.switch_on({LEDEnum.green})  # turn on LED green
 
-        picture = self.cam.read()  # type: ignore
-        self.last_submit = pool.submit(move, self.last_submit, self.game, picture, 1, (time0, time1))
+        self.picture = self.cam.read()  # type: ignore
+        self.last_submit = pool.submit(move, self.last_submit, self.game, self.picture, 1, (time0, time1), self.op_event)
         return S0
 
     def do_pause0(self) -> str:
@@ -149,7 +152,8 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
             logging.info(f'no challenge possible, because of timeout {current[0]}')
         else:
             self.watch.display.add_remove_tiles(0, played_time, current)  # player 1 has to remove the last move
-            self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 0, (played_time[0], played_time[1]))
+            self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 0,
+                                           (played_time[0], played_time[1]), self.op_event)
             LED.switch_on({LEDEnum.yellow})  # turn on LED green (blink), yellow
             LED.blink_on({LEDEnum.green}, switch_off=False)
         return P0
@@ -163,7 +167,8 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
             logging.info(f'no challenge possible, because of timeout {current[1]}')
         else:
             self.watch.display.add_remove_tiles(1, played_time, current)  # player 0 has to remove the last move
-            self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 1, (played_time[0], played_time[1]))
+            self.last_submit = pool.submit(valid_challenge, self.last_submit, self.game, 1,
+                                           (played_time[0], played_time[1]), self.op_event)
             LED.switch_on({LEDEnum.yellow})  # turn on LED red (blink), yellow
             LED.blink_on({LEDEnum.red}, switch_off=False)
         return P1
@@ -178,7 +183,8 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
             logging.info(f'no challenge possible, because of timeout {current[0]}')
         else:
             self.watch.display.add_malus(0, played_time, current)  # player 0 gets a malus
-            self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 0, (played_time[0], played_time[1]))
+            self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 0,
+                                           (played_time[0], played_time[1]), self.op_event)
             LED.switch_on({LEDEnum.yellow})  # turn on LED green (blink), yellow
             LED.blink_on({LEDEnum.green}, switch_off=False)
         return P0
@@ -193,7 +199,8 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
             logging.info(f'no challenge possible, because of timeout {current[1]}')
         else:
             self.watch.display.add_malus(1, played_time, current)  # player 1 gets a malus
-            self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 1, (played_time[0], played_time[1]))
+            self.last_submit = pool.submit(invalid_challenge, self.last_submit, self.game, 1,
+                                           (played_time[0], played_time[1]), self.op_event)
             LED.switch_on({LEDEnum.yellow})  # turn on LED red (blink), yellow
             LED.blink_on({LEDEnum.red}, switch_off=False)
         return P1
@@ -259,6 +266,8 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
         """
         try:
             self.current_state = self.state[(self.current_state, button)](self)
+            if not self.op_event.is_set():
+                self.op_event.set()
             logging.debug(f'{button}')
         except KeyError:
             logging.info('Key Error - ignore')

@@ -124,7 +124,8 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
     return board
 
 
-def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str):
+def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str,
+                                      event=None):
     # pylint: disable=R0914, R0912
     """fix move (direct call from admin)
 
@@ -200,10 +201,12 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
             _upload_ftp(moves[i])
     else:
         raise ValueError("invalid move number")
+    if event and not event.is_set():
+        event.set()
 
 
 @ trace
-def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_time: Tuple[int, int]):
+def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_time: Tuple[int, int], event=None):
     # pylint: disable=R0915,R0914
     """Process a move
 
@@ -222,6 +225,9 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     current_move = _move_processing(game, player, played_time, warped, board, previous_board, previous_score)
 
     game.add_move(current_move)                                                # 9. add move
+    if event and not event.is_set():
+        event.set()
+
     if logging.getLogger('root').isEnabledFor(logging.DEBUG):
         msg = ''
         msg = f'game status: {game.json_str()}\n\nscores {game.moves[-1].score}\n'
@@ -235,7 +241,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
 
 
 @ trace
-def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int]):
+def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int], event=None):
     """Process a valid challenge
 
     Args:
@@ -248,6 +254,9 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         time.sleep(0.05)
     try:
         game.add_valid_challenge(player, played_time)
+        if event and not event.is_set():
+            event.set()
+
         logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
         _development_recording(game, None, info=True)
         _store_move(game, None)
@@ -258,7 +267,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
 
 
 @ trace
-def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int]):
+def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int], event=None):
     """Process an invalid challenge
 
     Args:
@@ -271,6 +280,9 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         time.sleep(0.05)
     try:
         game.add_invalid_challenge(player, played_time)                            # 9. add move
+        if event and not event.is_set():
+            event.set()
+
         logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
         _development_recording(game, None, info=True)
         _store_move(game, None)                                                     # 10. store move on hd
