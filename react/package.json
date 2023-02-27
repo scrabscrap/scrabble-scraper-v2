@@ -1,16 +1,13 @@
 {
-  "name": "scrabscrap",
+  "name": "scrabscrap-socket",
   "version": "0.2.0",
   "homepage": "./",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.4.1",
-    "serve": "^14.0.1"
-  },
-  "devDependencies": {
-    "react-scripts": "^5.0.1"
+    "react-scripts": "5.0.1",
+    "react-use-websocket": "^4.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
