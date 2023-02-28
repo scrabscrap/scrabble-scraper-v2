@@ -688,9 +688,12 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         ApiServer.scrabscrap_version = version_info.stdout.decode()[:7]
         if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
             ApiServer.local_webapp = True
-            with open(f'{config.web_dir}/websocket.js', 'w') as f:
+            try:
                 wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']
-                f.write(f'var WS_URL="ws://{wip}:{port}/ws_status"')
+                with open(f'{config.web_dir}/websocket.js', 'w') as f:
+                    f.write(f'var WS_URL="ws://{wip}:{port}/ws_status"')
+            except Exception:
+                logging.warning('wlan0 not found')
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
         self.server = make_server(host=host, port=port, threaded=True, app=self.app)  # pylint: disable=W0201
