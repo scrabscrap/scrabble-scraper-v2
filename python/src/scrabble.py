@@ -140,7 +140,7 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
             result += "(time) "
         elif self.type == MoveType.UNKNOWN:
             result += "(unknown) "
-        result += f"{self.points:+d} {self.score[self.player]:+d}"
+        result += f"{self.points} {self.score[self.player]}"
         return result
 
     def get_coord(self) -> str:
