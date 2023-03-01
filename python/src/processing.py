@@ -183,9 +183,6 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
                     new_move.word = moves[i - 1].word
                     new_move.removed_tiles = moves[i - 1].new_tiles
                     new_move.new_tiles = {}
-            elif new_move.type == MoveType.EXCHANGE:
-                if len(moves) > 1:
-                    new_move.points = moves[i - 1].points
             else:
                 new_move = _move_processing(game, new_move.player, new_move.played_time, new_move.img,
                                             new_move.board, previous_board, previous_score)
