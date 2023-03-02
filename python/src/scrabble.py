@@ -28,7 +28,7 @@ from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER,
                               TRIPLE_WORDS)
 from game_board.tiles import bag_as_list, scores
 
-API_VERSION = '1.0'
+API_VERSION = '1.1'
 
 
 class MoveType(Enum):
@@ -251,6 +251,7 @@ class Game():
             to_json = json.dumps(
                 {
                     'api': API_VERSION,
+                    'tournament': config.tournament,
                     'time': str(self.gamestart),
                     'move': 0,
                     'score1': 0,
@@ -278,6 +279,7 @@ class Game():
         to_json = json.dumps(
             {
                 'api': API_VERSION,
+                'tournament': config.tournament,
                 'time': self.moves[move_index].time,
                 'move': self.moves[move_index].move,
                 'score1': self.moves[move_index].score[0],

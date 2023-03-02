@@ -17,7 +17,7 @@ Folgende Schritte sind nach dem Aufbau des Systems empfohlen
 ### Vor jedem Spiel
 
 1. In der Web-Anwendung prüfen, ob das Spielfeld noch korrekt erkannt wird
-2. Spielernamen setzen
+2. Spielernamen setzen und dabie prüfen, ob der Turniername korrekt gesetzt ist
 
 ### Nach jedem Spiel
 

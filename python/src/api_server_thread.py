@@ -71,7 +71,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     def get_defaults():
         """ index web page """
         (player1, player2) = State().game.nicknames
-        return render_template('index.html', apiserver=ApiServer, player1=player1, player2=player2)
+        tournament = config.tournament
+        return render_template('index.html', apiserver=ApiServer, player1=player1, player2=player2, tournament=tournament)
 
     @staticmethod
     @app.get('/edit_moves')
@@ -180,6 +181,23 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             ApiServer.last_msg = json.dumps(config_as_dict, sort_keys=True, indent=2)
             return jsonify(config_as_dict), 201
         return {'error': 'Request must be JSON'}, 415
+
+    @staticmethod
+    @app.route('/tournament')  # type: ignore
+    def tournament():
+        """ set tournament """
+        tournament = request.args.get('tournament')
+        logging.debug(f'tournament={tournament}')
+        # state holds the current game
+        if tournament is not None:
+            if 'tournament' not in config.config.sections():
+                config.config.add_section('tournament')
+            config.config.set('scrabble', 'tournament', str(tournament))
+            config.save()
+            ApiServer.last_msg = f'set tournament={tournament}'
+        else:
+            ApiServer.last_msg = f'can not set: tournament={tournament}'
+        return redirect(url_for('get_defaults'))
 
     @staticmethod
     @app.route('/player')  # type: ignore

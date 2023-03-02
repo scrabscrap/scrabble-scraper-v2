@@ -109,7 +109,7 @@ gespeichert, erhöht das die Stabilität der Bilderkennung, da nicht bei jedem
 Aufruf das Spielfeld ermittelt werden muss. Dies kann durch den internen Web-Server
 von ScrabScrap komfortabel im Browser eingestellt werden.
 
-Falls gewünscht können in der Web-Anwendung zudem die Spielernamen
+Falls gewünscht können in der Web-Anwendung zudem die Spielernamen und der Turniername
 gesetzt werden.
 
 Das Spiel kann begonnen werden, wenn beide Displays die jeweiligen

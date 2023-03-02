@@ -72,7 +72,7 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
         logging.debug(f'{self.game.nicknames}')
         self.watch.display.show_ready(self.game.nicknames)
         self.watch.display.set_game(self.game)
-        self.picture = self.cam.read(peek=True)  # type: ignore
+        self.picture = self.cam.read(peek=True) if self.cam else None  # type: ignore
         self.current_state = START
         return self.current_state
 

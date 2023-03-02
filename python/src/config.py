@@ -96,6 +96,11 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         return self.config.getboolean('development', 'recording', fallback=False)
 
     @property
+    def tournament(self) -> str:
+        """tournament"""
+        return self.config.get('scrabble', 'tournament', fallback='Scrabble-Scraper')
+
+    @property
     def malus_doubt(self) -> int:
         """malus for wrong doubt"""
         return self.config.getint('scrabble', 'malus_doubt', fallback=10)

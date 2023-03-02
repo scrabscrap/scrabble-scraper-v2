@@ -4,34 +4,53 @@
 <div class="container">
 
     <div class="row">
+
         <div class="col-6">
-            <div class="py-2">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        Names
-                    </div>
-                    <div class="card-body">
-                        <form action="/player" method="get">
-                            <div class="row">
-                                <div class="col-4">
-                                    <input type="text" class="form-control" name="player1" placeholder="Name1" required>
-                                </div>
-                                <div class="col-4">
-                                    <input type="text" class="form-control" name="player2" placeholder="Name2" required>
-                                </div>
-                                <div class="col-4">
-                                    <input type="submit" class="form-control btn-primary" value="Submit">
-                                </div>
-                                <div class="col-12">
-                                    <p>
-                                    <ul>
-                                        <li>Hint: On the OLED display, the names could be shortened to 5 characters</li>
-                                    </ul>
-                                    </p>
-                                </div>
+            <div class="card">
+                <div class="card-header bg-info">Tournament</div>
+                <div class="card-body">
+                    <form action="/tournament" method="get">
+                        <div class="row">
+                            <div class="col-8">
+                                <input type="text" class="form-control" name="tournament" placeholder="{{tournament}}"
+                                    required>
                             </div>
-                        </form>
-                    </div>
+                            <div class="col-4">
+                                <input type="submit" class="form-control btn-primary" value="Submit">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header bg-info">Names</div>
+                <div class="card-body">
+                    <form action="/player" method="get">
+                        <div class="row">
+                            <div class="col-4">
+                                <input type="text" class="form-control" name="player1" placeholder="{{player1}}"
+                                    required>
+                            </div>
+                            <div class="col-4">
+                                <input type="text" class="form-control" name="player2" placeholder="{{player2}}"
+                                    required>
+                            </div>
+                            <div class="col-4">
+                                <input type="submit" class="form-control btn-primary" value="Submit">
+                            </div>
+                            <div class="col-12">
+                                <p>
+                                <ul>
+                                    <li>Hint: On the OLED display, the names could be shortened to 5 characters
+                                    </li>
+                                </ul>
+                                </p>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -39,9 +58,7 @@
             <div class="py-2">
 
                 <div class="card">
-                    <div class="card-header bg-info">
-                        last result
-                    </div>
+                    <div class="card-header bg-info">last result</div>
                     <div class="card-body">
                         <div style="font-family: monospace;white-space: pre-wrap;">{{apiserver.last_msg}}</div>
                     </div>
