@@ -215,6 +215,7 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
     def do_new_game(self) -> str:
         """Starts a new game"""
         LED.switch_on({})  # type: ignore
+        self.picture = None
         self.watch.reset()
         self.game.new_game()
         gc.collect()

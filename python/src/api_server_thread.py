@@ -666,20 +666,15 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     def echo(sock):
         logging.debug('call /ws_status')
         state = State()
-        _, (clock1, clock2), _ = state.watch.status()
-        clock1 = config.max_time - clock1
-        clock2 = config.max_time - clock2
-        json = state.game.json_str()
-        sock.send(f'{{"op": "{state.current_state}", "clock1": {clock1},"clock2": {clock2}, '  # type: ignore
-                  f'"status": {json}  }}')
         while True:
-            state.op_event.wait()
+            if state.op_event.is_set():
+                state.op_event.clear()
             _, (clock1, clock2), _ = state.watch.status()
             clock1 = config.max_time - clock1
             clock2 = config.max_time - clock2
             json = state.game.json_str()
             logging.debug(f'send socket {state.current_state} clock1 {clock1} clock2: {clock2}')
-            if (state.current_state == 'S0' or state.current_state == 'S1') and state.picture is not None:
+            if (state.current_state in ['S0', 'S1', 'P0', 'P1']) and state.picture is not None:
                 _, im_buf_arr = cv2.imencode(".jpg", state.picture)
                 png_output = base64.b64encode(im_buf_arr)
                 logging.debug('b64encode')
@@ -688,8 +683,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             else:
                 sock.send(f'{{"op": "{state.current_state}", "clock1": {clock1},"clock2": {clock2}, '  # type:ignore
                           f'"status": {json}  }}')
-            if state.op_event.is_set():
-                state.op_event.clear()
+            state.op_event.wait()
 
     def start_server(self, host: str = '0.0.0.0', port=5050, simulator=False):
         """ start flask server """
