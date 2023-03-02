@@ -7,17 +7,15 @@
 }
 
 .obs-main-camera {
-  /* width: 1920; */
-  /* height: 1080px; */
   width: 100%;
   height: 100%;
-  border: thin solid black;
+  background: rgba(128, 128, 128, .1);
 }
 
 .obs-bank-camera {
   height: 120px;
   width: 450px;
-  border: thin solid black;
+  background: rgba(128, 128, 128, .1);
 }
 
 .obs-move-panel {
