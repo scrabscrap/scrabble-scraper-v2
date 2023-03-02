@@ -66,8 +66,8 @@ class Ftp:
     @classmethod
     def upload_move(cls, move: int) -> bool:
         """ upload move to ftp server """
-        logging.debug(f'ftp: upload_move {move}')
-        if cls.ftp_config.ftp_server is not None:
+        if config.output_ftp and cls.ftp_config.ftp_server is not None:
+            logging.debug(f'ftp: upload_move {move}')
             try:
                 logging.debug('ftp: start transfer move files')
                 with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
@@ -86,8 +86,8 @@ class Ftp:
     @classmethod
     def upload_status(cls) -> bool:
         """ upload status to ftp server """
-        logging.debug('ftp: upload status.json')
-        if cls.ftp_config.ftp_server is not None:
+        if config.output_ftp and cls.ftp_config.ftp_server is not None:
+            logging.debug('ftp: upload status.json')
             try:
                 logging.debug('ftp: start transfer move files')
                 with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
@@ -102,8 +102,8 @@ class Ftp:
     @classmethod
     def upload_game(cls, filename: str) -> bool:
         """ upload a zpped game file to ftp """
-        logging.debug(f'ftp: upload_game {filename}')
-        if cls.ftp_config.ftp_server is not None:
+        if config.output_ftp and cls.ftp_config.ftp_server is not None:
+            logging.debug(f'ftp: upload_game {filename}')
             try:
                 logging.debug('ftp: start transfer zip file')
                 with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
@@ -118,8 +118,8 @@ class Ftp:
     @classmethod
     def delete_files(cls, prefixes: list[str]) -> bool:
         """ delete files on ftp server """
-        logging.debug(f'ftp: delete files with prefix {prefixes}*')
-        if cls.ftp_config.ftp_server is not None:
+        if config.output_ftp and cls.ftp_config.ftp_server is not None:
+            logging.debug(f'ftp: delete files with prefix {prefixes}*')
             try:
                 logging.debug('ftp: delete files')
                 with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
