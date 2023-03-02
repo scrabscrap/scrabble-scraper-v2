@@ -30,7 +30,7 @@ class Settings extends Component {
             obs: this.state.obs,
             websocket: this.props.settings.websocket,
             ws_url: this.props.settings.ws_url,
-            header_text: this.state.header_text
+            header_text: this.props.settings.header_text
         }
         this.props.updateSettings(settings)
     };
@@ -72,13 +72,6 @@ class Settings extends Component {
                                 </button>
                             </div>
                             <div className='modal-body'>
-                                <div className='form-group row'>
-                                    <label htmlFor='inputHeader' className='col-auto col-form-label'>Header</label>
-                                    <div className='col'>
-                                        <input className='form-control' id='inputHeader'
-                                            onChange={this.handleHeader} value={this.state.header_text}></input>
-                                    </div>
-                                </div>
                                 <div className='form-check'>
                                     <input className='form-check-input' type='checkbox' onChange={this.handleObs}
                                         checked={this.state.obs} id='obs'>

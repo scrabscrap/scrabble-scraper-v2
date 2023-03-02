@@ -14,6 +14,7 @@ class App extends Component {
     const websocket = (ws_url !== "undefined")
     this.state = {
       op: 'START',
+      tournament: 'Scrabble-Scraper',
       clock1: 1800, clock2: 1800,
       time: Date(),
       move: null,
@@ -29,7 +30,7 @@ class App extends Component {
         obs: this.getCookie('OBS', false),
         websocket: websocket,
         ws_url: ws_url,
-        header_text: this.getCookie('HEADER', 'SCRABBLE-SCRAPER')
+        header_text: 'Scrabble-Scraper'
       },
       unknown_move: false,
       ws: null,
@@ -58,7 +59,6 @@ class App extends Component {
       console.log(val)
       this.setState({ settings: val })
       this.setCookie('OBS', val.obs)
-      this.setCookie('HEADER', val.header_text)
       if (val.websocket === true) {
         if (this.intervalID) { clearTimeout(this.intervalID); }
         this.intervalID = null
@@ -128,6 +128,12 @@ class App extends Component {
           if (value.includes('(unknown)')) { unknown_move = true }
         }
       }
+      var header_text
+      if (data.status && data.status.tournament) {
+        header_text = data.status.tournament
+      } else {
+        header_text = this.state.settings.header_text
+      }
       this.setState({
         op: data.op, clock1: data.clock1, clock2: data.clock2,
         ...data.status,
@@ -135,6 +141,7 @@ class App extends Component {
         unknown_move: unknown_move,
         settings: {
           ...this.state.settings,
+          header_text: header_text,
           websocket: true,
         }
       })
@@ -194,6 +201,12 @@ class App extends Component {
               if (value.includes('(unknown)')) { unknown_move = true }
             }
           }
+          var header_text
+          if (data.status && data.status.tournament) {
+            header_text = data.status.tournament
+          } else {
+            header_text = this.state.settings.header_text
+          }
           this.setState({                        // use image-url, op ist calculated, clock1/2 is not available
             op: op, clock1: data.time1, clock2: data.time2,
             ...data,
@@ -201,6 +214,7 @@ class App extends Component {
             unknown_move: unknown_move,
             settings: {
               ...this.state.settings,
+              header_text: header_text,
               websocket: false,
             }
           });
