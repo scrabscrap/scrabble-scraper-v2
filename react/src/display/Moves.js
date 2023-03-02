@@ -32,7 +32,7 @@ class Moves extends Component {
             }
         }
         return (
-            <div className='card card-body'>
+            <div className='card card-body my-1'>
                 <div className='d-flex flex-column-reverse overflow-auto'>
                     <table className='table table-sm table-striped' >
                         <tbody>

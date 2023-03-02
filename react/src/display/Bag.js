@@ -12,7 +12,7 @@ class Bag extends Component {
             }
         }
         return (
-            <div className='card'>
+            <div className='card my-1'>
                 <div className='card-body bag-body'>{items}</div>
             </div>
         );

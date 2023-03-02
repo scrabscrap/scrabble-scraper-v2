@@ -83,6 +83,8 @@ span.tile {
   max-height: -moz-calc(100vh - 100px);
   max-height: -webkit-calc(100vh - 100px);
   max-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
 }
 
 .moves {
