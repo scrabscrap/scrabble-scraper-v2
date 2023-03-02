@@ -121,16 +121,8 @@ class Display extends Component {
                                 </div>
                             </div>
                             <div className='col move-panel'>
-                                <div className='row py-1'>
-                                    <div className='col-12'>
-                                        <Bag bag={data.bag} />
-                                    </div>
-                                </div>
-                                <div className='row py-1'>
-                                    <div className='col-12'>
-                                        <Moves moves={data.moves} />
-                                    </div>
-                                </div>
+                                <Bag bag={data.bag}/>
+                                <Moves moves={data.moves}/>
                             </div>
                         </div>
                     </div>
