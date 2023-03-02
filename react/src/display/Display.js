@@ -28,7 +28,7 @@ class Display extends Component {
                         </div>
                     </div>
                     <div className='row py-1'>
-                        <div className='col-auto'>
+                        <div className='col-auto px-1'>
                             <div className='row py-1'>
                                 <div className='col-12'>
                                     <Player counter={(player_on_move === '0') && data.settings.websocket} obs={true}
@@ -52,32 +52,20 @@ class Display extends Component {
                             </div>
 
                         </div>
-                        <div className='col  move-panel'>
-                            <div className='row py-1'>
-                                <div className='col justify-content-center'>
-                                    <div className='card card-body'>
-                                        <div className='embed-responsive embed-responsive-16by9'>
-                                            <div className='embed-responsive-item '>
-                                                <div className='obs-main-camera pt-4'>
-                                                    <center><h2>&#x1F4F9;</h2></center>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className='row py-1 h-100'>
-                                <div className='col-6 h-auto'>
-                                    <Bag bag={data.bag} />
-                                </div>
-                                <div className='col-6 h-100'>
-                                    <Moves moves={data.moves} />
-                                </div>
+                        <div className='col move-panel px-1'>
+                            <div className='card card-body my-1'>
+                                <span className='obs-main-camera pt-4'>
+                                    <center><h2>&#x1F4F9;</h2></center>
+                                </span>
                             </div>
                         </div>
+
+                        <div className='col-3 move-panel px-1'>
+                            <Bag bag={data.bag} />
+                            <Moves moves={data.moves} />
+                        </div>
                     </div>
-                </div>
+                </div >
             )
         } else {
             return (
@@ -121,8 +109,8 @@ class Display extends Component {
                                 </div>
                             </div>
                             <div className='col move-panel'>
-                                <Bag bag={data.bag}/>
-                                <Moves moves={data.moves}/>
+                                <Bag bag={data.bag} />
+                                <Moves moves={data.moves} />
                             </div>
                         </div>
                     </div>
