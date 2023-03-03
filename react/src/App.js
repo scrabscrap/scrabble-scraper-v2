@@ -71,6 +71,12 @@ class App extends Component {
   }
 
   componentDidMount() {
+    if (navigator.userAgent.includes("OBS")) {
+      var { settings } = this.state
+      settings.obs = true
+      this.setState({ settings: settings })
+      this.setCookie('OBS', settings.obs)
+    }
     if (this.state.settings.websocket === true) {
       this.connect();
     } else {
