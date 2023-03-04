@@ -18,13 +18,26 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <div
-                            style="font-family: monospace; display: flex; flex-direction: column-reverse; max-height: 500px; overflow: auto;font-size: 50%; white-space: pre-wrap;">
-                            {{log}}</div>
+                        <div style="font-family: monospace; display: flex; flex-direction: column-reverse; 
+                            max-height: 500px; overflow: auto;font-size: 50%; white-space: pre-wrap;" id="logentry">
+                            {{log}}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+
+    const url = "/logentry"
+    update = () => fetch(url)
+        .then(r => r.text())
+        .then(t => {
+            elem = document.getElementById("logentry")
+            elem.innerText = t;
+            setTimeout(this.update.bind(this), 2000)
+        })
+    this.update()
+</script>
 {% endblock %}

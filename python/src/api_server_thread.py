@@ -376,6 +376,14 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         return redirect(url_for('loglevel'))
 
     @ staticmethod
+    @ app.route('/logentry')
+    def logentry():
+        process = subprocess.run(['tail', '-100', f'{config.log_dir}/messages.log'], check=False,
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        log_out = process.stdout.decode()
+        return log_out
+
+    @ staticmethod
     @ app.route('/logs')
     def logs():
         """ display message log """
@@ -462,73 +470,16 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         return redirect(url_for('get_defaults'))
 
     @ staticmethod
-    @ app.route('/upgrade_linux')
-    def update_linux():
-        """ start linux upgrade """
-        if State().current_state == 'START':
-            ApiServer.flask_shutdown_blocked = True
-            process1 = subprocess.run(['sudo', '-n', 'apt-get', 'update'], check=False,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            process2 = subprocess.run(['sudo', '-n', 'apt-get', 'dist-upgrade', '-y'], check=False,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            ApiServer.flask_shutdown_blocked = False
-            ApiServer.last_msg = f'{process1.stdout.decode()}\n{process2.stdout.decode()}'
-        else:
-            ApiServer.last_msg = 'not in State START'
-        logging.debug(ApiServer.last_msg)
-        return redirect(url_for('get_defaults'))
-
-    @ staticmethod
-    @ app.route('/upgrade_pip')
-    def update_pip():
-        """ start pip upgrade """
-        if State().current_state == 'START':
-            ApiServer.flask_shutdown_blocked = True
-            process0 = subprocess.run([f'{config.src_dir}/../.venv/bin/pip', 'install', '--upgrade', 'pip'],
-                                      check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            process1 = subprocess.run([f'{config.src_dir}/../.venv/bin/pip', 'install',
-                                       '--upgrade', '--only-binary=:all:',
-                                      '-r', f'{config.src_dir}/../requirements.txt'], check=False,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            ApiServer.flask_shutdown_blocked = False
-            ApiServer.last_msg = f'{process0.stdout.decode()}\n{process1.stdout.decode()}\n## please reboot ##'
-            logging.debug(ApiServer.last_msg)
-        else:
-            ApiServer.last_msg = 'not in State START'
-        return redirect(url_for('get_defaults'))
-
-    @ staticmethod
     @ app.route('/upgrade_scrabscrap')
     def update_scrabscrap():
         """ start scrabscrap upgrade """
         if State().current_state == 'START':
-            ApiServer.flask_shutdown_blocked = True
-            process1 = subprocess.run(['git', 'fetch', '--tags', '--prune', '--all', '-f'], check=False,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            process2 = subprocess.run(['git', 'stash'], check=False,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            process3 = subprocess.run(['git', 'checkout', config.system_gitbranch, '-f'], check=False,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            process4 = subprocess.run(['git', 'pull', '--autostash'], check=False,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            ApiServer.flask_shutdown_blocked = False
-            ApiServer.last_msg = (f'{process1.stdout.decode()}\n{process2.stdout.decode()}\n{process3.stdout.decode()}\n'
-                                  f'{process4.stdout.decode()}')
-            logging.debug(ApiServer.last_msg)
-            version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
-                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            if version_info.returncode > 0:
-                version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
-                                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            ApiServer.scrabscrap_version = version_info.stdout.decode()[:7]
-            if 'Successfully rebased and updated' in process4.stdout.decode():
-                ApiServer.last_msg += '\n **** System reboot ****'
-                config.config.set('system', 'quit', 'reboot')  # set temporary reboot
-                State().do_reboot()
-                alarm(1)
+            os.system(f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} |'
+                      f' tee -a {config.log_dir}/messages.log &')
+            return redirect(url_for('logs'))
         else:
             ApiServer.last_msg = 'not in State START'
-        return redirect(url_for('get_defaults'))
+            return redirect(url_for('get_defaults'))
 
     @ staticmethod
     @ app.route('/test_ftp')
