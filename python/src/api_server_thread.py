@@ -207,7 +207,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         player2 = request.args.get('player2')
         logging.debug(f'player1={player1} player2={player2}')
         # state holds the current game
-        if player1 is not None and player2 is not None:
+        if player1 is not None and player2 is not None and player1.casefold() != player2.casefold():
             State().do_new_player_names(player1, player2)
             ApiServer.last_msg = f'player1={player1}\nplayer2={player2}'
         else:
