@@ -17,19 +17,19 @@ sudo apt-get autoremove -yq
 
 # ensure python environment and git
 echo "####################################################################"
-echo "## Upgrade Python                                                 ##"
+echo "## Upgrade/Install Python                                         ##"
 echo "####################################################################"
 sudo apt-get install -yq git python3-venv python3-dev
 # tool to detect i2c ports (i2cdetect -y 1)
 echo "####################################################################"
-echo "## Upgrade i2c-tools                                              ##"
+echo "## Upgrade/Install i2c-tools                                      ##"
 echo "####################################################################"
 sudo apt-get install -yq i2c-tools
 
 # install libraries and tools
 # install libs for OpenCV
 echo "####################################################################"
-echo "## Upgrade opencv libs                                            ##"
+echo "## Upgrade/Install opencv libs                                    ##"
 echo "####################################################################"
 sudo apt-get install -yq libgsm1 libatk1.0-0 libavcodec58 libcairo2 libvpx6 libvorbisenc2 \
 libwayland-egl1 libva-drm2 libwavpack1 libshine3 libdav1d4 libwayland-client0 libxcursor1 \
@@ -51,7 +51,7 @@ echo "## Create venv                                                    ##"
 echo "####################################################################"
 cd "$ROOT_PATH/python"
 if [ -d .venv ] ; then
-    echo ".venv already configured"
+    echo ".venv already configured, skipping..."
 else
     python3 -m venv .venv --prompt cv
 fi
