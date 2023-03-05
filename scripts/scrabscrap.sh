@@ -38,4 +38,5 @@ if [ -d "/home/pi/.venv" ]; then
 fi
 
 cd "$PYTHONDIR"
+python src/boot.py
 python -m scrabscrap >> "$WORKDIR/log/game.log"
