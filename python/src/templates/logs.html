@@ -31,12 +31,22 @@
 <script>
 
     const url = "/logentry"
+    var errorCnt = 0
     update = () => fetch(url)
         .then(r => r.text())
         .then(t => {
             elem = document.getElementById("logentry")
             elem.innerText = t;
+            errorCnt = 0;
             setTimeout(this.update.bind(this), 2000)
+        }).catch(error => {
+            errorCnt = errorCnt + 1
+            console.error('can not fetch /logentry')
+            if (errorCnt < 20) {
+                setTimeout(this.update.bind(this), 2000 + (errorCnt * 1000));
+            } else {
+                elem.innerText += "\ncan not fetch log entries (maybe the system is rebooting or the network is down)";
+            }
         })
     this.update()
 </script>
