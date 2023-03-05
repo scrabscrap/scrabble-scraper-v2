@@ -378,6 +378,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     @ staticmethod
     @ app.route('/logentry')
     def logentry():
+        """ returns last 100 log lines """
         process = subprocess.run(['tail', '-100', f'{config.log_dir}/messages.log'], check=False,
                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         log_out = process.stdout.decode()
@@ -477,9 +478,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             os.system(f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} |'
                       f' tee -a {config.log_dir}/messages.log &')
             return redirect(url_for('logs'))
-        else:
-            ApiServer.last_msg = 'not in State START'
-            return redirect(url_for('get_defaults'))
+        ApiServer.last_msg = 'not in State START'
+        return redirect(url_for('get_defaults'))
 
     @ staticmethod
     @ app.route('/test_ftp')
@@ -614,7 +614,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         return redirect(url_for('get_defaults'))
 
     @ sock.route('/ws_status')
-    def echo(sock):
+    def echo(sock):  # pylint: disable=E0213
+        """websocket endpoint"""
         logging.debug('call /ws_status')
         state = State()
         while True:
@@ -623,17 +624,17 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             _, (clock1, clock2), _ = state.watch.status()
             clock1 = config.max_time - clock1
             clock2 = config.max_time - clock2
-            json = state.game.json_str()
+            jsonstr = state.game.json_str()
             logging.debug(f'send socket {state.current_state} clock1 {clock1} clock2: {clock2}')
             if (state.current_state in ['S0', 'S1', 'P0', 'P1']) and state.picture is not None:
                 _, im_buf_arr = cv2.imencode(".jpg", state.picture)
                 png_output = base64.b64encode(im_buf_arr)
                 logging.debug('b64encode')
                 sock.send(f'{{"op": "{state.current_state}", "clock1": {clock1},"clock2": {clock2}, '  # type: ignore
-                          f'"image": "{png_output}", "status": {json}  }}')
+                          f'"image": "{png_output}", "status": {jsonstr}  }}')
             else:
                 sock.send(f'{{"op": "{state.current_state}", "clock1": {clock1},"clock2": {clock2}, '  # type:ignore
-                          f'"status": {json}  }}')
+                          f'"status": {jsonstr}  }}')
             state.op_event.wait()
 
     def start_server(self, host: str = '0.0.0.0', port=5050, simulator=False):
@@ -653,8 +654,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             ApiServer.local_webapp = True
             try:
                 wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']
-                with open(f'{config.web_dir}/websocket.js', 'w') as f:
-                    f.write(f'var WS_URL="ws://{wip}:{port}/ws_status"')
+                with open(f'{config.web_dir}/websocket.js', 'w', encoding='UTF-8') as filehandle:
+                    filehandle.write(f'var WS_URL="ws://{wip}:{port}/ws_status"')
             except Exception:
                 logging.warning('wlan0 not found')
         self.app.config['DEBUG'] = False

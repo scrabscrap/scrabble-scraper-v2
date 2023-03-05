@@ -17,6 +17,7 @@
 """
 import gc
 import logging
+import threading
 from concurrent.futures import Future
 from signal import alarm
 from typing import Callable, Optional
@@ -24,13 +25,13 @@ from typing import Callable, Optional
 from config import config
 from hardware.button import Button
 from hardware.led import LED, LEDEnum
-from processing import (end_of_game, invalid_challenge, move, start_of_game, store_status,
-                        valid_challenge)
+from processing import (end_of_game, invalid_challenge, move, start_of_game,
+                        store_status, valid_challenge)
 from scrabble import Game
 from scrabblewatch import ScrabbleWatch
 from threadpool import pool
 from util import Singleton
-import threading
+
 # states
 START = 'START'
 S0 = 'S0'
