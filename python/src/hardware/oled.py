@@ -64,7 +64,7 @@ class PlayerDisplay(Display, metaclass=Singleton):
             self.device[i].hide()
 
     def show_boot(self, current_ip=('', '')) -> None:
-        logging.debug('Boot message')
+        logging.debug('Loading message')
         try:
             wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=I1101
         except KeyError:
@@ -74,20 +74,18 @@ class PlayerDisplay(Display, metaclass=Singleton):
         except KeyError:
             eip = 'n/a'
         current_ip = (wip, eip)
-        msg = 'Boot'
+        msg = 'Loading ...'
         for i in range(2):
             with canvas(self.device[i]) as draw:
                 draw.text((1, 1), current_ip[i], font=self.font2, fill=WHITE)
-                draw.text(MIDDLE, msg, font=self.font, anchor='mm', align='center', fill=WHITE)
+                draw.text(MIDDLE, msg, font=self.font1, anchor='mm', align='center', fill=WHITE)
 
     def show_reset(self) -> None:
-        logging.debug('Reset message')
-        with canvas(self.device[0]) as draw:
-            msg = 'New'
-            draw.text(MIDDLE, msg, font=self.font, anchor='mm', align='center', fill=WHITE)
-        with canvas(self.device[1]) as draw:
-            msg = 'Game'
-            draw.text(MIDDLE, msg, font=self.font, anchor='mm', align='center', fill=WHITE)
+        logging.debug('New Game message')
+        msg = 'New Game'
+        for i in range(2):
+            with canvas(self.device[i]) as draw:
+                draw.text(MIDDLE, msg, font=self.font1, anchor='mm', align='center', fill=WHITE)
 
     def show_accesspoint(self) -> None:
         logging.debug('AP Mode message')
