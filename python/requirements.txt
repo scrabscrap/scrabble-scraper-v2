@@ -16,7 +16,7 @@ autopep8==2.0.2
 coverage==7.2.1
 flake8==6.0.0
 mypy==1.1.1
-pylint==2.16.3
+pylint==2.16.4
 # debug, misc
 cPython==0.0.6
 pipdeptree==2.5.2
@@ -77,10 +77,10 @@ snakeviz==2.1.1
 # picamera==1.13
 # pip==23.0
 # pipdeptree==2.5.2
-# pylint==2.16.3
-#   - astroid [required: >=2.14.1,<=2.16.0-dev0, installed: 2.14.1]
+# pylint==2.16.4
+#   - astroid [required: >=2.14.2,<=2.16.0-dev0, installed: 2.14.2]
 #     - lazy-object-proxy [required: >=1.4.0, installed: 1.9.0]
-#     - typing-extensions [required: >=4.0.0, installed: 4.4.0]
+#     - typing-extensions [required: >=4.0.0, installed: 4.5.0]
 #     - wrapt [required: >=1.11,<2, installed: 1.14.1]
 #   - dill [required: >=0.2, installed: 0.3.6]
 #   - isort [required: >=4.2.5,<6, installed: 5.12.0]
@@ -88,7 +88,7 @@ snakeviz==2.1.1
 #   - platformdirs [required: >=2.2.0, installed: 3.0.0]
 #   - tomli [required: >=1.1.0, installed: 2.0.1]
 #   - tomlkit [required: >=0.10.1, installed: 0.11.6]
-#   - typing-extensions [required: >=3.10.0, installed: 4.4.0]
+#   - typing-extensions [required: >=3.10.0, installed: 4.5.0]
 # snakeviz==2.1.1
 #   - tornado [required: >=2.0, installed: 6.2]
 # wheel==0.38.4
