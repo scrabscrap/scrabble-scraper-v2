@@ -5,7 +5,7 @@ import './App.css'
 
 import Display from './display/Display'
 
-const WS_URL = `ws://${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}/ws_status`
+const WS_URL = `${(window.location.protocol === 'https:') ? 'wss:' : 'ws:'}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}/ws_status`
 
 // websocket impl see: https://morioh.com/p/606840219b21
 class App extends Component {
