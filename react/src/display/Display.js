@@ -23,8 +23,8 @@ class Display extends Component {
                 <div className='container-fluid'>
                     <div className='row py-1'>
                         <div className='col-12'>
-                            <Header time={this.props.state.time} settings={this.props.state.settings}
-                                updateSettings={this.props.updateSettings} />
+                            <Header time={this.props.state.time} highlight_reload={this.props.state.highlight_reload}
+                                settings={this.props.state.settings} updateSettings={this.props.updateSettings} />
                         </div>
                     </div>
                     <div className='row py-1'>
@@ -73,8 +73,8 @@ class Display extends Component {
                     <div className='container-fluid'>
                         <div className='row py-1'>
                             <div className='col-md-12'>
-                                <Header time={this.props.state.time} settings={this.props.state.settings}
-                                    updateSettings={this.props.updateSettings} />
+                                <Header time={this.props.state.time} highlight_reload={this.props.state.highlight_reload}
+                                    settings={this.props.state.settings} updateSettings={this.props.updateSettings} />
                             </div>
                         </div>
                         <div className='row'>

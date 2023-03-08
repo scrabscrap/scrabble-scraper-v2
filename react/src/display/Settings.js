@@ -29,7 +29,6 @@ class Settings extends Component {
         const settings = {
             obs: this.state.obs,
             websocket: this.props.settings.websocket,
-            ws_url: this.props.settings.ws_url,
             header_text: this.props.settings.header_text
         }
         this.props.updateSettings(settings)

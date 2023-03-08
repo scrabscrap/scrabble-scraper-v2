@@ -5,16 +5,16 @@ import './App.css'
 
 import Display from './display/Display'
 
+const WS_URL = `ws://${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}/ws_status`
+
 // websocket impl see: https://morioh.com/p/606840219b21
 class App extends Component {
 
   constructor(props) {
     super(props);
-    const ws_url = `${window.WS_URL}`
-    const websocket = (ws_url !== "undefined")
     this.state = {
       op: 'START',
-      tournament: 'Scrabble-Scraper',
+      tournament: 'SCRABBLE SCRAPER',
       clock1: 1800, clock2: 1800,
       time: Date(),
       move: null,
@@ -28,12 +28,12 @@ class App extends Component {
       image: null,
       settings: {
         obs: this.getCookie('OBS', false),
-        websocket: websocket,
-        ws_url: ws_url,
-        header_text: 'Scrabble-Scraper'
+        websocket: true,
+        header_text: 'SCRABBLE SCRAPER'
       },
       unknown_move: false,
       ws: null,
+      highlight_reload: false,
     }
   }
 
@@ -59,14 +59,6 @@ class App extends Component {
       console.log(val)
       this.setState({ settings: val })
       this.setCookie('OBS', val.obs)
-      if (val.websocket === true) {
-        if (this.intervalID) { clearTimeout(this.intervalID); }
-        this.intervalID = null
-        this.connect();
-      } else {
-        if (this.state.ws) { this.state.ws.close() }
-        this.fileconnect();
-      }
     }
   }
 
@@ -77,44 +69,44 @@ class App extends Component {
       this.setState({ settings: settings })
       this.setCookie('OBS', settings.obs)
     }
-    if (this.state.settings.websocket === true) {
-      this.connect();
-    } else {
-      if (this.state.ws) { this.state.ws.close() }
-      this.fileconnect();
-    }
+    this.connect();
+    this.fileconnect();
   }
 
   // componentDidUpdate(prevProps) { }
 
   componentWillUnmount() {
-    if (this.intervalID) {                       // clear running timeoutID
+    if (this.intervalID) {                       // clear running ws timeout
       clearTimeout(this.intervalID);
+      this.intervalID = null
     }
-    this.intervalID = null
-    if (this.state.ws) {
+    if (this.ws_intervalID) {                    // clear running fileconnect timeout
+      clearTimeout(this.ws_intervalID);
+      this.ws_intervalID = null
+    }
+    if (this.state.ws) {                         // close websocket
       this.state.ws.close()
       this.setState({ ws: null })
     }
   }
 
   // ## websocket
-  timeout = 250;
+  ws_firsttry = (new Date()).getTime()  // last websocket open 
+  ws_intervalID;                        // var for timeout
   connect = () => {
-    var ws = new WebSocket(this.state.settings.ws_url);
-    let that = this;                             // cache the this
-    var connectInterval;
+    var ws = new WebSocket(WS_URL);
 
-    ws.onopen = () => {                          // websocket onopen event listener
-      console.log('connected websocket main component: ' + this.state.settings.ws_url);
+    ws.onopen = () => {  // websocket onopen event listener
+      console.log('ws: connected ' + WS_URL);
       this.setState({ ws: ws });
-      that.timeout = 250;                        // reset timer to 250 on open of websocket connection 
-      clearTimeout(connectInterval);             // clear Interval on on open of websocket connection
+      clearTimeout(this.ws_intervalID);          // clear Interval on on open of websocket connection
+      this.ws_intervalID = null;
     };
 
     ws.onmessage = (msg) => {
       const data = JSON.parse(msg.data);
-      console.debug('setState (websocket) ' + data?.op)
+      console.debug('ws: setState (websocket) ' + data?.op)
+      this.ws_firsttry = (new Date()).getTime()
       let img_str = data.image
       if (data.image != null) {
         if (data.op === 'START') {
@@ -153,40 +145,60 @@ class App extends Component {
       })
     }
 
-    ws.onclose = e => {                          // websocket onclose event listener
-      console.log(
-        `Socket is closed. Reconnect in ${Math.min(10000 / 1000, (that.timeout + that.timeout) / 1000)} second.`, e.reason);
-      that.timeout = that.timeout + that.timeout; //increment retry interval
-      if (this.state.settings.websocket) {
-        const { settings } = this.state
+    ws.onclose = e => {  // websocket onclose event listener
+      console.log('ws: Socket is closed. Try to reconnect in 2 seconds. Code=', e.code);
+      const { settings } = this.state
+      if (settings.websocket) {
         settings.websocket = false
         this.setState({ settings: settings })
-        connectInterval = setTimeout(this.check, Math.min(10000, that.timeout)); //call check function after timeout
+      }
+      if (((new Date()).getTime() - this.ws_firsttry) < (2 * 60 * 1000)) { // 2 min
+        console.log('ws: start timer')
+        this.ws_intervalID = setTimeout(this.check, 2000); //retry in 2s
       } else {
-        clearTimeout(connectInterval)
+        console.log('ws: give up', ((new Date()).getTime() - this.ws_firsttry) / 1000, ' - try fileconnect')
+        clearTimeout(this.ws_intervalID);
+        this.ws_intervalID = null
         this.fileconnect()
       }
     };
 
-    ws.onerror = err => {                        // websocket onerror event listener
-      console.error('Socket encountered error: ', err.message, 'Closing socket');
+    ws.onerror = err => { // websocket onerror event listener
+      console.error('ws: encountered error: ', ws.code, 'Closing socket');
       ws.close();
     };
   };
 
   check = () => {
-    if (this.state.settings.websocket) {
-      const { ws } = this.state;                   //check if websocket instance is closed, if so call `connect` function.
-      if (!ws || ws.readyState === WebSocket.CLOSED) this.connect();
+    console.log('ws: check')
+    const { ws } = this.state;
+    if (!ws || ws.readyState === WebSocket.CLOSED) {
+      console.log('ws: try to connect')
+      this.connect();
     }
   };
 
   // ## fileconnect
-  intervalID;
-  last_timestamp;                                // timestamp of json data
+  intervalID;     // var for timeout
+  last_timestamp; // timestamp of json data
+  nodataCnt = 0;  // reload without data changes
+  errorCnt = 0;   // error loading status.json
   fileconnect = () => {
-    let errorCnt = 0;
-    let nodataCnt = 0;
+
+    if (this.intervalID) {                                                 // clear timer
+      clearTimeout(this.intervalID);
+      this.intervalID = null
+    }
+
+    if (this.state.ws && (this.state.ws.readyState === WebSocket.OPEN)) {  // switch to websocket
+      clearTimeout(this.intervalID);                                       // no more fileconnect reloads
+      this.intervalID = null
+      console.log('fileconnect: switch to websocket')
+      const { settings } = this.state
+      settings.websocket = true
+      this.setState({ settings: settings })
+      return
+    }
 
     fetch('web/status.json')
       .then(response => {
@@ -197,7 +209,7 @@ class App extends Component {
       })
       .then(data => {
         if (data.time !== this.last_timestamp) {
-          console.debug('setState (status.json)')
+          console.debug('fileconnect: setState (status.json)')
           const op = (data.onmove === data.name1) ? 'S0' : 'S1'
           const img = 'web/image-' + data.move + '.jpg?' + data.time.substring(data.time.indexOf('.') + 1)
           // check for (unknown) move
@@ -227,30 +239,18 @@ class App extends Component {
           this.last_timestamp = data.time;
           this.nodataCnt = 0;
         } else {
-          this.nodataCnt = this.nodataCnt + 1
+          this.nodataCnt += 1
         }
       }).catch(error => {
-        console.error('can not fetch web/status.json')
-        errorCnt = errorCnt + 1
+        this.errorCnt += 1
+        console.error('fileconnect: can not fetch web/status.json (errorCnt:', this.errorCnt, ')')
       });
-    if (this.intervalID) {                       // clear timer
-      clearTimeout(this.intervalID);
-      this.intervalID = null
-    }
-    if ((nodataCnt < 360) && (errorCnt < 60)) {  // nodata for 30min or fetch error for 5min
-      console.debug('start timer')
-      if (this.state.settings.websocket === true) {                  // switch to websocket
-        clearTimeout(this.intervalID);           // no more fileconnect reloads
-        console.log('switch to websocket')
-        const { settings } = this.state
-        settings.websocket = true
-        this.setState({ image: null, settings: settings })
-        this.connect()
-      } else {
-        this.intervalID = setTimeout(this.fileconnect.bind(this), 5000); // reload in 5s
-      }
+    if ((this.nodataCnt > 360) || (this.errorCnt > 60)) {            // nodata for 30min or fetch error for 5min
+      this.setState({ highlight_reload: true })
+      console.warn('fileconnect: timeout - no further reload (nodata:', this.nodataCnt, ', errorCnt:', this.errorCnt, ')')
     } else {
-      console.warn('fileconnect: timeout - no further reload') //TODO: color reload-button
+      console.debug('fileconnect: start timer')
+      this.intervalID = setTimeout(this.fileconnect.bind(this), 5000); // reload in 5s
     }
   }
 
