@@ -152,7 +152,7 @@ class App extends Component {
         settings.websocket = false
         this.setState({ settings: settings })
       }
-      if (((new Date()).getTime() - this.ws_firsttry) < (2 * 60 * 1000)) { // 2 min
+      if (((new Date()).getTime() - this.ws_firsttry) < (30 * 1000)) { // 30 sec
         console.log('ws: start timer')
         this.ws_intervalID = setTimeout(this.check, 2000); //retry in 2s
       } else {
