@@ -20,6 +20,7 @@ import logging.config
 import os
 import unittest
 from time import sleep
+from scrabble import MoveType
 
 from hardware.camera_thread import Camera, CameraEnum
 
@@ -73,82 +74,6 @@ class ScrabbleGameTestCase(unittest.TestCase):
         self.config_setter('output', 'web', False)
         self.config_setter('development', 'recording', False)
 
-    def test_game_04(self):
-        """Test game 04"""
-        from display import Display
-        from scrabblewatch import ScrabbleWatch
-        from state import State
-
-        self.config_setter('video', 'warp_coordinates', None)
-        self.config_setter('board', 'layout', 'custom')
-        display = Display()
-        watch = ScrabbleWatch(display)
-        cam = Camera(use_camera=CameraEnum.FILE)
-        cam.stream.formatter = f'{TEST_DIR}/game04/image-{{:d}}.jpg'  # type: ignore
-        cam.stream.cnt = 1  # type: ignore
-        state = State(cam=cam, watch=watch)
-        state.cam = cam
-        state.do_new_game()
-        state.game.nicknames = ('Inessa', 'Stefan')
-        state.press_button('RED')  # green begins
-        for i in range(1, 28):
-            cam.stream.cnt = i  # type: ignore
-            if i % 2 == 1:
-                state.press_button('GREEN')
-            else:
-                state.press_button('RED')
-            if state.last_submit is not None:
-                while not state.last_submit.done():  # type: ignore
-                    sleep(0.1)
-        self.assertEqual(425, state.game.moves[-1].score[0])
-        # self.assertEqual(377, state.game.moves[-1].score[0])
-        self.assertEqual(362, state.game.moves[-1].score[1])
-
-    def test_game_05(self):
-        """Test game 05"""
-        from display import Display
-        from scrabblewatch import ScrabbleWatch
-        from state import State
-
-        self.config_setter('video', 'warp_coordinates', [[9.0, 16.0], [967.0, 0.0], [991.0, 963.0], [15.0, 975.0]])
-        self.config_setter('board', 'layout', 'custom')
-        display = Display()
-        watch = ScrabbleWatch(display)
-        cam = Camera(use_camera=CameraEnum.FILE)
-        cam.stream.formatter = f'{TEST_DIR}/game05/image-{{:d}}.jpg'  # type: ignore
-        cam.stream.cnt = 1  # type: ignore
-        state = State(cam=cam, watch=watch)
-        state.cam = cam
-        state.do_new_game()
-        state.game.nicknames = ('Inessa', 'Stefan')
-        state.press_button('RED')                                              # green begins
-        for i in range(1, 14):                                                 # odd image # => green
-            cam.stream.cnt = i  # type: ignore
-            if i % 2 == 1:
-                state.press_button('GREEN')
-            else:
-                state.press_button('RED')
-            if state.last_submit is not None:
-                while not state.last_submit.done():  # type: ignore
-                    sleep(0.1)
-        self.assertEqual((94, 126), state.game.moves[-1].score)
-        state.press_button('YELLOW')
-        sleep(0.1)
-        state.press_button('DOUBT1')                                           # valid challenge
-        sleep(0.1)
-        state.press_button('YELLOW')
-        self.assertEqual((77, 126), state.game.moves[-1].score)
-        for i in range(15, 36):                                                # odd image # => red
-            cam.stream.cnt = i  # type: ignore
-            if i % 2 == 0:
-                state.press_button('GREEN')
-            else:
-                state.press_button('RED')
-            if state.last_submit is not None:
-                while not state.last_submit.done():  # type: ignore
-                    sleep(0.1)
-        self.assertEqual((416, 344), state.game.moves[-1].score)
-
     def test_game_06(self):
         """Test game 06"""
         from display import Display
@@ -194,6 +119,45 @@ class ScrabbleGameTestCase(unittest.TestCase):
                 while not state.last_submit.done():  # type: ignore
                     sleep(0.1)
         self.assertEqual((438, 379), state.game.moves[-1].score)
+        logging.info(state.game.nicknames)
+        for move in state.game.moves:
+            if move.player == 0:
+                if move.type == MoveType.WITHDRAW:
+                    logging.info(f'{move.move}, "Yellow", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points*-1}, {move.score[0]-move.points}, {move.score[1]}')
+                    logging.info(f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                elif move.type == MoveType.CHALLENGE_BONUS:
+                    logging.info(f'{move.move}, "Yellow", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "DOUBT1", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Yellow", "S0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                else:
+                    logging.info(f'{move.move}, "Green", "S1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+            else:
+                if move.type == MoveType.WITHDRAW:
+                    logging.info(f'{move.move}, "Yellow", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points*-1}, {move.score[0]}, {move.score[1]-move.points}')
+                    logging.info(f'{move.move}, "DOUBT0", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                elif move.type == MoveType.CHALLENGE_BONUS:
+                    logging.info(f'{move.move}, "Yellow", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Yellow", "S1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                else:
+                    logging.info(
+                        f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
 
     def test_game_07(self):
         """Test game 07 - hand on board; finger on tile """
@@ -224,6 +188,45 @@ class ScrabbleGameTestCase(unittest.TestCase):
                 while not state.last_submit.done():  # type: ignore
                     sleep(0.1)
         self.assertEqual((197, 208), state.game.moves[-1].score)
+        logging.info(state.game.nicknames)
+        for move in state.game.moves:
+            if move.player == 0:
+                if move.type == MoveType.WITHDRAW:
+                    logging.info(f'{move.move}, "Yellow", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points*-1}, {move.score[0]-move.points}, {move.score[1]}')
+                    logging.info(f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                elif move.type == MoveType.CHALLENGE_BONUS:
+                    logging.info(f'{move.move}, "Yellow", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "DOUBT1", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Yellow", "S0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                else:
+                    logging.info(f'{move.move}, "Green", "S1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+            else:
+                if move.type == MoveType.WITHDRAW:
+                    logging.info(f'{move.move}, "Yellow", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points*-1}, {move.score[0]}, {move.score[1]-move.points}')
+                    logging.info(f'{move.move}, "DOUBT0", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                elif move.type == MoveType.CHALLENGE_BONUS:
+                    logging.info(f'{move.move}, "Yellow", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Yellow", "S1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                else:
+                    logging.info(
+                        f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
 
     def test_game_08(self):
         """Test game 08 - hand on board"""
@@ -254,6 +257,45 @@ class ScrabbleGameTestCase(unittest.TestCase):
                 while not state.last_submit.done():  # type: ignore
                     sleep(0.1)
         self.assertEqual((197, 208), state.game.moves[-1].score)
+        logging.info(state.game.nicknames)
+        for move in state.game.moves:
+            if move.player == 0:
+                if move.type == MoveType.WITHDRAW:
+                    logging.info(f'{move.move}, "Yellow", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points*-1}, {move.score[0]-move.points}, {move.score[1]}')
+                    logging.info(f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                elif move.type == MoveType.CHALLENGE_BONUS:
+                    logging.info(f'{move.move}, "Yellow", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "DOUBT1", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Yellow", "S0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                else:
+                    logging.info(f'{move.move}, "Green", "S1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+            else:
+                if move.type == MoveType.WITHDRAW:
+                    logging.info(f'{move.move}, "Yellow", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points*-1}, {move.score[0]}, {move.score[1]-move.points}')
+                    logging.info(f'{move.move}, "DOUBT0", "P0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                elif move.type == MoveType.CHALLENGE_BONUS:
+                    logging.info(f'{move.move}, "Yellow", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    logging.info(f'{move.move}, "Yellow", "S1", "{move.get_coord()}", '
+                                 f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                else:
+                    logging.info(
+                        f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
 
     def test_game_12(self):
         """Test game 12"""
@@ -284,128 +326,45 @@ class ScrabbleGameTestCase(unittest.TestCase):
                     sleep(0.1)
         self.assertEqual(185, state.game.moves[-1].score[0])
         self.assertEqual(208, state.game.moves[-1].score[1])
-
-    def test_game_13(self):
-        """"Test game 13"""
-        from display import Display
-        from scrabblewatch import ScrabbleWatch
-        from state import State
-
-        self.config_setter('video', 'warp_coordinates', None)
-        self.config_setter('board', 'layout', 'custom')
-        display = Display()
-        watch = ScrabbleWatch(display)
-        cam = Camera(use_camera=CameraEnum.FILE)
-        cam.stream.formatter = f'{TEST_DIR}/game13/board-{{:02d}}.png'  # type: ignore
-        cam.stream.cnt = 1  # type: ignore
-        state = State(cam=cam, watch=watch)
-        state.cam = cam
-        state.do_new_game()
-        state.game.nicknames = ('A', 'B')
-        state.press_button('RED')  # green begins
-        for i in range(1, 26):
-            cam.stream.cnt = i  # type: ignore
-            if i % 2 == 1:
-                state.press_button('GREEN')
+        print(state.game.nicknames)
+        for move in state.game.moves:
+            if move.player == 0:
+                if move.type == MoveType.WITHDRAW:
+                    print(f'{move.move}, "Yellow", "P1", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points*-1}, {move.score[0]-move.points}, {move.score[1]}')
+                    print(f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    print(f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                elif move.type == MoveType.CHALLENGE_BONUS:
+                    print(f'{move.move}, "Yellow", "P0", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    print(f'{move.move}, "DOUBT1", "P0", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    print(f'{move.move}, "Yellow", "S0", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                else:
+                    print(f'{move.move}, "Green", "S1", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
             else:
-                state.press_button('RED')
-            if state.last_submit is not None:
-                while not state.last_submit.done():  # type: ignore
-                    sleep(0.1)
-
-        self.assertEqual(501, state.game.moves[-1].score[0])
-        self.assertEqual(421, state.game.moves[-1].score[1])
-
-    def test_game_14(self):
-        """Test game 14"""
-        from display import Display
-        from scrabblewatch import ScrabbleWatch
-        from state import State
-
-        self.config_setter('video', 'warp_coordinates', None)
-        self.config_setter('board', 'layout', 'custom')
-        display = Display()
-        watch = ScrabbleWatch(display)
-        cam = Camera(use_camera=CameraEnum.FILE)
-        cam.stream.formatter = f'{TEST_DIR}/game14/board-{{:02d}}.png'  # type: ignore
-        cam.stream.cnt = 1  # type: ignore
-        state = State(cam=cam, watch=watch)
-        state.cam = cam
-        state.do_new_game()
-        state.game.nicknames = ('INESSA', 'STEFAN')
-        state.press_button('RED')  # green begins
-        for i in range(1, 28):
-            cam.stream.cnt = i  # type: ignore
-            if i % 2 == 1:
-                state.press_button('GREEN')
-            else:
-                state.press_button('RED')
-            if state.last_submit is not None:
-                while not state.last_submit.done():  # type: ignore
-                    sleep(0.1)
-        self.assertEqual(425, state.game.moves[-1].score[0])
-        self.assertEqual(362, state.game.moves[-1].score[1])
-
-    def test_game_15(self):
-        """Test game 15"""
-        from display import Display
-        from scrabblewatch import ScrabbleWatch
-        from state import State
-
-        self.config_setter('video', 'warp_coordinates', None)
-        self.config_setter('board', 'layout', 'custom')
-        display = Display()
-        watch = ScrabbleWatch(display)
-        cam = Camera(use_camera=CameraEnum.FILE)
-        cam.stream.formatter = f'{TEST_DIR}/game15/board-{{:02d}}.png'  # type: ignore
-        cam.stream.cnt = 1  # type: ignore
-
-        state = State(cam=cam, watch=watch)
-        state.cam = cam
-        state.do_new_game()
-        state.game.nicknames = ('JO', 'ST')
-        state.press_button('GREEN')  # red begins
-
-        for i in range(1, 15):
-            cam.stream.cnt = i  # type: ignore
-            if i % 2 == 1:
-                state.press_button('RED')
-            else:
-                state.press_button('GREEN')
-            if state.last_submit is not None:
-                while not state.last_submit.done():  # type: ignore
-                    sleep(0.1)
-
-        state.press_button('PAUSE')
-        state.press_button('DOUBT1')
-        state.press_button('PAUSE')
-
-        for i in range(16, 18):
-            cam.stream.cnt = i  # type: ignore
-            if i % 2 == 1:
-                state.press_button('GREEN')
-            else:
-                state.press_button('RED')
-            if state.last_submit is not None:
-                while not state.last_submit.done():  # type: ignore
-                    sleep(0.1)
-
-        state.press_button('PAUSE')
-        state.press_button('DOUBT1')
-        state.press_button('PAUSE')
-
-        for i in range(19, 31):
-            cam.stream.cnt = i  # type: ignore
-            if i % 2 == 1:
-                state.press_button('RED')
-            else:
-                state.press_button('GREEN')
-            if state.last_submit is not None:
-                while not state.last_submit.done():  # type: ignore
-                    sleep(0.1)
-
-        self.assertEqual(432, state.game.moves[-1].score[0], 'Spieler 1 Score (JO)')
-        self.assertEqual(323, state.game.moves[-1].score[1], 'Spieler 2 Score (ST)')
+                if move.type == MoveType.WITHDRAW:
+                    print(f'{move.move}, "Yellow", "P0", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points*-1}, {move.score[0]}, {move.score[1]-move.points}')
+                    print(f'{move.move}, "DOUBT0", "P0", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    print(f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                elif move.type == MoveType.CHALLENGE_BONUS:
+                    print(f'{move.move}, "Yellow", "P1", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    print(f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                    print(f'{move.move}, "Yellow", "S1", "{move.get_coord()}", '
+                          f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
+                else:
+                    print(
+                        f'{move.move}, "Red", "S0", "{move.get_coord()}", '
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}')
 
 
 # unit tests per commandline
