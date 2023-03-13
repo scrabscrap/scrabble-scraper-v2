@@ -16,6 +16,10 @@ class Header extends Component {
             }
         }
 
+        const buttonclass = (this.props.highlight_reload) ?
+            'btn btn-danger btn-sm float-right' :
+            'btn btn-success btn-sm float-right'
+
         return (
             <div className='header bg-success'>
                 <div className='card-body'>
@@ -26,7 +30,7 @@ class Header extends Component {
                         </div>
                         <div className='col'>
                             <button type='button' data-toggle='tooltip' data-placement='top' title='Refresh page'
-                                className='btn btn-success btn-sm float-right'
+                                className={buttonclass}
                                 onClick={() => window.location.reload(true)}>
                                 &#x21BB;
                             </button>
