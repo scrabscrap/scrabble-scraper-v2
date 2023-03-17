@@ -295,6 +295,71 @@ class Game():
             })
         return to_json
 
+    def dev_str(self) -> str:  # pragma: no cover
+        """Return devleompemt represention of the game for using in tests"""
+        game_id = self.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
+        out_str = f"game: {game_id}\ngame.ini\n" \
+            "[default]\n"  \
+            f"warp = {config.video_warp}\n" \
+            f"name1 = {self.nicknames[0]}\n" \
+            f"name2 = {self.nicknames[1]}\n" \
+            f"formatter = {game_id}-{{:d}}.jpg\n" \
+            "layout = custom\n"
+        if self.moves:
+            if self.moves[0].player == 0:
+                out_str += "start = Red\n"  # first move: green
+            else:
+                out_str += "start = Green\n"
+        if config.video_warp_coordinates:
+            out_str += f"warp-coord = {config.video_warp_coordinates}\n"
+
+        out_str += "\ngame.csv\n"
+        out_str += "Move, Button, State, Coord, Word, Points, Score1, Score2\n"
+        for move in self.moves:
+            if move.player == 0:
+                if move.type == MoveType.WITHDRAW:
+                    out_str += f'{move.move}, "Yellow", "P1", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points*-1}, {move.score[0]-move.points}, {move.score[1]}\n'
+                    out_str += f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                    out_str += f'{move.move}, "Red", "S0", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                elif move.type == MoveType.CHALLENGE_BONUS:
+                    out_str += f'{move.move}, "Yellow", "P0", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                    out_str += f'{move.move}, "DOUBT1", "P0", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                    out_str += f'{move.move}, "Yellow", "S0", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                elif move.type == MoveType.EXCHANGE:
+                    out_str += f'{move.move}, "Green", "S1", "-", ' \
+                        f', {move.points}, {move.score[0]}, {move.score[1]}\n'
+                else:
+                    out_str += f'{move.move}, "Green", "S1", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+            else:
+                if move.type == MoveType.WITHDRAW:
+                    out_str += f'{move.move}, "Yellow", "P0", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points*-1}, {move.score[0]}, {move.score[1]-move.points}\n'
+                    out_str += f'{move.move}, "DOUBT0", "P0", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                    out_str += f'{move.move}, "Red", "S0", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                elif move.type == MoveType.CHALLENGE_BONUS:
+                    out_str += f'{move.move}, "Yellow", "P1", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                    out_str += f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                    out_str += f'{move.move}, "Yellow", "S1", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                elif move.type == MoveType.EXCHANGE:
+                    out_str += f'{move.move}, "Red", "S0", "-", ' \
+                        f', {move.points}, {move.score[0]}, {move.score[1]}\n'
+                else:
+                    out_str += f'{move.move}, "Red", "S0", "{move.get_coord()}", ' \
+                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+        return out_str
+
     def board_str(self, move_index: int = -1) -> str:
         """Return the textual represention of the board"""
         if move_index > len(self.moves):
