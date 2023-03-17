@@ -345,6 +345,9 @@ def end_of_game(waitfor: Optional[Future], game: Game):  # pragma: no cover # no
     if config.output_ftp:
         Ftp.upload_game(f'{zip_filename}')
 
+    if config.development_recording:
+        logging.info(game.dev_str())
+
 
 def _changes(board: dict, previous_board: dict) -> Tuple[dict, dict, dict, dict]:
     for i in previous_board.keys():
