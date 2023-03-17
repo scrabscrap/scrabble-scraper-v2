@@ -4,6 +4,8 @@ source =
 	src
 
 omit =
+	# display info at app loading
+	*/boot.py
 	# requiresm special hardware
 	*/hardware/oled.py
 	# requires special hardware

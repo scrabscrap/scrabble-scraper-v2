@@ -39,7 +39,7 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-def runtime_measure(func):
+def runtime_measure(func):  # pragma: no cover # currently not used
     """perform runtime measure"""
 
     @functools.wraps(func)
