@@ -127,7 +127,7 @@ class CustomBoard(GameBoard):
             color_table[(col, row)] = color
             segment[:, :, 0], segment[:, :, 1], segment[:, :, 2] = color
 
-            if config.development_recording:
+            if config.development_recording:  # pragma: no cover
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 font_scale = 0.33
                 if CustomBoard._is_tile((col, row), color):

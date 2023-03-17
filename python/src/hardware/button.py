@@ -58,7 +58,7 @@ class Button(metaclass=Singleton):
             if self.func_pressed:
                 self.func_pressed(ButtonEnum(button.pin.number).name)    # type: ignore
 
-    def button_released(self, button: GpioButton) -> None:  # callback
+    def button_released(self, button: GpioButton) -> None:  # pragma: no cover  # currently not used callback
         """perform button release"""
         self.bounce[ButtonEnum(button.pin.number).name] = time.time()  # type: ignore
         if self.func_released:
