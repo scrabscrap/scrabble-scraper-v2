@@ -19,7 +19,7 @@ mypy==1.1.1
 pylint==2.17.0
 # debug, misc
 cPython==0.0.6
-pipdeptree==2.5.2
+pipdeptree==2.6.0
 snakeviz==2.1.1
 
 # autopep8==2.0.2
@@ -76,7 +76,7 @@ snakeviz==2.1.1
 #   - numpy [required: >=1.19.3, installed: 1.24.2]
 # picamera==1.13
 # pip==23.0
-# pipdeptree==2.5.2
+# pipdeptree==2.6.0
 # pylint==2.17.0
 #   - astroid [required: >=2.14.2,<=2.16.0-dev0, installed: 2.14.2]
 #     - lazy-object-proxy [required: >=1.4.0, installed: 1.9.0]
