@@ -70,7 +70,9 @@ class Ftp:
             logging.debug(f'ftp: upload_move {move}')
             try:
                 logging.debug('ftp: start transfer move files')
-                with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
+                source = (config.output_ftp_source, 0) if config.output_ftp_source else None
+                with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass,
+                                source_address=source) as session:
                     with open(f'{config.web_dir}/image-{move}.jpg', 'rb') as file:
                         session.storbinary(f'STOR image-{move}.jpg', file)  # send the file
                     with open(f'{config.web_dir}/data-{move}.json', 'rb') as file:
@@ -106,7 +108,9 @@ class Ftp:
             logging.debug(f'ftp: upload_game {filename}')
             try:
                 logging.debug('ftp: start transfer zip file')
-                with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
+                source = (config.output_ftp_source, 0) if config.output_ftp_source else None
+                with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass,
+                                source_address=source) as session:
                     with open(f'{config.web_dir}/{filename}.zip', 'rb') as file:
                         session.storbinary(f'STOR {filename}.zip', file)  # send the file
                 logging.info(f'ftp: end of upload {filename} to ftp-server')
@@ -122,7 +126,9 @@ class Ftp:
             logging.debug(f'ftp: delete files with prefix {prefixes}*')
             try:
                 logging.debug('ftp: delete files')
-                with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass) as session:
+                source = (config.output_ftp_source, 0) if config.output_ftp_source else None
+                with ftplib.FTP(cls.ftp_config.ftp_server, cls.ftp_config.ftp_user, cls.ftp_config.ftp_pass,
+                                source_address=source) as session:
                     files = session.nlst()
                     for filename in files:
                         for prefix in prefixes:

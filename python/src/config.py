@@ -140,6 +140,11 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
         """should ftp upload used"""
         return self.config.getboolean('output', 'ftp', fallback=False)
 
+    @property
+    def output_ftp_source(self):
+        """should ftp upload used"""
+        return self.config.get('output', 'ftp_source', fallback=None)
+
     # @property
     # def keyboard(self) -> bool:
     #     """should keyboard used as input device"""
