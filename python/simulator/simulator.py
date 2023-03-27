@@ -81,20 +81,20 @@ def yellow():
 def reset():
     """simulate press reset"""
     State().press_button('RESET')
-    ApiServer.cam.stream.cnt = 0  # type: ignore
+    ApiServer.cam.stream.cnt = 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_first():
     """skip to first image"""
-    ApiServer.cam.stream.cnt = 0  # type: ignore
+    ApiServer.cam.stream.cnt = 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_prev():
     """skip to previous image"""
     logging.debug('prev')
-    if ApiServer.cam.stream.cnt > 0:  # type: ignore
+    if ApiServer.cam.stream.cnt > 1:  # type: ignore
         ApiServer.cam.stream.cnt -= 1  # type: ignore
     return redirect(url_for('simulator'))
 
@@ -119,10 +119,10 @@ def open_folder():
     """select folder for images"""
     folder = request.args.get('folder')
     logging.debug(f'try to open {folder}')
-    ini_file = os.path.abspath(f'{config.work_dir}/simulate/{folder}/scrabble.ini')
-    if os.path.exists(ini_file) and os.path.commonprefix([config.work_dir, ini_file]) == config.work_dir:
+    ini_file = os.path.abspath(f'{config.src_dir}/../test/{folder}/scrabble.ini')
+    if os.path.exists(ini_file):
         config.reload(ini_file=ini_file)
-        ApiServer.cam.stream.cnt = 0  # type: ignore
+        ApiServer.cam.stream.cnt = 1  # type: ignore
         ApiServer.cam.stream.formatter = config.simulate_path  # type: ignore
     else:
         logging.warning(f'INI File not found / invalid: {ini_file}')
@@ -132,7 +132,8 @@ def open_folder():
 def simulator() -> str:
     """"render simulator on web page"""
     # get simulate folders
-    list_of_dir = [f for f in os.listdir(f'{config.work_dir}/simulate') if os.path.isdir(f'{config.work_dir}/simulate/{f}')]
+    list_of_dir = [f for f in os.listdir(f'{config.src_dir}/../test')
+                   if os.path.isdir(f'{config.src_dir}/../test/{f}') and f.startswith('game')]
     # display time
     _, (time0, time1), _ = State().watch.status()
     minutes, seconds = divmod(abs(1800 - time0), 60)
@@ -178,6 +179,8 @@ def main():
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
+    src_path = os.path.dirname(__file__) or '.'
+    config.config.set("development", "simulate_path", str(src_path + "/../test/game01/image-{:d}.jpg"))
     # flask log only error
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)

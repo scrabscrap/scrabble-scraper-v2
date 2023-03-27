@@ -38,7 +38,7 @@ class CameraFile(metaclass=Singleton):  # type: ignore
         if config.video_rotate:
             self.rotation = 180
         self.event = None
-        self.cnt = 0
+        self.cnt = 1
         if formatter is not None:
             self.formatter = formatter
         else:
