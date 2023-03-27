@@ -18,10 +18,10 @@ class Header extends Component {
 
         const buttonclass = (this.props.highlight_reload) ?
             'btn btn-danger btn-sm float-right' :
-            'btn btn-success btn-sm float-right'
+            'btn btn-info btn-sm float-right bg-body'
 
         return (
-            <div className='header bg-success'>
+            <div className='header bg-body'>
                 <div className='card-body'>
                     <div className='row'>
                         <div className='col'></div>
@@ -40,7 +40,7 @@ class Header extends Component {
                     <div className='row'>
                         <div className='col'></div>
                         <div className='col-auto'>
-                            <span className='text-muted'>Scrabble-Scraper
+                            <span className='text-muted'>https://github.com/scrabscrap/scrabble-scraper-v2
                                 {(this.props.settings.websocket) ? ' (websocket)' : ''} - {this.props.time}</span>
                         </div>
                         <div className='col'></div>
