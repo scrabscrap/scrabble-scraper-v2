@@ -421,6 +421,11 @@ installiert sein. Bei der Nutzung von GitPod sind diese Pakete bereits installie
 Um die Dokumentation zu erzeugen in dem Verzeichnis `docs` das Script `make_pdf.sh` aufrufen. Es wird
 ein Order `pdf` angelegt, in dem die generierten Dokumente abgelegt werden.
 
+### Mac OS
+
+* `brew install pandoc`
+* `sudo tlmgr install fvextra`
+
 ## Start der Python Anwendungen
 
 ### Raspberry PI
