@@ -88,7 +88,7 @@ class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to con
     @property
     def simulate_path(self) -> str:
         """folder for the simulation pictures"""
-        return self.config.get('development', 'simulate_path', fallback=self.work_dir + '/simulate/image-{:d}.jpg')
+        return self.config.get('development', 'simulate_path', fallback=self.src_dir + '/../test/game01/image-{:d}.jpg')
 
     @property
     def development_recording(self) -> bool:

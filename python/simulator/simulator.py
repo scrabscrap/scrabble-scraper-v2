@@ -179,8 +179,6 @@ def main():
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
-    src_path = os.path.dirname(__file__) or '.'
-    config.config.set("development", "simulate_path", str(src_path + "/../test/game01/image-{:d}.jpg"))
     # flask log only error
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)

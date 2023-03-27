@@ -71,7 +71,7 @@ class ButtonTestCase(unittest.TestCase):
         watch = ScrabbleWatch(display)
 
         cam = CameraFile()
-        cam.cnt = 0
+        cam.cnt = 1
         self.state = State(cam=cam, watch=watch)
         self.state.cam = cam  # reapply cam and watch because of singleton
         self.state.watch = watch
