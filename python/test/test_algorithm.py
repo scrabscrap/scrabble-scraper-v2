@@ -1164,6 +1164,72 @@ class AlgorithmTestCase(unittest.TestCase):
         recalculate_score_on_admin_change(game, int(move_number), (col, row), True, word='')
         self.assertEqual((0, 0), game.moves[-1].score, 'invalid scores')
 
+    def test_146(self):
+        """replace blanko with lower character"""
+        state = State()
+        game = state.game
+        game.new_game()
+
+        # H4 TURNeNS
+        board = {(3, 7): ('T', 75), (4, 7): ('U', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('_', 75),
+                 (8, 7): ('N', 75), (9, 7): ('S', 75)}
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS',
+                    new_tiles=board.copy(), removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
+        game.add_move(move)
+        score1 = game.moves[-1].score
+        game.new_game()
+
+        # H4 TURNeNS
+        board = {(3, 7): ('T', 75), (4, 7): ('U', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('e', 75),
+                 (8, 7): ('N', 75), (9, 7): ('S', 75)}
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='TURN_NS',
+                    new_tiles=board.copy(), removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
+        game.add_move(move)
+        score = game.moves[-1].score
+        self.assertEqual(score1, score, 'same score with _ and e expected')
+
+    def test_147(self):
+        """replace blanko with lower character"""
+        state = State()
+        game = state.game
+
+        game.new_game()
+        # H4 FIRNS
+        board = {(3, 7): ('F', 75), (4, 7): ('Ö', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
+        new_tiles = board.copy()
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
+                    removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
+        game.add_move(move)
+        score1 = game.moves[-1].score
+
+        # 5G V.TEn
+        board = {(3, 7): ('F', 75), (4, 7): ('Ö', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75),
+                 (4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('_', 75)}
+        new_tiles = {(4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('_', 75)}
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(4, 6), is_vertical=True, word='V.TE_', new_tiles=new_tiles,
+                    removed_tiles={}, board=board, played_time=(1, 1), previous_score=score1)
+        game.add_move(move)
+        score1 = game.moves[-1].score
+
+        game.new_game()
+        # H4 FIRNS
+        board = {(3, 7): ('F', 75), (4, 7): ('Ö', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
+        new_tiles = board.copy()
+        move = Move(move_type=MoveType.REGULAR, player=0, coord=(3, 7), is_vertical=False, word='FIRNS', new_tiles=new_tiles,
+                    removed_tiles={}, board=board, played_time=(1, 0), previous_score=(0, 0))
+        game.add_move(move)
+        score = game.moves[-1].score
+
+        # 5G V.TEn
+        board = {(3, 7): ('F', 75), (4, 7): ('Ö', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75),
+                 (4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('e', 75)}
+        new_tiles = {(4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('e', 75)}
+        move = Move(move_type=MoveType.REGULAR, player=1, coord=(4, 6), is_vertical=True, word='V.TE_', new_tiles=new_tiles,
+                    removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
+        game.add_move(move)
+        score = game.moves[-1].score
+        self.assertEqual(score1, score, 'same score with _ and e expected')
+
 
 if __name__ == '__main__':
     unittest.main(module='test_algorithm')

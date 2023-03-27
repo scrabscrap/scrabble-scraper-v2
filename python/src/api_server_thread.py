@@ -38,7 +38,7 @@ from werkzeug.serving import make_server
 
 from config import config
 from game_board.board import overlay_grid
-from processing import (get_last_warp, recalculate_score_on_admin_change,
+from processing import (get_last_warp, recalculate_score_on_admin_change, set_blankos,
                         warp_image)
 from state import State
 from threadpool import pool
@@ -78,8 +78,18 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     @app.get('/edit_moves')
     def edit_moves():
         """ edit moves """
+
+        def get_coord(coord) -> str:
+            (col, row) = coord
+            return chr(ord('A') + row) + str(col + 1)
+
         game = State().game
-        return render_template('editmove.html', apiserver=ApiServer, move_list=game.moves)
+        blankos = []
+        if game.moves:
+            for (key, value) in game.moves[-1].board.items():
+                if value[0].islower() or value[0] == '_':
+                    blankos.append((get_coord(key), value[0]))
+        return render_template('editmove.html', apiserver=ApiServer, move_list=game.moves, blanko_list=blankos)
 
     @staticmethod
     @app.post('/edit_move')  # type: ignore
@@ -125,6 +135,21 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         logging.info(f'{data}')
         ApiServer.last_msg = 'insert move not supported'
         logging.debug(f'{ApiServer.last_msg}')
+        return redirect(url_for('edit_moves'))
+
+    @staticmethod
+    @app.post('/set_blanko')  # type: ignore
+    def set_blank():
+        """set blank"""
+        coord = request.form.get('coord')  # type: ignore
+        char = request.form.get('char')
+        logging.info(f'set blanko coord {coord} = char {char}')
+        if coord and char:
+            game = State().game
+            if char.isalpha() and char.islower():
+                set_blankos(game, coord, char)
+            else:
+                ApiServer.last_msg = f'invalid character for blanko {char}'
         return redirect(url_for('edit_moves'))
 
     @staticmethod

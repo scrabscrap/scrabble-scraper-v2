@@ -7,77 +7,36 @@
             <div class="py-2">
                 <div class="card">
                     <div class="card-header bg-info">
-                        Edit Move
+                        Edit Blanko
                     </div>
                     <div class="card-body">
-                        <table class="table table-striped">
+                        <table class="table">
                             <thead>
                                 <tr>
-                                    <th scope="col">#&nbsp;</th>
-                                    <th scope="col">P&nbsp;</th>
-                                    <th scope="col">Points</th>
-                                    <th scope="col">Score&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                    <th scope="col">Type</th>
                                     <th scope="col">Coord</th>
-                                    <th scope="col">Word</th>
+                                    <th scope="col">Char</th>
                                     <th scope="col">Update</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for move in move_list %}
+                                {% for val in blanko_list %}
                                 <tr>
-                                    <form action="/edit_move" method="post">
-                                        <th scope="row"> {{ move.move }} <input hidden name="move.move" value={{
-                                                move.move }}>
-                                        </th>
-                                        <td> {{ move.player }} <input hidden name="move.player" value={{ move.player }}>
+                                    <form action="/set_blanko" method="post">
+                                        <td> <input type="text" class="form-control" name="coord" readonly value={{
+                                                val[0] }}>
                                         </td>
-                                        <td style="text-align: right;"> {{ move.points }}
+                                        <td> <input type="text" class="form-control" name="char" value="{{ val[1] }}">
                                         </td>
-                                        <td> {{ move.score }}
-                                        </td>
-                                        <td>
-                                            <select class="form-select" aria-label="Type of move" name="move.type">
-                                                <option {% if move.type.name=="REGULAR" %}selected{% endif %}
-                                                    value="REGULAR">Normal</option>
-                                                <option {% if move.type.name=="EXCHANGE" %}selected{% endif %}
-                                                    value="EXCHANGE">Exchange</option>
-                                                <option {% if move.type.name=="WITHDRAW" %}selected{% endif %} disabled
-                                                    value="WITHDRAW">Remove Tiles</option>
-                                                <option {% if move.type.name=="CHALLENGE_BONUS" %}selected{% endif %}
-                                                    disabled value="CHALLENGE_BONUS">Doubt Malus</option>
-                                            </select>
-                                        </td>
-                                        <td> {% if move.type.name=="EXCHANGE" %}
-                                            <input type="text" class="form-control" name="move.coord" size="3"
-                                                value="-">
-                                            {% elif move.type.name=="CHALLENGE_BONUS" %}
-                                            <input type="text" class="form-control" name="move.coord" size="3"
-                                                value="(c)">
-                                            {% elif move.type.name=="WITHDRAW" %}
-                                            <input type="text" class="form-control" name="move.coord" size="3"
-                                                value="--">
-                                            {% else %}
-                                            <input type="text" class="form-control" name="move.coord" size="3" value={{
-                                                move.get_coord() }}>
-                                            {% endif %}
-                                        </td>
-                                        <td> <input type="text" class="form-control" name="move.word" value={{ move.word
-                                                }}> </td>
-                                        <td><button type="submit" class="form-control btn btn-primary" value="Update"
-                                                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Update" {% if
-                                                move.type.name=='WITHDRAW' or move.type.name=='CHALLENGE_BONUS'
-                                                %}disabled{% endif %}><i
-                                                    class="bi-box-arrow-in-down"></i>&nbsp;</button>
+                                        <td><button type="submit" class="form-control btn btn-warning" value="Update"
+                                                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Update">
+                                                <i class="bi-box-arrow-in-right"></i>
+                                            </button>
                                         </td>
                                     </form>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <div class="py-2">
-                            <i>Hint: only change of one move will be accepted</i>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -135,13 +94,93 @@
                         </table>
                     </div>
                 </div>
-                <div class="card py-2">
-                    <div class="card-header bg-info">
-                        Messages
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="py-2">
+            <div class="card">
+                <div class="card-header bg-info">
+                    Edit Move
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#&nbsp;</th>
+                                <th scope="col">P&nbsp;</th>
+                                <th scope="col">Points</th>
+                                <th scope="col">Score&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Coord</th>
+                                <th scope="col">Word</th>
+                                <th scope="col">Update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for move in move_list %}
+                            <tr>
+                                <form action="/edit_move" method="post">
+                                    <th scope="row"> {{ move.move }} <input hidden name="move.move" value={{ move.move
+                                            }}>
+                                    </th>
+                                    <td> {{ move.player }} <input hidden name="move.player" value={{ move.player }}>
+                                    </td>
+                                    <td style="text-align: right;"> {{ move.points }}
+                                    </td>
+                                    <td> {{ move.score }}
+                                    </td>
+                                    <td>
+                                        <select class="form-select" aria-label="Type of move" name="move.type">
+                                            <option {% if move.type.name=="REGULAR" %}selected{% endif %}
+                                                value="REGULAR">Normal</option>
+                                            <option {% if move.type.name=="EXCHANGE" %}selected{% endif %}
+                                                value="EXCHANGE">Exchange</option>
+                                            <option {% if move.type.name=="WITHDRAW" %}selected{% endif %} disabled
+                                                value="WITHDRAW">Remove Tiles</option>
+                                            <option {% if move.type.name=="CHALLENGE_BONUS" %}selected{% endif %}
+                                                disabled value="CHALLENGE_BONUS">Doubt Malus</option>
+                                        </select>
+                                    </td>
+                                    <td> {% if move.type.name=="EXCHANGE" %}
+                                        <input type="text" class="form-control" name="move.coord" size="3" value="-">
+                                        {% elif move.type.name=="CHALLENGE_BONUS" %}
+                                        <input type="text" class="form-control" name="move.coord" size="3" value="(c)">
+                                        {% elif move.type.name=="WITHDRAW" %}
+                                        <input type="text" class="form-control" name="move.coord" size="3" value="--">
+                                        {% else %}
+                                        <input type="text" class="form-control" name="move.coord" size="3" value={{
+                                            move.get_coord() }}>
+                                        {% endif %}
+                                    </td>
+                                    <td> <input type="text" class="form-control" name="move.word" value={{ move.word }}>
+                                    </td>
+                                    <td><button type="submit" class="form-control btn btn-primary" value="Update"
+                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Update" {% if
+                                            move.type.name=='WITHDRAW' or move.type.name=='CHALLENGE_BONUS' %}disabled{%
+                                            endif %}><i class="bi-box-arrow-in-right"></i>&nbsp;</button>
+                                    </td>
+                                </form>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="py-2">
+                        <i>Hint: only change of one move will be accepted</i>
                     </div>
-                    <div class="card-body">
-                        <div style="font-family: monospace; white-space: pre-wrap;">{{apiserver.last_msg}}</div>
-                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="py-2">
+            <div class="card">
+                <div class="card-header bg-info">
+                    Messages
+                </div>
+                <div class="card-body">
+                    <div style="font-family: monospace; white-space: pre-wrap;">{{apiserver.last_msg}}</div>
                 </div>
             </div>
         </div>

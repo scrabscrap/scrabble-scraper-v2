@@ -186,11 +186,11 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
                     word += self.board[(col, row)][0]
                     row += 1
             if len(word) > 1:
-                xval = sum(scores[letter] for letter in word)
+                xval = sum(scores(letter) for letter in word)
                 if pos in DOUBLE_LETTER:
-                    xval += scores[self.board[pos][0]]
+                    xval += scores(self.board[pos][0])
                 elif pos in TRIPLE_LETTER:
-                    xval += scores[self.board[pos][0]] * 2
+                    xval += scores(self.board[pos][0]) * 2
                 elif pos in DOUBLE_WORDS:
                     xval *= 2
                 elif pos in TRIPLE_WORDS:
@@ -213,16 +213,16 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
                 crossing_words += crossing_points(pos)  # crossing word
                 # check for bonus
                 if pos in DOUBLE_LETTER:
-                    letter_bonus += scores[self.board[pos][0]]
+                    letter_bonus += scores(self.board[pos][0])
                 elif pos in TRIPLE_LETTER:
-                    letter_bonus += scores[self.board[pos][0]] * 2
+                    letter_bonus += scores(self.board[pos][0]) * 2
                 elif pos in DOUBLE_WORDS:
                     word_bonus *= 2
                 elif pos in TRIPLE_WORDS:
                     word_bonus *= 3
-                val += scores[self.board[pos][0]]
+                val += scores(self.board[pos][0])
             else:
-                val += scores[self.board[pos][0]]  # add value of tile
+                val += scores(self.board[pos][0])  # add value of tile
         is_scrabble = len(list(filter(lambda x: x != '.', self.word))) >= 7  # rack empty, so add 50 points
         val += letter_bonus
         val *= word_bonus

@@ -31,10 +31,16 @@ class OneTile:  # pylint: disable=R0903 # too few public methods
         self.h = 0
 
 
-scores = config.tiles_scores
 bag = config.tiles_bag
 bag_as_list: List = sum([[k] * bag[k] for k in bag], [])
 tiles: List[OneTile] = []
+
+
+def scores(tile: str) -> int:
+    """returns 0 if  '_' or lower chars otherwise the scoring value """
+    if tile.islower() or tile == '_':
+        return 0
+    return config.tiles_scores[tile]
 
 
 def load_tiles(filepath: Optional[str] = None) -> List[OneTile]:
@@ -42,7 +48,7 @@ def load_tiles(filepath: Optional[str] = None) -> List[OneTile]:
 
     tiles.clear()
     filepath = config.tiles_image_path
-    tile_list = [*scores]
+    tile_list = [*config.tiles_scores]
     tile_list.remove('_')  # without blank
     for tile_name in tile_list:
         image = cv2.imread(f'{filepath}/{tile_name}.png')

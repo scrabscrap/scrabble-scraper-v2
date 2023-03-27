@@ -124,6 +124,21 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
     return board
 
 
+def set_blankos(game: Game, coord: str, value: str):
+    moves = game.moves
+    for mov in moves:
+        board = mov.board
+        _, col, row = mov.calc_coord(coord)
+        if (col, row) in board.keys() and (board[(col, row)][0] == '_' or board[(col, row)][0].islower()):
+            board[(col, row)] = (value, board[(col, row)][1])
+            if (col, row) in mov.new_tiles:
+                mov.new_tiles[(col, row)] = value
+                if mov.is_vertical:
+                    mov.word = mov.word[:row - mov.coord[1]] + value + mov.word[row - mov.coord[1] + 1:]
+                else:
+                    mov.word = mov.word[:col - mov.coord[0]] + value + mov.word[col - mov.coord[0] + 1:]
+
+
 def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str,
                                       event=None):
     # pylint: disable=R0914, R0912
