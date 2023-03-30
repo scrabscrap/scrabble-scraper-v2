@@ -288,6 +288,9 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             logging.debug(f'wpa network select {i}')
             _ = subprocess.call(
                 f"sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0", shell=True)
+        sleep(5)
+        state = State()
+        state.do_new_game()
         return redirect(url_for('get_wifi'))
 
     @ staticmethod

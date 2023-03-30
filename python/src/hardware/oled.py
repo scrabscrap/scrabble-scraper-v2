@@ -89,9 +89,20 @@ class PlayerDisplay(Display, metaclass=Singleton):
 
     def show_accesspoint(self) -> None:
         logging.debug('AP Mode message')
+        try:
+            wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=I1101
+        except KeyError:
+            wip = 'n/a'
+        try:
+            eip: str = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']  # pylint: disable=I1101
+        except KeyError:
+            eip = 'n/a'
+        current_ip = (wip, eip)
+
         msg = 'AP Mode'
         for i in range(2):
             with canvas(self.device[i]) as draw:
+                draw.text((1, 1), current_ip[i], font=self.font2, fill=WHITE)
                 draw.text(MIDDLE, msg, font=self.font1, anchor='mm', align='center', fill=WHITE)
 
     def show_ready(self, msg=('Ready', 'Ready')) -> None:

@@ -21,6 +21,7 @@ import threading
 from concurrent.futures import Future
 from signal import alarm
 from typing import Callable, Optional
+from time import sleep
 
 from config import config
 from hardware.button import Button
@@ -258,6 +259,8 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
                 _ = subprocess.call(f'sudo -n /usr/sbin/wpa_cli select_network {elem[0]} -i wlan0', shell=True)
                 self.watch.display.show_accesspoint()  # Display message AP Mode
                 LED.switch_on({})  # type: ignore
+                sleep(5)
+                self.watch.display.show_accesspoint()  # Display message AP Mode
         current_state = START
         return current_state
 
