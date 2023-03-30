@@ -254,6 +254,9 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         process1 = subprocess.call(
             "sudo -n /usr/sbin/wpa_cli reconfigure -i wlan0", shell=True)
         ApiServer.last_msg = f'configure wifi return={process}\nreconfigure wpa return={process1}'
+        sleep(5)
+        state = State()
+        state.do_new_game()
         logging.debug(ApiServer.last_msg)
         return redirect(url_for('get_wifi'))
 
