@@ -15,8 +15,8 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-import pprint
 import logging
+import pprint
 from concurrent import futures
 from itertools import product
 
@@ -46,26 +46,25 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 # 19mm x 19mm
 
 
-green_lower = np.array([30, 85, 35])
-green_upper = np.array([90, 255, 255])
-blue_lower = np.array([95, 60, 50])
-blue_upper = np.array([130, 255, 255])
-red_lower = np.array([0, 100, 50])
-red_upper = np.array([10, 255, 255])
-red_lower1 = np.array([145, 50, 50])
-red_upper1 = np.array([180, 255, 255])
-# tiles [1, 4, 0] , [176, 97]
-# green_lower = np.array([30, 85, 35])
-# green_upper = np.array([90, 255, 255])
-# blue_lower = np.array([90, 70, 50])
-# blue_upper = np.array([130, 255, 255])
-# red_lower = np.array([0, 100, 50])
-# red_upper = np.array([10, 255, 255])
-# red_lower1 = np.array([145, 50, 50])
-# red_upper1 = np.array([180, 255, 255])
+# hsv 0-180, 0-255, 0-155
+# color_triple_letter = np.array([168, 66, 214])
+# color_double_letter = np.array([116, 69, 133])
+# color_triple_word = np.array([29, 166, 204])
+# color_double_word = np.array([21, 133, 255])
+# color_field = np.array([97, 145, 156])
+
+green_lower = np.array([85, 120, 128])  # empty field
+green_upper = np.array([115, 255, 255])
+
+blue_lower = np.array([105, 50, 100])   # letter
+blue_upper = np.array([180, 255, 255])
+
+red_lower = np.array([10, 110, 100])    # word
+red_upper = np.array([40, 255, 255])
 
 
-class CustomBoard(GameBoard):
+class Custom2020Board(GameBoard):
+    """ Implentation custom scrabble board analysis """
     """ Implentation custom scrabble board analysis """
     last_warp = None
     statistic: dict = {
@@ -77,12 +76,8 @@ class CustomBoard(GameBoard):
         'light-blue-upper': [-1, -1, -1],
         'red-lower': [256, 256, 256],
         'red-upper': [-1, -1, -1],
-        'red1-lower': [256, 256, 256],
-        'red1-upper': [-1, -1, -1],
         'light-red-lower': [256, 256, 256],
         'light-red-upper': [-1, -1, -1],
-        'light-red1-lower': [256, 256, 256],
-        'light-red1-upper': [-1, -1, -1],
         'tiles-lower': [256, 256, 256],
         'tiles-upper': [-1, -1, -1],
     }
@@ -91,7 +86,7 @@ class CustomBoard(GameBoard):
     def warp(__image: Mat) -> Mat:  # pylint: disable=too-many-locals
         """" implement warp of a custom board """
 
-        rect = CustomBoard.find_board(__image)
+        rect = Custom2020Board.find_board(__image)
 
         # construct our destination points which will be used to
         # map the screen to a top-down, "birds eye" view
@@ -103,7 +98,7 @@ class CustomBoard(GameBoard):
 
         # calculate the perspective transform matrix and warp
         # the perspective to grab the screen
-        CustomBoard.last_warp = rect
+        Custom2020Board.last_warp = rect
         matrix = cv2.getPerspectiveTransform(rect, dst)
         result = cv2.warpPerspective(__image, matrix, (800, 800))
         return result
@@ -113,45 +108,35 @@ class CustomBoard(GameBoard):
         if coord in TRIPLE_WORDS:  # dark red
             if red_lower[0] <= color[0] <= red_upper[0] and \
                     red_lower[1] <= color[1] <= red_upper[1]:
-                CustomBoard.statistic['red-lower'] = np.minimum(color, CustomBoard.statistic['red-lower'])
-                CustomBoard.statistic['red-upper'] = np.maximum(color, CustomBoard.statistic['red-upper'])
-                return False
-            if red_lower1[0] <= color[0] <= red_upper1[0] and \
-                    red_lower1[1] <= color[1] <= red_upper1[1]:
-                CustomBoard.statistic['red1-lower'] = np.minimum(color, CustomBoard.statistic['red1-lower'])
-                CustomBoard.statistic['red1-upper'] = np.maximum(color, CustomBoard.statistic['red1-upper'])
+                Custom2020Board.statistic['red-lower'] = np.minimum(color, Custom2020Board.statistic['red-lower'])
+                Custom2020Board.statistic['red-upper'] = np.maximum(color, Custom2020Board.statistic['red-upper'])
                 return False
         elif coord in DOUBLE_WORDS:  # light red
             if red_lower[0] <= color[0] <= red_upper[0] and \
                     red_lower[1] <= color[1] <= red_upper[1]:
-                CustomBoard.statistic['light-red-lower'] = np.minimum(color, CustomBoard.statistic['light-red-lower'])
-                CustomBoard.statistic['light-red-upper'] = np.maximum(color, CustomBoard.statistic['light-red-upper'])
-                return False
-            if red_lower1[0] <= color[0] <= red_upper1[0] and \
-                    red_lower1[1] <= color[1] <= red_upper1[1]:
-                CustomBoard.statistic['light-red1-lower'] = np.minimum(color, CustomBoard.statistic['light-red1-lower'])
-                CustomBoard.statistic['light-red1-upper'] = np.maximum(color, CustomBoard.statistic['light-red1-upper'])
+                Custom2020Board.statistic['light-red-lower'] = np.minimum(color, Custom2020Board.statistic['light-red-lower'])
+                Custom2020Board.statistic['light-red-upper'] = np.maximum(color, Custom2020Board.statistic['light-red-upper'])
                 return False
         elif coord in TRIPLE_LETTER:  # dark blue
             if blue_lower[0] <= color[0] <= blue_upper[0] and \
                     blue_lower[1] <= color[1] <= blue_upper[1]:
-                CustomBoard.statistic['blue-lower'] = np.minimum(color, CustomBoard.statistic['blue-lower'])
-                CustomBoard.statistic['blue-upper'] = np.maximum(color, CustomBoard.statistic['blue-upper'])
+                Custom2020Board.statistic['blue-lower'] = np.minimum(color, Custom2020Board.statistic['blue-lower'])
+                Custom2020Board.statistic['blue-upper'] = np.maximum(color, Custom2020Board.statistic['blue-upper'])
                 return False
         elif coord in DOUBLE_LETTER:  # light blue
             if blue_lower[0] <= color[0] <= blue_upper[0] and \
                     blue_lower[1] <= color[1] <= blue_upper[1]:
-                CustomBoard.statistic['light-blue-lower'] = np.minimum(color, CustomBoard.statistic['light-blue-lower'])
-                CustomBoard.statistic['light-blue-upper'] = np.maximum(color, CustomBoard.statistic['light-blue-upper'])
+                Custom2020Board.statistic['light-blue-lower'] = np.minimum(color, Custom2020Board.statistic['light-blue-lower'])
+                Custom2020Board.statistic['light-blue-upper'] = np.maximum(color, Custom2020Board.statistic['light-blue-upper'])
                 return False
         else:  # green
             if green_lower[0] <= color[0] <= green_upper[0] and \
                     green_lower[1] <= color[1] <= green_upper[1]:
-                CustomBoard.statistic['green-lower'] = np.minimum(color, CustomBoard.statistic['green-lower'])
-                CustomBoard.statistic['green-upper'] = np.maximum(color, CustomBoard.statistic['green-upper'])
+                Custom2020Board.statistic['green-lower'] = np.minimum(color, Custom2020Board.statistic['green-lower'])
+                Custom2020Board.statistic['green-upper'] = np.maximum(color, Custom2020Board.statistic['green-upper'])
                 return False
-        CustomBoard.statistic['tiles-lower'] = np.minimum(color, CustomBoard.statistic['tiles-lower'])
-        CustomBoard.statistic['tiles-upper'] = np.maximum(color, CustomBoard.statistic['tiles-upper'])
+        Custom2020Board.statistic['tiles-lower'] = np.minimum(color, Custom2020Board.statistic['tiles-lower'])
+        Custom2020Board.statistic['tiles-upper'] = np.maximum(color, Custom2020Board.statistic['tiles-upper'])
         return True
 
     @staticmethod
@@ -176,7 +161,7 @@ class CustomBoard(GameBoard):
             unique, counts = np.unique(reduced.reshape(-1, 3), axis=0, return_counts=True)
             color = unique[np.argmax(counts)]
 
-            if CustomBoard._is_tile((col, row), color):
+            if Custom2020Board._is_tile((col, row), color):
                 set_of_tiles.add((col, row))
                 info[:, :, 0], info[:, :, 1], info[:, :, 2] = color
             else:
@@ -187,7 +172,7 @@ class CustomBoard(GameBoard):
             if Config.development_recording():  # pragma: no cover
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 font_scale = 0.33
-                if CustomBoard._is_tile((col, row), color):
+                if Custom2020Board._is_tile((col, row), color):
                     font_color = (170, 255, 255)
                     info[:, :, 2] = 255
                 else:
@@ -250,20 +235,20 @@ class CustomBoard(GameBoard):
         tiles1: set = set()
         tiles2: set = set()
         tiles3: set = set()
-        future1 = pool.submit(CustomBoard._filter_set_of_positions, partitions[0], hsv, result, color_table, tiles1)
-        future2 = pool.submit(CustomBoard._filter_set_of_positions, partitions[1], hsv, result, color_table, tiles2)
-        CustomBoard._filter_set_of_positions(partitions[2], hsv, result, color_table, tiles3)
+        future1 = pool.submit(Custom2020Board._filter_set_of_positions, partitions[0], hsv, result, color_table, tiles1)
+        future2 = pool.submit(Custom2020Board._filter_set_of_positions, partitions[1], hsv, result, color_table, tiles2)
+        Custom2020Board._filter_set_of_positions(partitions[2], hsv, result, color_table, tiles3)
         futures.wait({future1, future2})
 
         set_of_tiles = tiles1 | tiles2 | tiles3
 
-        logging.debug(f'color statistic:\n {pprint.pformat(CustomBoard.statistic)}')
-        logging.debug(f'color table:\n{CustomBoard.log_color_table(color_table=color_table, candidates=set_of_tiles)}')
+        logging.debug(f'color statistic:\n {pprint.pformat(Custom2020Board.statistic)}')
+        logging.debug(f'color table:\n{Custom2020Board.log_color_table(color_table=color_table, candidates=set_of_tiles)}')
 
         result = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
         result = cv2.hconcat([img, result])  # type: ignore
         if any(x in set_of_tiles for x in [(6, 7), (7, 6), (8, 7), (7, 8)]):
-            logging.debug(f'candidates:\n{CustomBoard.log_candidates(set_of_tiles)}')
+            logging.debug(f'candidates:\n{Custom2020Board.log_candidates(set_of_tiles)}')
             return result, set_of_tiles
         logging.debug('no word detected')
         return result, set()
