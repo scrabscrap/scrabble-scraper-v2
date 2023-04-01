@@ -66,10 +66,13 @@ class GameBoard:
                 if len(approx) == 4:
                     pts = approx.reshape(4, 2)
                     break
-            if pts is None:
-                return None
             rect = np.zeros((4, 2), dtype="float32")
-
+            if pts is None:
+                rect[0] = [0, 0]
+                rect[1] = [__image.shape[1] - 1, 0]
+                rect[2] = [__image.shape[1] - 1, __image.shape[0] - 1]
+                rect[3] = [0, __image.shape[0] - 1]
+                return rect
             # the top-left point has the smallest sum whereas the
             # bottom-right has the largest sum
             sums = pts.sum(axis=1)
