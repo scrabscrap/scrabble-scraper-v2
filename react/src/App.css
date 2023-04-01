@@ -106,10 +106,14 @@ span.tile {
 }
 
 .td-truncate {
-  overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 15em;
+  width: 1em;
+}
+
+.td-fill {
+  overflow: hidden;
   width: 100%;
-  max-width: 30px;
 }
 
 /* board */

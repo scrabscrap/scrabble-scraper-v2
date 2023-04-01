@@ -18,6 +18,7 @@ class Moves extends Component {
                         <td className='pr-1 monospace' colSpan='2'>{sp[0]}</td>
                         <td className='pr-1 monospace text-right'>{sp[1]}</td>
                         <td className='pr-1 monospace text-right'>{sp[2]}</td>
+                        <td className='td-fill'></td>
                     </tr>)
                 } else { // move, name, coord, word, points, score
                     items.push(<tr key={key + 1}>
@@ -27,6 +28,7 @@ class Moves extends Component {
                         <td className='pr-1 monospace'>{sp[1]}</td>
                         <td className='pr-1 monospace text-right'>{sp[2]}</td>
                         <td className='pr-1 monospace text-right'>{sp[3]}</td>
+                        <td className='td-fill'></td>
                     </tr>)
                 }
             }
