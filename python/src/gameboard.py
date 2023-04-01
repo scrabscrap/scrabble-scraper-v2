@@ -58,15 +58,16 @@ class GameBoard:
             cnts = cv2.findContours(
                 dilated.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cnts = imutils.grab_contours(cnts)
-            cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:1]
-            contour = cnts[0]
-            peri = 1
-            approx = cv2.approxPolyDP(contour, peri, True)
-            while len(approx) > 4:
-                peri += 1
-                approx = cv2.approxPolyDP(contour, peri, True)
-
-            pts = approx.reshape(4, 2)
+            cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
+            pts = None
+            for c in cnts:
+                peri = cv2.arcLength(c, True)
+                approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+                if len(approx) == 4:
+                    pts = approx.reshape(4, 2)
+                    break
+            if pts is None:
+                return None
             rect = np.zeros((4, 2), dtype="float32")
 
             # the top-left point has the smallest sum whereas the
