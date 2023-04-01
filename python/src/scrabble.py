@@ -272,7 +272,10 @@ class Game():
         keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in keys]
         values1 = [t for (t, p) in values]
         bag = bag_as_list.copy()
-        _ = [i for i in values1 if i not in bag or bag.remove(i)]  # type: ignore # side effect remove v1 from bag
+        for i in values1:
+            toremove = '_' if i.isalpha() and i.islower() else i
+            if toremove in bag:
+                bag.remove(toremove)
         gcg_moves = []
         for i in range(0, move_index + 1):
             gcg_moves.append(self.moves[i].gcg_str(self.nicknames))
