@@ -146,7 +146,8 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         logging.info(f'set blanko coord {coord} = char {char}')
         if coord and char:
             game = State().game
-            if char.isalpha() and char.islower():
+            if char.isalpha():
+                char = char.lower()
                 set_blankos(game, coord, char)
             else:
                 ApiServer.last_msg = f'invalid character for blanko {char}'
