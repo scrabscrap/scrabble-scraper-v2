@@ -125,6 +125,7 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
 
 
 def set_blankos(game: Game, coord: str, value: str):
+    """set charactor for blanko"""
     moves = game.moves
     for mov in moves:
         board = mov.board
@@ -322,7 +323,7 @@ def start_of_game(game: Game):
 
 
 @ trace
-def end_of_game(waitfor: Optional[Future], game: Game):  # pragma: no cover # no ftp upload on tests
+def end_of_game(waitfor: Optional[Future], game: Game, event=None):  # pragma: no cover # no ftp upload on tests
     """Process end of game
 
     Args:
@@ -339,6 +340,15 @@ def end_of_game(waitfor: Optional[Future], game: Game):  # pragma: no cover # no
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     # time.sleep(1.5)
+    points, rackstr = _end_of_game_calculate_rack(game)
+    game.add_last_rack(points, rackstr)
+    if event and not event.is_set():
+        event.set()
+    logging.debug(f'last rack scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
+    _development_recording(game, None, info=True)
+    _store_move(game, None)                                                     # 10. store move on hd
+    _upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
+
     game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
     zip_filename = f'{game_id}-{str(uuid.uuid4())}'
     if config.output_web or config.output_ftp:
@@ -362,6 +372,46 @@ def end_of_game(waitfor: Optional[Future], game: Game):  # pragma: no cover # no
 
     if config.development_recording:
         logging.info(game.dev_str())
+
+
+def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
+    from game_board.tiles import bag_as_list, scores
+
+    def calculate_bag(mov) -> list[str]:
+        values = [t for (t, _) in mov.board.values()]
+        bag = bag_as_list.copy()
+        for val in values:
+            toremove = '_' if val.isalpha() and val.islower() else val
+            if toremove in bag:
+                bag.remove(toremove)
+        return bag
+
+    bag_len = 0
+    for i in range(-1, len(game.moves) * -1, -1):
+        mov = game.moves[i]
+        bag = calculate_bag(mov)
+        if len(bag) >= 14:  # now find changed tiles
+            mov = game.moves[i]
+            bag = calculate_bag(mov)
+            bag_len = len(bag) - 14
+            break
+    rack = [7, 7]
+    for j in range(i + 1, 0):  # type: ignore
+        mov = game.moves[j]
+        mov_len = len(mov.new_tiles)
+        from_bag = min(mov_len, bag_len)
+        rack[mov.player] -= (mov_len - from_bag)
+        bag_len -= from_bag
+        logging.debug(f'player={mov.player} rack-size={rack[mov.player]} from-bag={from_bag}')
+    bag = calculate_bag(game.moves[-1])
+    points = 0
+    for elem in bag:
+        points += scores(elem)
+    if rack[0] == 0 and rack[1] > 0:
+        return (points, -points), "".join(bag)
+    if rack[1] == 0 and rack[0] > 0:
+        return (-points, points), "".join(bag)
+    return (0, 0), '?'
 
 
 def _changes(board: dict, previous_board: dict) -> Tuple[dict, dict, dict, dict]:

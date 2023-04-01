@@ -87,8 +87,8 @@ class GameRunnerTestCase(unittest.TestCase):
             start_button = test_config.get('default', 'start', fallback='Red')
 
             coordstr = test_config.get('default', 'warp-coord', fallback=None)
-            formatter = f'{os.path.dirname(config_file.name)}/{test_config.get("default", "formatter")}'
-            csvfile = f'{os.path.dirname(config_file.name)}/game.csv'
+            formatter = f'{os.path.dirname(config_file.name)}/{test_config.get("default", "formatter")}'  # type: ignore
+            csvfile = f'{os.path.dirname(config_file.name)}/game.csv'  # type: ignore
 
             # set config
             self.config_setter('video', 'warp', warp)
@@ -126,6 +126,7 @@ class GameRunnerTestCase(unittest.TestCase):
                                          f'invalid score 2 {state.game.moves[-1].score[1]} at move {int(row["Move"])}')
                         self.assertEqual(row["Word"], state.game.moves[-1].word,
                                          f'invalid word {state.game.moves[-1].word} at move {int(row["Move"])}')
+                    state.do_end_of_game()
         logging.info('### end of tests ###')
         for file in files:
             logging.info(f'{file}')

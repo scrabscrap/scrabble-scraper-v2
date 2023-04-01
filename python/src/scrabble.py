@@ -130,10 +130,10 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
             result += "- "  # f'- {self.exchange} '
         elif self.type == MoveType.WITHDRAW:
             result += "-- "
-        # elif self.type == MoveType.last_rack_bonus:
-        #     result += f'({self.opp_rack}) '
-        # elif self.type == MoveType.last_rack_malus:
-        #     result += f'({self.rack}) '
+        elif self.type == MoveType.LAST_RACK_BONUS:
+            result += f'(bank) {self.word} '
+        elif self.type == MoveType.LAST_RACK_MALUS:
+            result += f'(bank) {self.word} '
         elif self.type == MoveType.CHALLENGE_BONUS:
             result += "(challenge) "
         elif self.type == MoveType.TIME_MALUS:
@@ -499,4 +499,42 @@ class Game():
         self.moves.append(move)
         move.move = len(self.moves)  # set move number
         logging.info(f'valid challenge: player {move.player} points {move.points}')
+        return self
+
+    def add_last_rack(self, points: Tuple[int, int], rack_str: str) -> object:
+        """Add scpring for the rack at end of game
+
+        Args:
+            points (int, int): points for player 0 / 1
+            rack_str str: remaining rack
+
+        Returns:
+            self(Game): current game
+        """
+
+        last_move = self.moves[-1]
+        logging.debug('scrabble: create move last rack bonus/malus')
+
+        move = copy.deepcopy(last_move)
+        move.type = MoveType.LAST_RACK_BONUS if points[0] > 0 else MoveType.LAST_RACK_MALUS
+        move.player = 0
+        move.word = rack_str
+        move.removed_tiles = {}
+        move.new_tiles = {}
+        move.points = points[0]
+        move.score = (move.score[0] + points[0], move.score[1] + points[1])
+        self.moves.append(move)
+        move.move = len(self.moves)  # set move number
+
+        move = copy.deepcopy(last_move)
+        move.type = MoveType.LAST_RACK_MALUS if points[0] > 0 else MoveType.LAST_RACK_BONUS
+        move.player = 1
+        move.word = rack_str
+        move.removed_tiles = {}
+        move.new_tiles = {}
+        move.points = points[1]
+        move.score = (move.score[0] + points[0], move.score[1] + points[1])
+        self.moves.append(move)
+        move.move = len(self.moves)  # set move number
+
         return self

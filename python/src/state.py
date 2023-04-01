@@ -229,7 +229,7 @@ class State(metaclass=Singleton):  # pylint: disable=R0904
         logging.info(f'{self.current_state} - (reset) -> {START}')
         LED.switch_on({})  # type: ignore
         LED.blink_on({LEDEnum.yellow})
-        end_of_game(None, self.game)
+        end_of_game(None, self.game, self.op_event)
         self.watch.display.show_end_of_game()
         current_state = EOG
         return current_state
