@@ -124,8 +124,15 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
     return board
 
 
-def set_blankos(game: Game, coord: str, value: str):
-    """set charactor for blanko"""
+def set_blankos(game: Game, coord: str, value: str, event=None):
+    """set char for blanko
+
+        Args:
+        game(Move): the game to fix
+        coord: coord of blank
+        value: char for blank
+        event: event to inform webservice
+    """
     moves = game.moves
     for mov in moves:
         board = mov.board
@@ -138,21 +145,50 @@ def set_blankos(game: Game, coord: str, value: str):
                     mov.word = mov.word[:row - mov.coord[1]] + value + mov.word[row - mov.coord[1] + 1:]
                 else:
                     mov.word = mov.word[:col - mov.coord[0]] + value + mov.word[col - mov.coord[0] + 1:]
+    if event and not event.is_set():
+        event.set()
 
 
-def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str,
-                                      event=None):
+def admin_change_score(game: Game, move_number: int, score: Tuple[int, int], event=None):
     # pylint: disable=R0914, R0912
-    """fix move (direct call from admin)
+    """fix scores (direct call from admin)
 
-    The provided tiles (word) will be set on the board with a probability of 99%
+        Args:
+        game(Move): the game to fix
+        move_number: the move to fix(beginning with 1)
+        score(Tuple[int, int]): new score
+        event: event to inform webservice
+    """
+    if 0 < move_number <= len(game.moves):
+        assert game.moves[move_number - 1].move == move_number
+        index = move_number - 1
+        delta = (game.moves[index].score[0] - score[0], game.moves[index].score[1] - score[1])
+        if delta[0] != 0 or delta[1] != 0:
+            game.moves[index].modification_cache['score'] = game.moves[index].score
+        logging.debug(f'set score for move {move_number} {game.moves[index].score} => {score} / delta {delta}')
+        for i in range(index, len(game.moves)):
+            game.moves[i].score = (game.moves[i].score[0] - delta[0], game.moves[i].score[1] - delta[1])
+            logging.info(f'move {i}: {game.moves[i].score}')
+            _store_fixed_move(game, game.moves[i])
+            _upload_ftp(game.moves[i])
+        if event and not event.is_set():
+            event.set()
+
+
+def admin_change_move(game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str,
+                      event=None):
+    # pylint: disable=R0914, R0912
+    """fix move(direct call from admin)
+
+    The provided tiles(word) will be set on the board with a probability of 99%
 
     Args:
         game(Move): the game to fix
-        move_number: the move to fix (beginning with 1)
-        coord: coordinates on board (0<=col<15, 0<=row<15)
+        move_number: the move to fix(beginning with 1)
+        coord: coordinates on board(0 <= col < 15, 0 <= row < 15)
         isvertical: if this corrected move is vertical
-        word: the new word valid chars (A-Z._) crossing chars will replaced with '.'
+        word: the new word valid chars(A - Z._) crossing chars will replaced with '.'
+        event: event to infom webservice
     """
     moves = game.moves
     if 0 < move_number <= len(moves):
@@ -177,6 +213,10 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
             elif char != '.' and (col + i, row) not in board:
                 tiles_to_add[(col + i, row)] = (char, 99)
         logging.debug(f'tiles_to_add {tiles_to_add}')
+        if tiles_to_remove or tiles_to_add:
+            game.moves[index].modification_cache['coord'] = coord
+            game.moves[index].modification_cache['isvertical'] = isvertical
+            game.moves[index].modification_cache['word'] = word
 
         previous_board = game.moves[index - 1].board if move_number > 1 else {}
         previous_score = game.moves[index - 1].score if move_number > 1 else (0, 0)
@@ -200,8 +240,10 @@ def recalculate_score_on_admin_change(game: Game, move_number: int, coord: Tuple
                     new_move.removed_tiles = moves[i - 1].new_tiles
                     new_move.new_tiles = {}
             else:
+                save_cache = new_move.modification_cache
                 new_move = _move_processing(game, new_move.player, new_move.played_time, new_move.img,
                                             new_move.board, previous_board, previous_score)
+                new_move.modification_cache = save_cache
             new_move.move = i + 1
             previous_board = new_move.board
             previous_score = new_move.score
@@ -223,11 +265,11 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     """Process a move
 
     Args:
-        waitfor (futures): wait for jobs to complete
+        waitfor(futures): wait for jobs to complete
         game(Game): the current game data
         img: the image to analyze
-        player (int): active player
-        played_time (int, int): current player times
+        player(int): active player
+        played_time(int, int): current player times
     """
     warped, board = _image_processing(waitfor, game, img)
 
@@ -257,10 +299,10 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
     """Process a valid challenge
 
     Args:
-        waitfor (futures): wait for jobs to complete
+        waitfor(futures): wait for jobs to complete
         game(Game): the current game data
-        player (int): active player
-        played_time (int, int): current player times
+        player(int): active player
+        played_time(int, int): current player times
     """
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
@@ -283,10 +325,10 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
     """Process an invalid challenge
 
     Args:
-        waitfor (futures): wait for jobs to complete
+        waitfor(futures): wait for jobs to complete
         game(Game): the current game data
-        player (int): active player
-        played_time (int, int): current player times
+        player(int): active player
+        played_time(int, int): current player times
     """
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
@@ -306,7 +348,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
 
 @ trace
 def store_status(game: Game):
-    """store current status.json - does not update data-*.json !"""
+    """store current status.json - does not update data - *.json !"""
     from ftp import Ftp
     if config.output_web or config.output_ftp:
         with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
@@ -327,7 +369,7 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):  # pragma: n
     """Process end of game
 
     Args:
-        waitfor (futures): wait for jobs to complete
+        waitfor(futures): wait for jobs to complete
         game(Game): the current game data
     """
     import glob

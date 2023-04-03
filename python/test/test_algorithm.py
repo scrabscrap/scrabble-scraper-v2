@@ -1003,7 +1003,7 @@ class AlgorithmTestCase(unittest.TestCase):
 
     def test_141(self):
         """Test 141 - Algorithm: change tile via admin call - first move"""
-        from processing import recalculate_score_on_admin_change
+        from processing import admin_change_move
 
         state = State()
         game = state.game
@@ -1022,12 +1022,12 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 7
         row = 7
-        recalculate_score_on_admin_change(game, int(move_number), (col, row), False, word='RNS')
+        admin_change_move(game, int(move_number), (col, row), False, word='RNS')
         self.assertEqual((6, 0), game.moves[-1].score, 'invalid scores')
 
     def test_142(self):
         """Test 142 - Algorithm: 2 moves on board correct first move"""
-        from processing import recalculate_score_on_admin_change
+        from processing import admin_change_move
 
         state = State()
         game = state.game
@@ -1060,13 +1060,13 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 4
         row = 7
-        recalculate_score_on_admin_change(game, int(move_number), (col, row), False, word='IRNS')
+        admin_change_move(game, int(move_number), (col, row), False, word='IRNS')
         self.assertEqual((8, 18), game.moves[-1].score, 'invalid scores')
         logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
     def test_143(self):
         """Test 143 - Algorithm: 2 moves on board correct second move"""
-        from processing import recalculate_score_on_admin_change
+        from processing import admin_change_move
 
         state = State()
         game = state.game
@@ -1098,13 +1098,13 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 2
         col = 4
         row = 7
-        recalculate_score_on_admin_change(game, int(move_number), (col, row), True, word='ITEN')
+        admin_change_move(game, int(move_number), (col, row), True, word='ITEN')
         self.assertEqual((24, 8), game.moves[-1].score, 'invalid scores')
         logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
     def test_144(self):
         """Test 144 - Algorithm: 2 moves on board correct first move"""
-        from processing import recalculate_score_on_admin_change
+        from processing import admin_change_move
 
         state = State()
         game = state.game
@@ -1136,13 +1136,13 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 3
         row = 7
-        recalculate_score_on_admin_change(game, int(move_number), (col, row), False, word='FIRNS')
+        admin_change_move(game, int(move_number), (col, row), False, word='FIRNS')
         self.assertEqual((24, 18), game.moves[-1].score, 'invalid scores')
         logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
     def test_145(self):
         """Test 145 - Algorithm: change tile to exchange via admin call - first move"""
-        from processing import recalculate_score_on_admin_change
+        from processing import admin_change_move
 
         state = State()
         game = state.game
@@ -1161,7 +1161,7 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 0
         row = 0
-        recalculate_score_on_admin_change(game, int(move_number), (col, row), True, word='')
+        admin_change_move(game, int(move_number), (col, row), True, word='')
         self.assertEqual((0, 0), game.moves[-1].score, 'invalid scores')
 
     def test_146(self):

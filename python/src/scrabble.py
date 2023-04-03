@@ -92,6 +92,7 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
         self.board: dict = board
         self.played_time: Tuple[int, int] = played_time
         self.img = img
+        self.modification_cache: dict = {}
         self.rack: Optional[Tuple[dict, dict]] = rack
         if self.type in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):  # (re) calculate score
             self.points, self.score, self.is_scrabble = self.calculate_score(previous_score)
@@ -105,10 +106,11 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
     def gcg_str(self, nicknames: Optional[Tuple[str, str]] = None) -> str:
         """move as gcg string"""
 
+        mod = ' \u270E' if self.modification_cache else ''
         if nicknames:
-            result = f'> {nicknames[self.player]}: '
+            result = f'> {nicknames[self.player]}{mod}: '
         else:
-            result = f'> Name{self.player}: '
+            result = f'> Name{self.player}{mod}: '
         if self.type == MoveType.REGULAR:
             (col, row) = self.coord
             result += str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(

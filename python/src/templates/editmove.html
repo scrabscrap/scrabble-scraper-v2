@@ -6,6 +6,33 @@
         <div class="col-6">
             <div class="py-2">
                 <div class="card">
+                    <div class="card-header bg-info">Names</div>
+                    <div class="card-body">
+                        <form action="/player" method="get">
+                            <div class="row">
+                                <div class="col-4">
+                                    <input type="text" class="form-control" name="player1" placeholder="{{player1}}"
+                                        required>
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control" name="player2" placeholder="{{player2}}"
+                                        required>
+                                </div>
+                                <div class="col-4">
+                                    <button type="submit" class="form-control btn btn-primary" value="Update"
+                                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Update">
+                                        <i class="bi-save"></i>&nbsp;
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="py-2">
+                <div class="card">
                     <div class="card-header bg-info">
                         Edit Blanko
                     </div>
@@ -27,9 +54,10 @@
                                         </td>
                                         <td> <input type="text" class="form-control" name="char" value="{{ val[1] }}">
                                         </td>
-                                        <td><button type="submit" class="form-control btn btn-warning" value="Update"
-                                                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Update">
-                                                <i class="bi-box-arrow-in-right"></i>
+                                        <td><button type="submit" class="form-control btn btn-outline-primary"
+                                                value="Update" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                title="Update">
+                                                <i class="bi-save"></i>&nbsp;
                                             </button>
                                         </td>
                                     </form>
@@ -41,67 +69,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-6">
-            <div class="py-2">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        Insert Move (not supported)
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Player</th>
-                                    <th scope="col">Type</th>
-                                    <th scope="col">Coord</th>
-                                    <th scope="col">Word</th>
-                                    <th scope="col">Insert</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <form action="/insert_move" method="post">
-                                        <th scope="row"> <input type="text" class="form-control" name="move" readonly
-                                                size="3" placeholder="move">
-                                        </th>
-                                        <td> <input type="text" class="form-control" name="player" readonly size="3"
-                                                placeholder="player">
-                                        </td>
-                                        <td>
-                                            <select class="form-select" aria-label="Type of move" name="type" disabled>
-                                                <option value="REGULAR">Normal</option>
-                                                <option value="EXCHANGE">Exchange</option>
-                                                <option disabled value="WITHDRAW">Remove Tiles</option>
-                                                <option disabled value="CHALLENGE_BONUS">Doubt Malus</option>
-                                            </select>
-                                        </td>
-                                        <td> <input type="text" class="form-control" name="coord" readonly size="3"
-                                                placeholder="coord">
-                                        </td>
-                                        <td> <input type="text" class="form-control" name="word" placeholder="word"
-                                                readonly>
-                                        </td>
-                                        <td><button type="submit" class="form-control btn btn-warning" value="Insert"
-                                                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Insert"
-                                                disabled>
-                                                <i class="bi-box-arrow-in-right"></i>
-                                            </button>
-                                        </td>
-                                    </form>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
     <div class="col-12">
         <div class="py-2">
             <div class="card">
                 <div class="card-header bg-info">
-                    Edit Move
+                    Edit Move (Beta)
                 </div>
                 <div class="card-body">
                     <table class="table table-striped">
@@ -109,12 +82,14 @@
                             <tr>
                                 <th scope="col">#&nbsp;</th>
                                 <th scope="col">P&nbsp;</th>
-                                <th scope="col">Points</th>
-                                <th scope="col">Score&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                <th scope="col">Pts</th>
+                                <th scope="col">Sc Green</th>
+                                <th scope="col">Sc Red</th>
+                                <th scope="col">&nbsp;</th>
                                 <th scope="col">Type</th>
                                 <th scope="col">Coord</th>
                                 <th scope="col">Word</th>
-                                <th scope="col">Update</th>
+                                <th scope="col">&nbsp;</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -128,7 +103,16 @@
                                     </td>
                                     <td style="text-align: right;"> {{ move.points }}
                                     </td>
-                                    <td> {{ move.score }}
+                                    <td><input type="text" class="form-control" name="move.score0" size="3"
+                                            value="{{ move.score[0] }}">
+                                    </td>
+                                    <td><input type="text" class="form-control" name="move.score1" size="3"
+                                            value="{{ move.score[1] }}">
+                                    </td>
+                                    <td><button type="submit" class="form-control btn btn-outline-primary"
+                                            value="Update-Score" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                            title="Update score" formaction="/edit_score">
+                                            <i class="bi-save"></i>&nbsp;</button>
                                     </td>
                                     <td>
                                         <select class="form-select" aria-label="Type of move" name="move.type">
@@ -136,10 +120,18 @@
                                                 value="REGULAR">Normal</option>
                                             <option {% if move.type.name=="EXCHANGE" %}selected{% endif %}
                                                 value="EXCHANGE">Exchange</option>
+                                            <option {% if move.type.name=="PASS_TURN" %}selected{% endif %} disabled
+                                                value="PASS_TURN">Pass turn</option>
                                             <option {% if move.type.name=="WITHDRAW" %}selected{% endif %} disabled
                                                 value="WITHDRAW">Remove Tiles</option>
                                             <option {% if move.type.name=="CHALLENGE_BONUS" %}selected{% endif %}
                                                 disabled value="CHALLENGE_BONUS">Doubt Malus</option>
+                                            <option {% if move.type.name=="LAST_RACK_BONUS" %}selected{% endif %}
+                                                disabled value="LAST_RACK_BONUS">Last Rack Bonus</option>
+                                            <option {% if move.type.name=="LAST_RACK_MALUS" %}selected{% endif %}
+                                                disabled value="LAST_RACK_MALUS">Last Rack Malus</option>
+                                            <option {% if move.type.name=="UNKNOWN" %}selected{% endif %} disabled
+                                                value="UNKNOWN">Unknown</option>
                                         </select>
                                     </td>
                                     <td> {% if move.type.name=="EXCHANGE" %}
@@ -155,10 +147,11 @@
                                     </td>
                                     <td> <input type="text" class="form-control" name="move.word" value={{ move.word }}>
                                     </td>
-                                    <td><button type="submit" class="form-control btn btn-primary" value="Update"
-                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Update" {% if
-                                            move.type.name=='WITHDRAW' or move.type.name=='CHALLENGE_BONUS' %}disabled{%
-                                            endif %}><i class="bi-box-arrow-in-right"></i>&nbsp;</button>
+                                    <td><button type="submit" class="form-control btn btn-outline-primary"
+                                            value="Update" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                            title="Update move" {% if move.type.name=='WITHDRAW' or
+                                            move.type.name=='CHALLENGE_BONUS' %}disabled{% endif %}><i
+                                                class="bi-save"></i>&nbsp;</button>
                                     </td>
                                 </form>
                             </tr>
@@ -166,7 +159,7 @@
                         </tbody>
                     </table>
                     <div class="py-2">
-                        <i>Hint: only change of one move will be accepted</i>
+                        <i>Hint: only a change of one move at a time is accepted</i>
                     </div>
                 </div>
             </div>

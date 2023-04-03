@@ -38,8 +38,7 @@ from werkzeug.serving import make_server
 
 from config import config
 from game_board.board import overlay_grid
-from processing import (get_last_warp, recalculate_score_on_admin_change, set_blankos,
-                        warp_image)
+from processing import (get_last_warp, admin_change_move, admin_change_score, set_blankos, warp_image)
 from state import State
 from threadpool import pool
 
@@ -84,12 +83,14 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             return chr(ord('A') + row) + str(col + 1)
 
         game = State().game
+        (player1, player2) = game.nicknames
         blankos = []
         if game.moves:
             for (key, value) in game.moves[-1].board.items():
                 if value[0].islower() or value[0] == '_':
                     blankos.append((get_coord(key), value[0]))
-        return render_template('editmove.html', apiserver=ApiServer, move_list=game.moves, blanko_list=blankos)
+        return render_template('editmove.html', apiserver=ApiServer, player1=player1, player2=player2,
+                               move_list=game.moves, blanko_list=blankos)
 
     @staticmethod
     @app.post('/edit_move')  # type: ignore
@@ -103,10 +104,12 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         coord = request.form.get('move.coord')
         word = request.form.get('move.word')
         word = word.upper().replace(' ', '_') if word else ''
-        game = State().game
+        state = State()
+        game = state.game
         logging.debug(f'len moves {len(game.moves)}')
         move = game.moves[move_number - 1]
         vert, col, row = move.calc_coord(coord)  # type: ignore
+        # TODO: test score0, score1
         if str(move.type.name) != move_type or move.coord != (col, row) or move.word != word or move.is_vertical != vert:
             logging.info(
                 f'move edit: move: {move_number} player: {move.player}\n{move.type.name}->{move_type}\n'
@@ -114,11 +117,11 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             if move_type == 'EXCHANGE':
                 ApiServer.last_msg = f'try to correct move #{move_number} to exchange'
                 logging.debug(f'{ApiServer.last_msg}')
-                recalculate_score_on_admin_change(game, int(move_number), (0, 0), True, '')
+                admin_change_move(game, int(move_number), (0, 0), True, '', state.op_event)
             elif re.compile('[A-Z_\\.]+').match(word):
                 ApiServer.last_msg = f'try to correct move {move_number} {move.get_coord()}: {move.word} to {coord}:{word}'
                 logging.debug(f'{ApiServer.last_msg}')
-                recalculate_score_on_admin_change(game, int(move_number), (col, row), vert, word)
+                admin_change_move(game, int(move_number), (col, row), vert, word, state.op_event)
             else:
                 ApiServer.last_msg = f'invalid character in word {word}'
                 logging.debug(f'{ApiServer.last_msg}')
@@ -128,13 +131,24 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         return redirect(url_for('edit_moves'))
 
     @staticmethod
-    @app.post('/insert_move')  # type: ignore
-    def insert_move():
-        """insert a new move"""
+    @app.post('/edit_score')  # type: ignore
+    def edit_score():
         data = request.form
         logging.info(f'{data}')
-        ApiServer.last_msg = 'insert move not supported'
-        logging.debug(f'{ApiServer.last_msg}')
+        move_number = int(request.form.get('move.move'))  # type: ignore
+        score0 = int(request.form.get('move.score0'))  # type: ignore
+        score1 = int(request.form.get('move.score1'))  # type: ignore
+        state = State()
+        game = state.game
+        logging.debug(f'len moves {len(game.moves)}')
+        move = game.moves[move_number - 1]
+        if move.score[0] != score0 or move.score[1] != score1:
+            ApiServer.last_msg = f'update move# {move_number}: score {move.score} => {(score0, score1)}'
+            logging.debug(f'{ApiServer.last_msg}')
+            admin_change_score(game, move_number, (score0, score1), state.op_event)
+        else:
+            ApiServer.last_msg = ' no changes detected'
+            logging.debug(f'{ApiServer.last_msg}')
         return redirect(url_for('edit_moves'))
 
     @staticmethod
@@ -145,10 +159,11 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         char = request.form.get('char')
         logging.info(f'set blanko coord {coord} = char {char}')
         if coord and char:
-            game = State().game
+            state = State()
+            game = state.game
             if char.isalpha():
                 char = char.lower()
-                set_blankos(game, coord, char)
+                set_blankos(game, coord, char, event=state.op_event)
             else:
                 ApiServer.last_msg = f'invalid character for blanko {char}'
         return redirect(url_for('edit_moves'))
