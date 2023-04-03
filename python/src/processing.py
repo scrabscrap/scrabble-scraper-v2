@@ -360,7 +360,19 @@ def store_status(game: Game):
 def start_of_game(game: Game):
     """ start of game """
     from ftp import Ftp
+    import glob
+    import os
+
     pool.submit(Ftp.delete_files, ['image', 'data'])  # first delete images and data files on ftp server
+    try:
+        file_list = glob.glob(f'{config.web_dir}/image-*.jpg')
+        for file_path in file_list:
+            os.remove(file_path)
+        file_list = glob.glob(f'{config.web_dir}/data-*.jpg')
+        for file_path in file_list:
+            os.remove(file_path)
+    except OSError:
+        logging.error('OS Error on delete web data/image files')
     store_status(game)
 
 
