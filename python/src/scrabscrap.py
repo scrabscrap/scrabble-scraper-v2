@@ -70,6 +70,10 @@ def main() -> None:
             os.system('sudo shutdown now')
             sys.exit(0)
 
+    logging.info('####################################################################')
+    logging.info('## ScrabScrap loading ...                                         ##')
+    logging.info('####################################################################')
+
     signal.signal(signal.SIGALRM, signal_alarm)
     atexit.register(_cleanup)
 
@@ -99,6 +103,10 @@ def main() -> None:
 
     if cam is None:
         watch.display.show_cam_err()
+
+    logging.info('####################################################################')
+    logging.info('## ScrabScrap ready                                               ##')
+    logging.info('####################################################################')
 
     # Run until Exit with alarm(1)
     pause()
