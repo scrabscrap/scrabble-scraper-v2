@@ -99,5 +99,7 @@ mkdir "$ROOT_PATH/python/src/static/webapp"
 cp -r "$ROOT_PATH/react/build/." "$ROOT_PATH/python/src/static/webapp/"
 ln -s "$ROOT_PATH/python/work/web" "$ROOT_PATH/python/src/static/webapp/web"
 
-echo "*** reboot ***"
+echo "####################################################################"
+echo "## reboot                                                         ##"
+echo "####################################################################"
 sudo reboot

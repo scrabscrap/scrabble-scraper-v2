@@ -521,7 +521,11 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     @ app.route('/upgrade_scrabscrap')
     def update_scrabscrap():
         """ start scrabscrap upgrade """
+        from scrabblewatch import ScrabbleWatch
+
         if State().current_state == 'START':
+            watch = ScrabbleWatch()
+            watch.display.show_ready(('Update...', 'pls wait'))
             os.system(f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} |'
                       f' tee -a {config.log_dir}/messages.log &')
             return redirect(url_for('logs'))

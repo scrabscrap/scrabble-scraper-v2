@@ -10,16 +10,23 @@ else
     BRANCH=$1
 fi
 
+echo "####################################################################"
+echo "## Upgrade ScrabScrap                                             ##"
+echo "####################################################################"
 git fetch --tags --prune --all -f
 
 if git merge-base --is-ancestor origin/$BRANCH HEAD; then
     echo "no git changes detected, , skipping git pull ..."
     echo "####################################################################"
-    echo "## check for Linux Updates                                        ##"
+    echo "## Upgrade Linux                                                  ##"
     echo "####################################################################"
     sudo apt-get update -yq
     sudo apt-get upgrade -yq
     sudo apt-get autoremove -yq
+    echo "####################################################################"
+    echo "## reboot                                                         ##"
+    echo "####################################################################"
+    sudo reboot
 else
     git stash
     git checkout $BRANCH -f
