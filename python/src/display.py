@@ -110,4 +110,7 @@ class Display:
 
         minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
         text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
-        logging.debug(f'render_display {player}: {text}')
+        # log message only if player changed
+        if self.lastplayer and self.lastplayer != player:
+            logging.debug(f'render_display {player}: {text}')
+            self.lastplayer = player
