@@ -497,9 +497,13 @@ def _development_recording(game: Game, img: Optional[Mat], suffix: str = '', inf
         if img is not None:
             move_number = len(game.moves)
             cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}{suffix}.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 99])
-        if info:
-            warp_str = np.array2string(get_last_warp(), formatter={  # type: ignore
-                'float_kind': lambda x: f'{x:.1f}'}, separator=',')
+        if info and len(game.moves) > 0:
+            warp_str = None
+            try:
+                warp_str = np.array2string(get_last_warp(), formatter={  # type: ignore
+                    'float_kind': lambda x: f'{x:.1f}'}, separator=',')
+            except AttributeError:
+                pass
             recording_logger.info(f'{game_id} move: {game.moves[-1].move}')
             recording_logger.info(f'{game_id} warp: {warp_str}')
             recording_logger.info(f'{game_id} player: {game.moves[-1].player}')
