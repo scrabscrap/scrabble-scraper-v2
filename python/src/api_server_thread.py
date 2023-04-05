@@ -700,7 +700,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         if version_info.returncode > 0:
             version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        ApiServer.scrabscrap_version = version_info.stdout.decode()[:7]
+        ApiServer.scrabscrap_version = version_info.stdout.decode()[:14]
         if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
             ApiServer.local_webapp = True
             try:
