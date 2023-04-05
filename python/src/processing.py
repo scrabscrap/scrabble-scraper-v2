@@ -290,7 +290,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         msg += f'{game.board_str()}'
         logging.debug(msg)
     _development_recording(game, img, info=True)
-    _store_move(game, warped)                                                  # 10. store move on hd
+    _store_move(game)                                                  # 10. store move on hd
     _upload_ftp(current_move)
 
 
@@ -313,7 +313,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
 
         logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
         _development_recording(game, None, info=True)
-        _store_move(game, None)
+        _store_move(game)
         _upload_ftp(game.moves[-1])
     except Exception as oops:
         logging.error(f'exception on valid_challenge {oops}')
@@ -339,7 +339,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
 
         logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
         _development_recording(game, None, info=True)
-        _store_move(game, None)                                                     # 10. store move on hd
+        _store_move(game)                                                     # 10. store move on hd
         _upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
     except Exception as oops:
         logging.error(f'exception on in_valid_challenge {oops}')
@@ -368,7 +368,7 @@ def start_of_game(game: Game):
         file_list = glob.glob(f'{config.web_dir}/image-*.jpg')
         for file_path in file_list:
             os.remove(file_path)
-        file_list = glob.glob(f'{config.web_dir}/data-*.jpg')
+        file_list = glob.glob(f'{config.web_dir}/data-*.json')
         for file_path in file_list:
             os.remove(file_path)
     except OSError:
@@ -400,7 +400,7 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):  # pragma: n
         event.set()
     logging.debug(f'last rack scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
     _development_recording(game, None, info=True)
-    _store_move(game, None)                                                     # 10. store move on hd
+    _store_move(game, last_rack=True)                                     # 10. store move on hd
     _upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
 
     game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
@@ -409,8 +409,10 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):  # pragma: n
         with ZipFile(f'{config.web_dir}/{zip_filename}.zip', 'w') as _zip:
             logging.info(f"create zip with {len(game.moves):d} files")
             for i in range(1, len(game.moves) + 1):
-                _zip.write(f'{config.web_dir}/image-{i}.jpg', arcname=f'image-{i}.jpg')
-                _zip.write(f'{config.web_dir}/data-{i}.json', arcname=f'data-{i}.json')
+                if os.path.exists(f'{config.web_dir}/image-{i}.jpg'):
+                    _zip.write(f'{config.web_dir}/image-{i}.jpg', arcname=f'image-{i}.jpg')
+                if os.path.exists(f'{config.web_dir}/data-{i}.json'):
+                    _zip.write(f'{config.web_dir}/data-{i}.json', arcname=f'data-{i}.json')
             if os.path.exists(f'{config.log_dir}/messages.log'):
                 _zip.write(f'{config.log_dir}/messages.log', arcname='messages.log')
             if config.development_recording:
@@ -441,6 +443,7 @@ def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
         return bag
 
     bag_len = 0
+    i = -1
     for i in range(-1, len(game.moves) * -1, -1):
         mov = game.moves[i]
         bag = calculate_bag(mov)
@@ -457,14 +460,15 @@ def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
         rack[mov.player] -= (mov_len - from_bag)
         bag_len -= from_bag
         logging.debug(f'player={mov.player} rack-size={rack[mov.player]} from-bag={from_bag}')
-    bag = calculate_bag(game.moves[-1])
-    points = 0
-    for elem in bag:
-        points += scores(elem)
-    if rack[0] == 0 and rack[1] > 0:
-        return (points, -points), "".join(bag)
-    if rack[1] == 0 and rack[0] > 0:
-        return (-points, points), "".join(bag)
+    if len(game.moves) > 0:
+        bag = calculate_bag(game.moves[-1])
+        points = 0
+        for elem in bag:
+            points += scores(elem)
+        if rack[0] == 0 and rack[1] > 0:
+            return (points, -points), "".join(bag)
+        if rack[1] == 0 and rack[0] > 0:
+            return (-points, points), "".join(bag)
     return (0, 0), '?'
 
 
@@ -605,11 +609,11 @@ def _move_processing(game: Game, player: int, played_time: Tuple[int, int], warp
     except NoMoveException:
         current_move = Move(MoveType.EXCHANGE, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
                             removed_tiles=removed_tiles, board=current_board, played_time=played_time,
-                            previous_score=previous_score)
+                            previous_score=previous_score, img=warped)
     except InvalidMoveExeption:
         current_move = Move(MoveType.UNKNOWN, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
                             removed_tiles=removed_tiles, board=current_board, played_time=played_time,
-                            previous_score=previous_score)
+                            previous_score=previous_score, img=warped)
 
     return current_move
 
@@ -660,7 +664,7 @@ def _store_fixed_move(game: Game, move_to_store: Move):
                 handle.write(game.json_str())
 
 
-def _store_move(game: Game, img: Optional[Mat]):
+def _store_move(game: Game, last_rack: bool = False):
     """store move to filesystem
 
     Args:
@@ -670,14 +674,16 @@ def _store_move(game: Game, img: Optional[Mat]):
     if config.output_web or config.output_ftp:
         with open(f'{config.web_dir}/data-{game.moves[-1].move}.json', "w", encoding='UTF-8') as handle:
             handle.write(game.json_str())
+        if last_rack:
+            with open(f'{config.web_dir}/data-{game.moves[-2].move}.json', "w", encoding='UTF-8') as handle:
+                handle.write(game.json_str())
         with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
             handle.write(game.json_str())
-        if img is None:
-            import shutil
-            shutil.copyfile(f'{config.web_dir}/image-{game.moves[-1].move - 1}.jpg',
-                            f'{config.web_dir}/image-{game.moves[-1].move}.jpg')
-        else:
-            cv2.imwrite(f'{config.web_dir}/image-{game.moves[-1].move}.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 99])
+        if game.moves[-1].img is not None:
+            cv2.imwrite(f'{config.web_dir}/image-{game.moves[-1].move}.jpg', game.moves[-1].img, [cv2.IMWRITE_JPEG_QUALITY, 99])
+            if last_rack and game.moves[-2].img is not None:
+                cv2.imwrite(f'{config.web_dir}/image-{game.moves[-2].move}.jpg',
+                            game.moves[-2].img, [cv2.IMWRITE_JPEG_QUALITY, 99])
 
 
 def _upload_ftp(current_move: Move):  # pragma: no cover # no ftp upload on tests

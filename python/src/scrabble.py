@@ -513,8 +513,10 @@ class Game():
         Returns:
             self(Game): current game
         """
-
-        last_move = self.moves[-1]
+        if len(self.moves):
+            last_move = self.moves[-1]
+        else:
+            last_move = Move(MoveType.UNKNOWN, 0, None, False, '', {}, {}, {}, (0, 0), (0, 0))
         logging.debug('scrabble: create move last rack bonus/malus')
 
         move = copy.deepcopy(last_move)
