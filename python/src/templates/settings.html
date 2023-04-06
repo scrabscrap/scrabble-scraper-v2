@@ -10,7 +10,7 @@
                         Settings
                     </div>
                     <div class="card-body">
-                        <form action="/settings" method="get">
+                        <form action="/settings" method="post">
                             <div class="row">
                                 <div class="col-4">
                                     <select class="form-select" aria-label="Default select example" name="setting">
@@ -48,7 +48,7 @@
                                     <input type="text" class="form-control" name="value" placeholder="Value">
                                 </div>
                                 <div class="col-4">
-                                    <input type="submit" class="form-control btn-primary" value="Submit">
+                                    <input type="submit" class="form-control btn-primary" name="btnset" value="Submit">
                                 </div>
                             </div>
                         </form>
@@ -61,8 +61,19 @@
 
                 <div class="card">
                     <div class="card-header bg-info">
-                        last result
+                        current settings
                     </div>
+                    <div class="card-body">
+                        <div style="font-family: monospace; white-space: pre-wrap;">{{settingsinfo}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="py-2">
+
+                <div class="card">
+                    <div class="card-header bg-info">Messages</div>
                     <div class="card-body">
                         <div style="font-family: monospace; white-space: pre-wrap;">{{apiserver.last_msg}}</div>
                     </div>

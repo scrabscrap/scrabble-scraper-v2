@@ -29,10 +29,8 @@ from signal import alarm
 from time import sleep
 
 import cv2
-import netifaces
 import numpy as np
-from flask import (Flask, jsonify, redirect, render_template, request,
-                   send_from_directory, url_for)
+from flask import (Flask, redirect, render_template, request, send_from_directory, url_for)
 from flask_sock import Sock
 from werkzeug.serving import make_server
 
@@ -65,279 +63,48 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         return ApiServer.app.send_static_file(f'webapp/{path}')
 
     @staticmethod
-    @app.get('/')
-    @app.get('/index')
-    def get_defaults():
+    @app.route('/', methods=['GET', 'POST'])
+    @app.route('/index', methods=['GET', 'POST'])
+    def route_index():
         """ index web page """
-        (player1, player2) = State().game.nicknames
+        state = State()
+        if request.method == 'POST':
+            if request.form.get('btnplayer'):
+                if (player1 := request.form.get('player1')) and (player2 := request.form.get('player2')) and \
+                        (player1.casefold() != player2.casefold()):
+                    ApiServer.last_msg = f'set player1={player1} / player2={player2}'
+                    state.do_new_player_names(player1, player2)
+                else:
+                    ApiServer.last_msg = f'can not set: {request.form.get("player1")}/{request.form.get("player2")}'
+            elif request.form.get('btntournament'):
+                if (tournament := request.form.get('tournament')) is not None and (tournament != config.tournament):
+                    if 'scrabble' not in config.config.sections():
+                        config.config.add_section('scrabble')
+                    config.config.set('scrabble', 'tournament', str(tournament))
+                    config.save()
+                    ApiServer.last_msg = f'set tournament={tournament}'
+                else:
+                    ApiServer.last_msg = f'can not set: tournament={tournament}'
+            return redirect('/index')
+        (player1, player2) = state.game.nicknames
         tournament = config.tournament
+        # fall through: request.method == 'GET':
         return render_template('index.html', apiserver=ApiServer, player1=player1, player2=player2, tournament=tournament)
 
-    @staticmethod
-    @app.get('/edit_moves')
-    def edit_moves():
-        """ edit moves """
-
-        def get_coord(coord) -> str:
-            (col, row) = coord
-            return chr(ord('A') + row) + str(col + 1)
-
-        game = State().game
-        (player1, player2) = game.nicknames
-        blankos = []
-        if game.moves:
-            for (key, value) in game.moves[-1].board.items():
-                if value[0].islower() or value[0] == '_':
-                    blankos.append((get_coord(key), value[0]))
-        return render_template('editmove.html', apiserver=ApiServer, player1=player1, player2=player2,
-                               move_list=game.moves, blanko_list=blankos)
-
-    @staticmethod
-    @app.post('/edit_move')  # type: ignore
-    def edit_move():
-        """correct game moves"""
-        data = request.form
-        logging.info(f'{data}')
-        move_number = int(request.form.get('move.move'))  # type: ignore
-        # player = request.form.get('move.player')
-        move_type = request.form.get('move.type')
-        coord = request.form.get('move.coord')
-        word = request.form.get('move.word')
-        word = word.upper().replace(' ', '_') if word else ''
-        state = State()
-        game = state.game
-        logging.debug(f'len moves {len(game.moves)}')
-        move = game.moves[move_number - 1]
-        vert, col, row = move.calc_coord(coord)  # type: ignore
-        # TODO: test score0, score1
-        if str(move.type.name) != move_type or move.coord != (col, row) or move.word != word or move.is_vertical != vert:
-            logging.info(
-                f'move edit: move: {move_number} player: {move.player}\n{move.type.name}->{move_type}\n'
-                f'{move.is_vertical}->{vert}\n{move.coord}->{(col, row)}\n{move.word}->{word}')  # type: ignore
-            if move_type == 'EXCHANGE':
-                ApiServer.last_msg = f'try to correct move #{move_number} to exchange'
-                logging.debug(f'{ApiServer.last_msg}')
-                admin_change_move(game, int(move_number), (0, 0), True, '', state.op_event)
-            elif re.compile('[A-Z_\\.]+').match(word):
-                ApiServer.last_msg = f'try to correct move {move_number} {move.get_coord()}: {move.word} to {coord}:{word}'
-                logging.debug(f'{ApiServer.last_msg}')
-                admin_change_move(game, int(move_number), (col, row), vert, word, state.op_event)
-            else:
-                ApiServer.last_msg = f'invalid character in word {word}'
-                logging.debug(f'{ApiServer.last_msg}')
-        else:
-            ApiServer.last_msg = ' no changes detected'
-            logging.debug(f'{ApiServer.last_msg}')
-        return redirect(url_for('edit_moves'))
-
-    @staticmethod
-    @app.post('/edit_score')  # type: ignore
-    def edit_score():
-        data = request.form
-        logging.info(f'{data}')
-        move_number = int(request.form.get('move.move'))  # type: ignore
-        score0 = int(request.form.get('move.score0'))  # type: ignore
-        score1 = int(request.form.get('move.score1'))  # type: ignore
-        state = State()
-        game = state.game
-        logging.debug(f'len moves {len(game.moves)}')
-        move = game.moves[move_number - 1]
-        if move.score[0] != score0 or move.score[1] != score1:
-            ApiServer.last_msg = f'update move# {move_number}: score {move.score} => {(score0, score1)}'
-            logging.debug(f'{ApiServer.last_msg}')
-            admin_change_score(game, move_number, (score0, score1), state.op_event)
-        else:
-            ApiServer.last_msg = ' no changes detected'
-            logging.debug(f'{ApiServer.last_msg}')
-        return redirect(url_for('edit_moves'))
-
-    @staticmethod
-    @app.post('/set_blanko')  # type: ignore
-    def set_blank():
-        """set blank"""
-        coord = request.form.get('coord')  # type: ignore
-        char = request.form.get('char')
-        logging.info(f'set blanko coord {coord} = char {char}')
-        if coord and char:
-            state = State()
-            game = state.game
-            if char.isalpha():
-                char = char.lower()
-                set_blankos(game, coord, char, event=state.op_event)
-            else:
-                ApiServer.last_msg = f'invalid character for blanko {char}'
-        return redirect(url_for('edit_moves'))
-
-    @staticmethod
-    @app.get('/settings')
-    def get_settings():
-        """display settings on web page"""
-        try:
-            must_save = False
-            for i in request.args.items():
-                path = request.args.get('setting') or i[0]
-                value = request.args.get('value') or i[1]
-                section, option = str(path).split('.', maxsplit=2)
-                if value is not None and value != '':
-                    if value.lower() == 'true':
-                        value = 'True'
-                    if value.lower() == 'false':
-                        value = 'False'
-                    if section not in config.config.sections():
-                        config.config.add_section(section)
-                    config.config.set(section, option, str(value))
-                    logging.debug(f'{section}.{option}={value}')
-                else:
-                    config.config.remove_option(section, option)
-                    logging.debug(f'delete {section}.{option}')
-                must_save = True
-        except ValueError:
-            logging.error(f'Error on settings: {request.args.items()}')
-            ApiServer.last_msg = 'error: Value error in Parameter'
-            return render_template('settings.html', apiserver=ApiServer)
-        if must_save:
-            config.save()
-        out = StringIO()
-        config.config.write(out)
-        ApiServer.last_msg = f'{out.getvalue()}'
-        return render_template('settings.html', apiserver=ApiServer)
-
-    @staticmethod
-    @app.post('/settings')  # type: ignore
-    def add_settings():
-        """ post request to add settings via json"""
-        if request.is_json:
-            must_save = False
-            json_object = request.get_json()
-            for section, subdict in json_object.items():  # type: ignore
-                for option, value in subdict.items():
-                    logging.debug(f'[{section}] {option}={value}')
-                    if section not in config.config.sections():
-                        config.config.add_section(section)
-                    config.config.set(section, option, str(value))
-                    must_save = True
-            if must_save:
-                config.save()
-            config_as_dict = config.config_as_dict()
-            ApiServer.last_msg = json.dumps(config_as_dict, sort_keys=True, indent=2)
-            return jsonify(config_as_dict), 201
-        return {'error': 'Request must be JSON'}, 415
-
-    @staticmethod
-    @app.route('/tournament')  # type: ignore
-    def tournament():
-        """ set tournament """
-        tournament = request.args.get('tournament')
-        logging.debug(f'tournament={tournament}')
-        # state holds the current game
-        if tournament is not None:
-            if 'tournament' not in config.config.sections():
-                config.config.add_section('tournament')
-            config.config.set('scrabble', 'tournament', str(tournament))
-            config.save()
-            ApiServer.last_msg = f'set tournament={tournament}'
-        else:
-            ApiServer.last_msg = f'can not set: tournament={tournament}'
-        return redirect(url_for('get_defaults'))
-
-    @staticmethod
-    @app.route('/player')  # type: ignore
-    def player():
-        """ set player names """
-        player1 = request.args.get('player1')
-        player2 = request.args.get('player2')
-        logging.debug(f'player1={player1} player2={player2}')
-        # state holds the current game
-        if player1 is not None and player2 is not None and player1.casefold() != player2.casefold():
-            State().do_new_player_names(player1, player2)
-            ApiServer.last_msg = f'player1={player1}\nplayer2={player2}'
-        else:
-            ApiServer.last_msg = f'can not set: player1={player1}\nplayer2={player2}'
-        return redirect(url_for('get_defaults'))
-
     @ staticmethod
-    @ app.post('/wifi')
-    def post_wifi():
-        """ set wifi param (ssid, psk) via post request """
-        ssid = request.form.get('ssid')
-        key = request.form.get('psk')
-        logging.debug(
-            f"sudo -n sh -c 'wpa_passphrase {ssid} *** | sed \"/^.*ssid=.*/i priority=10\""
-            " >> /etc/wpa_supplicant/wpa_supplicant-wlan0.conf'")
-        process = subprocess.call(
-            f"sudo -n sh -c 'wpa_passphrase {ssid} {key} | sed \"/^.*ssid=.*/i priority=10\""
-            " >> /etc/wpa_supplicant/wpa_supplicant-wlan0.conf'", shell=True)
-        process1 = subprocess.call(
-            "sudo -n /usr/sbin/wpa_cli reconfigure -i wlan0", shell=True)
-        ApiServer.last_msg = f'configure wifi return={process}\nreconfigure wpa return={process1}'
-        sleep(5)
-        state = State()
-        state.do_new_game()
-        logging.debug(ApiServer.last_msg)
-        return redirect(url_for('get_wifi'))
-
-    @ staticmethod
-    @ app.get('/wifi')
-    def get_wifi():
-        """ display wifi web page """
-        process1 = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
-                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        wifi_raw = process1.stdout.decode().split(sep='\n')[1:-1]
-        wifi_list = [element.split(sep='\t') for element in wifi_raw]
-        return render_template('wifi.html', apiserver=ApiServer, wifi_list=wifi_list)
-
-    @ staticmethod
-    @ app.post('/delete_wifi')
-    def delete_wifi():
-        """ delete a wifi entry """
-        for i in request.form.keys():
-            if request.form.get(i) == 'on':
-                logging.debug(f'wpa network delete {i}')
-                _ = subprocess.call(
-                    f"sudo -n /usr/sbin/wpa_cli remove_network {i} -i wlan0", shell=True)
-            _ = subprocess.call(
-                "sudo -n /usr/sbin/wpa_cli save_config -i wlan0", shell=True)
-        return redirect(url_for('get_wifi'))
-
-    @ staticmethod
-    @ app.post('/select_wifi')
-    def select_wifi():
-        """ select a wifi entry """
-        for i in request.form.keys():
-            logging.debug(f'wpa network select {i}')
-            _ = subprocess.call(
-                f"sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0", shell=True)
-        sleep(5)
-        state = State()
-        state.do_new_game()
-        return redirect(url_for('get_wifi'))
-
-    @ staticmethod
-    @ app.route('/scan_wifi')
-    def scan_wifi():
-        """ start wifi scan process """
-        _ = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'], check=False,
-                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        sleep(3)
-        process2 = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'scan_results', '-i', 'wlan0'], check=False,
-                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        ApiServer.last_msg = f'{process2.stdout.decode()}'
-        logging.debug(ApiServer.last_msg)
-        return redirect(url_for('get_wifi'))
-
-    @ staticmethod
-    @ app.route('/cam/clearwarp')
-    def cam_clear_warp():
-        """clear warp configuration"""
-        logging.debug('clear warp')
-        config.config.remove_option('video', 'warp_coordinates')
-        return redirect(url_for('get_cam'))
-
-    @ staticmethod
-    @ app.route('/cam')
-    def get_cam():
+    @ app.route('/cam', methods=['GET', 'POST'])
+    def route_cam():
         """ display current camera picture """
-        logging.debug(f'request args {request.args.keys()}')
+        if request.method == 'POST':
+            if request.form.get('btndelete'):
+                config.config.remove_option('video', 'warp_coordinates')
+                config.save()
+            elif request.form.get('btnstore'):
+                if 'video' not in config.config.sections():
+                    config.config.add_section('video')
+                config.config.set('video', 'warp_coordinates', request.form.get('warp_coordinates'))
+                config.save()
+            return redirect('/cam')
         if len(request.args.keys()) > 0:
             coord = list(request.args.keys())[0]
             col: int = int(coord.split(',')[0])
@@ -382,71 +149,233 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
                                warp_coord_cnf=warp_coord_cnf)
 
     @ staticmethod
-    @ app.route('/loglevel')
-    def loglevel():
+    @ app.route('/loglevel', methods=['GET', 'POST'])
+    def route_loglevel():
         """ settings loglevel, recording """
+        if request.method == 'POST':
+            try:
+                if (new_level := request.form.get('loglevel', type=int)) is not None:
+                    root_logger = logging.getLogger('root')
+                    prev_level = root_logger.getEffectiveLevel()
+                    if new_level != prev_level:
+                        logging.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
+                        root_logger.setLevel(new_level)
+                        log_config = configparser.ConfigParser()
+                        with open(f'{config.work_dir}/log.conf', 'r', encoding="UTF-8") as config_file:
+                            log_config.read_file(config_file)
+                            if 'logger_root' not in log_config.sections():
+                                log_config.add_section('logger_root')
+                            log_config.set('logger_root', 'level', logging.getLevelName(new_level))
+                        with open(f'{config.work_dir}/log.conf', 'w', encoding="UTF-8") as config_file:
+                            log_config.write(config_file)
+
+                recording = 'recording' in request.form.keys()
+                if config.development_recording != recording:
+                    logging.debug(f'development.recording changed to {recording}')
+                    if 'development' not in config.config.sections():
+                        config.config.add_section('development')
+                    config.config.set('development', 'recording', str(recording))
+                    config.save()
+            except IOError as oops:
+                ApiServer.last_msg = f'I/O error({oops.errno}): {oops.strerror}'
+                return redirect('/index')
+            return redirect('/loglevel')
+        # fall through: request.method == 'GET':
         loglevel = logging.getLogger('root').getEffectiveLevel()
         return render_template('loglevel.html', apiserver=ApiServer, recording=f'{config.development_recording}',
                                loglevel=f'{loglevel}')
 
     @ staticmethod
-    @ app.post('/set_loglevel')
-    def set_loglevel():
-        """ set log level / development recording """
-        try:
-            if 'loglevel' in request.form.keys():
-                new_level = int(request.form.get('loglevel'))  # type: ignore
-                root_logger = logging.getLogger('root')
-                prev_level = root_logger.getEffectiveLevel()
-                if new_level != prev_level:
-                    logging.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
-                    root_logger.setLevel(new_level)
-                    log_config = configparser.ConfigParser()
-                    with open(f'{config.work_dir}/log.conf', 'r', encoding="UTF-8") as config_file:
-                        log_config.read_file(config_file)
-                        if 'logger_root' not in log_config.sections():
-                            log_config.add_section('logger_root')
-                        log_config.set('logger_root', 'level', logging.getLevelName(new_level))
-                    with open(f'{config.work_dir}/log.conf', 'w', encoding="UTF-8") as config_file:
-                        log_config.write(config_file)
-
-            recording = 'recording' in request.form.keys()
-            if config.development_recording != recording:
-                logging.debug(f'development.recording changed to {recording}')
-                if 'development' not in config.config.sections():
-                    config.config.add_section('development')
-                config.config.set('development', 'recording', str(recording))
-                config.save()
-        except IOError as oops:
-            ApiServer.last_msg = f'I/O error({oops.errno}): {oops.strerror}'
-            return redirect(url_for('/'))
-        return redirect(url_for('loglevel'))
-
-    @ staticmethod
-    @ app.route('/logentry')
-    def logentry():
-        """ returns last 100 log lines """
-        process = subprocess.run(['tail', '-100', f'{config.log_dir}/messages.log'], check=False,
-                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        log_out = process.stdout.decode()
-        return log_out
-
-    @ staticmethod
     @ app.route('/logs')
-    def logs():
+    def route_logs():
         """ display message log """
-        ApiServer.last_msg = ''
-        if os.path.exists(f'{config.log_dir}/messages.log'):
-            process = subprocess.run(['tail', '-100', f'{config.log_dir}/messages.log'], check=False,
-                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            log_out = process.stdout.decode()
-        else:
-            log_out = '## empty ##'
+        log_out = '## loading log ##'
         return render_template('logs.html', apiserver=ApiServer, log=log_out)
+
+    @staticmethod
+    @app.route('/moves', methods=['GET', 'POST'])
+    def route_moves():  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
+        """ edit moves form """
+        def get_coord(coord) -> str:
+            (col, row) = coord
+            return chr(ord('A') + row) + str(col + 1)
+
+        state = State()
+        game = state.game
+        if request.method == 'POST':  # pylint: disable=too-many-nested-blocks
+            if request.form.get('btnplayer'):
+                if (player1 := request.form.get('player1')) and (player2 := request.form.get('player2')) and \
+                        (player1.casefold() != player2.casefold()):
+                    ApiServer.last_msg = f'set player1={player1} / player2={player2}'
+                    State().do_new_player_names(player1, player2)
+                else:
+                    ApiServer.last_msg = f'can not set: {request.form.get("player1")}/{request.form.get("player2")}'
+            elif request.form.get('btnblanko'):
+                if (coord := request.form.get('coord')) and (char := request.form.get('char')) and char.isalpha():
+                    char = char.lower()
+                    ApiServer.last_msg = f'set blanko: {coord} = {char}'
+                    set_blankos(game, coord, char, event=state.op_event)
+                else:
+                    ApiServer.last_msg = 'invalid character for blanko'
+            elif request.form.get('btnscore'):
+                logging.debug('in btnscore')
+                if (move_number := request.form.get('move.move', type=int)) is not None and \
+                    (score0 := request.form.get('move.score0', type=int)) is not None and \
+                        (score1 := request.form.get('move.score1', type=int)) is not None:
+                    logging.debug(f'in values {move_number}: new score {(score0, score1)}')
+                    if 0 < move_number <= len(game.moves) and (game.moves[move_number - 1].score != (score0, score1)):
+                        logging.debug('in set')
+                        ApiServer.last_msg = f'update move# {move_number}: new score {(score0, score1)}'
+                        admin_change_score(game, move_number, (score0, score1), state.op_event)
+                    else:
+                        ApiServer.last_msg = f'invalid move {move_number} or no changes in score {(score0, score1)}'
+            elif request.form.get('btnmove'):
+                move_number = request.form.get('move.move', type=int) or 0
+                move_type = request.form.get('move.type')
+                coord = request.form.get('move.coord')
+                word = request.form.get('move.word')
+                word = word.upper().replace(' ', '_') if word else ''
+                if 0 < move_number <= len(game.moves):
+                    move = game.moves[move_number - 1]
+                    if (move_type == 'EXCHANGE') and (move.type.name != move_type):
+                        ApiServer.last_msg = f'try to correct move #{move_number} to exchange'
+                        admin_change_move(game, int(move_number), (0, 0), True, '', state.op_event)
+                    else:
+                        vert, col, row = move.calc_coord(coord)  # type: ignore
+                        if (str(move.type.name) != move_type) or (move.coord != (col, row)) or (move.word != word) \
+                                or (move.is_vertical != vert):
+                            if re.compile('[A-Z_\\.]+').match(word):
+                                ApiServer.last_msg = f'try to correct move #{move_number} to {coord} {word}'
+                                admin_change_move(game, int(move_number), (col, row), vert, word, state.op_event)
+                            else:
+                                ApiServer.last_msg = f'invalid character in word {word}'
+                        else:
+                            ApiServer.last_msg = ' no changes detected'
+            return redirect('/moves')
+        # fall through: request.method == 'GET':
+        (player1, player2) = game.nicknames
+        blankos = [(get_coord(key), val) for key, (val, _) in game.moves[-1].board.items()
+                   if val.islower() or val == '_'] if game.moves else []
+        return render_template('moves.html', apiserver=ApiServer, player1=player1, player2=player2,
+                               move_list=game.moves, blanko_list=blankos)
+
+    @ staticmethod
+    @ app.route('/settings', methods=['GET', 'POST'])
+    def route_settings():
+        """display settings on web page"""
+        if request.method == 'POST' and request.form.get('btnset'):
+            try:
+                if (path := request.form.get('setting')):
+                    value = request.form.get('value')
+                    section, option = str(path).split('.', maxsplit=2)
+                    if value is not None and value != '':
+                        if value.lower() == 'true':
+                            value = 'True'
+                        if value.lower() == 'false':
+                            value = 'False'
+                        if section not in config.config.sections():
+                            config.config.add_section(section)
+                        config.config.set(section, option, str(value))
+                        ApiServer.last_msg = f'set option {section}.{option}={value}'
+                    else:
+                        config.config.remove_option(section, option)
+                        ApiServer.last_msg = f'delete {section}.{option}'
+                    config.save()
+            except ValueError:
+                logging.error(f'Error on settings: {request.form.items()}')
+                ApiServer.last_msg = 'error: Value error in Parameter'
+            return redirect('/settings')
+        # fall through: request.method == 'GET':
+        out = StringIO()
+        config.config.write(out)
+        return render_template('settings.html', apiserver=ApiServer, settingsinfo=out.getvalue())
+
+    @ staticmethod
+    @ app.route('/wifi', methods=['GET', 'POST'])
+    def route_wifi():
+        """ set wifi param (ssid, psk) via post request """
+        if request.method == 'POST':
+            state = State()
+            if request.form.get('btnadd'):
+                if (ssid := request.form.get('ssid')) and (key := request.form.get('psk')):
+                    process = subprocess.call(
+                        f"sudo -n sh -c 'wpa_passphrase {ssid} {key} | sed \"/^.*ssid=.*/i priority=10\""
+                        " >> /etc/wpa_supplicant/wpa_supplicant-wlan0.conf'", shell=True)
+                    process1 = subprocess.call(
+                        "sudo -n /usr/sbin/wpa_cli reconfigure -i wlan0", shell=True)
+                    ApiServer.last_msg = f'configure wifi return={process}; reconfigure wpa return={process1}'
+                    sleep(5)
+                    state.do_new_game()
+            elif request.form.get('btnselect'):
+                for i in request.form.keys():
+                    logging.debug(f'wpa network select {i}')
+                    _ = subprocess.call(f"sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0", shell=True)
+                sleep(5)
+                state.do_new_game()
+            elif request.form.get('btnscan'):
+                _ = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'], check=False,
+                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                sleep(3)
+                process2 = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'scan_results', '-i', 'wlan0'], check=False,
+                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                ApiServer.last_msg = f'{process2.stdout.decode()}'
+            elif request.form.get('btndelete'):
+                for i in request.form.keys():
+                    if request.form.get(i) == 'on':
+                        logging.debug(f'wpa network delete {i}')
+                        _ = subprocess.call(f"sudo -n /usr/sbin/wpa_cli remove_network {i} -i wlan0", shell=True)
+                    _ = subprocess.call("sudo -n /usr/sbin/wpa_cli save_config -i wlan0", shell=True)
+            return redirect('/wifi')
+        # fall through: request.method == 'GET':
+        process1 = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'], check=False,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        wifi_raw = process1.stdout.decode().split(sep='\n')[1:-1]
+        wifi_list = [element.split(sep='\t') for element in wifi_raw]
+        return render_template('wifi.html', apiserver=ApiServer, wifi_list=wifi_list)
+
+    @ staticmethod
+    @ app.route('/delete_logs', methods=['POST', 'GET'])
+    def do_delete_logs():
+        """ delete message logs """
+        import glob
+        ignore_list = [f'{config.log_dir}/messages.log', f'{config.log_dir}/game.log']
+        file_list = glob.glob(f'{config.log_dir}/*')
+        file_list = [f for f in file_list if f not in ignore_list]
+        # Iterate over the list of filepaths & remove each file.
+        ApiServer.last_msg = 'delete logs'
+        for file_path in file_list:
+            try:
+                os.remove(file_path)
+            except OSError:
+                ApiServer.last_msg += f'\nerror: {file_path}'
+        for filename in ignore_list:
+            with open(filename, 'w', encoding='UTF-8'):
+                pass  # empty log file
+        return redirect('/index')
+
+    @ staticmethod
+    @ app.route('/delete_recording', methods=['POST', 'GET'])
+    def do_delete_recording():
+        """ delete recording(s) """
+        import glob
+        logging.debug(f'path {config.work_dir}/recording')
+        ignore_list = [f'{config.work_dir}/recording/gameRecording.log']
+        file_list = glob.glob(f'{config.work_dir}/recording/*')
+        file_list = [f for f in file_list if f not in ignore_list]
+        # Iterate over the list of filepaths & remove each file.
+        ApiServer.last_msg = 'delete recording'
+        for file_path in file_list:
+            try:
+                os.remove(file_path)
+            except OSError:
+                ApiServer.last_msg += f'\nerror: {file_path}'
+        with open(f'{config.work_dir}/recording/gameRecording.log', 'w', encoding='UTF-8'):
+            pass  # empty log file
+        return redirect(url_for('route_index'))
 
     @ staticmethod
     @ app.route('/download_logs', methods=['POST', 'GET'])
-    def download_logs():
+    def do_download_logs():
         """ download message logs """
         from zipfile import ZipFile
 
@@ -455,34 +384,12 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             for filename in files:
                 if os.path.exists(f'{config.log_dir}/{filename}'):
                     _zip.write(f'{config.log_dir}/{filename}')
-        ApiServer.last_msg = 'download logs'
+        ApiServer.last_msg = ''
         return send_from_directory(f'{config.log_dir}', 'log.zip', as_attachment=True)
 
     @ staticmethod
-    @ app.route('/delete_logs', methods=['POST', 'GET'])
-    def delete_logs():
-        """ delete message logs """
-        import glob
-        logging.debug(f'path {config.log_dir}')
-        ignore_list = [f'{config.log_dir}/messages.log', f'{config.log_dir}/game.log']
-        file_list = glob.glob(f'{config.log_dir}/*')
-        file_list = [f for f in file_list if f not in ignore_list]
-        # Iterate over the list of filepaths & remove each file.
-        for file_path in file_list:
-            try:
-                os.remove(file_path)
-                ApiServer.last_msg += f'delete: {file_path}\n'
-            except OSError:
-                ApiServer.last_msg += f'error: {file_path}\n'
-        for filename in ignore_list:
-            with open(filename, 'w', encoding='UTF-8'):
-                pass  # empty log file
-        logging.debug(ApiServer.last_msg)
-        return redirect(url_for('get_defaults'))
-
-    @ staticmethod
     @ app.route('/download_recording', methods=['POST', 'GET'])
-    def download_recording():
+    def do_download_recording():
         """ download recordings """
         import glob
         from zipfile import ZipFile
@@ -493,48 +400,65 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             file_list = [f for f in file_list if f not in ignore_list]
             for filename in file_list:
                 _zip.write(f'{filename}')
-        ApiServer.last_msg = 'download recording'
+        ApiServer.last_msg = ''
         return send_from_directory(f'{config.work_dir}/recording', 'recording.zip', as_attachment=True)
 
     @ staticmethod
-    @ app.route('/delete_recording', methods=['POST', 'GET'])
-    def delete_recording():
-        """ delete recording(s) """
-        import glob
-        logging.debug(f'path {config.work_dir}/recording')
-        ignore_list = [f'{config.work_dir}/recording/gameRecording.log']
-        file_list = glob.glob(f'{config.work_dir}/recording/*')
-        file_list = [f for f in file_list if f not in ignore_list]
-        # Iterate over the list of filepaths & remove each file.
-        for file_path in file_list:
-            try:
-                os.remove(file_path)
-                ApiServer.last_msg += f'delete: {file_path}\n'
-            except OSError:
-                ApiServer.last_msg += f'error: {file_path}\n'
-        with open(f'{config.work_dir}/recording/gameRecording.log', 'w', encoding='UTF-8'):
-            pass  # empty log file
-        logging.debug(ApiServer.last_msg)
-        return redirect(url_for('get_defaults'))
+    @ app.route('/end', methods=['POST', 'GET'])
+    def do_end():
+        """ end app """
+        ApiServer.last_msg = '**** Exit application ****'
+        config.config.set('system', 'quit', 'end')  # set temporary end app
+        alarm(1)
+        return redirect(url_for('route_index'))
 
     @ staticmethod
-    @ app.route('/upgrade_scrabscrap')
-    def update_scrabscrap():
-        """ start scrabscrap upgrade """
+    @ app.route('/reboot', methods=['POST', 'GET'])
+    def do_reboot():
+        """ process reboot """
+        ApiServer.last_msg = '**** System reboot ****'
+        config.config.set('system', 'quit', 'reboot')  # set temporary reboot
+        State().do_reboot()
+        alarm(2)
+        return redirect(url_for('route_index'))
+
+    @ staticmethod
+    @ app.route('/shutdown', methods=['POST', 'GET'])
+    def do_shutdown():
+        """ process reboot """
+        ApiServer.last_msg = '**** System shutdown ****'
+        config.config.set('system', 'quit', 'shutdown')  # set temporary shutdown
+        State().do_reboot()
+        alarm(2)
+        return redirect(url_for('route_index'))
+
+    @ staticmethod
+    @ app.route('/test_display')
+    def do_test_display():
+        """ start simple display test """
         from scrabblewatch import ScrabbleWatch
 
         if State().current_state == 'START':
+            ApiServer.flask_shutdown_blocked = True
+            logging.debug('run display test')
             watch = ScrabbleWatch()
-            watch.display.show_ready(('Update...', 'pls wait'))
-            os.system(f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} |'
-                      f' tee -a {config.log_dir}/messages.log &')
-            return redirect(url_for('logs'))
-        ApiServer.last_msg = 'not in State START'
-        return redirect(url_for('get_defaults'))
+            watch.display.show_boot()
+            sleep(0.5)
+            watch.display.show_cam_err()
+            sleep(0.5)
+            watch.display.show_ftp_err()
+            sleep(0.5)
+            watch.display.show_ready()
+            sleep(0.5)
+            ApiServer.flask_shutdown_blocked = False
+            ApiServer.last_msg = 'display_test ended'
+        else:
+            ApiServer.last_msg = 'not in State START'
+        return redirect(url_for('route_index'))
 
     @ staticmethod
     @ app.route('/test_ftp')
-    def test_ftp():
+    def do_test_ftp():
         """ is ftp accessible  """
         import ftplib
 
@@ -560,73 +484,63 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
                 ApiServer.last_msg += f'ftp: upload failure {err}\n'
         else:
             ApiServer.last_msg += "no password found\n"
-        return redirect(url_for('get_defaults'))
+        return redirect(url_for('route_index'))
 
     @ staticmethod
     @ app.route('/test_led')
-    def test_led():
+    def do_test_led():
         """ start simple led test """
         from hardware.led import LED, LEDEnum
 
         if State().current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
+            logging.debug('run LED test')
             LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
-            logging.debug('LED switch on red yellow green')
             sleep(1)
             LED.blink_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
-            logging.debug('LED blink on red yellow green')
             sleep(2)
             LED.switch_on({LEDEnum.green})
-            logging.debug('LED switch on green')
             sleep(1)
             LED.switch_on({LEDEnum.yellow})
-            logging.debug('LED switch on yellow')
             sleep(1)
             LED.switch_on({LEDEnum.red})
-            logging.debug('LED switch on red')
             sleep(2)
             LED.blink_on({LEDEnum.green})
-            logging.debug('LED blink on green')
             sleep(1)
             LED.blink_on({LEDEnum.yellow})
-            logging.debug('LED blink on yellow')
             sleep(1)
             LED.blink_on({LEDEnum.red})
-            logging.debug('LED blink on red')
             sleep(1)
             LED.switch_on({})  # type: ignore
             ApiServer.flask_shutdown_blocked = False
             ApiServer.last_msg = 'led_test ended'
         else:
             ApiServer.last_msg = 'not in State START'
-        return redirect(url_for('get_defaults'))
+        return redirect(url_for('route_index'))
 
     @ staticmethod
-    @ app.route('/test_display')
-    def test_display():
-        """ start simple display test """
+    @ app.route('/upgrade_scrabscrap')
+    def do_update_scrabscrap():
+        """ start scrabscrap upgrade """
         from scrabblewatch import ScrabbleWatch
 
         if State().current_state == 'START':
-            ApiServer.flask_shutdown_blocked = True
             watch = ScrabbleWatch()
-            watch.display.show_boot()
-            logging.debug('Display show boot')
-            sleep(0.5)
-            watch.display.show_cam_err()
-            logging.debug('Display show cam err')
-            sleep(0.5)
-            watch.display.show_ftp_err()
-            logging.debug('Display show ftp err')
-            sleep(0.5)
-            watch.display.show_ready()
-            logging.debug('Display show ready')
-            sleep(0.5)
-            ApiServer.flask_shutdown_blocked = False
-            ApiServer.last_msg = 'display_test ended'
-        else:
-            ApiServer.last_msg = 'not in State START'
-        return redirect(url_for('get_defaults'))
+            watch.display.show_ready(('Update...', 'pls wait'))
+            os.system(f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} |'
+                      f' tee -a {config.log_dir}/messages.log &')
+            return redirect(url_for('logs'))
+        ApiServer.last_msg = 'not in State START'
+        return redirect(url_for('route_index'))
+
+    @ staticmethod
+    @ app.route('/logentry')
+    def logentry():
+        """ returns last 100 log lines """
+        process = subprocess.run(['tail', '-100', f'{config.log_dir}/messages.log'], check=False,
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        log_out = process.stdout.decode()
+        return log_out
 
     @ staticmethod
     @ app.route('/status', methods=['POST', 'GET'])
@@ -634,35 +548,6 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
     def game_status():
         """ get request to current game state """
         return State().game.json_str(), 201
-
-    @ staticmethod
-    @ app.route('/shutdown', methods=['POST', 'GET'])
-    def shutdown():
-        """ process reboot """
-        ApiServer.last_msg = '**** System shutdown ****'
-        config.config.set('system', 'quit', 'shutdown')  # set temporary shutdown
-        State().do_reboot()
-        alarm(2)
-        return redirect(url_for('get_defaults'))
-
-    @ staticmethod
-    @ app.route('/reboot', methods=['POST', 'GET'])
-    def do_reboot():
-        """ process reboot """
-        ApiServer.last_msg = '**** System reboot ****'
-        config.config.set('system', 'quit', 'reboot')  # set temporary reboot
-        State().do_reboot()
-        alarm(2)
-        return redirect(url_for('get_defaults'))
-
-    @ staticmethod
-    @ app.route('/end', methods=['POST', 'GET'])
-    def do_end():
-        """ end app """
-        ApiServer.last_msg = '**** Exit application ****'
-        config.config.set('system', 'quit', 'end')  # set temporary end app
-        alarm(1)
-        return redirect(url_for('get_defaults'))
 
     @ sock.route('/ws_status')
     def echo(sock):  # pylint: disable=E0213
@@ -681,11 +566,11 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
                 _, im_buf_arr = cv2.imencode(".jpg", state.picture)
                 png_output = base64.b64encode(im_buf_arr)
                 logging.debug('b64encode')
-                sock.send(f'{{"op": "{state.current_state}", "clock1": {clock1},"clock2": {clock2}, '  # type: ignore
-                          f'"image": "{png_output}", "status": {jsonstr}  }}')
+                sock.send(f'{{"op": "{state.current_state}", '  # type: ignore  # pylint: disable=no-member
+                          f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}')
             else:
-                sock.send(f'{{"op": "{state.current_state}", "clock1": {clock1},"clock2": {clock2}, '  # type:ignore
-                          f'"status": {jsonstr}  }}')
+                sock.send(f'{{"op": "{state.current_state}", '  # type:ignore  # pylint: disable=no-member
+                          f'"clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}')
             state.op_event.wait()
 
     def start_server(self, host: str = '0.0.0.0', port=5050, simulator=False):
@@ -703,12 +588,6 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         ApiServer.scrabscrap_version = version_info.stdout.decode()[:14]
         if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
             ApiServer.local_webapp = True
-            try:
-                wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']
-                with open(f'{config.web_dir}/websocket.js', 'w', encoding='UTF-8') as filehandle:
-                    filehandle.write(f'var WS_URL="ws://{wip}:{port}/ws_status"')
-            except Exception:
-                logging.warning('wlan0 not found')
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
         self.server = make_server(host=host, port=port, threaded=True, app=self.app)  # pylint: disable=W0201

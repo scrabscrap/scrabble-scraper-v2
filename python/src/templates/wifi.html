@@ -10,7 +10,7 @@
                         Select configured WiFi
                     </div>
                     <div class="card-body">
-                        <form action="/select_wifi" method="post">
+                        <form action="/wifi" method="post">
                             <div class="row py-2">
                                 {% for wifi in wifi_list %}
                                 <div class="form-check">
@@ -23,7 +23,7 @@
                                 {% endfor %}
                             </div>
                             <div class="row float-end">
-                                <input type="submit" class="form-control btn-primary" value="Select"
+                                <input type="submit" class="form-control btn-primary" name="btnselect" value="Select"
                                     data-bs-toggle="tooltip" data-bs-placement="bottom"
                                     title="Please reconnect after change">
                             </div>
@@ -39,7 +39,7 @@
                         Delete configured WiFi
                     </div>
                     <div class="card-body">
-                        <form action="/delete_wifi" method="post">
+                        <form action="/wifi" method="post">
                             <div class="row py-2">
                                 {% for wifi in wifi_list %}
                                 <div class="form-check">
@@ -53,7 +53,7 @@
                                 {% endfor %}
                             </div>
                             <div class="row float-end">
-                                <input type="submit" class="form-control btn-primary" value="Delete">
+                                <input type="submit" class="form-control btn-primary" name="btndelete" value="Delete">
                             </div>
                         </form>
                     </div>
@@ -82,11 +82,12 @@
                             </div>
                             <div class="row">
                                 <div class="col float-start">
-                                    <button type="button" class="btn btn-warning float-start"
-                                        onclick="location.href='/scan_wifi'"><i class="bi-search"></i> Scan</button>
+                                    <button type="submit" class="btn btn-warning float-start" name="btnscan"
+                                        value="Scan" formnovalidate="formnovalidate"><i class="bi-search"></i>
+                                        Scan</button>
                                 </div>
                                 <div class="col float-end">
-                                    <input type="submit" class="btn btn-primary float-end" value="Add">
+                                    <input type="submit" class="btn btn-primary float-end" name="btnadd" value="Add">
                                 </div>
                             </div>
                         </form>
@@ -94,16 +95,14 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="py-2">
-                    <div class="card">
-                        <div class="card-header bg-info">
-                            last result
-                        </div>
-                        <div class="card-body">
-                            <div style="font-family: monospace; white-space: pre-wrap;">{{apiserver.last_msg}}</div>
-                        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="py-2">
+                <div class="card">
+                    <div class="card-header bg-info">Messages</div>
+                    <div class="card-body">
+                        <div style="font-family: monospace; white-space: pre-wrap;">{{apiserver.last_msg}}</div>
                     </div>
                 </div>
             </div>
