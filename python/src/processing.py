@@ -150,7 +150,6 @@ def set_blankos(game: Game, coord: str, value: str, event=None):
 
 
 def admin_change_score(game: Game, move_number: int, score: Tuple[int, int], event=None):
-    # pylint: disable=R0914, R0912
     """fix scores (direct call from admin)
 
         Args:
@@ -603,7 +602,7 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[
 
 def _move_processing(game: Game, player: int, played_time: Tuple[int, int], warped, board: dict, previous_board: dict,
                      previous_score: Tuple[int, int]) -> Move:
-    # pylint: disable=R0913
+    # pylint: disable=too-many-arguments
     current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
     if len(changed_tiles) > 0:                                                 # 7. fix old moves
         previous_score = _recalculate_score_on_tiles_change(game, board, changed_tiles)

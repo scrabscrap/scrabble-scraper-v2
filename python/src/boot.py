@@ -40,7 +40,7 @@ device: tuple[ssd1306, ssd1306] = (
     ssd1306(serial[0]), ssd1306(serial[1]))
 
 
-def do_nothing(obj):  # pylint: disable=W0613
+def do_nothing(obj):  # pylint: disable=unused-argument
     """empty funtion to preserve oled display"""
     pass
 

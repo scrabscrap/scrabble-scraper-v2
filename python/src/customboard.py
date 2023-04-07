@@ -87,7 +87,8 @@ class CustomBoard(GameBoard):
         if color[1] < 90:  # and color[2] > 165:  # maybe a grey image
             # return True
             if coord in TRIPLE_WORDS or coord in DOUBLE_WORDS:  # check for red
-                if (red_lower[0] <= color[0] <= red_upper[0] and red_lower[1] <= color[1]         # pylint: disable=R0916
+                if (red_lower[0] <= color[0] <= red_upper[0]  # pylint: disable=too-many-boolean-expressions
+                    and red_lower[1] <= color[1]                                                  # noqa: W503
                     and red_lower[2] <= color[2]) or (red_lower1[0] <= color[0] <= red_upper1[0]  # noqa: W503
                         and red_lower1[1] <= color[1] and red_lower1[2] <= color[2]):             # noqa: W503, E128
                     return False
@@ -120,7 +121,7 @@ class CustomBoard(GameBoard):
             criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 1.0)
             k = 4
             _, label, center = cv2.kmeans(data, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-            reduced = np.uint8(center)[label.flatten()]  # type: ignore # pylint: disable=E1136
+            reduced = np.uint8(center)[label.flatten()]  # type: ignore # pylint: disable=unsubscriptable-object
             reduced = reduced.reshape((segment.shape))
             unique, counts = np.unique(reduced.reshape(-1, 3), axis=0, return_counts=True)
             color = unique[np.argmax(counts)]

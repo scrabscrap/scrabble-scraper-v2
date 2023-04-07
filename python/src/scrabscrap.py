@@ -39,14 +39,15 @@ from state import State
 from threadpool import pool
 from timer_thread import RepeatedTimer
 
-cleanup_done = False  # pylint: disable=C0103 # not a constant see _cleanup()
+cleanup_done = False  # pylint: disable=invalid-name
 
 
 def main() -> None:
     """entry point for scrabscrap"""
 
     def _cleanup():
-        global cleanup_done  # pylint: disable=W0603,C0103 # not a constant see _cleanup()
+        global cleanup_done  # pylint: disable=invalid-name,global-statement
+        # not a constant see _cleanup()
 
         logging.debug(f'main-_atexit {cleanup_done}')
         if not cleanup_done:
@@ -89,7 +90,7 @@ def main() -> None:
     try:
         cam = Camera()
         _ = pool.submit(cam.update, Event())
-    except Exception as oops:  # type: ignore # pylint: disable=W0703
+    except Exception as oops:  # type: ignore # pylint: disable=broad-exception-caught
         logging.exception(f'can not open camera {oops}')
 
     # start api server

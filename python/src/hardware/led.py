@@ -35,7 +35,7 @@ class GpioLEDEnum(Enum):
     RED_GPIO = 24  # GPIO24  - pin 18 - led red
 
 
-class LEDEnum:  # pylint: disable=R0903 # too few public methods
+class LEDEnum:  # pylint: disable=too-few-public-methods
     """Enumeration of physical LED"""
     @classmethod
     def set(cls):

@@ -41,7 +41,7 @@ from state import State
 from threadpool import pool
 
 
-class ApiServer:  # pylint: disable=R0904 # too many public methods
+class ApiServer:  # pylint: disable=too-many-public-methods
     """ definition of flask server """
     app = Flask(__name__)
     sock = Sock(app)
@@ -550,7 +550,7 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
         return State().game.json_str(), 201
 
     @ sock.route('/ws_status')
-    def echo(sock):  # pylint: disable=E0213
+    def echo(sock):  # pylint: disable=no-self-argument
         """websocket endpoint"""
         logging.debug('call /ws_status')
         state = State()
@@ -590,8 +590,9 @@ class ApiServer:  # pylint: disable=R0904 # too many public methods
             ApiServer.local_webapp = True
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
-        self.server = make_server(host=host, port=port, threaded=True, app=self.app)  # pylint: disable=W0201
-        self.ctx = self.app.app_context()   # pylint: disable=W0201
+        self.server = make_server(host=host, port=port, threaded=True,  # pylint: disable=attribute-defined-outside-init
+                                  app=self.app)
+        self.ctx = self.app.app_context()   # pylint: disable=attribute-defined-outside-init
         self.ctx.push()
         self.server.serve_forever()
 

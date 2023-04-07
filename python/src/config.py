@@ -24,7 +24,7 @@ from typing import Optional
 from util import Singleton
 
 
-class Config(metaclass=Singleton):  # pylint: disable=R0904 # only access to config properties
+class Config(metaclass=Singleton):  # pylint: disable=too-many-public-methods
     """ access to application configuration """
 
     def __init__(self, ini_file=None) -> None:

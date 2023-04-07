@@ -21,7 +21,7 @@ import cv2
 from config import config
 
 
-class OneTile:  # pylint: disable=R0903 # too few public methods
+class OneTile:  # pylint: disable=too-few-public-methods
     """representation of a tile"""
 
     def __init__(self):

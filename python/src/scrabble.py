@@ -54,7 +54,7 @@ class NoMoveException(Exception):
     pass
 
 
-class Move:  # pylint: disable=R0902 # too-many-instance-attributes
+class Move:  # pylint: disable=too-many-instance-attributes
     """Represents a Move
 
     After construction, the ``score`` will be calculated
@@ -76,7 +76,7 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
         rack(dict,dict): the racks of the players (currently not used)
     """
 
-    def __init__(self, move_type: MoveType, player: int,  # pylint: disable=R0913 # too-many-arguments
+    def __init__(self, move_type: MoveType, player: int,  # pylint: disable=too-many-arguments
                  coord: Optional[Tuple[int, int]], is_vertical: bool, word: str, new_tiles: dict, removed_tiles: dict,
                  board: dict, played_time: Tuple[int, int], previous_score: Tuple[int, int], img=None, rack=None):
         self.type: MoveType = move_type

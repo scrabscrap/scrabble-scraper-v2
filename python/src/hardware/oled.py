@@ -41,7 +41,7 @@ MIDDLE = (64, 42)
 
 
 class PlayerDisplay(Display, metaclass=Singleton):
-    # pylint: disable=R0902
+    # pylint: disable=too-many-instance-attributes
     """Implementation of class Display with OLED"""
 
     def __init__(self):
@@ -67,11 +67,11 @@ class PlayerDisplay(Display, metaclass=Singleton):
     def show_boot(self, current_ip=('', '')) -> None:
         logging.debug('Loading message')
         try:
-            wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=I1101
+            wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
         except KeyError:
             wip = 'n/a'
         try:
-            eip: str = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']  # pylint: disable=I1101
+            eip: str = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
         except KeyError:
             eip = 'n/a'
         current_ip = (wip, eip)
@@ -91,11 +91,11 @@ class PlayerDisplay(Display, metaclass=Singleton):
     def show_accesspoint(self) -> None:
         logging.debug('AP Mode message')
         try:
-            wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=I1101
+            wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
         except KeyError:
             wip = 'n/a'
         try:
-            eip: str = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']  # pylint: disable=I1101
+            eip: str = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
         except KeyError:
             eip = 'n/a'
         current_ip = (wip, eip)
@@ -109,11 +109,11 @@ class PlayerDisplay(Display, metaclass=Singleton):
     def show_ready(self, msg=('Ready', 'Ready')) -> None:
         logging.debug('Ready message')
         try:
-            wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=I1101
+            wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
         except KeyError:
             wip = 'n/a'
         try:
-            eip: str = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']  # pylint: disable=I1101
+            eip: str = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
         except KeyError:
             eip = 'n/a'
         current_ip = (wip, eip)
