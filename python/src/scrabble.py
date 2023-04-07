@@ -103,7 +103,7 @@ class Move:  # pylint: disable=R0902 # too-many-instance-attributes
         """move as json string"""
         return self.gcg_str()
 
-    def gcg_str(self, nicknames: Optional[Tuple[str, str]] = None) -> str:
+    def gcg_str(self, nicknames: Optional[Tuple[str, str]] = None) -> str:  # pylint: disable=too-many-branches
         """move as gcg string"""
 
         mod = ' \u270E' if self.modification_cache else ''
@@ -300,7 +300,7 @@ class Game():
             })
         return to_json
 
-    def dev_str(self) -> str:  # pragma: no cover
+    def dev_str(self) -> str:  # pragma: no cover # pylint: disable=too-many-branches
         """Return devleompemt represention of the game for using in tests"""
         game_id = self.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
         out_str = f"game: {game_id}\ngame.ini\n" \
@@ -444,7 +444,7 @@ class Game():
         """
         # with python > 3.11 return type: -> Self
         if len(self.moves) < 1:
-            raise Exception('challenge: no previous move available')
+            raise Exception('challenge: no previous move available')  # pylint: disable=broad-exception-raised
         last_move = self.moves[-1]
         if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):
             logging.warning(f'(last move {last_move.type.name}): invalid challenge not allowed')
@@ -478,7 +478,7 @@ class Game():
         """
         # with python > 3.11 return type: -> Self
         if len(self.moves) < 1:
-            raise Exception('challenge: no previous move available')
+            raise Exception('challenge: no previous move available')  # pylint: disable=broad-exception-raised
         last_move = self.moves[-1]
         if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):
             logging.warning(f'(last move {last_move.type.name}): valid challenge not allowed')
@@ -513,7 +513,7 @@ class Game():
         Returns:
             self(Game): current game
         """
-        if len(self.moves):
+        if len(self.moves) > 0:
             last_move = self.moves[-1]
         else:
             last_move = Move(MoveType.UNKNOWN, 0, None, False, '', {}, {}, {}, (0, 0), (0, 0))

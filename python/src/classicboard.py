@@ -48,7 +48,7 @@ class ClassicBoard(GameBoard):
         pass
 
     @staticmethod
-    def warp(__image):
+    def warp(__image):  # pylint: disable=too-many-locals
         """" implement warp of a classic board """
 
         rect = ClassicBoard.find_board(__image)

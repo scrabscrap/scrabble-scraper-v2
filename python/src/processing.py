@@ -177,7 +177,7 @@ def admin_change_score(game: Game, move_number: int, score: Tuple[int, int], eve
 
 def admin_change_move(game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str,
                       event=None):
-    # pylint: disable=R0914, R0912
+    # pylint: disable=too-many-arguments, too-many-locals,too-many-branches,too-many-statements
     """fix move(direct call from admin)
 
     The provided tiles(word) will be set on the board with a probability of 99%
@@ -261,7 +261,7 @@ def admin_change_move(game: Game, move_number: int, coord: Tuple[int, int], isve
 
 @ trace
 def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_time: Tuple[int, int], event=None):
-    # pylint: disable=R0915,R0914
+    # pylint: disable=too-many-arguments
     """Process a move
 
     Args:
@@ -285,7 +285,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     if logging.getLogger('root').isEnabledFor(logging.DEBUG):
         msg = ''
         msg = f'game status: {game.json_str()}\n\nscores {game.moves[-1].score}\n'
-        for i in range(0, len(game.moves)):
+        for i in range(0, len(game.moves)):  # pylint: disable=consider-using-enumerate
             msg += f'{game.moves[i].gcg_str(game.nicknames)}\n'
         msg += f'{game.board_str()}'
         logging.debug(msg)
@@ -315,7 +315,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         _development_recording(game, None, info=True)
         _store_move(game)
         _upload_ftp(game.moves[-1])
-    except Exception as oops:
+    except Exception as oops:  # pylint: disable=broad-exception-caught
         logging.error(f'exception on valid_challenge {oops}')
         logging.info('no new move')
 
@@ -341,7 +341,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         _development_recording(game, None, info=True)
         _store_move(game)                                                     # 10. store move on hd
         _upload_ftp(game.moves[-1])                                                 # 11. upload move to ftp
-    except Exception as oops:
+    except Exception as oops:  # pylint: disable=broad-exception-caught
         logging.error(f'exception on in_valid_challenge {oops}')
         logging.info('no new move')
 
@@ -377,7 +377,8 @@ def start_of_game(game: Game):
 
 
 @ trace
-def end_of_game(waitfor: Optional[Future], game: Game, event=None):  # pragma: no cover # no ftp upload on tests
+def end_of_game(waitfor: Optional[Future], game: Game, event=None):
+    # pragma: no cover #pylint: disable=too-many-locals # no ftp upload on tests
     """Process end of game
 
     Args:
@@ -550,6 +551,7 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
 
 
 def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[Mat, dict]:
+    # pylint: disable=too-many-locals
     if waitfor is not None:                                                    # wait for previous moves
         done, not_done = futures.wait({waitfor})
         assert len(not_done) == 0, 'error while waiting for future'

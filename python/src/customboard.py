@@ -60,7 +60,7 @@ class CustomBoard(GameBoard):
     last_warp = None
 
     @staticmethod
-    def warp(__image: Mat) -> Mat:
+    def warp(__image: Mat) -> Mat:  # pylint: disable=too-many-locals
         """" implement warp of a custom board """
 
         rect = CustomBoard.find_board(__image)
@@ -106,6 +106,7 @@ class CustomBoard(GameBoard):
 
     @staticmethod
     def _filter_set_of_positions(coord: set, img: Mat, result: Mat, color_table: dict) -> dict:
+        # pylint: disable=too-many-locals
         offset = int(OFFSET / 2)  # use 400x400 instead of 800x800
         grid_h = int(GRID_H / 2)
         grid_w = int(GRID_W / 2)

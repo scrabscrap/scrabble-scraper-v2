@@ -60,9 +60,9 @@ class GameBoard:
             cnts = imutils.grab_contours(cnts)
             cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
             pts = None
-            for c in cnts:
-                peri = cv2.arcLength(c, True)
-                approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+            for contour in cnts:
+                peri = cv2.arcLength(contour, True)
+                approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
                 if len(approx) == 4:
                     pts = approx.reshape(4, 2)
                     break
