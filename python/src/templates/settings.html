@@ -12,13 +12,13 @@
                     <div class="card-body">
                         <form action="/settings" method="post">
                             <div class="row">
-                                <div class="col-4">
+                                <div class="col-5">
                                     <select class="form-select" aria-label="Default select example" name="setting">
                                         <option selected>Setting ...</option>
                                         <option value="video.warp">video.warp</option>
                                         <option value="video.rotate">video.rotate</option>
-                                        <option value="output.ftp">output.ftp</option>
-                                        <option value="output.ftp_source">output.ftp_source</option>
+                                        <option value="output.upload_server">output.upload_server</option>
+                                        <option value="output.upload_modus">output.upload_modus</option>
                                         <option value="output.web">output.web</option>
                                         <option value="path.work_dir">path.work_dir</option>
                                         <option value="path.log_dir">path.log_dir</option>
@@ -44,11 +44,13 @@
                                     </select>
                                     <!-- <input type="text" class="form-control" name="setting" placeholder="Parameter" required> -->
                                 </div>
-                                <div class="col-4">
+                                <div class="col-5">
                                     <input type="text" class="form-control" name="value" placeholder="Value">
                                 </div>
-                                <div class="col-4">
-                                    <input type="submit" class="form-control btn-primary" name="btnset" value="Submit">
+                                <div class="col-2">
+                                    <button type="submit" class="form-control btn-primary" name="btnset" value="Submit">
+                                        <i class="bi-save"></i>
+                                    </button>
                                 </div>
                             </div>
                         </form>
@@ -56,30 +58,72 @@
                 </div>
             </div>
         </div>
-        <div class="col-12">
+        <div class="col-6">
             <div class="py-2">
-
                 <div class="card">
                     <div class="card-header bg-info">
-                        current settings
+                        FTP/HTTP Upload
                     </div>
                     <div class="card-body">
-                        <div style="font-family: monospace; white-space: pre-wrap;">{{settingsinfo}}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12">
-            <div class="py-2">
+                        <form action="/settings" method="post">
+                            <div class="form-group row py-2">
+                                <label class="col-sm-4 col-form-label" for="idServer">Server Name / URL</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="idServer" name="server"
+                                        placeholder="Server Name/URL" value="{{ server }}">
+                                </div>
+                            </div>
+                            <div class="form-group row py-2">
+                                <label class="col-sm-4 col-form-label" for="idUser">Username</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="idUser" name="user"
+                                        placeholder="Username" value="{{ user }}">
+                                </div>
+                            </div>
+                            <div class="form-group row py-2">
 
-                <div class="card">
-                    <div class="card-header bg-info">Messages</div>
-                    <div class="card-body">
-                        <div style="font-family: monospace; white-space: pre-wrap;">{{apiserver.last_msg}}</div>
+                                <label class="col-sm-4 col-form-label" for="idPassword">Password</label>
+                                <div class="col-sm-6">
+                                    <input type="password" class="form-control" id="idPassword" name="password"
+                                        placeholder="Password">
+                                </div>
+                                <div class="col-sm-2">
+                                    <button type="submit" class="form-control btn-primary" name="btnupload"
+                                        value="Submit">
+                                        <i class="bi-save"></i>
+                                    </button>
+                                </div>
+                            </div>
                     </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+    <div class="col-12">
+        <div class="py-2">
+
+            <div class="card">
+                <div class="card-header bg-info">
+                    current settings
+                </div>
+                <div class="card-body">
+                    <div style="font-family: monospace; white-space: pre-wrap;">{{settingsinfo}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="py-2">
+
+            <div class="card">
+                <div class="card-header bg-info">Messages</div>
+                <div class="card-body">
+                    <div style="font-family: monospace; white-space: pre-wrap;">{{apiserver.last_msg}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 {% endblock %}

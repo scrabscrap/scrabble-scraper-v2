@@ -136,14 +136,14 @@ class Config(metaclass=Singleton):  # pylint: disable=too-many-public-methods
         return self.config.getboolean('output', 'web', fallback=True)
 
     @property
-    def output_ftp(self) -> bool:
+    def upload_server(self) -> bool:
         """should ftp upload used"""
-        return self.config.getboolean('output', 'ftp', fallback=False)
+        return self.config.getboolean('output', 'upload_server', fallback=False)
 
     @property
-    def output_ftp_source(self):
+    def upload_modus(self) -> str:
         """should ftp upload used"""
-        return self.config.get('output', 'ftp_source', fallback=None)
+        return self.config.get('output', 'upload_modus', fallback='http')
 
     # @property
     # def keyboard(self) -> bool:
