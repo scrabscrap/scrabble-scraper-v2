@@ -566,8 +566,11 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[
             _move = game.moves[-1]
             for i in to_del:
                 logging.warning(f'remove blank tiles from the last move because they are no longer recognized {i}')
-                del _move.board[i]
-                del _move.new_tiles[i]
+                try:
+                    del _move.board[i]
+                    del _move.new_tiles[i]
+                except KeyError:
+                    pass  # already deleted
             logging.warning(f'try to recalculate move #{_move.move}')
             try:
                 _move.is_vertical, _move.coord, _move.word = _find_word(_move.board, sorted(_move.new_tiles))
