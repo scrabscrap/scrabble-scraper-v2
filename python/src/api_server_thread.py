@@ -30,15 +30,18 @@ from time import sleep
 
 import cv2
 import numpy as np
-from flask import (Flask, redirect, render_template, request, send_from_directory, url_for, send_file, abort)
+from flask import (Flask, abort, redirect, render_template, request, send_file,
+                   send_from_directory, url_for)
 from flask_sock import Sock
 from werkzeug.serving import make_server
 
 from config import config
 from game_board.board import overlay_grid
-from processing import (get_last_warp, admin_change_move, admin_change_score, set_blankos, warp_image)
+from processing import (admin_change_move, admin_change_score, get_last_warp,
+                        set_blankos, warp_image)
 from state import State
 from threadpool import pool
+from upload_config import UploadConfig
 
 
 class ApiServer:  # pylint: disable=too-many-public-methods
@@ -285,10 +288,20 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 logging.error(f'Error on settings: {request.form.items()}')
                 ApiServer.last_msg = 'error: Value error in Parameter'
             return redirect('/settings')
+        if request.method == 'POST' and request.form.get('btnupload'):
+            password = request.form.get('password')
+            if (server := request.form.get('server')) and (user := request.form.get('user')):
+                UploadConfig().server = server
+                UploadConfig().user = user
+                if password is not None:
+                    UploadConfig().password = password
+                UploadConfig().store()
+                ApiServer.last_msg = 'upload config saved'
         # fall through: request.method == 'GET':
         out = StringIO()
         config.config.write(out)
-        return render_template('settings.html', apiserver=ApiServer, settingsinfo=out.getvalue())
+        return render_template('settings.html', apiserver=ApiServer, settingsinfo=out.getvalue(),
+                               server=UploadConfig().server, user=UploadConfig().user)
 
     @ staticmethod
     @ app.route('/wifi', methods=['GET', 'POST'])

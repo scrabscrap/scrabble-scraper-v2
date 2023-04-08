@@ -33,6 +33,7 @@ from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from game_board.tiles import tiles
 from scrabble import Game, InvalidMoveExeption, Move, MoveType, NoMoveException
 from threadpool import pool
+from upload import Upload
 from util import trace
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
@@ -348,21 +349,18 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
 @ trace
 def store_status(game: Game):
     """store current status.json - does not update data - *.json !"""
-    from ftp import Ftp
-    if config.output_web or config.output_ftp:
-        with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
-            handle.write(game.json_str())
-        pool.submit(Ftp.upload_status)                    # upload empty status
+    with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
+        handle.write(game.json_str())
+    pool.submit(Upload().upload_status)                    # upload empty status
 
 
 @ trace
 def start_of_game(game: Game):
     """ start of game """
-    from ftp import Ftp
     import glob
     import os
 
-    pool.submit(Ftp.delete_files, ['image', 'data'])  # first delete images and data files on ftp server
+    pool.submit(Upload().delete_files)  # first delete images and data files on ftp server
     try:
         file_list = glob.glob(f'{config.web_dir}/image-*.jpg')
         for file_path in file_list:
@@ -389,8 +387,6 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
     import uuid
     from zipfile import ZipFile
 
-    from ftp import Ftp
-
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     # time.sleep(1.5)
@@ -405,26 +401,24 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
 
     game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
     zip_filename = f'{game_id}-{str(uuid.uuid4())}'
-    if config.output_web or config.output_ftp:
-        with ZipFile(f'{config.web_dir}/{zip_filename}.zip', 'w') as _zip:
-            logging.info(f"create zip with {len(game.moves):d} files")
-            for i in range(1, len(game.moves) + 1):
-                if os.path.exists(f'{config.web_dir}/image-{i}.jpg'):
-                    _zip.write(f'{config.web_dir}/image-{i}.jpg', arcname=f'image-{i}.jpg')
-                if os.path.exists(f'{config.web_dir}/data-{i}.json'):
-                    _zip.write(f'{config.web_dir}/data-{i}.json', arcname=f'data-{i}.json')
-            if os.path.exists(f'{config.log_dir}/messages.log'):
-                _zip.write(f'{config.log_dir}/messages.log', arcname='messages.log')
-            if config.development_recording:
-                logging.debug('add development recording')
-                file_list = glob.glob(f'{config.work_dir}/recording/{game_id}-*')
-                for filename in file_list:
-                    _zip.write(f'{filename}', arcname=os.path.basename(filename))
-                if os.path.exists(f'{config.work_dir}/recording/gameRecording.log'):
-                    _zip.write(f'{config.work_dir}/recording/gameRecording.log', arcname='gameRecording.log')
+    with ZipFile(f'{config.web_dir}/{zip_filename}.zip', 'w') as _zip:
+        logging.info(f"create zip with {len(game.moves):d} files")
+        for i in range(1, len(game.moves) + 1):
+            if os.path.exists(f'{config.web_dir}/image-{i}.jpg'):
+                _zip.write(f'{config.web_dir}/image-{i}.jpg', arcname=f'image-{i}.jpg')
+            if os.path.exists(f'{config.web_dir}/data-{i}.json'):
+                _zip.write(f'{config.web_dir}/data-{i}.json', arcname=f'data-{i}.json')
+        if os.path.exists(f'{config.log_dir}/messages.log'):
+            _zip.write(f'{config.log_dir}/messages.log', arcname='messages.log')
+        if config.development_recording:
+            logging.debug('add development recording')
+            file_list = glob.glob(f'{config.work_dir}/recording/{game_id}-*')
+            for filename in file_list:
+                _zip.write(f'{filename}', arcname=os.path.basename(filename))
+            if os.path.exists(f'{config.work_dir}/recording/gameRecording.log'):
+                _zip.write(f'{config.work_dir}/recording/gameRecording.log', arcname='gameRecording.log')
 
-    if config.output_ftp:
-        Ftp.upload_game(f'{zip_filename}')
+    Upload().upload_game(f'{zip_filename}')
 
     if config.development_recording:
         logging.info(game.dev_str())
@@ -665,12 +659,11 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
 
 
 def _store_fixed_move(game: Game, move_to_store: Move):
-    if config.output_web or config.output_ftp:
-        with open(f'{config.web_dir}/data-{move_to_store.move}.json', "w", encoding='UTF-8') as handle:
-            handle.write(game.json_str(move_to_store.move))
-        if len(game.moves) == move_to_store.move:
-            with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
-                handle.write(game.json_str())
+    with open(f'{config.web_dir}/data-{move_to_store.move}.json', "w", encoding='UTF-8') as handle:
+        handle.write(game.json_str(move_to_store.move))
+    if len(game.moves) == move_to_store.move:
+        with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
+            handle.write(game.json_str())
 
 
 def _store_move(game: Game, last_rack: bool = False):
@@ -680,7 +673,7 @@ def _store_move(game: Game, last_rack: bool = False):
         current_move(Move): the current move
         img(Mat): current picture
     """
-    if config.output_web or config.output_ftp:
+    if config.output_web or config.upload_server:
         with open(f'{config.web_dir}/data-{game.moves[-1].move}.json', "w", encoding='UTF-8') as handle:
             handle.write(game.json_str())
         if last_rack:
@@ -701,7 +694,4 @@ def _upload_ftp(current_move: Move):  # pragma: no cover # no ftp upload on test
     Args:
         current_move(Move): the current move
     """
-    from ftp import Ftp
-    if config.output_ftp:
-        # start thread for upload and return immediatly
-        pool.submit(Ftp.upload_move, current_move.move)
+    pool.submit(Upload().upload_move, current_move.move)

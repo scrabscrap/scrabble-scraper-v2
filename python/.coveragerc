@@ -18,6 +18,9 @@ omit =
 	*/hardware/camera_opencv.py
 	# only online
 	*/ftp.py
+	*/upload_config.py
+	*/upload_ftp.py
+	*/upload_http.py
 
 [report]
 exclude_lines =
