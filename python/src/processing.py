@@ -561,14 +561,15 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[
 
     if len(game.moves) > 1:                                                    # 3a. check for wrong blank tiles
         # TODO: extract this for testing
-        to_del = [i for i in game.moves[-1].board.keys() if game.moves[-1].board[i][0] == '_' and i not in tiles_candidates]
+        to_del = [i for i in game.moves[-1].new_tiles.keys() if (game.moves[-1].board[i][0] == '_')
+                  and i not in tiles_candidates]  # noqa: W503
         if to_del:
             _move = game.moves[-1]
             for i in to_del:
                 logging.warning(f'remove blank tiles from the last move because they are no longer recognized {i}')
                 try:
-                    del _move.board[i]
                     del _move.new_tiles[i]
+                    del _move.board[i]
                 except KeyError:
                     pass  # already deleted
             logging.warning(f'try to recalculate move #{_move.move}')
