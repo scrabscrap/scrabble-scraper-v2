@@ -545,7 +545,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             watch.display.show_ready(('Update...', 'pls wait'))
             os.system(f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} |'
                       f' tee -a {config.log_dir}/messages.log &')
-            return redirect(url_for('logs'))
+            return redirect(url_for('route_logs'))
         ApiServer.last_msg = 'not in State START'
         return redirect(url_for('route_index'))
 
