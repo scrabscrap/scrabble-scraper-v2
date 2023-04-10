@@ -378,14 +378,19 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @ app.route('/download_games/<path:req_path>')
     def do_download_games(req_path):
         """download files from web folder"""
+        base_path = config.web_dir
+        fullpath = os.path.normpath(os.path.join(base_path, req_path))
+        # validate path
+        if not fullpath.startswith(base_path):
+            return abort(404)
         # Return 404 if path doesn't exist
-        if not os.path.exists(f'{config.web_dir}/{req_path}'):
+        if not os.path.exists(fullpath):
             return abort(404)
         # Check if path is a file and serve
-        if os.path.isfile(f'{config.web_dir}/{req_path}'):
-            return send_file(f'{config.web_dir}/{req_path}')
+        if os.path.isfile(fullpath):
+            return send_file(fullpath)
         # read files
-        file_objs = [x.name for x in os.scandir(f'{config.web_dir}/{req_path}')]
+        file_objs = [x.name for x in os.scandir(fullpath)]
         file_objs.sort()
         return render_template('download_games.html', files=file_objs, apiserver=ApiServer,)
 
