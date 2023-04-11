@@ -30,6 +30,7 @@ class Config(metaclass=Singleton):  # pylint: disable=too-many-public-methods
     def __init__(self, ini_file=None) -> None:
         self.config = configparser.ConfigParser()
         self.reload(ini_file=ini_file, clean=False)
+        self.is_testing = False
 
     def reload(self, ini_file=None, clean=True) -> None:
         """ reload configuration from file """
@@ -129,11 +130,6 @@ class Config(metaclass=Singleton):  # pylint: disable=too-many-public-methods
     def show_score(self) -> bool:
         """should the display show current score """
         return self.config.getboolean('scrabble', 'show_score', fallback=False)
-
-    @property
-    def output_web(self) -> bool:
-        """should the game stored into web folder"""
-        return self.config.getboolean('output', 'web', fallback=True)
 
     @property
     def upload_server(self) -> bool:

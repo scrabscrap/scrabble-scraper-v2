@@ -46,7 +46,6 @@ class ConfigTestCase(unittest.TestCase):
         self.assertEqual(config.doubt_timeout, 20)
         self.assertEqual(config.scrabble_verify_moves, 3)
         self.assertFalse(config.show_score)
-        self.assertTrue(config.output_web)
         self.assertFalse(config.upload_server)
         self.assertEqual(config.upload_modus, 'http')
         self.assertTrue(config.video_warp)

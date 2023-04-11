@@ -36,6 +36,7 @@ from hardware.camera_file import CameraFile
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
+from config import config
 
 
 class ButtonTestCase(unittest.TestCase):
@@ -53,8 +54,8 @@ class ButtonTestCase(unittest.TestCase):
             config.config.remove_option(section, option)
 
     def setUp(self) -> None:
-        self.config_setter('output', 'ftp', False)
-        self.config_setter('output', 'web', False)
+        self.config_setter('output', 'upload_server', False)
+        config.is_testing = True
 
         # set default pin factory
         Device.pin_factory = MockFactory()
@@ -82,6 +83,7 @@ class ButtonTestCase(unittest.TestCase):
         self.state.do_new_game()
         LED.switch_on({})  # type: ignore
         Device.pin_factory.reset()  # type: ignore
+        config.is_testing = False
         # for thread in threading.enumerate():
         #    if not thread.name.startswith('Main'):
         #        logging.debug(f'thread: {thread.name}')

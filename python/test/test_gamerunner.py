@@ -25,6 +25,7 @@ from time import sleep
 import glob
 
 from hardware.camera_thread import Camera, CameraEnum
+from config import config
 
 TEST_DIR = os.path.dirname(__file__)
 
@@ -53,10 +54,15 @@ class GameRunnerTestCase(unittest.TestCase):
     def setUp(self):
         from processing import clear_last_warp
 
+        config.is_testing = True
         clear_last_warp()
-        self.config_setter('output', 'ftp', False)
-        self.config_setter('output', 'web', False)
+        self.config_setter('output', 'upload_server', False)
         self.config_setter('development', 'recording', False)
+        return super().setUp()
+
+    def tearDown(self) -> None:
+        config.is_testing = False
+        return super().tearDown()
 
     def test_games(self):
         """Test csv games"""

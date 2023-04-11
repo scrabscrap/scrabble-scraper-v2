@@ -22,6 +22,7 @@ import unittest
 
 import cv2
 
+from config import config
 from processing import analyze, filter_candidates, filter_image, warp_image
 
 TEST_DIR = os.path.dirname(__file__)
@@ -69,13 +70,18 @@ class ScrabbleMusterTestCase(unittest.TestCase):
     def setUp(self):
         from processing import clear_last_warp
 
+        config.is_testing = True
         clear_last_warp()
-        self.config_setter('output', 'ftp', False)
-        self.config_setter('output', 'web', False)
+        self.config_setter('output', 'server_upload', False)
         self.config_setter('video', 'warp', True)
         self.config_setter('video', 'warp_coordinates', None)
         self.config_setter('board', 'layout', 'custom')
         self.config_setter('development', 'recording', False)
+        return super().setUp()
+
+    def tearDown(self) -> None:
+        config.is_testing = False
+        return super().tearDown()
 
     def test_names(self):
         """Test: Namess on board"""

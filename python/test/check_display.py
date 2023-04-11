@@ -27,6 +27,7 @@ except (FileNotFoundError, ImportError):
     logging.warning('no i2c device found or import error')
     from display import Display as PlayerDisplay  # type: ignore # fallback on ImportError
 
+from config import config
 from scrabblewatch import ScrabbleWatch
 from util import trace
 
@@ -36,6 +37,14 @@ logging.basicConfig(
 
 class DisplayTestCase(unittest.TestCase):
     """Test pattern for OLED Display"""
+
+    def setUp(self) -> None:
+        config.is_testing = True
+        return super().setUp()
+
+    def tearDown(self) -> None:
+        config.is_testing = False
+        return super().tearDown()
 
     @trace
     def test_display(self):

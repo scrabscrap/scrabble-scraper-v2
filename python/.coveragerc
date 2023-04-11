@@ -21,6 +21,7 @@ omit =
 	*/upload_config.py
 	*/upload_ftp.py
 	*/upload_http.py
+	*/upload.py
 
 [report]
 exclude_lines =

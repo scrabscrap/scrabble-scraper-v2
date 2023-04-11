@@ -23,6 +23,7 @@ import unittest
 logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/test_log.conf',
                           disable_existing_loggers=False)
 
+from config import config
 from display import Display
 from scrabble import Move, MoveType
 from scrabblewatch import ScrabbleWatch
@@ -38,6 +39,12 @@ class AlgorithmTestCase(unittest.TestCase):
         display = Display()
         watch = ScrabbleWatch(display)
         self.state = State(watch=watch)
+        config.is_testing = True
+        return super().setUp()
+
+    def tearDown(self) -> None:
+        config.is_testing = False
+        return super().tearDown()
 
     def test_10(self):
         """Test 10 - hand on board"""

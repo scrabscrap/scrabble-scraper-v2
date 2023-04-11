@@ -22,11 +22,12 @@ from signal import pause
 logging.basicConfig(
     level=logging.INFO, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
+from config import config
 from display import Display
 from hardware.camera_thread import Camera, CameraEnum
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
-from state import DOUBT0, DOUBT1, GREEN, REBOOT, RED, RESET, YELLOW, AP, State
+from state import AP, DOUBT0, DOUBT1, GREEN, REBOOT, RED, RESET, YELLOW, State
 
 
 class SimulateState(State):
@@ -69,6 +70,14 @@ class SimulateState(State):
 
 class CheckButtonTestCase(unittest.TestCase):
     """check physical button"""
+
+    def setUp(self) -> None:
+        config.is_testing = True
+        return super().setUp()
+
+    def tearDown(self) -> None:
+        config.is_testing = False
+        return super().tearDown()
 
     def test_button(self):
         """start button event handler - display LED on Button press"""
