@@ -21,7 +21,7 @@ if(isset($_POST["delete"])) {
 
   $errors = []; // Store errors here
   $noerrors = [];
-  $fileExtensionsAllowed = ['jpeg','jpg','png', 'json']; // These will be the only file extensions allowed 
+  $fileExtensionsAllowed = ['jpeg','jpg','png', 'json', 'zip']; // These will be the only file extensions allowed 
 
   foreach($_FILES as $file) {
       $fileName = $file['name'];
@@ -35,7 +35,7 @@ if(isset($_POST["delete"])) {
           $errors[] = "ERROR: " . basename($fileName) . " NOK - invalid file extension\n";
       }
   
-      if ($fileSize > 4000000) {
+      if ($fileSize > 20000000) {
           $errors[] = "ERROR: " . basename($fileName) . " NOK - Filesize\n";
       }
       if (empty($errors)) {
