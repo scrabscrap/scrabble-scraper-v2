@@ -523,6 +523,7 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[
         else:
             ignore_coords = set(
                 {i: i for i in game.moves[-config.scrabble_verify_moves].board.keys() if i in game.moves[-1].board.keys()})
+    tiles_candidates = tiles_candidates | ignore_coords                        # tiles_candidates must contain ignored_coords
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
     logging.debug(f'filtered_candidates {filtered_candidates}')
 
