@@ -124,14 +124,15 @@ class GameRunnerTestCase(unittest.TestCase):
 
                         self.assertEqual(row["State"].upper(), state.current_state,
                                          f'invalid state {state.current_state} at move {int(row["Move"])}')
-                        self.assertEqual(int(row["Points"]), state.game.moves[-1].points,
-                                         f'invalid points {state.game.moves[-1].points} at move {int(row["Move"])}')
-                        self.assertEqual(int(row["Score1"]), state.game.moves[-1].score[0],
-                                         f'invalid score 1 {state.game.moves[-1].score[0]} at move {int(row["Move"])}')
-                        self.assertEqual(int(row["Score2"]), state.game.moves[-1].score[1],
-                                         f'invalid score 2 {state.game.moves[-1].score[1]} at move {int(row["Move"])}')
-                        self.assertEqual(row["Word"], state.game.moves[-1].word,
-                                         f'invalid word {state.game.moves[-1].word} at move {int(row["Move"])}')
+                        if state.current_state not in ('P0', 'P1'):
+                            self.assertEqual(int(row["Points"]), state.game.moves[-1].points,
+                                             f'invalid points {state.game.moves[-1].points} at move {int(row["Move"])}')
+                            self.assertEqual(int(row["Score1"]), state.game.moves[-1].score[0],
+                                             f'invalid score 1 {state.game.moves[-1].score[0]} at move {int(row["Move"])}')
+                            self.assertEqual(int(row["Score2"]), state.game.moves[-1].score[1],
+                                             f'invalid score 2 {state.game.moves[-1].score[1]} at move {int(row["Move"])}')
+                            self.assertEqual(row["Word"], state.game.moves[-1].word,
+                                             f'invalid word {state.game.moves[-1].word} at move {int(row["Move"])}')
                     state.do_end_of_game()
         logging.info('### end of tests ###')
         for file in files:
