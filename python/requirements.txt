@@ -20,7 +20,7 @@ pylint==2.17.2
 # debug, misc
 cPython==0.0.6
 pipdeptree==2.7.0
-snakeviz==2.1.2
+snakeviz==2.2.0
 # mypy types
 types-requests
 
@@ -91,6 +91,6 @@ types-requests
 #   - tomli [required: >=1.1.0, installed: 2.0.1]
 #   - tomlkit [required: >=0.10.1, installed: 0.11.6]
 #   - typing-extensions [required: >=3.10.0, installed: 4.5.0]
-# snakeviz==2.1.2
+# snakeviz==2.2.0
 #   - tornado [required: >=2.0, installed: 6.2]
 # wheel==0.38.4
