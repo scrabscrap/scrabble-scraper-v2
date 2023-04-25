@@ -57,7 +57,8 @@ class Settings extends Component {
         return (
             <span>
                 <button type='button' data-toggle='tooltip' data-placement='top' title='Settings'
-                    className='btn btn-info btn-sm float-right bg-body'
+                    className='btn btn-success btn-sm float-right bg-body'
+                    // new: className='btn btn-info btn-sm float-right bg-body' 
                     onClick={this.toggleShow}>
                     &#x2699;
                 </button>

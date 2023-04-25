@@ -18,7 +18,8 @@ class Header extends Component {
 
         const buttonclass = (this.props.highlight_reload) ?
             'btn btn-danger btn-sm float-right' :
-            'btn btn-info btn-sm float-right bg-body'
+            'btn btn-success btn-sm float-right bg-body'
+        // new: 'btn btn-info btn-sm float-right bg-body'
 
         return (
             <div className='header bg-body'>
