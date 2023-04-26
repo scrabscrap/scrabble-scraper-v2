@@ -49,6 +49,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     app = Flask(__name__)
     sock = Sock(app)
     last_msg = ''
+    prev_msg = ''
     cam = None
     flask_shutdown_blocked = False
     scrabscrap_version = ''
@@ -58,6 +59,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def __init__(self, cam=None) -> None:
         if cam:
             ApiServer.cam = cam
+
+    @staticmethod
+    def _clear_message():
+        if ApiServer.last_msg != '' and ApiServer.prev_msg == ApiServer.last_msg:
+            ApiServer.last_msg = ''
+        ApiServer.prev_msg = ApiServer.last_msg
 
     @staticmethod
     @app.route('/webapp/<path:path>')
@@ -70,6 +77,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/index', methods=['GET', 'POST'])
     def route_index():
         """ index web page """
+        ApiServer._clear_message()
         state = State()
         if request.method == 'POST':
             if request.form.get('btnplayer'):
@@ -203,6 +211,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             (col, row) = coord
             return chr(ord('A') + row) + str(col + 1)
 
+        ApiServer._clear_message()
         state = State()
         game = state.game
         if request.method == 'POST':  # pylint: disable=too-many-nested-blocks
@@ -284,6 +293,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @ app.route('/settings', methods=['GET', 'POST'])
     def route_settings():
         """display settings on web page"""
+        ApiServer._clear_message()
         if request.method == 'POST' and request.form.get('btnset'):
             try:
                 if (path := request.form.get('setting')):
@@ -325,6 +335,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @ app.route('/wifi', methods=['GET', 'POST'])
     def route_wifi():
         """ set wifi param (ssid, psk) via post request """
+        ApiServer._clear_message()
         if request.method == 'POST':
             state = State()
             if request.form.get('btnadd'):
