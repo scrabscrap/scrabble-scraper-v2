@@ -377,17 +377,18 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     # time.sleep(1.5)
-    points, rackstr = _end_of_game_calculate_rack(game)
-    game.add_last_rack(points, rackstr)
-    if event and not event.is_set():
-        event.set()
-    logging.debug(f'last rack scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
-    if config.development_recording:
-        logging.info(game.dev_str())
+    if len(game.moves) > 0:
+        points, rackstr = _end_of_game_calculate_rack(game)
+        game.add_last_rack(points, rackstr)
+        if event and not event.is_set():
+            event.set()
+        logging.debug(f'last rack scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
+        if config.development_recording:
+            logging.info(game.dev_str())
 
-    _store(game, -2)
-    _store(game, -1)
-    _create_zip_from_game(game)
+        _store(game, -2)
+        _store(game, -1)
+        _create_zip_from_game(game)
 
 
 def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
