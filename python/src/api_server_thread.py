@@ -39,7 +39,7 @@ from config import config
 from game_board.board import overlay_grid
 from processing import (admin_change_move, admin_change_score, get_last_warp,
                         set_blankos, warp_image)
-from state import State
+from state import State, START, EOG
 from threadpool import pool
 from upload_config import UploadConfig
 
@@ -261,6 +261,24 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                    if val.islower() or val == '_'] if game.moves else []
         return render_template('moves.html', apiserver=ApiServer, player1=player1, player2=player2,
                                move_list=game.moves, blanko_list=blankos)
+
+    @ staticmethod
+    @ app.route('/end_game', methods=['POST', 'GET'])
+    def do_end_game():
+        """ end current game """
+        State().do_end_of_game()
+        ApiServer.last_msg = 'end game'
+        return redirect('/index')
+
+    @ staticmethod
+    @ app.route('/new_game', methods=['POST', 'GET'])
+    def do_new_game():
+        """ start new game game """
+        if State().current_state not in (EOG, START):
+            State().do_end_of_game()
+        State().do_new_game()
+        ApiServer.last_msg = 'start new game'
+        return redirect('/index')
 
     @ staticmethod
     @ app.route('/settings', methods=['GET', 'POST'])
