@@ -44,7 +44,7 @@ class UploadHttp:
                 try:
                     if not url.startswith(('http://', 'https://')):
                         url = 'https://' + url
-                    ret = requests.post(url, data=data, files=toupload, timeout=5,
+                    ret = requests.post(url, data=data, files=toupload, timeout=50,
                                         auth=HTTPBasicAuth(UploadConfig().user, UploadConfig().password))
                     logging.debug(ret.text)
                     logging.info('http: end of transfer')
@@ -70,7 +70,7 @@ class UploadHttp:
                 try:
                     if not url.startswith(('http://', 'https://')):
                         url = 'https://' + url
-                    ret = requests.post(url, data=data, files=toupload, timeout=5,
+                    ret = requests.post(url, data=data, files=toupload, timeout=50,
                                         auth=HTTPBasicAuth(UploadConfig().user, UploadConfig().password))
                     logging.debug(ret.text)
                     logging.info('http: end of transfer')
@@ -96,7 +96,7 @@ class UploadHttp:
                 try:
                     if not url.startswith(('http://', 'https://')):
                         url = 'https://' + url
-                    ret = requests.post(url, data=data, files=toupload, timeout=5,
+                    ret = requests.post(url, data=data, files=toupload, timeout=100,
                                         auth=HTTPBasicAuth(UploadConfig().user, UploadConfig().password))
                     logging.debug(ret.text)
                     logging.info('http: end of transfer')
@@ -121,7 +121,7 @@ class UploadHttp:
                 try:
                     if not url.startswith(('http://', 'https://')):
                         url = 'https://' + url
-                    ret = requests.post(url, data=data, timeout=5, auth=HTTPBasicAuth(
+                    ret = requests.post(url, data=data, timeout=50, auth=HTTPBasicAuth(
                         UploadConfig().user, UploadConfig().password))
                     logging.debug(ret.text)
                     logging.info('http: end of delete')
