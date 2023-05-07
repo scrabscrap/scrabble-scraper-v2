@@ -47,9 +47,10 @@ class UploadHttp:
                     ret = requests.post(url, data=data, files=toupload, timeout=50,
                                         auth=HTTPBasicAuth(UploadConfig().user, UploadConfig().password))
                     logging.debug(ret.text)
-                    logging.info('http: end of transfer')
                     if ret.status_code == 200:
+                        logging.info('http: end of transfer')
                         return True
+                    logging.warning(f'http: status code {ret.status_code}')
                 except requests.Timeout:
                     logging.warning('http: error timeout')
                 except requests.ConnectionError:
@@ -73,9 +74,10 @@ class UploadHttp:
                     ret = requests.post(url, data=data, files=toupload, timeout=50,
                                         auth=HTTPBasicAuth(UploadConfig().user, UploadConfig().password))
                     logging.debug(ret.text)
-                    logging.info('http: end of transfer')
                     if ret.status_code == 200:
+                        logging.info('http: end of transfer')
                         return True
+                    logging.warning(f'http: status code {ret.status_code}')
                 except requests.Timeout:
                     logging.warning('http: error timeout')
                 except requests.ConnectionError:
@@ -99,9 +101,10 @@ class UploadHttp:
                     ret = requests.post(url, data=data, files=toupload, timeout=100,
                                         auth=HTTPBasicAuth(UploadConfig().user, UploadConfig().password))
                     logging.debug(ret.text)
-                    logging.info('http: end of transfer')
                     if ret.status_code == 200:
+                        logging.info('http: end of transfer')
                         return True
+                    logging.warning(f'http: status code {ret.status_code}')
                 except requests.Timeout:
                     logging.warning('http: error timeout')
                 except requests.ConnectionError:
@@ -124,9 +127,10 @@ class UploadHttp:
                     ret = requests.post(url, data=data, timeout=50, auth=HTTPBasicAuth(
                         UploadConfig().user, UploadConfig().password))
                     logging.debug(ret.text)
-                    logging.info('http: end of delete')
                     if ret.status_code == 200:
+                        logging.info('http: end of delete')
                         return True
+                    logging.warning(f'http: status code {ret.status_code}')
                 except requests.Timeout:
                     logging.warning('http: error timeout')
                 except requests.ConnectionError:
