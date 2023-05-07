@@ -374,6 +374,8 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
         waitfor(futures): wait for jobs to complete
         game(Game): the current game data
     """
+    from contextlib import suppress
+
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     # time.sleep(1.5)
@@ -388,7 +390,8 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
 
         _store(game, -2)
         _store(game, -1)
-        _create_zip_from_game(game)
+        with suppress(Exception):
+            _create_zip_from_game(game)
 
 
 def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
