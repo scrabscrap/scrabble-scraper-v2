@@ -16,7 +16,7 @@ autopep8==2.0.2
 coverage==7.2.5
 flake8==6.0.0
 mypy==1.2.0
-pylint==2.17.3
+pylint==2.17.4
 # debug, misc
 cPython==0.0.6
 pipdeptree==2.7.0
@@ -79,7 +79,7 @@ types-requests
 # picamera==1.13
 # pip==23.0
 # pipdeptree==2.7.0
-# pylint==2.17.3
+# pylint==2.17.4
 #   - astroid [required: >=2.14.2,<=2.16.0-dev0, installed: 2.14.2]
 #     - lazy-object-proxy [required: >=1.4.0, installed: 1.9.0]
 #     - typing-extensions [required: >=4.0.0, installed: 4.5.0]
