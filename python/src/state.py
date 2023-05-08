@@ -229,6 +229,7 @@ class State(metaclass=Singleton):  # pylint: disable=too-many-instance-attribute
         logging.info(f'{self.current_state} - (reset) -> {START}')
         LED.switch_on({})  # type: ignore
         LED.blink_on({LEDEnum.yellow})
+        self.watch.display.show_ready(('prepare', 'end'))
         end_of_game(None, self.game, self.op_event)
         self.watch.display.show_end_of_game()
         current_state = EOG
