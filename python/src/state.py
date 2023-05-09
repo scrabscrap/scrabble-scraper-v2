@@ -40,6 +40,8 @@ S1 = 'S1'
 P0 = 'P0'
 P1 = 'P1'
 EOG = 'EOG'  # end of game
+BLOCKING = 'BLOCK'  # ignore button press
+
 # buttons
 GREEN = 'GREEN'
 YELLOW = 'YELLOW'
@@ -216,31 +218,42 @@ class State(metaclass=Singleton):  # pylint: disable=too-many-instance-attribute
 
     def do_new_game(self) -> str:
         """Starts a new game"""
-        LED.switch_on({})  # type: ignore
-        self.picture = None
-        self.watch.reset()
-        self.game.new_game()
-        gc.collect()
+        from contextlib import suppress
+
+        with suppress(Exception):
+            self.current_state = BLOCKING
+            LED.switch_on({})  # type: ignore
+            self.picture = None
+            self.watch.reset()
+            self.game.new_game()
+            gc.collect()
         start_of_game(self.game)
         return self.do_ready()
 
     def do_end_of_game(self) -> str:
         """Resets state and game to default"""
+        from contextlib import suppress
+
         logging.info(f'{self.current_state} - (reset) -> {START}')
-        LED.switch_on({})  # type: ignore
-        LED.blink_on({LEDEnum.yellow})
-        self.watch.display.show_ready(('prepare', 'end'))
-        end_of_game(None, self.game, self.op_event)
+        with suppress(Exception):
+            self.current_state = BLOCKING
+            LED.switch_on({})  # type: ignore
+            LED.blink_on({LEDEnum.yellow})
+            self.watch.display.show_ready(('prepare', 'end'))
+            end_of_game(None, self.game, self.op_event)
         self.watch.display.show_end_of_game()
-        current_state = EOG
-        return current_state
+        return EOG
 
     def do_reboot(self) -> str:  # pragma: no cover
         """Perform a reboot"""
+        from contextlib import suppress
+
         logging.info(f'{self.current_state} - (reboot) -> {START}')
-        self.watch.display.show_boot()  # Display message REBOOT
-        LED.switch_on({})  # type: ignore
-        end_of_game(self.last_submit, self.game)
+        with suppress(Exception):
+            self.current_state = BLOCKING
+            self.watch.display.show_boot()  # Display message REBOOT
+            LED.switch_on({})  # type: ignore
+            end_of_game(self.last_submit, self.game)
         self.watch.display.stop()
         current_state = START
         alarm(1)  # raise alarm for reboot
