@@ -17,6 +17,8 @@ git fetch --tags --prune --all -f
 
 if git merge-base --is-ancestor origin/$BRANCH HEAD; then
     echo "no git changes detected, , skipping git pull ..."
+    git stash
+    git checkout $BRANCH -f
     echo "####################################################################"
     echo "## Upgrade Linux                                                  ##"
     echo "####################################################################"
