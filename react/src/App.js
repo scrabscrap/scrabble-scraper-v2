@@ -28,6 +28,7 @@ class App extends Component {
       image: null,
       settings: {
         obs: this.getCookie('OBS', false),
+        obsbank: this.getCookie('OBSBANK', true),
         websocket: true,
         header_text: 'SCRABBLE SCRAPER'
       },
@@ -59,6 +60,7 @@ class App extends Component {
       console.log(val)
       this.setState({ settings: val })
       this.setCookie('OBS', val.obs)
+      this.setCookie('OBSBANK', val.obsbank)
     }
   }
 
@@ -66,8 +68,10 @@ class App extends Component {
     if (navigator.userAgent.includes("OBS")) {
       var { settings } = this.state
       settings.obs = true
+      settings.obsbank = true
       this.setState({ settings: settings })
       this.setCookie('OBS', settings.obs)
+      this.setCookie('OBSBANK', settings.obsbank)
     }
     this.connect();
     this.fileconnect();

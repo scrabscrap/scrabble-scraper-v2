@@ -6,9 +6,11 @@ class Settings extends Component {
         this.state = {
             show: false,
             obs: props.settings.obs,
+            obsbank: this.props.settings.obsbank,
             header_text: props.settings.header_text
         };
         this.handleObs = this.handleObs.bind(this);
+        this.handleObsBank = this.handleObsBank.bind(this);
         this.handleHeader = this.handleHeader.bind(this);
     }
 
@@ -17,6 +19,7 @@ class Settings extends Component {
             // reset fields on close without save
             this.setState({
                 obs: this.props.settings.obs,
+                obsbank: this.props.settings.obsbank,
                 header_text: this.props.settings.header_text
             })
         }
@@ -28,6 +31,7 @@ class Settings extends Component {
         // set cookie
         const settings = {
             obs: this.state.obs,
+            obsbank: this.state.obsbank,
             websocket: this.props.settings.websocket,
             header_text: this.props.settings.header_text
         }
@@ -38,6 +42,7 @@ class Settings extends Component {
         this.setState({
             show: false,
             obs: this.props.settings.obs,
+            obsbank: this.props.settings.obsbank,
             header_text: this.props.settings.header_text
         })
     }
@@ -47,6 +52,10 @@ class Settings extends Component {
 
     handleObs(event) {
         this.setState({ obs: !this.state.obs })
+    }
+
+    handleObsBank(event) {
+        this.setState({ obsbank: !this.state.obsbank })
     }
 
     handleHeader(event) {
@@ -78,6 +87,14 @@ class Settings extends Component {
                                     </input>
                                     <label className='form-check-label' htmlFor='obs'>
                                         OBS Layout
+                                    </label>
+                                </div>
+                                <div className='form-check'>
+                                    <input className='form-check-input' type='checkbox' onChange={this.handleObsBank}
+                                        checked={this.state.obsbank} id='obsbank'>
+                                    </input>
+                                    <label className='form-check-label' htmlFor='obsbank'>
+                                        OBS Bank Camera
                                     </label>
                                 </div>
                             </div>

@@ -31,7 +31,7 @@ class Display extends Component {
                         <div className='col-auto px-1'>
                             <div className='row py-1'>
                                 <div className='col-12'>
-                                    <Player counter={(player_on_move === '0') && data.settings.websocket} obs={true}
+                                    <Player counter={(player_on_move === '0') && data.settings.websocket} obs={data.settings.obsbank}
                                         unknown_move={data.unknown_move}
                                         color={player_on_move === '0' ? 'bg-info' : data.op === 'P0' ? 'bg-warning' : ''}
                                         name={data.name1} score={data.score1} time={data.clock1} />
@@ -39,7 +39,7 @@ class Display extends Component {
                             </div>
                             <div className='row py-1'>
                                 <div className='col-12'>
-                                    <Player counter={(player_on_move === '1') && data.settings.websocket} obs={true}
+                                    <Player counter={(player_on_move === '1') && data.settings.websocket} obs={data.settings.obsbank}
                                         unknown_move={data.unknown_move}
                                         color={player_on_move === '1' ? 'bg-info' : data.op === 'P1' ? 'bg-warning' : ''}
                                         name={data.name2} score={data.score2} time={data.clock2} />
