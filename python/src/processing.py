@@ -378,8 +378,6 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
         waitfor(futures): wait for jobs to complete
         game(Game): the current game data
     """
-    from contextlib import suppress
-
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
     # time.sleep(1.5)
@@ -394,8 +392,6 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
 
         _store(game, -2)
         _store(game, -1)
-        with suppress(Exception):
-            _create_zip_from_game(game)
 
 
 def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
@@ -645,7 +641,8 @@ def _store(game: Game, move_index: int, with_image: bool = True):  # pragma: no 
             pool.submit(Upload().upload_move, moves[move_index].move)
 
 
-def _create_zip_from_game(game: Game):  # pragma: no cover
+def store_zip_from_game(game: Game):  # pragma: no cover
+    """zip a game and upload to server"""
     import glob
     import os
     import uuid
