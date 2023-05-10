@@ -27,7 +27,7 @@ from config import config
 from hardware.button import Button
 from hardware.led import LED, LEDEnum
 from processing import (end_of_game, invalid_challenge, move, start_of_game,
-                        store_status, valid_challenge)
+                        store_status, valid_challenge, store_zip_from_game)
 from scrabble import Game
 from scrabblewatch import ScrabbleWatch
 from threadpool import pool
@@ -238,10 +238,14 @@ class State(metaclass=Singleton):  # pylint: disable=too-many-instance-attribute
         with suppress(Exception):
             self.current_state = BLOCKING
             LED.switch_on({})  # type: ignore
-            LED.blink_on({LEDEnum.yellow})
             self.watch.display.show_ready(('prepare', 'end'))
             end_of_game(None, self.game, self.op_event)
+
         self.watch.display.show_end_of_game()
+
+        with suppress(Exception):
+            store_zip_from_game(self.game)
+        LED.blink_on({LEDEnum.yellow})
         return EOG
 
     def do_reboot(self) -> str:  # pragma: no cover
@@ -254,6 +258,7 @@ class State(metaclass=Singleton):  # pylint: disable=too-many-instance-attribute
             self.watch.display.show_boot()  # Display message REBOOT
             LED.switch_on({})  # type: ignore
             end_of_game(self.last_submit, self.game)
+            store_zip_from_game(self.game)
         self.watch.display.stop()
         current_state = START
         alarm(1)  # raise alarm for reboot
