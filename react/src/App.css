@@ -1,19 +1,17 @@
-@media (prefers-color-scheme: dark) {
-
-  /* Overrides for Dark Mode. */
-  body {
-    background: #28a745;
-    /* new: background: #2A6573; */
-  }
+body {
+  /* background: #28a745; */
+  /* new: background: #2A6573; */
+  background: #00607d;
 }
 
 .bg-body {
-  background: #28a745;
+  /* background: #28a745; */
   /* new: background: #2A6573; */
+  background: #00607d;
 }
 
 .obs-main-camera {
-  width: 100%;
+  /* width: 100%; */
   height: 100%;
   background: rgba(128, 128, 128, .1);
 }
