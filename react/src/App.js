@@ -224,7 +224,7 @@ class App extends Component {
             }
           }
           var header_text
-          if (data.status && data.tournament) {
+          if (data && data.tournament) {
             header_text = data.tournament
           } else {
             header_text = this.state.settings.header_text
