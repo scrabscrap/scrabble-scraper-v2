@@ -22,41 +22,29 @@ class Display extends Component {
             return (
                 <div className='container-fluid'>
                     <div className='row py-1'>
-                        <div className='col-12'>
+                        <div className='col-3'>
+                            <Player counter={(player_on_move === '0') && data.settings.websocket} obs={data.settings.obsbank}
+                                unknown_move={data.unknown_move}
+                                color={player_on_move === '0' ? 'bg-info' : data.op === 'P0' ? 'bg-warning' : ''}
+                                name={data.name1} score={data.score1} time={data.clock1} />
+                        </div>
+                        <div className='col'>
                             <Header time={this.props.state.time} highlight_reload={this.props.state.highlight_reload}
                                 settings={this.props.state.settings} updateSettings={this.props.updateSettings} />
                         </div>
+                        <div className='col-3'>
+                            <Player counter={(player_on_move === '1') && data.settings.websocket} obs={data.settings.obsbank}
+                                unknown_move={data.unknown_move}
+                                color={player_on_move === '1' ? 'bg-info' : data.op === 'P1' ? 'bg-warning' : ''}
+                                name={data.name2} score={data.score2} time={data.clock2} />
+                        </div>
                     </div>
                     <div className='row py-1'>
-                        <div className='col-auto px-1'>
-                            <div className='row py-1'>
-                                <div className='col-12'>
-                                    <Player counter={(player_on_move === '0') && data.settings.websocket} obs={data.settings.obsbank}
-                                        unknown_move={data.unknown_move}
-                                        color={player_on_move === '0' ? 'bg-info' : data.op === 'P0' ? 'bg-warning' : ''}
-                                        name={data.name1} score={data.score1} time={data.clock1} />
-                                </div>
-                            </div>
-                            <div className='row py-1'>
-                                <div className='col-12'>
-                                    <Player counter={(player_on_move === '1') && data.settings.websocket} obs={data.settings.obsbank}
-                                        unknown_move={data.unknown_move}
-                                        color={player_on_move === '1' ? 'bg-info' : data.op === 'P1' ? 'bg-warning' : ''}
-                                        name={data.name2} score={data.score2} time={data.clock2} />
-                                </div>
-                            </div>
-                            <div className='row py-1'>
-                                <div className='col-12'>
-                                    <Board board={data.board} obs={data.settings.obs} />
-                                </div>
-                            </div>
-
-                        </div>
                         <div className='col move-panel px-1'>
                             <div className='card card-body my-1'>
-                                <span className='obs-main-camera pt-4'>
+                                <div className='embed-responsive embed-responsive-16by9 obs-main-camera'>
                                     <center><h2>&#x1F4F9;</h2></center>
-                                </span>
+                                </div>
                             </div>
                         </div>
 
