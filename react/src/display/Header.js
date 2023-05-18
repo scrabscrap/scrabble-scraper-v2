@@ -18,7 +18,7 @@ class Header extends Component {
 
         const buttonclass = (this.props.highlight_reload) ?
             'btn btn-danger btn-sm float-right' :
-            'btn btn-success btn-sm float-right bg-body'
+            'btn btn-info btn-sm float-right bg-body'
         // new: 'btn btn-info btn-sm float-right bg-body'
 
         return (
@@ -41,8 +41,8 @@ class Header extends Component {
                     <div className='row'>
                         <div className='col'></div>
                         <div className='col-auto'>
-                            <span className='text-muted'>https://github.com/scrabscrap/scrabble-scraper-v2
-                                {(this.props.settings.websocket) ? ' (websocket)' : ''} - {this.props.time}</span>
+                            <span className='text-muted'>
+                                {(this.props.settings.websocket) ? ' (websocket)' : ''} {this.props.time}</span>
                         </div>
                         <div className='col'></div>
                     </div>
