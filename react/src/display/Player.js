@@ -59,7 +59,7 @@ class Player extends Component {
         return (
             <div className='card player'>
                 <div className={headerclass}>
-                    <h5 className='card-title'>{this.props.name}</h5>
+                    <h2 className='card-title'>{this.props.name}</h2>
                     <p className='h4'>
                         <span ><b>{this.props.score} {this.props.unknown_move ? ' ?' : ''}</b></span>
                         <span className='float-right monospace' >
@@ -67,7 +67,7 @@ class Player extends Component {
                         </span>
                     </p>
 
-                    <div className={this.props.obs ? 'obs-bank-camera pt-4' : 'hidden'} >
+                    <div className={this.props.obs ? 'hidden obs-bank-camera pt-4' : 'hidden'} >
                         <center><div><h2>&#x1F4F9;</h2></div></center>
                     </div>
                 </div>
