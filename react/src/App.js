@@ -201,6 +201,7 @@ class App extends Component {
       const { settings } = this.state
       settings.websocket = true
       this.setState({ settings: settings })
+      this.connect()
       return
     }
 
