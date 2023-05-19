@@ -6,12 +6,13 @@ class Player extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            next: props.time
+            next: props.time,
+            startTime: Date.now()
         };
     }
 
     componentDidMount() {
-        this.setState({ next: this.props.time })
+        this.setState({ next: this.props.time, startTime: Date.now() })
         if (this.props.counter) { // clock countdown, if websocket access and player is active
             this.timeoutID = setTimeout(this.counter.bind(this), 1000);
         }
@@ -19,7 +20,7 @@ class Player extends Component {
 
     componentDidUpdate(prevProps) {
         if (prevProps.time !== this.props.time) { // got new time info
-            this.setState({ next: this.props.time })
+            this.setState({ next: this.props.time, startTime: Date.now() })
         }
     }
 
@@ -34,8 +35,10 @@ class Player extends Component {
         clearTimeout(this.timeoutID);
         this.timeoutID = null
         if (this.props.counter) {
+            const nowTime = Date.now()
+            const nextTime = this.state.startTime + this.state.next
+            this.timeoutID = setTimeout(this.counter.bind(this), 1000 - ((nowTime - nextTime) * 1000));
             this.setState({ next: this.state.next - 1 })
-            this.timeoutID = setTimeout(this.counter.bind(this), 1000);
         }
     }
 
