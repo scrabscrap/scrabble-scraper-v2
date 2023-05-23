@@ -106,7 +106,7 @@ class CustomBoard(GameBoard):
         return False
 
     @staticmethod
-    def _filter_set_of_positions(coord: set, img: Mat, result: Mat, color_table: dict) -> dict:
+    def _filter_set_of_positions(coord: set, img: Mat, result: Mat, color_table: dict, set_of_tiles: set) -> dict:
         # pylint: disable=too-many-locals
         offset = int(OFFSET / 2)  # use 400x400 instead of 800x800
         grid_h = int(GRID_H / 2)
@@ -114,34 +114,48 @@ class CustomBoard(GameBoard):
         for (col, row) in coord:
             px_col = int(offset + (row * grid_h))
             px_row = int(offset + (col * grid_w))
-            segment = img[px_col + 1:px_col + grid_h - 1, px_row + 1:px_row + grid_w - 1]
+            segment = img[px_col + 2:px_col + grid_h - 2, px_row + 2:px_row + grid_w - 2]
+            info = img[px_col + 1:px_col + grid_h - 1, px_row + 1:px_row + grid_w - 1]
             data = segment.reshape((-1, 3))
             data = np.float32(data)  # type: ignore
 
             criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 1.0)
-            k = 4
+            k = 3
             _, label, center = cv2.kmeans(data, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
             reduced = np.uint8(center)[label.flatten()]  # type: ignore # pylint: disable=unsubscriptable-object
-            reduced = reduced.reshape((segment.shape))
             unique, counts = np.unique(reduced.reshape(-1, 3), axis=0, return_counts=True)
             color = unique[np.argmax(counts)]
 
+            if CustomBoard._is_tile((col, row), color):
+                set_of_tiles.add((col, row))
+            else:
+                i = int(np.argmax(counts))
+                for i in range(0, k):
+                    if (i != np.argmax(counts)) \
+                            and (i != np.argmin(counts)) \
+                            and (counts[i] > 145) \
+                            and (counts[i] + int(counts[np.argmax(counts)] * 0.1) > counts[np.argmax(counts)]) \
+                            and CustomBoard._is_tile((col, row), unique[i]):
+                        color = unique[i]
+                        logging.debug(f'({row}, {col}) use second color {color}')
+                        set_of_tiles.add((col, row))
+
             color_table[(col, row)] = color
-            segment[:, :, 0], segment[:, :, 1], segment[:, :, 2] = color
+            info[:, :, 0], info[:, :, 1], info[:, :, 2] = color
 
             if config.development_recording:  # pragma: no cover
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 font_scale = 0.33
                 if CustomBoard._is_tile((col, row), color):
                     font_color = (170, 255, 255)
-                    segment[:, :, 2] = 255
+                    info[:, :, 2] = 255
                 else:
                     font_color = (24, 1, 255)
                     # reduced[:, :, 2] = 40  # dim ignored tiles
-                segment = cv2.putText(segment, f'{color[0]}', (1, 10), font, font_scale, font_color, 1, cv2.FILLED)  # (H)SV
-                segment = cv2.putText(segment, f'{color[1]}', (1, 20), font, font_scale, font_color, 1, cv2.FILLED)  # H(S)V
+                info = cv2.putText(info, f'{color[0]}', (1, 10), font, font_scale, font_color, 1, cv2.FILLED)  # (H)SV
+                info = cv2.putText(info, f'{color[1]}', (1, 20), font, font_scale, font_color, 1, cv2.FILLED)  # H(S)V
                 # segment = cv2.putText(segment, f'{color[2]}', (1, 30), font, fontScale, font_color, 1, cv2.FILLED) # HS(V)
-            result[px_col + 1:px_col + grid_h - 1, px_row + 1:px_row + grid_w - 1] = segment
+            result[px_col + 1:px_col + grid_h - 1, px_row + 1:px_row + grid_w - 1] = info
         return color_table
 
     @staticmethod
@@ -150,7 +164,7 @@ class CustomBoard(GameBoard):
 
         # image = cv2.erode(_image, None, iterations=2)
         img = cv2.bilateralFilter(_image, 5, 75, 75)
-        img = cv2.resize(img, (400, 400), interpolation=cv2.INTER_AREA)
+        img = cv2.resize(img, (400, 400), interpolation=cv2.INTER_NEAREST)
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         result = np.zeros(hsv.shape, dtype="uint8")
 
@@ -158,15 +172,15 @@ class CustomBoard(GameBoard):
         partitions = [set(product(range(0, 5), range(0, 15))),
                       set(product(range(5, 10), range(0, 15))),
                       set(product(range(10, 15), range(0, 15)))]
-        future1 = pool.submit(CustomBoard._filter_set_of_positions, partitions[0], hsv, result, color_table)
-        future2 = pool.submit(CustomBoard._filter_set_of_positions, partitions[1], hsv, result, color_table)
-        CustomBoard._filter_set_of_positions(partitions[2], hsv, result, color_table)
+        tiles1: set = set()
+        tiles2: set = set()
+        tiles3: set = set()
+        future1 = pool.submit(CustomBoard._filter_set_of_positions, partitions[0], hsv, result, color_table, tiles1)
+        future2 = pool.submit(CustomBoard._filter_set_of_positions, partitions[1], hsv, result, color_table, tiles2)
+        CustomBoard._filter_set_of_positions(partitions[2], hsv, result, color_table, tiles3)
         futures.wait({future1, future2})
 
-        set_of_tiles = set()
-        for col, row in product(range(0, 15), range(0, 15)):
-            if CustomBoard._is_tile((col, row), color_table[(col, row)]):
-                set_of_tiles.add((col, row))
+        set_of_tiles = tiles1 | tiles2 | tiles3
 
         if logging.getLogger('root').isEnabledFor(logging.DEBUG):
             tmp = '(H)SV'
