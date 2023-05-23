@@ -39,21 +39,15 @@
                     </div>
                     <div class="card-body">
                         <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Coord</th>
-                                    <th scope="col">Char</th>
-                                    <th scope="col">Update</th>
-                                </tr>
-                            </thead>
                             <tbody>
                                 {% for val in blanko_list %}
                                 <tr>
                                     <form action="/moves" method="post">
-                                        <td> <input type="text" class="form-control" name="coord" readonly value={{
-                                                val[0] }}>
+                                        <td> <input type="text" class="form-control" name="coord" readonly size="3"
+                                                value={{ val[0] }}>
                                         </td>
-                                        <td> <input type="text" class="form-control" name="char" value="{{ val[1] }}">
+                                        <td> <input type="text" class="form-control" name="char" size="1"
+                                                value="{{ val[1] }}">
                                         </td>
                                         <td><button type="submit" class="form-control btn btn-outline-primary"
                                                 name="btnblanko" value="Update" data-bs-toggle="tooltip"
