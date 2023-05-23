@@ -37,8 +37,7 @@ from werkzeug.serving import make_server
 
 from config import config
 from game_board.board import overlay_grid
-from processing import (admin_change_move, admin_change_score, get_last_warp,
-                        set_blankos, warp_image)
+from processing import (get_last_warp, warp_image)
 from state import State, START, EOG
 from threadpool import pool
 from upload_config import UploadConfig
@@ -219,14 +218,14 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 if (player1 := request.form.get('player1')) and (player2 := request.form.get('player2')) and \
                         (player1.casefold() != player2.casefold()):
                     ApiServer.last_msg = f'set player1={player1} / player2={player2}'
-                    State().do_new_player_names(player1, player2)
+                    state.do_new_player_names(player1, player2)
                 else:
                     ApiServer.last_msg = f'can not set: {request.form.get("player1")}/{request.form.get("player2")}'
             elif request.form.get('btnblanko'):
                 if (coord := request.form.get('coord')) and (char := request.form.get('char')) and char.isalpha():
                     char = char.lower()
                     ApiServer.last_msg = f'set blanko: {coord} = {char}'
-                    set_blankos(game, coord, char, event=state.op_event)
+                    state.do_set_blankos(coord, char)
                 else:
                     ApiServer.last_msg = 'invalid character for blanko'
             elif request.form.get('btnscore'):
@@ -236,9 +235,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         (score1 := request.form.get('move.score1', type=int)) is not None:
                     logging.debug(f'in values {move_number}: new score {(score0, score1)}')
                     if 0 < move_number <= len(game.moves) and (game.moves[move_number - 1].score != (score0, score1)):
-                        logging.debug('in set')
                         ApiServer.last_msg = f'update move# {move_number}: new score {(score0, score1)}'
-                        admin_change_score(game, move_number, (score0, score1), state.op_event)
+                        state.do_change_score(move_number, (score0, score1))
                     else:
                         ApiServer.last_msg = f'invalid move {move_number} or no changes in score {(score0, score1)}'
             elif request.form.get('btnmove'):
@@ -251,14 +249,14 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     move = game.moves[move_number - 1]
                     if (move_type == 'EXCHANGE') and (move.type.name != move_type):
                         ApiServer.last_msg = f'try to correct move #{move_number} to exchange'
-                        admin_change_move(game, int(move_number), (0, 0), True, '', state.op_event)
+                        state.do_edit_move(int(move_number), (0, 0), True, '')
                     else:
                         vert, col, row = move.calc_coord(coord)  # type: ignore
                         if (str(move.type.name) != move_type) or (move.coord != (col, row)) or (move.word != word) \
                                 or (move.is_vertical != vert):
                             if re.compile('[A-Z_\\.]+').match(word):
                                 ApiServer.last_msg = f'try to correct move #{move_number} to {coord} {word}'
-                                admin_change_move(game, int(move_number), (col, row), vert, word, state.op_event)
+                                state.do_edit_move(int(move_number), (col, row), vert, word)
                             else:
                                 ApiServer.last_msg = f'invalid character in word {word}'
                         else:

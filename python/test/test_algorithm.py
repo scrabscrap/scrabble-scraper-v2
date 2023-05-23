@@ -1029,7 +1029,7 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 7
         row = 7
-        admin_change_move(game, int(move_number), (col, row), False, word='RNS')
+        admin_change_move(None, game, int(move_number), (col, row), False, word='RNS')
         self.assertEqual((6, 0), game.moves[-1].score, 'invalid scores')
 
     def test_142(self):
@@ -1067,7 +1067,7 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 4
         row = 7
-        admin_change_move(game, int(move_number), (col, row), False, word='IRNS')
+        admin_change_move(None, game, int(move_number), (col, row), False, word='IRNS')
         self.assertEqual((8, 18), game.moves[-1].score, 'invalid scores')
         logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
@@ -1105,7 +1105,7 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 2
         col = 4
         row = 7
-        admin_change_move(game, int(move_number), (col, row), True, word='ITEN')
+        admin_change_move(None, game, int(move_number), (col, row), True, word='ITEN')
         self.assertEqual((24, 8), game.moves[-1].score, 'invalid scores')
         logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
@@ -1143,7 +1143,7 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 3
         row = 7
-        admin_change_move(game, int(move_number), (col, row), False, word='FIRNS')
+        admin_change_move(None, game, int(move_number), (col, row), False, word='FIRNS')
         self.assertEqual((24, 18), game.moves[-1].score, 'invalid scores')
         logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
@@ -1168,7 +1168,7 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 0
         row = 0
-        admin_change_move(game, int(move_number), (col, row), True, word='')
+        admin_change_move(None, game, int(move_number), (col, row), True, word='')
         self.assertEqual((0, 0), game.moves[-1].score, 'invalid scores')
 
     def test_146(self):

@@ -18,16 +18,17 @@
 import gc
 import logging
 import threading
+from concurrent import futures
 from concurrent.futures import Future
 from signal import alarm
-from typing import Callable, Optional
 from time import sleep
+from typing import Callable, Optional, Tuple
 
 from config import config
 from hardware.button import Button
 from hardware.led import LED, LEDEnum
 from processing import (end_of_game, invalid_challenge, move, start_of_game,
-                        store_status, valid_challenge, store_zip_from_game)
+                        store_status, store_zip_from_game, valid_challenge)
 from scrabble import Game
 from scrabblewatch import ScrabbleWatch
 from threadpool import pool
@@ -215,6 +216,30 @@ class State(metaclass=Singleton):  # pylint: disable=too-many-instance-attribute
         if self.current_state == START:
             store_status(self.game)
             self.do_ready()
+        if not self.op_event.is_set():
+            self.op_event.set()
+
+    def do_set_blankos(self, coord: str, value: str):
+        """set char for blanko"""
+        from processing import set_blankos
+        self.last_submit = pool.submit(set_blankos, self.last_submit, self.game, coord, value, self.op_event)
+        _, not_done = futures.wait({self.last_submit})
+        assert len(not_done) == 0, 'error while waiting for future'
+
+    def do_edit_move(self, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str):
+        """change move via api"""
+        from processing import admin_change_move
+        self.last_submit = pool.submit(admin_change_move, self.last_submit, self.game, move_number, coord, isvertical,
+                                       word, self.op_event)
+        _, not_done = futures.wait({self.last_submit})
+        assert len(not_done) == 0, 'error while waiting for future'
+
+    def do_change_score(self, move_number: int, score: Tuple[int, int]):
+        """change scoring value"""
+        from processing import admin_change_score
+        self.last_submit = pool.submit(admin_change_score, self.last_submit, self.game, move_number, score, self.op_event)
+        _, not_done = futures.wait({self.last_submit})
+        assert len(not_done) == 0, 'error while waiting for future'
 
     def do_new_game(self) -> str:
         """Starts a new game"""
@@ -228,6 +253,8 @@ class State(metaclass=Singleton):  # pylint: disable=too-many-instance-attribute
             self.game.new_game()
             gc.collect()
         start_of_game(self.game)
+        if not self.op_event.is_set():
+            self.op_event.set()
         return self.do_ready()
 
     def do_end_of_game(self) -> str:

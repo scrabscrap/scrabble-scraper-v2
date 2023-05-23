@@ -125,7 +125,7 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
     return board
 
 
-def set_blankos(game: Game, coord: str, value: str, event=None):
+def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, event=None):
     """set char for blanko
 
         Args:
@@ -134,7 +134,13 @@ def set_blankos(game: Game, coord: str, value: str, event=None):
         value: char for blank
         event: event to inform webservice
     """
+    if waitfor is not None:                                                    # wait for previous moves
+        _, not_done = futures.wait({waitfor})
+        assert len(not_done) == 0, 'error while waiting for future'
+
     moves = game.moves
+    logging.debug(f'set blanko {coord} to {value}')
+
     for mov in moves:
         board = mov.board
         _, col, row = mov.calc_coord(coord)
@@ -150,7 +156,7 @@ def set_blankos(game: Game, coord: str, value: str, event=None):
         event.set()
 
 
-def admin_change_score(game: Game, move_number: int, score: Tuple[int, int], event=None):
+def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, score: Tuple[int, int], event=None):
     """fix scores (direct call from admin)
 
         Args:
@@ -159,6 +165,10 @@ def admin_change_score(game: Game, move_number: int, score: Tuple[int, int], eve
         score(Tuple[int, int]): new score
         event: event to inform webservice
     """
+    if waitfor is not None:                                                    # wait for previous moves
+        _, not_done = futures.wait({waitfor})
+        assert len(not_done) == 0, 'error while waiting for future'
+
     if 0 < move_number <= len(game.moves):
         assert game.moves[move_number - 1].move == move_number
         index = move_number - 1
@@ -174,8 +184,8 @@ def admin_change_score(game: Game, move_number: int, score: Tuple[int, int], eve
             event.set()
 
 
-def admin_change_move(game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str,
-                      event=None):
+def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool,
+                      word: str, event=None):
     # pylint: disable=too-many-arguments, too-many-locals,too-many-branches,too-many-statements
     """fix move(direct call from admin)
 
@@ -189,6 +199,10 @@ def admin_change_move(game: Game, move_number: int, coord: Tuple[int, int], isve
         word: the new word valid chars(A - Z._) crossing chars will replaced with '.'
         event: event to infom webservice
     """
+    if waitfor is not None:                                                    # wait for previous moves
+        _, not_done = futures.wait({waitfor})
+        assert len(not_done) == 0, 'error while waiting for future'
+
     moves = game.moves
     if 0 < move_number <= len(moves):
         assert moves[move_number - 1].move == move_number
