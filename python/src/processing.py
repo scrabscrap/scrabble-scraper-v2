@@ -206,12 +206,16 @@ def admin_change_move(game: Game, move_number: int, coord: Tuple[int, int], isve
         logging.debug(f'tiles_to_remove {tiles_to_remove}')
         tiles_to_add: dict = {}                                                # tiles to add
         (col, row) = coord
+        new_word = ''
         for i, char in enumerate(word):
-            if isvertical and char != '.' and (col, row + i) not in board:
-                tiles_to_add[(col, row + i)] = (char, 99)
-            elif char != '.' and (col + i, row) not in board:
-                tiles_to_add[(col + i, row)] = (char, 99)
-        logging.debug(f'tiles_to_add {tiles_to_add}')
+            (xcol, xrow) = (col, row + i) if isvertical else (col + i, row)
+            if (xcol, xrow) in board.keys():
+                new_word += '.'
+            else:
+                new_word += char
+                tiles_to_add[(xcol, xrow)] = (char, 99)
+        word = new_word
+        logging.debug(f'tiles_to_add {tiles_to_add} / word {new_word}')
         if tiles_to_remove or tiles_to_add:
             game.moves[index].modification_cache['coord'] = coord
             game.moves[index].modification_cache['isvertical'] = isvertical
