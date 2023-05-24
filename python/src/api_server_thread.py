@@ -239,6 +239,14 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         state.do_change_score(move_number, (score0, score1))
                     else:
                         ApiServer.last_msg = f'invalid move {move_number} or no changes in score {(score0, score1)}'
+            elif request.form.get('btninsmoves'):
+                logging.debug('in btninsmove')
+                if (move_number := request.form.get('move.move', type=int)) is not None:
+                    if 0 < move_number <= len(game.moves):
+                        ApiServer.last_msg = f'insert two exchanges before move# {move_number}'
+                        state.do_insert_moves(move_number)
+                    else:
+                        ApiServer.last_msg = f'invalid move {move_number}'
             elif request.form.get('btnmove'):
                 move_number = request.form.get('move.move', type=int) or 0
                 move_type = request.form.get('move.type')

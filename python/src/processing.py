@@ -156,6 +156,45 @@ def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, e
         event.set()
 
 
+def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, event=None):
+    """insert two exchange moves before move number"""
+    if waitfor is not None:                                                    # wait for previous moves
+        _, not_done = futures.wait({waitfor})
+        assert len(not_done) == 0, 'error while waiting for future'
+
+    if 0 < move_number <= len(game.moves):
+        logging.debug(f'insert before move {move_number}')
+        assert game.moves[move_number - 1].move == move_number
+
+        index = move_number - 1
+        player1 = game.moves[index].player
+        player2 = 0 if player1 == 1 else 1
+        board = game.moves[index - 1].board.copy() if index > 0 else {}
+        played_time = game.moves[index - 1].played_time if index > 0 else (0, 0)
+        previous_score = game.moves[index - 1].score if index > 0 else (0, 0)
+        img = game.moves[index].img.copy() if game.moves[index].img is not None else None  # type: ignore
+
+        move1 = Move(MoveType.EXCHANGE, player=player1, coord=(0, 0), is_vertical=True, word='', new_tiles={},
+                     removed_tiles={}, board=board, played_time=played_time,
+                     previous_score=previous_score, img=img)
+        move2 = Move(MoveType.EXCHANGE, player=player2, coord=(0, 0), is_vertical=True, word='', new_tiles={},
+                     removed_tiles={}, board=board, played_time=played_time,
+                     previous_score=previous_score, img=img)
+
+        game.moves.insert(index, move2)
+        game.moves.insert(index, move1)
+
+        for i in range(index, len(game.moves)):
+            game.moves[i].move = i + 1
+            logging.debug(f'set/store move index {i} / move number {game.moves[i].move}')
+            _store(game, i)
+        if event and not event.is_set():
+            event.set()
+    else:
+        logging.warning(f'wrong move number for insert after move: {move_number}')
+        raise ValueError("invalid move number")
+
+
 def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, score: Tuple[int, int], event=None):
     """fix scores (direct call from admin)
 
@@ -182,6 +221,9 @@ def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, 
             _store(game, i, with_image=False)
         if event and not event.is_set():
             event.set()
+    else:
+        logging.warning(f'wrong move number for change score: {move_number}')
+        raise ValueError("invalid move number")
 
 
 def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool,
@@ -270,6 +312,7 @@ def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, c
             logging.debug(f'\n{game.board_str(i)}')
             _store(game, i, with_image=False)
     else:
+        logging.warning(f'wrong move number for change move: {move_number}')
         raise ValueError("invalid move number")
     if event and not event.is_set():
         event.set()
@@ -628,8 +671,9 @@ def _store(game: Game, move_index: int, with_image: bool = True):  # pragma: no 
         logging.info('skip store because flag is_testing is set')
         return
     moves = game.moves
-    if move_index == 0:
+    if len(moves) < 1:
         try:
+            logging.debug('empty game - upload empty status.json')
             with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
                 handle.write(game.json_str())
             if config.upload_server:
@@ -643,12 +687,13 @@ def _store(game: Game, move_index: int, with_image: bool = True):  # pragma: no 
                 logging.error(f'error writing image-{moves[move_index].move}.jpg')
         try:
             with open(f'{config.web_dir}/data-{game.moves[move_index].move}.json', "w", encoding='UTF-8') as handle:
-                handle.write(game.json_str(move_index))
-            if game.moves[-1].move == moves[move_index].move:
+                handle.write(game.json_str(game.moves[move_index].move))
+            if game.moves[-1].move == game.moves[move_index].move:
+                logging.debug('write status.json')
                 with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
-                    handle.write(game.json_str(move_index))
+                    handle.write(game.json_str(moves[move_index].move))
         except IOError as error:
-            logging.error(f'error writing game move {move_index}: {error}')
+            logging.error(f'error writing game move {moves[move_index].move}: {error}')
         _development_recording(game, None, info=True)
 
         if config.upload_server:

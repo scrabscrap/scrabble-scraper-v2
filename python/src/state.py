@@ -226,6 +226,13 @@ class State(metaclass=Singleton):  # pylint: disable=too-many-instance-attribute
         _, not_done = futures.wait({self.last_submit})
         assert len(not_done) == 0, 'error while waiting for future'
 
+    def do_insert_moves(self, move_number: int):
+        """insert two exchange move before move number via api"""
+        from processing import admin_insert_moves
+        self.last_submit = pool.submit(admin_insert_moves, self.last_submit, self.game, move_number, self.op_event)
+        _, not_done = futures.wait({self.last_submit})
+        assert len(not_done) == 0, 'error while waiting for future'
+
     def do_edit_move(self, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str):
         """change move via api"""
         from processing import admin_change_move

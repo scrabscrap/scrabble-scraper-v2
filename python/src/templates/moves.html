@@ -6,34 +6,6 @@
         <div class="col-6">
             <div class="py-2">
                 <div class="card">
-                    <div class="card-header bg-info">Names</div>
-                    <div class="card-body">
-                        <form action="/moves" method="post">
-                            <div class="row">
-                                <div class="col-4">
-                                    <input type="text" class="form-control" name="player1" placeholder="{{player1}}"
-                                        required>
-                                </div>
-                                <div class="col-4">
-                                    <input type="text" class="form-control" name="player2" placeholder="{{player2}}"
-                                        required>
-                                </div>
-                                <div class="col-4">
-                                    <button type="submit" class="form-control btn btn-primary" name="btnplayer"
-                                        value="Update" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                        title="Update">
-                                        <i class="bi-save"></i>&nbsp;
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6">
-            <div class="py-2">
-                <div class="card">
                     <div class="card-header bg-info">
                         Edit Blanko
                     </div>
@@ -64,6 +36,34 @@
                 </div>
             </div>
         </div>
+        <div class="col-6">
+            <div class="py-2">
+                <div class="card">
+                    <div class="card-header bg-info">Names</div>
+                    <div class="card-body">
+                        <form action="/moves" method="post">
+                            <div class="row">
+                                <div class="col-4">
+                                    <input type="text" class="form-control" name="player1" placeholder="{{player1}}"
+                                        required>
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control" name="player2" placeholder="{{player2}}"
+                                        required>
+                                </div>
+                                <div class="col-4">
+                                    <button type="submit" class="form-control btn btn-primary" name="btnplayer"
+                                        value="Update" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                        title="Update">
+                                        <i class="bi-save"></i>&nbsp;
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-12">
         <div class="py-2">
@@ -77,6 +77,7 @@
                             <tr>
                                 <th scope="col">#&nbsp;</th>
                                 <th scope="col">P&nbsp;</th>
+                                <th scope="col">&nbsp;</th>
                                 <th scope="col">Pts</th>
                                 <th scope="col">Sc Green</th>
                                 <th scope="col">Sc Red</th>
@@ -95,6 +96,12 @@
                                             }}>
                                     </th>
                                     <td> {{ move.player }} <input hidden name="move.player" value={{ move.player }}>
+                                    </td>
+                                    <td> <button type="submit" class="form-control btn btn-outline-danger"
+                                            name="btninsmoves" value="Insert" data-bs-toggle="tooltip"
+                                            data-bs-placement="bottom" title="Insert">
+                                            <i class="bi-box-arrow-in-right"></i>&nbsp;
+                                        </button>
                                     </td>
                                     <td style="text-align: right;"> {{ move.points }}
                                     </td>
