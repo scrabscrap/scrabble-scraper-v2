@@ -92,7 +92,7 @@ def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type
         if loggers is not None and keys not in loggers:
             continue
         try:
-            for handler in values.handlers:
+            for handler in values.handlers:  # type: ignore # catched by AttributeError
                 if isinstance(handler, BaseRotatingHandler) and handler not in handlers:
                     handlers.append(handler)
         except AttributeError:
