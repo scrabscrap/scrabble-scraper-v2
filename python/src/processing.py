@@ -412,6 +412,7 @@ def start_of_game(game: Game):
     """ start of game """
     import glob
     import os
+    import util
 
     pool.submit(Upload().delete_files)  # first delete images and data files on ftp server
     try:
@@ -421,6 +422,8 @@ def start_of_game(game: Game):
         file_list = glob.glob(f'{config.web_dir}/data-*.json')
         for file_path in file_list:
             os.remove(file_path)
+        if len(file_list) > 0:
+            util.rotate_logs()
     except OSError:
         logging.error('OS Error on delete web data/image files')
     _store(game, 0)
