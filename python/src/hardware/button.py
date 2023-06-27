@@ -22,7 +22,7 @@ from typing import Callable, Optional
 
 from gpiozero import Button as GpioButton
 
-from util import Singleton
+from util import Static
 
 
 class ButtonEnum(Enum):
@@ -43,43 +43,44 @@ class ButtonEnum(Enum):
     REBOOT = 26  # GPIO26 - pin 37 - Button reboot (blue)
 
 
-class Button(metaclass=Singleton):
+class Button(Static):
     """Handle button press and release"""
+    bounce: dict = {}
+    func_pressed: Optional[Callable] = None
+    func_released: Optional[Callable] = None
 
-    def __init__(self) -> None:
-        self.bounce: dict = {}
-        self.func_pressed: Optional[Callable] = None
-        self.func_released: Optional[Callable] = None
-
-    def button_pressed(self, button: GpioButton) -> None:  # callback
+    @classmethod
+    def button_pressed(cls, button: GpioButton) -> None:  # callback
         """perform button press"""
         press = time.time()
-        if press > self.bounce[ButtonEnum(button.pin.number).name] + 0.1:  # type: ignore
-            if self.func_pressed:
-                self.func_pressed(ButtonEnum(button.pin.number).name)    # type: ignore
+        if press > cls.bounce[ButtonEnum(button.pin.number).name] + 0.1:  # type: ignore
+            if cls.func_pressed:
+                cls.func_pressed(ButtonEnum(button.pin.number).name)    # type: ignore
 
-    def button_released(self, button: GpioButton) -> None:  # pragma: no cover  # currently not used callback
+    @classmethod
+    def button_released(cls, button: GpioButton) -> None:  # pragma: no cover  # currently not used callback
         """perform button release"""
-        self.bounce[ButtonEnum(button.pin.number).name] = time.time()  # type: ignore
-        if self.func_released:
-            self.func_released(ButtonEnum(button.pin.number).name)  # type: ignore
+        cls.bounce[ButtonEnum(button.pin.number).name] = time.time()  # type: ignore
+        if cls.func_released:
+            cls.func_released(ButtonEnum(button.pin.number).name)  # type: ignore
 
-    def start(self, func_pressed: Optional[Callable] = None, func_released: Optional[Callable] = None) -> None:
+    @classmethod
+    def start(cls, func_pressed: Optional[Callable] = None, func_released: Optional[Callable] = None) -> None:
         """initialize the button handler"""
-        self.func_pressed = func_pressed
-        self.func_released = func_released
+        cls.func_pressed = func_pressed
+        cls.func_released = func_released
         # create Buttons and configure listener
         for button in ButtonEnum:
             if button in [ButtonEnum.GREEN, ButtonEnum.YELLOW, ButtonEnum.RED, ButtonEnum.DOUBT0, ButtonEnum.DOUBT1]:
                 logging.debug(f'Button {button.name}')
                 input_button = GpioButton(button.value)
-                input_button.when_pressed = self.button_pressed
-                input_button.when_released = self.button_released
-                self.bounce[button.name] = .0
+                input_button.when_pressed = cls.button_pressed
+                input_button.when_released = cls.button_released
+                cls.bounce[button.name] = .0
             else:
                 logging.debug(f'Button {button.name} when held')
                 input_button = GpioButton(button.value)
                 input_button.hold_time = 3
-                input_button.when_held = self.button_pressed
-                input_button.when_released = self.button_released
-                self.bounce[button.name] = .0
+                input_button.when_held = cls.button_pressed
+                input_button.when_released = cls.button_released
+                cls.bounce[button.name] = .0
