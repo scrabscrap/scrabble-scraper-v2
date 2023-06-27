@@ -98,9 +98,10 @@ def main() -> None:
     _ = pool.submit(api.start_server)
 
     # State-Machine
-    state = State(cam=cam, watch=watch)
+    State.cam = cam
+    State.watch = watch
     # init State Machine
-    state.init()
+    State.init()
 
     if cam is None:
         watch.display.show_cam_err()

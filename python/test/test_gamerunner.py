@@ -75,7 +75,8 @@ class GameRunnerTestCase(unittest.TestCase):
         display = Display()
         watch = ScrabbleWatch(display)
         cam = Camera(use_camera=CameraEnum.FILE)
-        state = State(cam=cam, watch=watch)
+        State.cam = cam
+        State.watch = watch
 
         for file in files:
             # read *.ini
@@ -103,12 +104,12 @@ class GameRunnerTestCase(unittest.TestCase):
             self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom'))
             cam.stream.formatter = formatter  # type: ignore
             cam.stream.cnt = 1  # type: ignore
-            state.cam = cam
-            state.do_new_game()
-            state.game.nicknames = (name1, name2)
+            State.cam = cam
+            State.do_new_game()
+            State.game.nicknames = (name1, name2)
 
             with self.subTest(csvfile):
-                state.press_button(start_button.upper())  # green begins
+                State.press_button(start_button.upper())  # green begins
 
                 # run test: loop csv
                 with open(csvfile, mode='r') as csv_file:
@@ -117,23 +118,23 @@ class GameRunnerTestCase(unittest.TestCase):
                     for row in csv_reader:
                         logging.info(f'TEST: {row}')
                         cam.stream.cnt = int(row["Move"])  # type: ignore
-                        state.press_button(row["Button"].upper())
-                        if state.last_submit is not None:
-                            while not state.last_submit.done():  # type: ignore
+                        State.press_button(row["Button"].upper())
+                        if State.last_submit is not None:
+                            while not State.last_submit.done():  # type: ignore
                                 sleep(0.1)
 
-                        self.assertEqual(row["State"].upper(), state.current_state,
-                                         f'invalid state {state.current_state} at move {int(row["Move"])}')
-                        if state.current_state not in ('P0', 'P1'):
-                            self.assertEqual(int(row["Points"]), state.game.moves[-1].points,
-                                             f'invalid points {state.game.moves[-1].points} at move {int(row["Move"])}')
-                            self.assertEqual(int(row["Score1"]), state.game.moves[-1].score[0],
-                                             f'invalid score 1 {state.game.moves[-1].score[0]} at move {int(row["Move"])}')
-                            self.assertEqual(int(row["Score2"]), state.game.moves[-1].score[1],
-                                             f'invalid score 2 {state.game.moves[-1].score[1]} at move {int(row["Move"])}')
-                            self.assertEqual(row["Word"], state.game.moves[-1].word,
-                                             f'invalid word {state.game.moves[-1].word} at move {int(row["Move"])}')
-                    state.do_end_of_game()
+                        self.assertEqual(row["State"].upper(), State.current_state,
+                                         f'invalid state {State.current_state} at move {int(row["Move"])}')
+                        if State.current_state not in ('P0', 'P1'):
+                            self.assertEqual(int(row["Points"]), State.game.moves[-1].points,
+                                             f'invalid points {State.game.moves[-1].points} at move {int(row["Move"])}')
+                            self.assertEqual(int(row["Score1"]), State.game.moves[-1].score[0],
+                                             f'invalid score 1 {State.game.moves[-1].score[0]} at move {int(row["Move"])}')
+                            self.assertEqual(int(row["Score2"]), State.game.moves[-1].score[1],
+                                             f'invalid score 2 {State.game.moves[-1].score[1]} at move {int(row["Move"])}')
+                            self.assertEqual(row["Word"], State.game.moves[-1].word,
+                                             f'invalid word {State.game.moves[-1].word} at move {int(row["Move"])}')
+                    State.do_end_of_game()
         logging.info('### end of tests ###')
         for file in files:
             logging.info(f'{file}')

@@ -44,43 +44,43 @@ Device.pin_factory = MockFactory()
 
 def doubt0():
     """simulate doubt player 0"""
-    State().press_button('DOUBT0')
+    State.press_button('DOUBT0')
     return redirect(url_for('simulator'))
 
 
 def doubt1():
     """simulate doubt player 1"""
-    State().press_button('DOUBT1')
+    State.press_button('DOUBT1')
     return redirect(url_for('simulator'))
 
 
 def green():
     """simulate press green button"""
-    State().press_button('GREEN')
-    if State().last_submit is not None:
-        while not State().last_submit.done():  # type: ignore
+    State.press_button('GREEN')
+    if State.last_submit is not None:
+        while not State.last_submit.done():  # type: ignore
             sleep(0.1)
     return redirect(url_for('simulator'))
 
 
 def red():
     """simulate press red button"""
-    State().press_button('RED')
-    if State().last_submit is not None:
-        while not State().last_submit.done():  # type: ignore
+    State.press_button('RED')
+    if State.last_submit is not None:
+        while not State.last_submit.done():  # type: ignore
             sleep(0.1)
     return redirect(url_for('simulator'))
 
 
 def yellow():
     """simulate press yellow button"""
-    State().press_button('YELLOW')
+    State.press_button('YELLOW')
     return redirect(url_for('simulator'))
 
 
 def reset():
     """simulate press reset"""
-    State().press_button('RESET')
+    State.press_button('RESET')
     ApiServer.cam.stream.cnt = 1  # type: ignore
     return redirect(url_for('simulator'))
 
@@ -135,7 +135,7 @@ def simulator() -> str:
     list_of_dir = [f for f in os.listdir(f'{config.src_dir}/../test')
                    if os.path.isdir(f'{config.src_dir}/../test/{f}') and f.startswith('game')]
     # display time
-    _, (time0, time1), _ = State().watch.status()
+    _, (time0, time1), _ = State.watch.status()
     minutes, seconds = divmod(abs(1800 - time0), 60)
     left = f'-{minutes:1d}:{seconds:02d}' if 1800 - time0 < 0 else f'{minutes:02d}:{seconds:02d}'
     minutes, seconds = divmod(abs(1800 - time1), 60)
@@ -143,7 +143,7 @@ def simulator() -> str:
     # get current picture
     png_current = None
     board = ''
-    game = State().game
+    game = State.game
     if (len(game.moves) > 0) and (game.moves[-1].img is not None):
         _, pic_buf_arr = cv2.imencode(".jpg", game.moves[-1].img)
         png_current = urllib.parse.quote(base64.b64encode(pic_buf_arr))
@@ -209,8 +209,10 @@ def main():
     api.app.add_url_rule('/simulator', 'simulator', simulator)
 
     # start State-Machine
-    state = State(cam=cam, watch=watch)
-    state.do_ready()
+    State.cam = cam
+    State.watch = watch
+
+    State.do_ready()
 
     api.start_server(port=5050, simulator=True)
 
