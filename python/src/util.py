@@ -28,6 +28,12 @@ from typing import Union
 #     return f
 
 
+class Static:
+    """base class for static classes"""
+    def __new__(cls):
+        raise TypeError('Static classes cannot be instantiated')
+
+
 class Singleton(type):
     """ Metaclass that creates a Singleton base type when called. """
     _instances = {}  # type: ignore # storage for singleton classes

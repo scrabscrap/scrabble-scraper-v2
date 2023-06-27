@@ -77,13 +77,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def route_index():
         """ index web page """
         ApiServer._clear_message()
-        state = State()
         if request.method == 'POST':
             if request.form.get('btnplayer'):
                 if (player1 := request.form.get('player1')) and (player2 := request.form.get('player2')) and \
                         (player1.casefold() != player2.casefold()):
                     ApiServer.last_msg = f'set player1={player1} / player2={player2}'
-                    state.do_new_player_names(player1, player2)
+                    State.do_new_player_names(player1, player2)
                 else:
                     ApiServer.last_msg = f'can not set: {request.form.get("player1")}/{request.form.get("player2")}'
             elif request.form.get('btntournament'):
@@ -96,7 +95,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 else:
                     ApiServer.last_msg = f'can not set: tournament={tournament}'
             return redirect('/index')
-        (player1, player2) = state.game.nicknames
+        (player1, player2) = State.game.nicknames
         tournament = config.tournament
         # fall through: request.method == 'GET':
         return render_template('index.html', apiserver=ApiServer, player1=player1, player2=player2, tournament=tournament)
@@ -211,21 +210,20 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             return chr(ord('A') + row) + str(col + 1)
 
         ApiServer._clear_message()
-        state = State()
-        game = state.game
+        game = State.game
         if request.method == 'POST':  # pylint: disable=too-many-nested-blocks
             if request.form.get('btnplayer'):
                 if (player1 := request.form.get('player1')) and (player2 := request.form.get('player2')) and \
                         (player1.casefold() != player2.casefold()):
                     ApiServer.last_msg = f'set player1={player1} / player2={player2}'
-                    state.do_new_player_names(player1, player2)
+                    State.do_new_player_names(player1, player2)
                 else:
                     ApiServer.last_msg = f'can not set: {request.form.get("player1")}/{request.form.get("player2")}'
             elif request.form.get('btnblanko'):
                 if (coord := request.form.get('coord')) and (char := request.form.get('char')) and char.isalpha():
                     char = char.lower()
                     ApiServer.last_msg = f'set blanko: {coord} = {char}'
-                    state.do_set_blankos(coord, char)
+                    State.do_set_blankos(coord, char)
                 else:
                     ApiServer.last_msg = 'invalid character for blanko'
             elif request.form.get('btnscore'):
@@ -236,7 +234,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     logging.debug(f'in values {move_number}: new score {(score0, score1)}')
                     if 0 < move_number <= len(game.moves) and (game.moves[move_number - 1].score != (score0, score1)):
                         ApiServer.last_msg = f'update move# {move_number}: new score {(score0, score1)}'
-                        state.do_change_score(move_number, (score0, score1))
+                        State.do_change_score(move_number, (score0, score1))
                     else:
                         ApiServer.last_msg = f'invalid move {move_number} or no changes in score {(score0, score1)}'
             elif request.form.get('btninsmoves'):
@@ -244,7 +242,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 if (move_number := request.form.get('move.move', type=int)) is not None:
                     if 0 < move_number <= len(game.moves):
                         ApiServer.last_msg = f'insert two exchanges before move# {move_number}'
-                        state.do_insert_moves(move_number)
+                        State.do_insert_moves(move_number)
                     else:
                         ApiServer.last_msg = f'invalid move {move_number}'
             elif request.form.get('btnmove'):
@@ -257,14 +255,14 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     move = game.moves[move_number - 1]
                     if (move_type == 'EXCHANGE') and (move.type.name != move_type):
                         ApiServer.last_msg = f'try to correct move #{move_number} to exchange'
-                        state.do_edit_move(int(move_number), (0, 0), True, '')
+                        State.do_edit_move(int(move_number), (0, 0), True, '')
                     else:
                         vert, col, row = move.calc_coord(coord)  # type: ignore
                         if (str(move.type.name) != move_type) or (move.coord != (col, row)) or (move.word != word) \
                                 or (move.is_vertical != vert):
                             if re.compile('[A-Z_\\.]+').match(word):
                                 ApiServer.last_msg = f'try to correct move #{move_number} to {coord} {word}'
-                                state.do_edit_move(int(move_number), (col, row), vert, word)
+                                State.do_edit_move(int(move_number), (col, row), vert, word)
                             else:
                                 ApiServer.last_msg = f'invalid character in word {word}'
                         else:
@@ -281,7 +279,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @ app.route('/end_game', methods=['POST', 'GET'])
     def do_end_game():
         """ end current game """
-        State().do_end_of_game()
+        State.do_end_of_game()
         ApiServer.last_msg = 'end game'
         return redirect('/index')
 
@@ -289,9 +287,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @ app.route('/new_game', methods=['POST', 'GET'])
     def do_new_game():
         """ start new game game """
-        if State().current_state not in (EOG, START):
-            State().do_end_of_game()
-        State().do_new_game()
+        if State.current_state not in (EOG, START):
+            State.do_end_of_game()
+        State.do_new_game()
         ApiServer.last_msg = 'start new game'
         return redirect('/index')
 
@@ -343,7 +341,6 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """ set wifi param (ssid, psk) via post request """
         ApiServer._clear_message()
         if request.method == 'POST':
-            state = State()
             if request.form.get('btnadd'):
                 if (ssid := request.form.get('ssid')) and (key := request.form.get('psk')):
                     process = subprocess.call(
@@ -353,13 +350,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         "sudo -n /usr/sbin/wpa_cli reconfigure -i wlan0", shell=True)
                     ApiServer.last_msg = f'configure wifi return={process}; reconfigure wpa return={process1}'
                     sleep(5)
-                    state.do_new_game()
+                    State.do_new_game()
             elif request.form.get('btnselect'):
                 for i in request.form.keys():
                     logging.debug(f'wpa network select {i}')
                     _ = subprocess.call(f"sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0", shell=True)
                 sleep(5)
-                state.do_new_game()
+                State.do_new_game()
             elif request.form.get('btnscan'):
                 _ = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'], check=False,
                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -487,7 +484,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """ process reboot """
         ApiServer.last_msg = '**** System reboot ****'
         config.config.set('system', 'quit', 'reboot')  # set temporary reboot
-        State().do_reboot()
+        State.do_reboot()
         alarm(2)
         return redirect(url_for('route_index'))
 
@@ -497,7 +494,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """ process reboot """
         ApiServer.last_msg = '**** System shutdown ****'
         config.config.set('system', 'quit', 'shutdown')  # set temporary shutdown
-        State().do_reboot()
+        State.do_reboot()
         alarm(2)
         return redirect(url_for('route_index'))
 
@@ -507,7 +504,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """ start simple display test """
         from scrabblewatch import ScrabbleWatch
 
-        if State().current_state == 'START':
+        if State.current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
             logging.debug('run display test')
             watch = ScrabbleWatch()
@@ -561,7 +558,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """ start simple led test """
         from hardware.led import LED, LEDEnum
 
-        if State().current_state == 'START':
+        if State.current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
             logging.debug('run LED test')
             LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
@@ -593,7 +590,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """ start scrabscrap upgrade """
         from scrabblewatch import ScrabbleWatch
 
-        if State().current_state == 'START':
+        if State.current_state == 'START':
             watch = ScrabbleWatch()
             watch.display.show_ready(('Update...', 'pls wait'))
             os.system(f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} |'
@@ -616,31 +613,30 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @ app.route('/game_status', methods=['POST', 'GET'])
     def game_status():
         """ get request to current game state """
-        return State().game.json_str(), 201
+        return State.game.json_str(), 201
 
     @ sock.route('/ws_status')
     def echo(sock):  # pylint: disable=no-self-argument
         """websocket endpoint"""
         logging.debug('call /ws_status')
-        state = State()
         while True:
-            if state.op_event.is_set():
-                state.op_event.clear()
-            _, (clock1, clock2), _ = state.watch.status()
+            if State.op_event.is_set():
+                State.op_event.clear()
+            _, (clock1, clock2), _ = State.watch.status()
             clock1 = config.max_time - clock1
             clock2 = config.max_time - clock2
-            jsonstr = state.game.json_str()
-            logging.debug(f'send socket {state.current_state} clock1 {clock1} clock2: {clock2}')
-            if (state.current_state in ['S0', 'S1', 'P0', 'P1']) and state.picture is not None:
-                _, im_buf_arr = cv2.imencode(".jpg", state.picture)
+            jsonstr = State.game.json_str()
+            logging.debug(f'send socket {State.current_state} clock1 {clock1} clock2: {clock2}')
+            if (State.current_state in ['S0', 'S1', 'P0', 'P1']) and State.picture is not None:
+                _, im_buf_arr = cv2.imencode(".jpg", State.picture)
                 png_output = base64.b64encode(im_buf_arr)
                 logging.debug('b64encode')
-                sock.send(f'{{"op": "{state.current_state}", '  # type: ignore  # pylint: disable=no-member
+                sock.send(f'{{"op": "{State.current_state}", '  # type: ignore  # pylint: disable=no-member
                           f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}')
             else:
-                sock.send(f'{{"op": "{state.current_state}", '  # type:ignore  # pylint: disable=no-member
+                sock.send(f'{{"op": "{State.current_state}", '  # type:ignore  # pylint: disable=no-member
                           f'"clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}')
-            state.op_event.wait()
+            State.op_event.wait()
 
     def start_server(self, host: str = '0.0.0.0', port=5050, simulator=False):
         """ start flask server """

@@ -33,11 +33,13 @@ from state import AP, DOUBT0, DOUBT1, GREEN, REBOOT, RED, RESET, YELLOW, State
 class SimulateState(State):
     """Mock: simulate State"""
 
-    def init(self) -> None:
+    @classmethod
+    def init(cls) -> None:
         """init state machine"""
-        self.button_handler.start(func_pressed=self.press_button)
+        cls.button_handler.start(func_pressed=cls.press_button)
 
-    def press_button(self, button: str) -> None:
+    @classmethod
+    def press_button(cls, button: str) -> None:
         """process button press
 
         before sending the next event, press button will wait for self.bounce
@@ -85,8 +87,9 @@ class CheckButtonTestCase(unittest.TestCase):
         watch = ScrabbleWatch(display)
         cam = Camera(use_camera=CameraEnum.FILE)
 
-        state = SimulateState(cam=cam, watch=watch)
-        state.init()
+        SimulateState.cam = cam
+        SimulateState.watch = watch
+        SimulateState.init()
         pause()
 
 
