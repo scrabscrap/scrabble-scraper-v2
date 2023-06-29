@@ -72,10 +72,9 @@ class GameRunnerTestCase(unittest.TestCase):
         from config import config
 
         files = glob.glob(f'{TEST_DIR}/*/game.ini') if FILES is None else FILES
-        watch = ScrabbleWatch(Display)
+        ScrabbleWatch.display = Display
         cam = Camera(use_camera=CameraEnum.FILE)
         State.cam = cam
-        State.watch = watch
 
         for file in files:
             # read *.ini

@@ -17,69 +17,68 @@
 """
 import logging
 import os
-from typing import Optional
 
-from util import Singleton
+from util import Static
 
 try:
     os.stat('/dev/i2c-1')
-    from hardware.oled import PlayerDisplay
+    from hardware.oled import PlayerDisplay as Display
 except (FileNotFoundError, ImportError):
     logging.warning('no i2c device found or import error')
-    from display import Display as PlayerDisplay  # type: ignore
+    from display import Display  # type: ignore
 
 
-class ScrabbleWatch(metaclass=Singleton):
+class ScrabbleWatch(Static):
     """timer for played time"""
-    from display import Display
+    play_time: int = 0
+    time: list[int] = [0, 0]
+    current: list[int] = [0, 0]
+    paused: bool = True
+    player: int = 0  # 0/1 ... player 1/player 2
+    display = Display
 
-    def __init__(self, _display: Optional[Display] = None):
-        self.play_time: int = 0
-        self.time: list[int] = [0, 0]
-        self.current: list[int] = [0, 0]
-        self.paused: bool = True
-        self.player: int = 0  # 0/1 ... player 1/player 2
-        if _display is not None:
-            self.display = _display
-        else:
-            self.display = PlayerDisplay  # default
-
-    def start(self, player: int) -> None:
+    @classmethod
+    def start(cls, player: int) -> None:
         """start timer"""
-        last = self.player
-        self.play_time = 0
-        self.player = player
-        self.current = [0, 0]
-        self.paused = False
-        self.display.render_display(last, self.time, self.current)
+        last = cls.player
+        cls.play_time = 0
+        cls.player = player
+        cls.current = [0, 0]
+        cls.paused = False
+        cls.display.render_display(last, cls.time, cls.current)
 
-    def pause(self) -> None:
+    @classmethod
+    def pause(cls) -> None:
         """pause timer"""
-        self.paused = True
-        self.display.show_pause(self.player, self.time, self.current)
+        cls.paused = True
+        cls.display.show_pause(cls.player, cls.time, cls.current)
 
-    def resume(self) -> None:
+    @classmethod
+    def resume(cls) -> None:
         """resume timer"""
-        self.paused = False
+        cls.paused = False
 
-    def reset(self) -> None:
+    @classmethod
+    def reset(cls) -> None:
         """reset timer"""
-        self.paused = True
-        self.display.show_reset()
-        self.play_time = 0
-        self.time = [0, 0]
-        self.current = [0, 0]
-        self.player = 0
+        cls.paused = True
+        cls.display.show_reset()
+        cls.play_time = 0
+        cls.time = [0, 0]
+        cls.current = [0, 0]
+        cls.player = 0
 
-    def tick(self) -> None:
+    @classmethod
+    def tick(cls) -> None:
         """add one second"""
-        self.play_time += 1
-        if not self.paused:
-            self.time[self.player] += 1
-            self.current[self.player] += 1
-            self.display.render_display(self.player, self.time, self.current)
+        cls.play_time += 1
+        if not cls.paused:
+            cls.time[cls.player] += 1
+            cls.current[cls.player] += 1
+            cls.display.render_display(cls.player, cls.time, cls.current)
 
-    def status(self) -> tuple[int, list[int], list[int]]:
+    @classmethod
+    def status(cls) -> tuple[int, list[int], list[int]]:
         """ get current timer status
 
             Returns
@@ -87,4 +86,4 @@ class ScrabbleWatch(metaclass=Singleton):
                 time (int, int): time player 1,2
                 current (int, int): time player 1,2 on current move
         """
-        return self.player, self.time, self.current
+        return cls.player, cls.time, cls.current
