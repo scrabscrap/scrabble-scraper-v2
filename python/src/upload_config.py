@@ -19,65 +19,67 @@ import configparser
 import logging
 
 from config import config
-from util import Singleton
+from util import Static
 
 
-class UploadConfig(metaclass=Singleton):
+class UploadConfig(Static):
     """ read upload configuration """
     SECTION = 'upload'
+    config = configparser.ConfigParser()
 
-    def __init__(self) -> None:
-        self.config = configparser.ConfigParser()
-        self.reload(clean=False)
-
-    def reload(self, clean=True) -> None:
+    @ classmethod
+    def reload(cls, clean=True) -> None:
         """ reload configuration """
         if clean:
-            self.config = configparser.ConfigParser()
+            cls.config = configparser.ConfigParser()
         try:
             with open(f'{config.work_dir}/upload-secret.ini', 'r', encoding="UTF-8") as config_file:
-                self.config.read_file(config_file)
+                cls.config.read_file(config_file)
         except IOError as oops:
             logging.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
 
-    def store(self) -> bool:
+    @classmethod
+    def store(cls) -> bool:
         """ save configuration to file """
         with open(f'{config.work_dir}/upload-secret.ini', 'w', encoding="UTF-8") as config_file:
-            self.config.write(config_file)
+            cls.config.write(config_file)
         return True
 
-    @property
-    def server(self) -> str:
+    @classmethod
+    def server(cls) -> str:
         """ get server url """
-        return self.config.get(self.SECTION, 'server', fallback='')
+        return cls.config.get(cls.SECTION, 'server', fallback='')
 
-    @server.setter
-    def server(self, value: str):
+    @classmethod
+    def set_server(cls, value: str):
         """ set server url in memory - to persists use store() """
-        if self.SECTION not in self.config.sections():
-            self.config.add_section(self.SECTION)
-        self.config.set(self.SECTION, 'server', str(value))
+        if cls.SECTION not in cls.config.sections():
+            cls.config.add_section(cls.SECTION)
+        cls.config.set(cls.SECTION, 'server', str(value))
 
-    @property
-    def user(self) -> str:
+    @classmethod
+    def user(cls) -> str:
         """ get user name """
-        return self.config.get(self.SECTION, 'user', fallback='')
+        return cls.config.get(cls.SECTION, 'user', fallback='')
 
-    @user.setter
-    def user(self, value: str):
+    @classmethod
+    def set_user(cls, value: str):
         """ set user name in memory - to persists use store()"""
-        if self.SECTION not in self.config.sections():
-            self.config.add_section(self.SECTION)
-        self.config.set(self.SECTION, 'user', str(value))
+        if cls.SECTION not in cls.config.sections():
+            cls.config.add_section(cls.SECTION)
+        cls.config.set(cls.SECTION, 'user', str(value))
 
-    @property
-    def password(self) -> str:
+    @classmethod
+    def password(cls) -> str:
         """ get password """
-        return self.config.get(self.SECTION, 'password', fallback='')
+        return cls.config.get(cls.SECTION, 'password', fallback='')
 
-    @password.setter
-    def password(self, value: str):
+    @classmethod
+    def set_password(cls, value: str):
         """ set password in memory - to persists use store()"""
-        if self.SECTION not in self.config.sections():
-            self.config.add_section(self.SECTION)
-        self.config.set(self.SECTION, 'password', str(value))
+        if cls.SECTION not in cls.config.sections():
+            cls.config.add_section(cls.SECTION)
+        cls.config.set(cls.SECTION, 'password', str(value))
+
+
+UploadConfig.reload()
