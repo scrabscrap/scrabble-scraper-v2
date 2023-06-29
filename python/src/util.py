@@ -28,7 +28,7 @@ from typing import Union
 #     return f
 
 
-class Static:
+class Static:  # pylint: disable=too-few-public-methods
     """base class for static classes"""
     def __new__(cls):
         raise TypeError('Static classes cannot be instantiated')
