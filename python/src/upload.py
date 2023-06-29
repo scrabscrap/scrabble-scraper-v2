@@ -15,7 +15,7 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-from config import config
+from config import Config
 from upload_ftp import UploadFtp
 from upload_http import UploadHttp
 from util import Static
@@ -27,8 +27,8 @@ class Upload(Static):
     @classmethod
     def upload_move(cls, move: int) -> bool:
         """ upload move to ftp server """
-        if config.upload_server:
-            if 'ftp' == config.upload_modus:
+        if Config.upload_server():
+            if 'ftp' == Config.upload_modus():
                 return UploadFtp.upload_move(move=move)
             return UploadHttp.upload_move(move=move)
         return False
@@ -36,8 +36,8 @@ class Upload(Static):
     @classmethod
     def upload_status(cls) -> bool:
         """ upload status to ftp server """
-        if config.upload_server:
-            if 'ftp' == config.upload_modus:
+        if Config.upload_server():
+            if 'ftp' == Config.upload_modus():
                 return UploadFtp.upload_status()
             return UploadHttp.upload_status()
         return False
@@ -45,8 +45,8 @@ class Upload(Static):
     @classmethod
     def upload_game(cls, filename: str) -> bool:
         """ upload a zpped game file to ftp """
-        if config.upload_server:
-            if 'ftp' == config.upload_modus:
+        if Config.upload_server():
+            if 'ftp' == Config.upload_modus():
                 return UploadFtp.upload_game(filename=filename)
             return UploadHttp.upload_game(filename=filename)
         return False
@@ -54,8 +54,8 @@ class Upload(Static):
     @classmethod
     def delete_files(cls) -> bool:
         """ delete files on ftp server """
-        if config.upload_server:
-            if 'ftp' == config.upload_modus:
+        if Config.upload_server():
+            if 'ftp' == Config.upload_modus():
                 return UploadFtp.delete_files()
             return UploadHttp.delete_files()
         return False

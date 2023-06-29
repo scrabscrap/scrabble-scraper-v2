@@ -20,7 +20,7 @@ import cv2
 import imutils
 import numpy as np
 
-from config import config
+from config import Config
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
@@ -41,8 +41,8 @@ class GameBoard:
     @staticmethod
     def find_board(__image):
         """ try to find the game board border"""
-        if config.video_warp_coordinates is not None:
-            rect = np.array(config.video_warp_coordinates, dtype="float32")
+        if Config.video_warp_coordinates() is not None:
+            rect = np.array(Config.video_warp_coordinates(), dtype="float32")
         else:
             # based on: https://www.pyimagesearch.com/2014/08/25/4-point-opencv-getperspective-transform-example/
             (blue, _, _) = cv2.split(__image.copy())

@@ -25,7 +25,7 @@ import numpy as np
 from picamera import PiCamera  # type: ignore
 from picamera.array import PiRGBArray
 
-from config import config
+from config import Config
 from util import Singleton
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
@@ -34,7 +34,7 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 class CameraRPI(metaclass=Singleton):  # type: ignore
     """implement a camera with rpi native"""
 
-    def __init__(self, resolution=(config.video_width, config.video_height), framerate=config.video_fps):
+    def __init__(self, resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps()):
         logging.info('### init PiCamera')
         self.frame = []
         self.camera = PiCamera()
@@ -43,7 +43,7 @@ class CameraRPI(metaclass=Singleton):  # type: ignore
         self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
         sleep(1)  # warmup camera
         self.stream = self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True)
-        if config.video_rotate:
+        if Config.video_rotate():
             self.camera.rotation = 180
         self.event = None
         atexit.register(self._atexit)

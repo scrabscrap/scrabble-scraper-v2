@@ -23,7 +23,7 @@ import unittest
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
-from config import config
+from config import Config
 from display import Display
 from hardware.led import LED
 from scrabblewatch import ScrabbleWatch
@@ -34,11 +34,11 @@ class ScrabbleWatchTestCase(unittest.TestCase):
     """Testclass ScrabbleWatch"""
 
     def setUp(self) -> None:
-        config.is_testing = True
+        Config.is_testing = True
         return super().setUp()
 
     def tearDown(self) -> None:
-        config.is_testing = False
+        Config.is_testing = False
         return super().tearDown()
 
     @classmethod

@@ -24,7 +24,7 @@ from luma.core.render import canvas  # type: ignore
 from luma.oled.device import ssd1306  # type: ignore
 from PIL import ImageFont
 
-from config import config
+from config import Config
 from display import Display
 from scrabble import Game, MoveType
 
@@ -131,7 +131,7 @@ class PlayerDisplay(Display):
                 with canvas(DEVICE[i]) as draw:
                     nickname = cls.game.nicknames[i][:10]
                     draw.text((2, 5), f'{nickname}', font=FONT1, fill=WHITE)
-                    minutes, seconds = divmod(abs(config.max_time - cls.game.moves[-1].played_time[i]), 60)
+                    minutes, seconds = divmod(abs(Config.max_time() - cls.game.moves[-1].played_time[i]), 60)
                     score = cls.game.moves[-1].score[i]
                     draw.text((2, 30), f'{minutes:02d}:{seconds:02d}  {score:3d}', font=FONT1, fill=WHITE)
 
@@ -140,7 +140,7 @@ class PlayerDisplay(Display):
         assert player in [0, 1], "invalid player number"
         msg = 'Pause'
         logging.debug('Pause message')
-        if config.show_score and cls.game:
+        if Config.show_score() and cls.game:
             if len(cls.game.moves):
                 msg = f'P {cls.game.moves[-1].score[player]:3d}'
         cls.render_display(player, played_time, current, msg)
@@ -193,10 +193,10 @@ class PlayerDisplay(Display):
     def _refresh_points(cls, player: int, played_time: list[int], current: list[int]) -> None:
         assert player in [0, 1], "invalid player number"
 
-        minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
-        text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
+        minutes, seconds = divmod(abs(Config.max_time() - played_time[player]), 60)
+        text = f'-{minutes:1d}:{seconds:02d}' if Config.max_time() - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
         with canvas(DEVICE[player]) as draw:
-            if config.show_score and cls.game:
+            if Config.show_score() and cls.game:
                 nickname = cls.game.nicknames[player]
                 if len(nickname) > 5:
                     nickname = f'{nickname[:4]}\u2026'
@@ -215,16 +215,16 @@ class PlayerDisplay(Display):
     def render_display(cls, player: int, played_time: list[int], current: list[int], info: Optional[str] = None) -> None:
         assert player in [0, 1], "invalid player number"
 
-        minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
-        text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
+        minutes, seconds = divmod(abs(Config.max_time() - played_time[player]), 60)
+        text = f'-{minutes:1d}:{seconds:02d}' if Config.max_time() - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
         with canvas(DEVICE[player]) as draw:
-            if 0 < current[player] <= config.doubt_timeout:
+            if 0 < current[player] <= Config.doubt_timeout():
                 draw.text((1, 1), '\u2049', font=FONT1, fill=WHITE)  # alternative \u2718
             if info:
                 left, top, right, bottom = draw.textbbox((20, 1), info, font=FONT1)
                 draw.rectangle((left - 2, top - 2, right + 2, bottom + 2), fill=WHITE)
                 draw.text((20, 1), info, font=FONT1, fill=BLACK)
-            elif config.show_score and cls.game:
+            elif Config.show_score() and cls.game:
                 nickname = cls.game.nicknames[player]
                 if len(nickname) > 5:
                     nickname = f'{nickname[:4]}\u2026'

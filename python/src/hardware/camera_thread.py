@@ -22,7 +22,7 @@ from threading import Event
 from typing import Union
 
 import numpy as np
-from config import config
+from config import Config
 from util import Singleton
 
 from .camera_file import CameraFile
@@ -43,7 +43,7 @@ class Camera(metaclass=Singleton):  # type: ignore
     """implement a camera thread as proxy"""
 
     def __init__(self, src: int = 0, use_camera: CameraEnum = CameraEnum.AUTO,
-                 resolution=(config.video_width, config.video_height), framerate=config.video_fps, **kwargs):
+                 resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps(), **kwargs):
         machine = platform.machine()
         if (use_camera == CameraEnum.PICAMERA) or (use_camera == CameraEnum.AUTO and machine in ('armv7l', 'armv6l')):
             from .camera_rpi import CameraRPI

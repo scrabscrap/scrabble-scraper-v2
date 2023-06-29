@@ -19,7 +19,7 @@ import unittest
 from threading import Event
 from time import sleep
 
-from config import config
+from config import Config
 from threadpool import pool
 from timer_thread import RepeatedTimer
 
@@ -28,12 +28,12 @@ class RepeatedTestCase(unittest.TestCase):
     '''Test class for timer_thread.py'''
 
     def setUp(self) -> None:
-        config.is_testing = True
+        Config.is_testing = True
         self.counter = 0
         return super().setUp()
 
     def tearDown(self) -> None:
-        config.is_testing = False
+        Config.is_testing = False
         return super().tearDown()
 
     def timer_callback(self):

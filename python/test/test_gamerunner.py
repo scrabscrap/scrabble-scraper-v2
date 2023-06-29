@@ -25,7 +25,7 @@ from time import sleep
 import glob
 
 from hardware.camera_thread import Camera, CameraEnum
-from config import config
+from config import Config
 
 TEST_DIR = os.path.dirname(__file__)
 
@@ -42,26 +42,25 @@ class GameRunnerTestCase(unittest.TestCase):
 
     def config_setter(self, section: str, option: str, value):
         """set scrabble config"""
-        from config import config
 
         if value is not None:
-            if section not in config.config.sections():
-                config.config.add_section(section)
-            config.config.set(section, option, str(value))
+            if section not in Config.config.sections():
+                Config.config.add_section(section)
+            Config.config.set(section, option, str(value))
         else:
-            config.config.remove_option(section, option)
+            Config.config.remove_option(section, option)
 
     def setUp(self):
         from processing import clear_last_warp
 
-        config.is_testing = True
+        Config.is_testing = True
         clear_last_warp()
         self.config_setter('output', 'upload_server', False)
         self.config_setter('development', 'recording', False)
         return super().setUp()
 
     def tearDown(self) -> None:
-        config.is_testing = False
+        Config.is_testing = False
         return super().tearDown()
 
     def test_games(self):
@@ -69,7 +68,6 @@ class GameRunnerTestCase(unittest.TestCase):
         from display import Display
         from scrabblewatch import ScrabbleWatch
         from state import State
-        from config import config
 
         files = glob.glob(f'{TEST_DIR}/*/game.ini') if FILES is None else FILES
         ScrabbleWatch.display = Display
@@ -98,7 +96,7 @@ class GameRunnerTestCase(unittest.TestCase):
             # set config
             self.config_setter('video', 'warp', warp)
             self.config_setter('video', 'warp_coordinates', coordstr)
-            logging.info(f'{config.video_warp}: {config.video_warp_coordinates}')
+            logging.info(f'{Config.video_warp()}: {Config.video_warp_coordinates()}')
             self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom'))
             cam.stream.formatter = formatter  # type: ignore
             cam.stream.cnt = 1  # type: ignore

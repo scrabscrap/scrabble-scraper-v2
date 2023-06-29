@@ -22,9 +22,9 @@ from itertools import product
 import cv2
 import numpy as np
 
-from config import config
-from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W, OFFSET,
-                              TRIPLE_LETTER, TRIPLE_WORDS)
+from config import Config
+from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W,
+                              OFFSET, TRIPLE_LETTER, TRIPLE_WORDS)
 from gameboard import GameBoard
 from threadpool import pool
 
@@ -138,7 +138,7 @@ class CustomBoard(GameBoard):
             color_table[(col, row)] = color
             info[:, :, 0], info[:, :, 1], info[:, :, 2] = color
 
-            if config.development_recording:  # pragma: no cover
+            if Config.development_recording():  # pragma: no cover
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 font_scale = 0.33
                 if CustomBoard._is_tile((col, row), color):

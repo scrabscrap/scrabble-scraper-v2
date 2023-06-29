@@ -18,7 +18,7 @@
 import logging
 from typing import Optional
 
-from config import config
+from config import Config
 from scrabble import Game
 
 from util import Static
@@ -36,7 +36,7 @@ class Display(Static):
     @classmethod
     def show_boot(cls, current_ip=('', '')) -> None:
         """show boot message"""
-        logging.debug('Boot message')
+        logging.debug(f'Boot message: {current_ip}')
 
     @classmethod
     def show_reset(cls) -> None:
@@ -51,7 +51,7 @@ class Display(Static):
     @classmethod
     def show_ready(cls, msg=('Ready', 'Ready')) -> None:
         """show ready message"""
-        logging.debug('Ready message')
+        logging.debug(f'Ready message: {msg}')
 
     @classmethod
     def show_end_of_game(cls) -> None:
@@ -62,25 +62,25 @@ class Display(Static):
     def show_pause(cls, player: int, played_time: list[int], current: list[int]) -> None:
         """show pause hint"""
         assert player in [0, 1], "invalid player number"
-        logging.debug('Pause message')
+        logging.debug(f'Pause message: {player}/{played_time}/{current}')
 
     @classmethod
     def add_malus(cls, player: int, played_time: list[int], current: list[int]) -> None:
         """show malus hint"""
         assert player in [0, 1], "invalid player number"
-        logging.debug(f'{player}: malus -10')
+        logging.debug(f'{player}: malus -10: {played_time}/{current}')
 
     @classmethod
     def add_remove_tiles(cls, player: int, played_time: list[int], current: list[int]) -> None:
         """show remove tiles"""
         assert player in [0, 1], "invalid player number"
-        logging.debug(f'{player}: Entf. Zug')
+        logging.debug(f'{player}: Entf. Zug: {played_time}/{current}')
 
     @classmethod
     def add_doubt_timeout(cls, player: int, played_time: list[int], current: list[int]) -> None:
         """show error on doubt: timeout"""
         assert player in [0, 1], "invalid player number"
-        logging.debug(f'{player}: doubt timeout')
+        logging.debug(f'{player}: doubt timeout: {played_time}/{current}')
 
     @classmethod
     def show_cam_err(cls) -> None:
@@ -107,9 +107,9 @@ class Display(Static):
         """render display content"""
         assert player in [0, 1], "invalid player number"
 
-        minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
-        text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
+        minutes, seconds = divmod(abs(Config.max_time() - played_time[player]), 60)
+        text = f'-{minutes:1d}:{seconds:02d}' if Config.max_time() - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
         # log message only if player changed
         if cls.lastplayer != player:
-            logging.debug(f'render_display {player}: {text}')
+            logging.debug(f'render_display {player}: {text} ({current}/{info})')
             cls.lastplayer = player
