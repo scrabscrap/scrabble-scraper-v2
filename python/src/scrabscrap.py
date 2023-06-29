@@ -79,9 +79,8 @@ def main() -> None:
     atexit.register(_cleanup)
 
     # create Timer
-    watch = ScrabbleWatch()
-    watch.display.show_boot()  # Boot Message
-    timer = RepeatedTimer(1, watch.tick)
+    ScrabbleWatch.display.show_boot()  # Boot Message
+    timer = RepeatedTimer(1, ScrabbleWatch.tick)
     _ = pool.submit(timer.tick, Event())
 
     # create cam
@@ -99,12 +98,11 @@ def main() -> None:
 
     # State-Machine
     State.cam = cam
-    State.watch = watch
     # init State Machine
     State.init()
 
     if cam is None:
-        watch.display.show_cam_err()
+        ScrabbleWatch.display.show_cam_err()
 
     logging.info('####################################################################')
     logging.info('## ScrabScrap ready                                               ##')

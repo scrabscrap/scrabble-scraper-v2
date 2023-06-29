@@ -83,11 +83,10 @@ class CheckButtonTestCase(unittest.TestCase):
 
     def test_button(self):
         """start button event handler - display LED on Button press"""
-        watch = ScrabbleWatch(Display)
+        ScrabbleWatch.display = Display
         cam = Camera(use_camera=CameraEnum.FILE)
 
         SimulateState.cam = cam
-        SimulateState.watch = watch
         SimulateState.init()
         pause()
 

@@ -49,92 +49,91 @@ class DisplayTestCase(unittest.TestCase):
     @trace
     def test_display(self):
         """show different pattern on the OLED Displays"""
-        display = PlayerDisplay()
-        watch = ScrabbleWatch(display)
+        ScrabbleWatch.display = PlayerDisplay
 
-        watch.display.show_boot()
-        watch.display.show_cam_err()
-        watch.display.show_config()
-        watch.display.show_ftp_err()
-        watch.reset()
-        watch.display.show_ready()
+        ScrabbleWatch.display.show_boot()
+        ScrabbleWatch.display.show_cam_err()
+        ScrabbleWatch.display.show_config()
+        ScrabbleWatch.display.show_ftp_err()
+        ScrabbleWatch.reset()
+        ScrabbleWatch.display.show_ready()
 
         logging.debug('start 0')
-        watch.start(0)
+        ScrabbleWatch.start(0)
         for _ in range(30):
-            watch.tick()
-        assert watch.time[0] == 30, 'invalid time 0'
-        assert watch.current[0] == 30, 'invalid current 0'
-        assert watch.time[1] == 0, 'invalid time 1'
-        assert watch.current[1] == 0, 'invalid current 0'
+            ScrabbleWatch.tick()
+        assert ScrabbleWatch.time[0] == 30, 'invalid time 0'
+        assert ScrabbleWatch.current[0] == 30, 'invalid current 0'
+        assert ScrabbleWatch.time[1] == 0, 'invalid time 1'
+        assert ScrabbleWatch.current[1] == 0, 'invalid current 0'
 
         logging.debug('start 1')
-        watch.start(1)
+        ScrabbleWatch.start(1)
         for _ in range(21):
-            watch.tick()
-        assert watch.time[0] == 30, 'invalid time 0'
-        assert watch.current[0] == 0, 'invalid current 0'
-        assert watch.time[1] == 21, 'invalid time 1'
-        assert watch.current[1] == 21, 'invalid current 0'
+            ScrabbleWatch.tick()
+        assert ScrabbleWatch.time[0] == 30, 'invalid time 0'
+        assert ScrabbleWatch.current[0] == 0, 'invalid current 0'
+        assert ScrabbleWatch.time[1] == 21, 'invalid time 1'
+        assert ScrabbleWatch.current[1] == 21, 'invalid current 0'
 
         logging.debug('start 0')
-        watch.start(0)
+        ScrabbleWatch.start(0)
         for _ in range(3):
-            watch.tick()
+            ScrabbleWatch.tick()
         logging.debug('pause')
-        watch.pause()
+        ScrabbleWatch.pause()
         sleep(1)
 
         logging.debug('0: add malus')
-        _, time, current = watch.status()
-        watch.display.add_malus(0, time, current)
+        _, time, current = ScrabbleWatch.status()
+        ScrabbleWatch.display.add_malus(0, time, current)
         sleep(1)
 
         logging.debug('1: remove tiles')
-        _, time, current = watch.status()
-        watch.display.add_remove_tiles(1, time, current)
+        _, time, current = ScrabbleWatch.status()
+        ScrabbleWatch.display.add_remove_tiles(1, time, current)
         sleep(1)
 
         logging.debug('0: remove tiles')
-        _, time, current = watch.status()
-        watch.display.add_doubt_timeout(1, time, current)
+        _, time, current = ScrabbleWatch.status()
+        ScrabbleWatch.display.add_doubt_timeout(1, time, current)
         sleep(1)
 
         logging.debug('resume')
-        watch.resume()
+        ScrabbleWatch.resume()
 
         logging.debug('start 1')
-        watch.start(1)
+        ScrabbleWatch.start(1)
         for _ in range(2):
-            watch.tick()
+            ScrabbleWatch.tick()
         logging.debug('pause')
-        watch.pause()
+        ScrabbleWatch.pause()
         sleep(1)
 
         logging.debug('1: add malus')
-        _, time, current = watch.status()
-        watch.display.add_malus(1, time, current)
+        _, time, current = ScrabbleWatch.status()
+        ScrabbleWatch.display.add_malus(1, time, current)
         sleep(1)
 
         logging.debug('0: remove tiles')
-        _, time, current = watch.status()
-        watch.display.add_remove_tiles(0, time, current)
+        _, time, current = ScrabbleWatch.status()
+        ScrabbleWatch.display.add_remove_tiles(0, time, current)
         sleep(1)
 
         logging.debug('resume')
-        watch.resume()
+        ScrabbleWatch.resume()
 
         logging.debug('overtime')
-        watch.time[0] = 1798
-        watch.time[1] = 1795
-        watch.start(0)
+        ScrabbleWatch.time[0] = 1798
+        ScrabbleWatch.time[1] = 1795
+        ScrabbleWatch.start(0)
         for _ in range(10):
-            watch.tick()
+            ScrabbleWatch.tick()
         sleep(1)
 
-        watch.start(1)
+        ScrabbleWatch.start(1)
         for _ in range(10):
-            watch.tick()
+            ScrabbleWatch.tick()
         sleep(2)
 
 

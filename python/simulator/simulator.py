@@ -135,7 +135,7 @@ def simulator() -> str:
     list_of_dir = [f for f in os.listdir(f'{config.src_dir}/../test')
                    if os.path.isdir(f'{config.src_dir}/../test/{f}') and f.startswith('game')]
     # display time
-    _, (time0, time1), _ = State.watch.status()
+    _, (time0, time1), _ = ScrabbleWatch.status()
     minutes, seconds = divmod(abs(1800 - time0), 60)
     left = f'-{minutes:1d}:{seconds:02d}' if 1800 - time0 < 0 else f'{minutes:02d}:{seconds:02d}'
     minutes, seconds = divmod(abs(1800 - time1), 60)
@@ -188,8 +188,8 @@ def main():
     _ = pool.submit(cam.update, Event())
 
     # set Watch
-    watch = ScrabbleWatch(Display())
-    timer = RepeatedTimer(1, watch.tick)
+    ScrabbleWatch.display = Display
+    timer = RepeatedTimer(1, ScrabbleWatch.tick)
     _ = pool.submit(timer.tick, Event())
 
     api = ApiServer()
@@ -210,7 +210,6 @@ def main():
 
     # start State-Machine
     State.cam = cam
-    State.watch = watch
 
     State.do_ready()
 

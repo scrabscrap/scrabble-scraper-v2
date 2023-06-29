@@ -58,7 +58,6 @@ AP = 'AP'
 class State(Static):
     """State machine of the scrabble game"""
     current_state: str = START
-    watch: ScrabbleWatch = ScrabbleWatch()
     button_handler = Button
     cam: Optional[Camera] = None
     last_submit: Optional[Future] = None  # last submit to thread pool; waiting for processing of the last move
@@ -86,8 +85,8 @@ class State(Static):
     def do_ready(cls) -> str:
         """Game can be started"""
         logging.debug(f'{cls.game.nicknames}')
-        cls.watch.display.show_ready(cls.game.nicknames)
-        cls.watch.display.set_game(cls.game)
+        ScrabbleWatch.display.show_ready(cls.game.nicknames)
+        ScrabbleWatch.display.set_game(cls.game)
         cls.picture = cls.cam.read(peek=True) if cls.cam else None  # type: ignore
         cls.current_state = START
         return cls.current_state
@@ -100,9 +99,9 @@ class State(Static):
         next_state = (S0, S1)[player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
         logging.info(f'{cls.current_state} - (start) -> {next_state}')
-        cls.watch.start(player)
+        ScrabbleWatch.start(player)
         LED.switch_on(next_led)  # turn on LED red
-        cls.watch.display.render_display(0, [0, 0], [0, 0])
+        ScrabbleWatch.display.render_display(0, [0, 0], [0, 0])
         return next_state
 
     @classmethod
@@ -114,8 +113,8 @@ class State(Static):
         next_state = (S0, S1)[next_player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[next_player]
         logging.info(f'{cls.current_state} - (move) -> {next_state}')
-        _, (time0, time1), _ = cls.watch.status()
-        cls.watch.start(next_player)
+        _, (time0, time1), _ = ScrabbleWatch.status()
+        ScrabbleWatch.start(next_player)
         LED.switch_on(next_led)  # turn on next player LED
         cls.picture = cls.cam.read()  # type: ignore
         cls.last_submit = pool.submit(move, cls.last_submit, cls.game, cls.picture, player, (time0, time1), cls.op_event)
@@ -129,7 +128,7 @@ class State(Static):
         next_state = (P0, P1)[player]
         next_led = ({LEDEnum.green, LEDEnum.yellow}, {LEDEnum.red, LEDEnum.yellow})[player]
         logging.info(f'{cls.current_state} - (pause) -> {next_state}')
-        cls.watch.pause()
+        ScrabbleWatch.pause()
         LED.switch_on(next_led)  # turn on player pause LED
         return next_state
 
@@ -141,7 +140,7 @@ class State(Static):
         next_state = (S0, S1)[player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
         logging.info(f'{cls.current_state} - (resume) -> {next_state}')
-        cls.watch.resume()
+        ScrabbleWatch.resume()
         LED.switch_on(next_led)  # turn on player LED
         return next_state
 
@@ -152,12 +151,12 @@ class State(Static):
 
         next_state = (P0, P1)[player]
         logging.info(f'{cls.current_state} - (valid challenge) -> {next_state}')
-        _, played_time, current = cls.watch.status()
+        _, played_time, current = ScrabbleWatch.status()
         if current[player] > config.doubt_timeout:
-            cls.watch.display.add_doubt_timeout(player, played_time, current)
+            ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.info(f'no challenge possible, because of timeout {current[0]}')
         else:
-            cls.watch.display.add_remove_tiles(player, played_time, current)  # player 1 has to remove the last move
+            ScrabbleWatch.display.add_remove_tiles(player, played_time, current)  # player 1 has to remove the last move
             cls.last_submit = pool.submit(valid_challenge, cls.last_submit, cls.game, player,
                                           (played_time[0], played_time[1]), cls.op_event)
             LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
@@ -173,12 +172,12 @@ class State(Static):
         next_state = (P0, P1)[player]
         logging.info(
             f'{cls.current_state} - (invalid challenge) -> {next_state} (-{config.malus_doubt:2d})')  # -10
-        _, played_time, current = cls.watch.status()
+        _, played_time, current = ScrabbleWatch.status()
         if current[player] > config.doubt_timeout:
-            cls.watch.display.add_doubt_timeout(player, played_time, current)
+            ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.info(f'no challenge possible, because of timeout {current[player]}')
         else:
-            cls.watch.display.add_malus(player, played_time, current)  # player 0 gets a malus
+            ScrabbleWatch.display.add_malus(player, played_time, current)  # player 0 gets a malus
             cls.last_submit = pool.submit(invalid_challenge, cls.last_submit, cls.game, player,
                                           (played_time[0], played_time[1]), cls.op_event)
             LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
@@ -238,7 +237,7 @@ class State(Static):
             cls.current_state = BLOCKING
             LED.switch_on({})  # type: ignore
             cls.picture = None
-            cls.watch.reset()
+            ScrabbleWatch.reset()
             cls.game.new_game()
             gc.collect()
         start_of_game(cls.game)
@@ -255,10 +254,10 @@ class State(Static):
         with suppress(Exception):
             cls.current_state = BLOCKING
             LED.switch_on({})  # type: ignore
-            cls.watch.display.show_ready(('prepare', 'end'))
+            ScrabbleWatch.display.show_ready(('prepare', 'end'))
             end_of_game(None, cls.game, cls.op_event)
 
-        cls.watch.display.show_end_of_game()
+        ScrabbleWatch.display.show_end_of_game()
 
         with suppress(Exception):
             store_zip_from_game(cls.game)
@@ -273,11 +272,11 @@ class State(Static):
         logging.info(f'{cls.current_state} - (reboot) -> {START}')
         with suppress(Exception):
             cls.current_state = BLOCKING
-            cls.watch.display.show_boot()  # Display message REBOOT
+            ScrabbleWatch.display.show_boot()  # Display message REBOOT
             LED.switch_on({})  # type: ignore
             end_of_game(cls.last_submit, cls.game)
             store_zip_from_game(cls.game)
-        cls.watch.display.stop()
+        ScrabbleWatch.display.stop()
         current_state = START
         alarm(1)  # raise alarm for reboot
         return current_state
@@ -295,10 +294,10 @@ class State(Static):
         for elem in wifi_list:
             if elem[1] in ('ScrabScrap', 'ScrabScrapTest'):
                 _ = subprocess.call(f'sudo -n /usr/sbin/wpa_cli select_network {elem[0]} -i wlan0', shell=True)
-                cls.watch.display.show_accesspoint()  # Display message AP Mode
+                ScrabbleWatch.display.show_accesspoint()  # Display message AP Mode
                 LED.switch_on({})  # type: ignore
                 sleep(5)
-                cls.watch.display.show_accesspoint()  # Display message AP Mode
+                ScrabbleWatch.display.show_accesspoint()  # Display message AP Mode
         current_state = START
         return current_state
 

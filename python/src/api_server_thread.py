@@ -37,8 +37,9 @@ from werkzeug.serving import make_server
 
 from config import config
 from game_board.board import overlay_grid
-from processing import (get_last_warp, warp_image)
-from state import State, START, EOG
+from processing import get_last_warp, warp_image
+from scrabblewatch import ScrabbleWatch
+from state import EOG, START, State
 from threadpool import pool
 from upload_config import UploadConfig
 
@@ -502,19 +503,17 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @ app.route('/test_display')
     def do_test_display():
         """ start simple display test """
-        from scrabblewatch import ScrabbleWatch
 
         if State.current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
             logging.debug('run display test')
-            watch = ScrabbleWatch()
-            watch.display.show_boot()
+            ScrabbleWatch.display.show_boot()
             sleep(0.5)
-            watch.display.show_cam_err()
+            ScrabbleWatch.display.show_cam_err()
             sleep(0.5)
-            watch.display.show_ftp_err()
+            ScrabbleWatch.display.show_ftp_err()
             sleep(0.5)
-            watch.display.show_ready()
+            ScrabbleWatch.display.show_ready()
             sleep(0.5)
             ApiServer.flask_shutdown_blocked = False
             ApiServer.last_msg = 'display_test ended'
@@ -588,7 +587,6 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @ app.route('/upgrade_scrabscrap')
     def do_update_scrabscrap():
         """ start scrabscrap upgrade """
-        from scrabblewatch import ScrabbleWatch
 
         if State.current_state == 'START':
             watch = ScrabbleWatch()
@@ -622,7 +620,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         while True:
             if State.op_event.is_set():
                 State.op_event.clear()
-            _, (clock1, clock2), _ = State.watch.status()
+            _, (clock1, clock2), _ = ScrabbleWatch.status()
             clock1 = config.max_time - clock1
             clock2 = config.max_time - clock2
             jsonstr = State.game.json_str()
