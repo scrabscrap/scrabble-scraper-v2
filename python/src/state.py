@@ -24,7 +24,7 @@ from signal import alarm
 from time import sleep
 from typing import Callable, Optional, Tuple
 
-from config import config
+from config import Config
 from hardware.button import Button
 from hardware.camera_thread import Camera
 from hardware.led import LED, LEDEnum
@@ -152,7 +152,7 @@ class State(Static):
         next_state = (P0, P1)[player]
         logging.info(f'{cls.current_state} - (valid challenge) -> {next_state}')
         _, played_time, current = ScrabbleWatch.status()
-        if current[player] > config.doubt_timeout:
+        if current[player] > Config.doubt_timeout():
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.info(f'no challenge possible, because of timeout {current[0]}')
         else:
@@ -171,9 +171,9 @@ class State(Static):
 
         next_state = (P0, P1)[player]
         logging.info(
-            f'{cls.current_state} - (invalid challenge) -> {next_state} (-{config.malus_doubt:2d})')  # -10
+            f'{cls.current_state} - (invalid challenge) -> {next_state} (-{Config.malus_doubt():2d})')  # -10
         _, played_time, current = ScrabbleWatch.status()
-        if current[player] > config.doubt_timeout:
+        if current[player] > Config.doubt_timeout():
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.info(f'no challenge possible, because of timeout {current[player]}')
         else:

@@ -22,7 +22,7 @@ from threading import Event
 
 import cv2
 import numpy as np
-from config import config
+from config import Config
 from util import Singleton
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
@@ -31,18 +31,18 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 class CameraFile(metaclass=Singleton):  # type: ignore
     """implement a camera simulation with images files"""
 
-    def __init__(self, formatter=None, resolution=(config.video_width, config.video_height)):
+    def __init__(self, formatter=None, resolution=(Config.video_width(), Config.video_height())):
         logging.info('### init MockCamera')
         self.frame = []
         self.resolution = resolution
-        if config.video_rotate:
+        if Config.video_rotate():
             self.rotation = 180
         self.event = None
         self.cnt = 1
         if formatter is not None:
             self.formatter = formatter
         else:
-            self.formatter = config.simulate_path
+            self.formatter = Config.simulate_path()
         self.img = cv2.imread(self.formatter.format(self.cnt))
 
     def read(self, peek=False) -> Mat:

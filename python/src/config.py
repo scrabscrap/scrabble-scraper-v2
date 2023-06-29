@@ -21,211 +21,217 @@ import logging
 import os
 from typing import Optional
 
-from util import Singleton
+from util import Static
 
 
-class Config(metaclass=Singleton):  # pylint: disable=too-many-public-methods
+class Config(Static):  # pylint: disable=too-many-public-methods
     """ access to application configuration """
+    config = configparser.ConfigParser()
+    ini_path: str = ''
+    is_testing = False
 
-    def __init__(self, ini_file=None) -> None:
-        self.config = configparser.ConfigParser()
-        self.reload(ini_file=ini_file, clean=False)
-        self.is_testing = False
+    # def __init__(self, ini_file=None) -> None:
+    #     self.config = configparser.ConfigParser()
+    #     self.reload(ini_file=ini_file, clean=False)
+    #     self.is_testing = False
 
-    def reload(self, ini_file=None, clean=True) -> None:
+    @classmethod
+    def reload(cls, ini_file=None, clean=True) -> None:
         """ reload configuration from file """
         if clean:
-            self.config = configparser.ConfigParser()
+            cls.config.clear()
         try:
-            self.config['path'] = {}
-            self.config['path']['src_dir'] = os.path.dirname(__file__) or '.'
-            self.ini_path = ini_file if ini_file is not None else f'{self.work_dir}/scrabble.ini'
-            logging.info(f'reload {self.ini_path}')
-            with open(self.ini_path, 'r', encoding="UTF-8") as config_file:
-                self.config.read_file(config_file)
+            cls.config['path'] = {}
+            cls.config['path']['src_dir'] = os.path.dirname(__file__) or '.'
+            cls.ini_path = ini_file if ini_file is not None else f'{cls.work_dir()}/scrabble.ini'
+            logging.info(f'reload {cls.ini_path}')
+            with open(cls.ini_path, 'r', encoding="UTF-8") as config_file:
+                cls.config.read_file(config_file)
         except IOError as oops:
             logging.error(f'can not read INI-File: error({oops.errno}): {oops.strerror}')
 
-    def save(self) -> None:
+    @classmethod
+    def save(cls) -> None:
         """ save configuration to file """
-        with open(self.ini_path, 'w', encoding="UTF-8") as config_file:
-            val = self.config['path']['src_dir']
+        with open(cls.ini_path, 'w', encoding="UTF-8") as config_file:
+            val = cls.config['path']['src_dir']
             if val == (os.path.dirname(__file__) or '.'):
-                self.config.remove_option('path', 'src_dir')
-                self.config.write(config_file)
-                self.config['path']['src_dir'] = val
+                cls.config.remove_option('path', 'src_dir')
+                cls.config.write(config_file)
+                cls.config['path']['src_dir'] = val
             else:
-                self.config.write(config_file)
+                cls.config.write(config_file)
 
-    def config_as_dict(self) -> dict:
+    @classmethod
+    def config_as_dict(cls) -> dict:
         """ get configuration as dict """
-        return {s: dict(self.config.items(s)) for s in self.config.sections()}
+        return {s: dict(cls.config.items(s)) for s in cls.config.sections()}
 
-    @property
-    def src_dir(self) -> str:
+    @classmethod
+    def src_dir(cls) -> str:
         """get src dir"""
-        return os.path.abspath(self.config.get('path', 'src_dir', fallback=os.path.dirname(__file__) or '.'))
+        return os.path.abspath(cls.config.get('path', 'src_dir', fallback=os.path.dirname(__file__) or '.'))
 
-    @property
-    def work_dir(self) -> str:
+    @classmethod
+    def work_dir(cls) -> str:
         """get work dir"""
-        return os.path.abspath(self.config.get('path', 'work_dir', fallback=f'{self.src_dir}/../work'))
+        return os.path.abspath(cls.config.get('path', 'work_dir', fallback=f'{cls.src_dir()}/../work'))
 
-    @property
-    def log_dir(self) -> str:
+    @classmethod
+    def log_dir(cls) -> str:
         """"get logging dir"""
-        return os.path.abspath(self.config.get('path', 'log_dir', fallback=f'{self.src_dir}/../work/log'))
+        return os.path.abspath(cls.config.get('path', 'log_dir', fallback=f'{cls.src_dir()}/../work/log'))
 
-    @property
-    def web_dir(self) -> str:
+    @classmethod
+    def web_dir(cls) -> str:
         """get web folder"""
-        return os.path.abspath(self.config.get('path', 'web_dir', fallback=f'{self.src_dir}/../work/web'))
+        return os.path.abspath(cls.config.get('path', 'web_dir', fallback=f'{cls.src_dir()}/../work/web'))
 
-    @property
-    def simulate(self) -> bool:
+    @classmethod
+    def simulate(cls) -> bool:
         """should scrabscrap be simuated"""
-        return self.config.getboolean('development', 'simulate', fallback=False)
+        return cls.config.getboolean('development', 'simulate', fallback=False)
 
-    @property
-    def simulate_path(self) -> str:
+    @classmethod
+    def simulate_path(cls) -> str:
         """folder for the simulation pictures"""
-        return self.config.get('development', 'simulate_path', fallback=self.src_dir + '/../test/game01/image-{:d}.jpg')
+        return cls.config.get('development', 'simulate_path', fallback=cls.src_dir() + '/../test/game01/image-{:d}.jpg')
 
-    @property
-    def development_recording(self) -> bool:
+    @classmethod
+    def development_recording(cls) -> bool:
         """record images in hires and moves to disk"""
-        return self.config.getboolean('development', 'recording', fallback=False)
+        return cls.config.getboolean('development', 'recording', fallback=False)
 
-    @property
-    def tournament(self) -> str:
+    @classmethod
+    def tournament(cls) -> str:
         """tournament"""
-        return self.config.get('scrabble', 'tournament', fallback='SCRABBLE SCRAPER')
+        return cls.config.get('scrabble', 'tournament', fallback='SCRABBLE SCRAPER')
 
-    @property
-    def malus_doubt(self) -> int:
+    @classmethod
+    def malus_doubt(cls) -> int:
         """malus for wrong doubt"""
-        return self.config.getint('scrabble', 'malus_doubt', fallback=10)
+        return cls.config.getint('scrabble', 'malus_doubt', fallback=10)
 
-    @property
-    def max_time(self) -> int:
+    @classmethod
+    def max_time(cls) -> int:
         """maximum play time"""
-        return self.config.getint('scrabble', 'max_time', fallback=1800)
+        return cls.config.getint('scrabble', 'max_time', fallback=1800)
 
-    @property
-    def min_time(self) -> int:
+    @classmethod
+    def min_time(cls) -> int:
         """maximum overtime"""
-        return self.config.getint('scrabble', 'min_time', fallback=-300)
+        return cls.config.getint('scrabble', 'min_time', fallback=-300)
 
-    @property
-    def doubt_timeout(self) -> int:
+    @classmethod
+    def doubt_timeout(cls) -> int:
         """how long is doubt possible"""
-        return self.config.getint('scrabble', 'doubt_timeout', fallback=20)
+        return cls.config.getint('scrabble', 'doubt_timeout', fallback=20)
 
-    @property
-    def scrabble_verify_moves(self) -> int:
+    @classmethod
+    def scrabble_verify_moves(cls) -> int:
         """moves to look back for tiles corrections"""
-        return self.config.getint('scrabble', 'verify_moves', fallback=3)
+        return cls.config.getint('scrabble', 'verify_moves', fallback=3)
 
-    @property
-    def show_score(self) -> bool:
+    @classmethod
+    def show_score(cls) -> bool:
         """should the display show current score """
-        return self.config.getboolean('scrabble', 'show_score', fallback=False)
+        return cls.config.getboolean('scrabble', 'show_score', fallback=False)
 
-    @property
-    def upload_server(self) -> bool:
+    @classmethod
+    def upload_server(cls) -> bool:
         """should ftp upload used"""
-        return self.config.getboolean('output', 'upload_server', fallback=False)
+        return cls.config.getboolean('output', 'upload_server', fallback=False)
 
-    @property
-    def upload_modus(self) -> str:
+    @classmethod
+    def upload_modus(cls) -> str:
         """should ftp upload used"""
-        return self.config.get('output', 'upload_modus', fallback='http')
+        return cls.config.get('output', 'upload_modus', fallback='http')
 
     # @property
     # def keyboard(self) -> bool:
     #     """should keyboard used as input device"""
     #     return self.simulate or self.config.getboolean('input', 'keyboard', fallback=False)
 
-    @property
-    def video_warp(self) -> bool:
+    @classmethod
+    def video_warp(cls) -> bool:
         """should warp performed"""
-        return self.config.getboolean('video', 'warp', fallback=True)
+        return cls.config.getboolean('video', 'warp', fallback=True)
 
-    @property
-    def video_warp_coordinates(self) -> Optional[list]:
+    @classmethod
+    def video_warp_coordinates(cls) -> Optional[list]:
         """stored warp coordinates"""
-        warp_coordinates_as_string = self.config.get('video', 'warp_coordinates', fallback=None)
+        warp_coordinates_as_string = cls.config.get('video', 'warp_coordinates', fallback=None)
         if warp_coordinates_as_string is None or len(warp_coordinates_as_string) <= 0:
             return None
         return json.loads(warp_coordinates_as_string)
 
-    @property
-    def video_width(self) -> int:
+    @classmethod
+    def video_width(cls) -> int:
         """used image width"""
-        return self.config.getint('video', 'width', fallback=992)
+        return cls.config.getint('video', 'width', fallback=992)
 
-    @property
-    def video_height(self) -> int:
+    @classmethod
+    def video_height(cls) -> int:
         """used image height"""
-        return self.config.getint('video', 'height', fallback=976)
+        return cls.config.getint('video', 'height', fallback=976)
 
-    @property
-    def video_fps(self) -> int:
+    @classmethod
+    def video_fps(cls) -> int:
         """used fps on camera monitoring"""
-        return self.config.getint('video', 'fps', fallback=30)
+        return cls.config.getint('video', 'fps', fallback=30)
 
-    @property
-    def video_rotate(self) -> bool:
+    @classmethod
+    def video_rotate(cls) -> bool:
         """should the images rotated by 180° """
-        return self.config.getboolean('video', 'rotate', fallback=False)
+        return cls.config.getboolean('video', 'rotate', fallback=False)
 
-    @property
-    def board_layout(self) -> str:
+    @classmethod
+    def board_layout(cls) -> str:
         """which board layout should be used"""
-        return self.config.get('board', 'layout', fallback='custom').replace('"', '')
+        return cls.config.get('board', 'layout', fallback='custom').replace('"', '')
 
-    @property
-    def tiles_language(self) -> str:
+    @classmethod
+    def tiles_language(cls) -> str:
         """used language for the tiles"""
         # use german language as default
-        return self.config.get('tiles', 'language', fallback='de')
+        return cls.config.get('tiles', 'language', fallback='de')
 
-    @property
-    def tiles_image_path(self) -> str:
+    @classmethod
+    def tiles_image_path(cls) -> str:
         """where to find the images for the tiles"""
         # use builtin path as default
-        return self.config.get('tiles', 'image_path', fallback=f'{self.src_dir}/game_board/img/default')
+        return cls.config.get('tiles', 'image_path', fallback=f'{cls.src_dir()}/game_board/img/default')
 
-    @property
-    def tiles_bag(self) -> dict:
+    @classmethod
+    def tiles_bag(cls) -> dict:
         """how many tiles are in the bag"""
         # use german tiles as default
-        bag_as_str = self.config.get(self.tiles_language, 'bag',
-                                     fallback='{"A": 5, "B": 2, "C": 2, "D": 4, "E": 15, "F": 2, "G": 3, "H": 4, "I": 6, '
-                                     '"J": 1, "K": 2, "L": 3, "M": 4, "N": 9, "O": 3, "P": 1, "Q": 1, "R": 6, "S": 7, '
-                                     '"T": 6, "U": 6, "V": 1, "W": 1, "X": 1, "Y": 1, "Z": 1, '
-                                     '"\u00c4": 1, "\u00d6": 1, "\u00dc": 1, "_": 2}')
+        bag_as_str = cls.config.get(cls.tiles_language(), 'bag',
+                                    fallback='{"A": 5, "B": 2, "C": 2, "D": 4, "E": 15, "F": 2, "G": 3, "H": 4, "I": 6, '
+                                    '"J": 1, "K": 2, "L": 3, "M": 4, "N": 9, "O": 3, "P": 1, "Q": 1, "R": 6, "S": 7, '
+                                    '"T": 6, "U": 6, "V": 1, "W": 1, "X": 1, "Y": 1, "Z": 1, '
+                                    '"\u00c4": 1, "\u00d6": 1, "\u00dc": 1, "_": 2}')
         return json.loads(bag_as_str)
 
-    @property
-    def tiles_scores(self) -> dict:
+    @classmethod
+    def tiles_scores(cls) -> dict:
         """"scores for the tiles"""
         # use german tiles as default
-        bag_as_str = self.config.get(self.tiles_language, 'scores',
-                                     fallback='{"A": 1, "B": 3, "C": 4, "D": 2, "E": 1, "F": 4, "G": 2, "H": 4, "I": 1, '
-                                     '"J": 8, "K": 5, "L": 1, "M": 3, "N": 1, "O": 2, "P": 3, "Q": 10, "R": 1, "S": 1, '
-                                     '"T": 1, "U": 1, "V": 4, "W": 4, "X": 8, "Y": 4, "Z": 10, "_": 0}')
+        bag_as_str = cls.config.get(cls.tiles_language(), 'scores',
+                                    fallback='{"A": 1, "B": 3, "C": 4, "D": 2, "E": 1, "F": 4, "G": 2, "H": 4, "I": 1, '
+                                    '"J": 8, "K": 5, "L": 1, "M": 3, "N": 1, "O": 2, "P": 3, "Q": 10, "R": 1, "S": 1, '
+                                    '"T": 1, "U": 1, "V": 4, "W": 4, "X": 8, "Y": 4, "Z": 10, "_": 0}')
         return json.loads(bag_as_str)
 
-    @property
-    def system_quit(self) -> str:
+    @classmethod
+    def system_quit(cls) -> str:
         """on reboot button: should the app just stop (no reboot)"""
-        return self.config.get('system', 'quit', fallback='shutdown').replace('"', '')
+        return cls.config.get('system', 'quit', fallback='shutdown').replace('"', '')
 
-    @property
-    def system_gitbranch(self) -> str:
+    @classmethod
+    def system_gitbranch(cls) -> str:
         """git tag or branch to use for updates"""
-        return self.config.get('system', 'gitbranch', fallback='main').replace('"', '')
+        return cls.config.get('system', 'gitbranch', fallback='main').replace('"', '')
 
     # @property
     # def motion_detection(self) -> str:
@@ -248,4 +254,4 @@ class Config(metaclass=Singleton):  # pylint: disable=too-many-public-methods
     #     return self.config.getint('motion', 'area', fallback=1500)
 
 
-config = Config()
+Config.reload()

@@ -25,7 +25,7 @@ from typing import Optional
 
 import cv2
 import numpy as np
-from config import config
+from config import Config
 from util import Singleton
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
@@ -34,7 +34,7 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 class CameraOpenCV(metaclass=Singleton):  # type: ignore
     """implement a camera with OpenCV"""
 
-    def __init__(self, src: int = 0, resolution=(config.video_width, config.video_height), framerate=config.video_fps):
+    def __init__(self, src: int = 0, resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps()):
         # initialize the video camera stream and read the first frame
         logging.info('### init OpenCV VideoCapture')
         self.stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
@@ -61,7 +61,7 @@ class CameraOpenCV(metaclass=Singleton):  # type: ignore
             valid, self.frame = self.stream.read()
             if not valid:
                 logging.warning('frame not valid')
-            if config.video_rotate:
+            if Config.video_rotate():
                 self.frame = cv2.rotate(self.frame, cv2.ROTATE_180)
             if event.is_set():
                 break

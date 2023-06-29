@@ -29,7 +29,7 @@ from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
 from api_server_thread import ApiServer
-from config import config
+from config import Config
 from hardware.led import LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
@@ -119,11 +119,11 @@ def open_folder():
     """select folder for images"""
     folder = request.args.get('folder')
     logging.debug(f'try to open {folder}')
-    ini_file = os.path.abspath(f'{config.src_dir}/../test/{folder}/scrabble.ini')
+    ini_file = os.path.abspath(f'{Config.src_dir()}/../test/{folder}/scrabble.ini')
     if os.path.exists(ini_file):
-        config.reload(ini_file=ini_file)
+        Config.reload(ini_file=ini_file)
         ApiServer.cam.stream.cnt = 1  # type: ignore
-        ApiServer.cam.stream.formatter = config.simulate_path  # type: ignore
+        ApiServer.cam.stream.formatter = Config.simulate_path()  # type: ignore
     else:
         logging.warning(f'INI File not found / invalid: {ini_file}')
     return redirect(url_for('simulator'))
@@ -132,8 +132,8 @@ def open_folder():
 def simulator() -> str:
     """"render simulator on web page"""
     # get simulate folders
-    list_of_dir = [f for f in os.listdir(f'{config.src_dir}/../test')
-                   if os.path.isdir(f'{config.src_dir}/../test/{f}') and f.startswith('game')]
+    list_of_dir = [f for f in os.listdir(f'{Config.src_dir()}/../test')
+                   if os.path.isdir(f'{Config.src_dir()}/../test/{f}') and f.startswith('game')]
     # display time
     _, (time0, time1), _ = ScrabbleWatch.status()
     minutes, seconds = divmod(abs(1800 - time0), 60)
@@ -153,8 +153,8 @@ def simulator() -> str:
     _, pic_buf_arr = cv2.imencode(".jpg", img)
     png_next = urllib.parse.quote(base64.b64encode(pic_buf_arr))
     # show log
-    if os.path.exists(f'{config.log_dir}/messages.log'):
-        process = subprocess.run(['tail', '-75', f'{config.log_dir}/messages.log'], check=True,
+    if os.path.exists(f'{Config.log_dir()}/messages.log'):
+        process = subprocess.run(['tail', '-75', f'{Config.log_dir()}/messages.log'], check=True,
                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         log_out = process.stdout.decode()
     else:
@@ -174,7 +174,7 @@ def main():
     from display import Display
     from hardware.camera_thread import Camera, CameraEnum
 
-    logging.config.fileConfig(fname=config.work_dir + '/log.conf',
+    logging.config.fileConfig(fname=Config.work_dir() + '/log.conf',
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})

@@ -35,7 +35,7 @@ from flask import (Flask, abort, redirect, render_template, request, send_file,
 from flask_sock import Sock
 from werkzeug.serving import make_server
 
-from config import config
+from config import Config
 from game_board.board import overlay_grid
 from processing import get_last_warp, warp_image
 from scrabblewatch import ScrabbleWatch
@@ -87,17 +87,17 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 else:
                     ApiServer.last_msg = f'can not set: {request.form.get("player1")}/{request.form.get("player2")}'
             elif request.form.get('btntournament'):
-                if (tournament := request.form.get('tournament')) is not None and (tournament != config.tournament):
-                    if 'scrabble' not in config.config.sections():
-                        config.config.add_section('scrabble')
-                    config.config.set('scrabble', 'tournament', str(tournament))
-                    config.save()
+                if (tournament := request.form.get('tournament')) is not None and (tournament != Config.tournament()):
+                    if 'scrabble' not in Config.config.sections():
+                        Config.config.add_section('scrabble')
+                    Config.config.set('scrabble', 'tournament', str(tournament))
+                    Config.save()
                     ApiServer.last_msg = f'set tournament={tournament}'
                 else:
                     ApiServer.last_msg = f'can not set: tournament={tournament}'
             return redirect('/index')
         (player1, player2) = State.game.nicknames
-        tournament = config.tournament
+        tournament = Config.tournament()
         # fall through: request.method == 'GET':
         return render_template('index.html', apiserver=ApiServer, player1=player1, player2=player2, tournament=tournament)
 
@@ -107,13 +107,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """ display current camera picture """
         if request.method == 'POST':
             if request.form.get('btndelete'):
-                config.config.remove_option('video', 'warp_coordinates')
-                config.save()
+                Config.config.remove_option('video', 'warp_coordinates')
+                Config.save()
             elif request.form.get('btnstore'):
-                if 'video' not in config.config.sections():
-                    config.config.add_section('video')
-                config.config.set('video', 'warp_coordinates', request.form.get('warp_coordinates'))
-                config.save()
+                if 'video' not in Config.config.sections():
+                    Config.config.add_section('video')
+                Config.config.set('video', 'warp_coordinates', request.form.get('warp_coordinates'))
+                Config.save()
             return redirect('/cam')
         if len(request.args.keys()) > 0:
             coord = list(request.args.keys())[0]
@@ -124,9 +124,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             if rect is None:
                 rect = np.array([
                     [0, 0],
-                    [config.video_width, 0],
-                    [config.video_width, config.video_height],
-                    [0, config.video_height]], dtype="float32")
+                    [Config.video_width(), 0],
+                    [Config.video_width(), Config.video_height()],
+                    [0, Config.video_height()]], dtype="float32")
             if col < 200 and row < 200:
                 rect[0] = (col, row)
             elif row < 200:
@@ -136,9 +136,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             else:
                 rect[2] = (col, row)
             logging.debug(f"new warp: {np.array2string(rect, formatter={'float_kind':lambda x: f'{x:.1f}'}, separator=', ')}")
-            config.config.set('video', 'warp_coordinates', np.array2string(
+            Config.config.set('video', 'warp_coordinates', np.array2string(
                 rect, formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=','))
-        warp_coord_cnf = str(config.video_warp_coordinates)
+        warp_coord_cnf = str(Config.video_warp_coordinates())
         if ApiServer.cam is not None:
             img = ApiServer.cam.read()
             _, im_buf_arr = cv2.imencode(".jpg", img)
@@ -171,28 +171,28 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         logging.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
                         root_logger.setLevel(new_level)
                         log_config = configparser.ConfigParser()
-                        with open(f'{config.work_dir}/log.conf', 'r', encoding="UTF-8") as config_file:
+                        with open(f'{Config.work_dir()}/log.conf', 'r', encoding="UTF-8") as config_file:
                             log_config.read_file(config_file)
                             if 'logger_root' not in log_config.sections():
                                 log_config.add_section('logger_root')
                             log_config.set('logger_root', 'level', logging.getLevelName(new_level))
-                        with open(f'{config.work_dir}/log.conf', 'w', encoding="UTF-8") as config_file:
+                        with open(f'{Config.work_dir()}/log.conf', 'w', encoding="UTF-8") as config_file:
                             log_config.write(config_file)
 
                 recording = 'recording' in request.form.keys()
-                if config.development_recording != recording:
+                if Config.development_recording() != recording:
                     logging.debug(f'development.recording changed to {recording}')
-                    if 'development' not in config.config.sections():
-                        config.config.add_section('development')
-                    config.config.set('development', 'recording', str(recording))
-                    config.save()
+                    if 'development' not in Config.config.sections():
+                        Config.config.add_section('development')
+                    Config.config.set('development', 'recording', str(recording))
+                    Config.save()
             except IOError as oops:
                 ApiServer.last_msg = f'I/O error({oops.errno}): {oops.strerror}'
                 return redirect('/index')
             return redirect('/loglevel')
         # fall through: request.method == 'GET':
         loglevel = logging.getLogger('root').getEffectiveLevel()
-        return render_template('loglevel.html', apiserver=ApiServer, recording=f'{config.development_recording}',
+        return render_template('loglevel.html', apiserver=ApiServer, recording=f'{Config.development_recording()}',
                                loglevel=f'{loglevel}')
 
     @ staticmethod
@@ -309,14 +309,14 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                             value = 'True'
                         if value.lower() == 'false':
                             value = 'False'
-                        if section not in config.config.sections():
-                            config.config.add_section(section)
-                        config.config.set(section, option, str(value))
+                        if section not in Config.config.sections():
+                            Config.config.add_section(section)
+                        Config.config.set(section, option, str(value))
                         ApiServer.last_msg = f'set option {section}.{option}={value}'
                     else:
-                        config.config.remove_option(section, option)
+                        Config.config.remove_option(section, option)
                         ApiServer.last_msg = f'delete {section}.{option}'
-                    config.save()
+                    Config.save()
             except ValueError:
                 logging.error(f'Error on settings: {request.form.items()}')
                 ApiServer.last_msg = 'error: Value error in Parameter'
@@ -332,7 +332,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 ApiServer.last_msg = 'upload config saved'
         # fall through: request.method == 'GET':
         out = StringIO()
-        config.config.write(out)
+        Config.config.write(out)
         return render_template('settings.html', apiserver=ApiServer, settingsinfo=out.getvalue(),
                                server=UploadConfig.server(), user=UploadConfig.user())
 
@@ -384,8 +384,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def do_delete_logs():
         """ delete message logs """
         import glob
-        ignore_list = [f'{config.log_dir}/messages.log', f'{config.log_dir}/game.log']
-        file_list = glob.glob(f'{config.log_dir}/*')
+        ignore_list = [f'{Config.log_dir()}/messages.log', f'{Config.log_dir()}/game.log']
+        file_list = glob.glob(f'{Config.log_dir()}/*')
         file_list = [f for f in file_list if f not in ignore_list]
         # Iterate over the list of filepaths & remove each file.
         ApiServer.last_msg = 'delete logs'
@@ -404,9 +404,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def do_delete_recording():
         """ delete recording(s) """
         import glob
-        logging.debug(f'path {config.work_dir}/recording')
-        ignore_list = [f'{config.work_dir}/recording/gameRecording.log']
-        file_list = glob.glob(f'{config.work_dir}/recording/*')
+        logging.debug(f'path {Config.work_dir()}/recording')
+        ignore_list = [f'{Config.work_dir()}/recording/gameRecording.log']
+        file_list = glob.glob(f'{Config.work_dir()}/recording/*')
         file_list = [f for f in file_list if f not in ignore_list]
         # Iterate over the list of filepaths & remove each file.
         ApiServer.last_msg = 'delete recording'
@@ -415,7 +415,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 os.remove(file_path)
             except OSError:
                 ApiServer.last_msg += f'\nerror: {file_path}'
-        with open(f'{config.work_dir}/recording/gameRecording.log', 'w', encoding='UTF-8'):
+        with open(f'{Config.work_dir()}/recording/gameRecording.log', 'w', encoding='UTF-8'):
             pass  # empty log file
         return redirect(url_for('route_index'))
 
@@ -424,7 +424,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @ app.route('/download_games/<path:req_path>')
     def do_download_games(req_path):
         """download files from web folder"""
-        base_path = config.web_dir
+        base_path = Config.web_dir()
         fullpath = os.path.normpath(os.path.join(base_path, req_path))
         # validate path
         if not fullpath.startswith(base_path):
@@ -446,13 +446,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """ download message logs """
         from zipfile import ZipFile
 
-        with ZipFile(f'{config.log_dir}/log.zip', 'w') as _zip:
+        with ZipFile(f'{Config.log_dir()}/log.zip', 'w') as _zip:
             files = ['game.log', 'messages.log']
             for filename in files:
-                if os.path.exists(f'{config.log_dir}/{filename}'):
-                    _zip.write(f'{config.log_dir}/{filename}')
+                if os.path.exists(f'{Config.log_dir()}/{filename}'):
+                    _zip.write(f'{Config.log_dir()}/{filename}')
         ApiServer.last_msg = ''
-        return send_from_directory(f'{config.log_dir}', 'log.zip', as_attachment=True)
+        return send_from_directory(f'{Config.log_dir()}', 'log.zip', as_attachment=True)
 
     @ staticmethod
     @ app.route('/download_recording', methods=['POST', 'GET'])
@@ -461,21 +461,21 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         import glob
         from zipfile import ZipFile
 
-        with ZipFile(f'{config.work_dir}/recording/recording.zip', 'w') as _zip:
-            ignore_list = [f'{config.work_dir}/recording/recording.zip']
-            file_list = glob.glob(f'{config.work_dir}/recording/*')
+        with ZipFile(f'{Config.work_dir()}/recording/recording.zip', 'w') as _zip:
+            ignore_list = [f'{Config.work_dir()}/recording/recording.zip']
+            file_list = glob.glob(f'{Config.work_dir()}/recording/*')
             file_list = [f for f in file_list if f not in ignore_list]
             for filename in file_list:
                 _zip.write(f'{filename}')
         ApiServer.last_msg = ''
-        return send_from_directory(f'{config.work_dir}/recording', 'recording.zip', as_attachment=True)
+        return send_from_directory(f'{Config.work_dir()}/recording', 'recording.zip', as_attachment=True)
 
     @ staticmethod
     @ app.route('/end', methods=['POST', 'GET'])
     def do_end():
         """ end app """
         ApiServer.last_msg = '**** Exit application ****'
-        config.config.set('system', 'quit', 'end')  # set temporary end app
+        Config.config.set('system', 'quit', 'end')  # set temporary end app
         alarm(1)
         return redirect(url_for('route_index'))
 
@@ -484,7 +484,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def do_reboot():
         """ process reboot """
         ApiServer.last_msg = '**** System reboot ****'
-        config.config.set('system', 'quit', 'reboot')  # set temporary reboot
+        Config.config.set('system', 'quit', 'reboot')  # set temporary reboot
         State.do_reboot()
         alarm(2)
         return redirect(url_for('route_index'))
@@ -494,7 +494,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def do_shutdown():
         """ process reboot """
         ApiServer.last_msg = '**** System shutdown ****'
-        config.config.set('system', 'quit', 'shutdown')  # set temporary shutdown
+        Config.config.set('system', 'quit', 'shutdown')  # set temporary shutdown
         State.do_reboot()
         alarm(2)
         return redirect(url_for('route_index'))
@@ -530,7 +530,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         ApiServer.last_msg = 'test ftp config entries\n'
         cfg = configparser.ConfigParser()
         try:
-            with open(f'{config.work_dir}/ftp-secret.ini', 'r', encoding="UTF-8") as config_file:
+            with open(f'{Config.work_dir()}/ftp-secret.ini', 'r', encoding="UTF-8") as config_file:
                 cfg.read_file(config_file)
         except IOError as err:
             ApiServer.last_msg += f'can not read ftp INI-File {err}\n'
@@ -542,7 +542,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 with ftplib.FTP(cfg.get('ftp', 'ftp-server', fallback=''),
                                 cfg.get('ftp', 'ftp-user', fallback=''),
                                 cfg.get('ftp', 'ftp-password', fallback='')) as session:
-                    with open(f'{config.work_dir}/scrabble.ini', 'rb') as file:
+                    with open(f'{Config.work_dir()}/scrabble.ini', 'rb') as file:
                         session.storbinary('STOR scrabble.ini', file)  # send the file
                     ApiServer.last_msg += "upload successful\n"
             except IOError as err:
@@ -591,8 +591,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         if State.current_state == 'START':
             watch = ScrabbleWatch()
             watch.display.show_ready(('Update...', 'pls wait'))
-            os.system(f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} |'
-                      f' tee -a {config.log_dir}/messages.log &')
+            os.system(f'{Config.src_dir()}/../../scripts/upgrade.sh {Config.system_gitbranch()} |'
+                      f' tee -a {Config.log_dir()}/messages.log &')
             return redirect(url_for('route_logs'))
         ApiServer.last_msg = 'not in State START'
         return redirect(url_for('route_index'))
@@ -601,7 +601,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @ app.route('/logentry')
     def logentry():
         """ returns last 100 log lines """
-        process = subprocess.run(['tail', '-100', f'{config.log_dir}/messages.log'], check=False,
+        process = subprocess.run(['tail', '-100', f'{Config.log_dir()}/messages.log'], check=False,
                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         log_out = process.stdout.decode()
         return log_out
@@ -621,8 +621,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             if State.op_event.is_set():
                 State.op_event.clear()
             _, (clock1, clock2), _ = ScrabbleWatch.status()
-            clock1 = config.max_time - clock1
-            clock2 = config.max_time - clock2
+            clock1 = Config.max_time() - clock1
+            clock2 = Config.max_time() - clock2
             jsonstr = State.game.json_str()
             logging.debug(f'send socket {State.current_state} clock1 {clock1} clock2: {clock2}')
             if (State.current_state in ['S0', 'S1', 'P0', 'P1']) and State.picture is not None:
@@ -649,7 +649,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         ApiServer.scrabscrap_version = version_info.stdout.decode()[:14]
-        if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
+        if os.path.exists(f'{Config.src_dir()}/static/webapp/index.html'):
             ApiServer.local_webapp = True
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
@@ -674,7 +674,7 @@ def main():
 
     from hardware.camera_thread import Camera
 
-    logging.config.fileConfig(fname=f'{config.work_dir}/log.conf',
+    logging.config.fileConfig(fname=f'{Config.work_dir()}/log.conf',
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})

@@ -18,7 +18,7 @@
 import configparser
 import logging
 
-from config import config
+from config import Config
 from util import Static
 
 
@@ -33,7 +33,7 @@ class UploadConfig(Static):
         if clean:
             cls.config = configparser.ConfigParser()
         try:
-            with open(f'{config.work_dir}/upload-secret.ini', 'r', encoding="UTF-8") as config_file:
+            with open(f'{Config.work_dir()}/upload-secret.ini', 'r', encoding="UTF-8") as config_file:
                 cls.config.read_file(config_file)
         except IOError as oops:
             logging.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
@@ -41,7 +41,7 @@ class UploadConfig(Static):
     @classmethod
     def store(cls) -> bool:
         """ save configuration to file """
-        with open(f'{config.work_dir}/upload-secret.ini', 'w', encoding="UTF-8") as config_file:
+        with open(f'{Config.work_dir()}/upload-secret.ini', 'w', encoding="UTF-8") as config_file:
             cls.config.write(config_file)
         return True
 

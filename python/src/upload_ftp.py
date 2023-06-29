@@ -18,7 +18,7 @@
 import ftplib
 import logging
 
-from config import config
+from config import Config
 from upload_config import UploadConfig
 from util import Static
 
@@ -34,11 +34,11 @@ class UploadFtp(Static):
             try:
                 logging.debug('ftp: start transfer move files')
                 with ftplib.FTP(url, UploadConfig.user(), UploadConfig.password()) as session:
-                    with open(f'{config.web_dir}/image-{move}.jpg', 'rb') as file:
+                    with open(f'{Config.web_dir()}/image-{move}.jpg', 'rb') as file:
                         session.storbinary(f'STOR image-{move}.jpg', file)  # send the file
-                    with open(f'{config.web_dir}/data-{move}.json', 'rb') as file:
+                    with open(f'{Config.web_dir()}/data-{move}.json', 'rb') as file:
                         session.storbinary(f'STOR data-{move}.json', file)  # send the file
-                    with open(f'{config.web_dir}/data-{move}.json', 'rb') as file:
+                    with open(f'{Config.web_dir()}/data-{move}.json', 'rb') as file:
                         session.storbinary('STOR status.json', file)  # send the file
                 logging.info('ftp: end of transfer')
                 return True
@@ -54,7 +54,7 @@ class UploadFtp(Static):
             try:
                 logging.debug('ftp: start transfer move files')
                 with ftplib.FTP(url, UploadConfig.user(), UploadConfig.password()) as session:
-                    with open(f'{config.web_dir}/status.json', 'rb') as file:
+                    with open(f'{Config.web_dir()}/status.json', 'rb') as file:
                         session.storbinary('STOR status.json', file)  # send the file
                 logging.info('ftp: end of transfer')
                 return True
@@ -70,7 +70,7 @@ class UploadFtp(Static):
             try:
                 logging.debug('ftp: start transfer zip file')
                 with ftplib.FTP(url, UploadConfig.user(), UploadConfig.password()) as session:
-                    with open(f'{config.web_dir}/{filename}.zip', 'rb') as file:
+                    with open(f'{Config.web_dir()}/{filename}.zip', 'rb') as file:
                         session.storbinary(f'STOR {filename}.zip', file)  # send the file
                 logging.info(f'ftp: end of upload {filename} to ftp-server')
                 return True

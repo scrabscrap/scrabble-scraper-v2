@@ -24,9 +24,9 @@ from signal import pause
 from threading import Event
 from time import sleep
 
-from config import config
+from config import Config
 
-logging.config.fileConfig(fname=f'{config.work_dir}/log.conf',
+logging.config.fileConfig(fname=f'{Config.work_dir()}/log.conf',
                           disable_existing_loggers=False,
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
@@ -64,10 +64,10 @@ def main() -> None:
         logging.debug(f'Alarm handler called with signal {signum}')
         _cleanup()
         signal.alarm(0)
-        if config.system_quit in ('reboot'):
+        if Config.system_quit() in ('reboot'):
             os.system('sudo shutdown -r now')
             sys.exit(0)
-        elif config.system_quit in ('shutdown'):
+        elif Config.system_quit() in ('shutdown'):
             os.system('sudo shutdown now')
             sys.exit(0)
 

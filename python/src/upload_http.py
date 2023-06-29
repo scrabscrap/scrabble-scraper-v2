@@ -20,7 +20,7 @@ import logging
 import requests
 from requests.auth import HTTPBasicAuth
 
-from config import config
+from config import Config
 from upload_config import UploadConfig
 from util import Static
 
@@ -38,9 +38,9 @@ class UploadHttp(Static):
                 logging.debug('http: start transfer move files')
                 data = {'upload': 'true'}
                 # R1732: consider-using-with
-                toupload = {f'image-{move}.jpg': open(f'{config.web_dir}/image-{move}.jpg', 'rb'),  # pylint: disable=R1732
-                            f'data-{move}.json': open(f'{config.web_dir}/data-{move}.json', 'rb'),  # pylint: disable=R1732
-                            'status.json': open(f'{config.web_dir}/status.json', 'rb')  # pylint: disable=R1732
+                toupload = {f'image-{move}.jpg': open(f'{Config.web_dir()}/image-{move}.jpg', 'rb'),  # pylint: disable=R1732
+                            f'data-{move}.json': open(f'{Config.web_dir()}/data-{move}.json', 'rb'),  # pylint: disable=R1732
+                            'status.json': open(f'{Config.web_dir()}/status.json', 'rb')  # pylint: disable=R1732
                             }
                 try:
                     if not url.startswith(('http://', 'https://')):
@@ -67,7 +67,7 @@ class UploadHttp(Static):
             try:
                 logging.debug('http: start transfer status.json files')
                 data = {'upload': 'true'}
-                toupload = {'status.json': open(f'{config.web_dir}/status.json', 'rb')}  # pylint: disable=consider-using-with
+                toupload = {'status.json': open(f'{Config.web_dir()}/status.json', 'rb')}  # pylint: disable=consider-using-with
 
                 try:
                     if not url.startswith(('http://', 'https://')):
@@ -95,7 +95,7 @@ class UploadHttp(Static):
                 logging.debug('http: start transfer zip file')
                 data = {'upload': 'true'}
                 # R1732: consider-using-with
-                toupload = {f'{filename}.zip': open(f'{config.web_dir}/{filename}.zip', 'rb')}  # pylint: disable=R1732
+                toupload = {f'{filename}.zip': open(f'{Config.web_dir()}/{filename}.zip', 'rb')}  # pylint: disable=R1732
                 try:
                     if not url.startswith(('http://', 'https://')):
                         url = 'https://' + url
