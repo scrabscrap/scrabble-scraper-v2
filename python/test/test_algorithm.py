@@ -36,8 +36,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def setUp(self):
         # logging.disable(logging.DEBUG)  # falls Info-Ausgaben erfolgen sollen
         # logging.disable(logging.ERROR)
-        display = Display()
-        watch = ScrabbleWatch(display)
+        watch = ScrabbleWatch(Display)
         State.watch = watch
         config.is_testing = True
         return super().setUp()
