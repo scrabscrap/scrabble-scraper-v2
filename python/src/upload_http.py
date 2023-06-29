@@ -22,15 +22,16 @@ from requests.auth import HTTPBasicAuth
 
 from config import config
 from upload_config import UploadConfig
+from util import Static
 
 
-class UploadHttp:
+class UploadHttp(Static):
     """ http implementation """
 
     @classmethod
     def upload_move(cls, move: int) -> bool:
         """ upload move to http server """
-        if (url := UploadConfig().server) is not None:
+        if (url := UploadConfig.server()) is not None:
             logging.debug(f'http: upload_move {move}')
 
             try:
@@ -45,7 +46,7 @@ class UploadHttp:
                     if not url.startswith(('http://', 'https://')):
                         url = 'https://' + url
                     ret = requests.post(url, data=data, files=toupload, timeout=50,
-                                        auth=HTTPBasicAuth(UploadConfig().user, UploadConfig().password))
+                                        auth=HTTPBasicAuth(UploadConfig.user(), UploadConfig.password()))
                     logging.debug(ret.text)
                     if ret.status_code == 200:
                         logging.info('http: end of transfer')
@@ -62,7 +63,7 @@ class UploadHttp:
     @classmethod
     def upload_status(cls) -> bool:
         """ upload status to http server """
-        if (url := UploadConfig().server) is not None:
+        if (url := UploadConfig.server()) is not None:
             try:
                 logging.debug('http: start transfer status.json files')
                 data = {'upload': 'true'}
@@ -72,7 +73,7 @@ class UploadHttp:
                     if not url.startswith(('http://', 'https://')):
                         url = 'https://' + url
                     ret = requests.post(url, data=data, files=toupload, timeout=50,
-                                        auth=HTTPBasicAuth(UploadConfig().user, UploadConfig().password))
+                                        auth=HTTPBasicAuth(UploadConfig.user(), UploadConfig.password()))
                     logging.debug(ret.text)
                     if ret.status_code == 200:
                         logging.info('http: end of transfer')
@@ -89,7 +90,7 @@ class UploadHttp:
     @classmethod
     def upload_game(cls, filename: str) -> bool:
         """ upload a zpped game file to http """
-        if (url := UploadConfig().server) is not None:
+        if (url := UploadConfig.server()) is not None:
             try:
                 logging.debug('http: start transfer zip file')
                 data = {'upload': 'true'}
@@ -99,7 +100,7 @@ class UploadHttp:
                     if not url.startswith(('http://', 'https://')):
                         url = 'https://' + url
                     ret = requests.post(url, data=data, files=toupload, timeout=100,
-                                        auth=HTTPBasicAuth(UploadConfig().user, UploadConfig().password))
+                                        auth=HTTPBasicAuth(UploadConfig.user(), UploadConfig.password()))
                     logging.debug(ret.text)
                     if ret.status_code == 200:
                         logging.info('http: end of transfer')
@@ -116,7 +117,7 @@ class UploadHttp:
     @classmethod
     def delete_files(cls) -> bool:
         """ delete files on http server """
-        if (url := UploadConfig().server) is not None:
+        if (url := UploadConfig.server()) is not None:
             try:
                 logging.debug('http: delete files')
                 data = {'delete': 'true'}
@@ -125,7 +126,7 @@ class UploadHttp:
                     if not url.startswith(('http://', 'https://')):
                         url = 'https://' + url
                     ret = requests.post(url, data=data, timeout=50, auth=HTTPBasicAuth(
-                        UploadConfig().user, UploadConfig().password))
+                        UploadConfig.user(), UploadConfig.password()))
                     logging.debug(ret.text)
                     if ret.status_code == 200:
                         logging.info('http: end of delete')

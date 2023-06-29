@@ -323,17 +323,17 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         if request.method == 'POST' and request.form.get('btnupload'):
             password = request.form.get('password')
             if (server := request.form.get('server')) and (user := request.form.get('user')):
-                UploadConfig().server = server
-                UploadConfig().user = user
+                UploadConfig.set_server(server)
+                UploadConfig.set_user(user)
                 if password is not None:
-                    UploadConfig().password = password
-                UploadConfig().store()
+                    UploadConfig.set_password(password)
+                UploadConfig.store()
                 ApiServer.last_msg = 'upload config saved'
         # fall through: request.method == 'GET':
         out = StringIO()
         config.config.write(out)
         return render_template('settings.html', apiserver=ApiServer, settingsinfo=out.getvalue(),
-                               server=UploadConfig().server, user=UploadConfig().user)
+                               server=UploadConfig.server(), user=UploadConfig.user())
 
     @ staticmethod
     @ app.route('/wifi', methods=['GET', 'POST'])

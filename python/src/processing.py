@@ -414,7 +414,7 @@ def start_of_game(game: Game):
     import os
     import util
 
-    pool.submit(Upload().delete_files)  # first delete images and data files on ftp server
+    pool.submit(Upload.delete_files)  # first delete images and data files on ftp server
     try:
         file_list = glob.glob(f'{config.web_dir}/image-*.jpg')
         for file_path in file_list:
@@ -680,7 +680,7 @@ def _store(game: Game, move_index: int, with_image: bool = True):  # pragma: no 
             with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
                 handle.write(game.json_str())
             if config.upload_server:
-                pool.submit(Upload().upload_status)                    # upload empty status
+                pool.submit(Upload.upload_status)                    # upload empty status
         except IOError as error:
             logging.error(f'error writing game move {move_index}: {error}')
     elif (-len(moves) <= move_index < len(moves)):
@@ -700,7 +700,7 @@ def _store(game: Game, move_index: int, with_image: bool = True):  # pragma: no 
         _development_recording(game, None, info=True)
 
         if config.upload_server:
-            pool.submit(Upload().upload_move, moves[move_index].move)
+            pool.submit(Upload.upload_move, moves[move_index].move)
 
 
 def store_zip_from_game(game: Game):  # pragma: no cover
@@ -731,7 +731,7 @@ def store_zip_from_game(game: Game):  # pragma: no cover
             if os.path.exists(f'{config.work_dir}/recording/gameRecording.log'):
                 _zip.write(f'{config.work_dir}/recording/gameRecording.log', arcname='recording/gameRecording.log')
     if config.upload_server:
-        Upload().upload_game(f'{zip_filename}')
+        Upload.upload_game(f'{zip_filename}')
 
 
 def _development_recording(game: Game, img: Optional[Mat], suffix: str = '', info: bool = False,

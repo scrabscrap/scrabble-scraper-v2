@@ -20,19 +20,20 @@ import logging
 
 from config import config
 from upload_config import UploadConfig
+from util import Static
 
 
-class UploadFtp:
+class UploadFtp(Static):
     """ ftp implementation """
 
     @classmethod
     def upload_move(cls, move: int) -> bool:
         """ upload move to ftp server """
-        if (url := UploadConfig().server) is not None:
+        if (url := UploadConfig.server()) is not None:
             logging.debug(f'ftp: upload_move {move}')
             try:
                 logging.debug('ftp: start transfer move files')
-                with ftplib.FTP(url, UploadConfig().user, UploadConfig().password) as session:
+                with ftplib.FTP(url, UploadConfig.user(), UploadConfig.password()) as session:
                     with open(f'{config.web_dir}/image-{move}.jpg', 'rb') as file:
                         session.storbinary(f'STOR image-{move}.jpg', file)  # send the file
                     with open(f'{config.web_dir}/data-{move}.json', 'rb') as file:
@@ -48,11 +49,11 @@ class UploadFtp:
     @classmethod
     def upload_status(cls) -> bool:
         """ upload status to ftp server """
-        if (url := UploadConfig().server) is not None:
+        if (url := UploadConfig.server()) is not None:
             logging.debug('ftp: upload status.json')
             try:
                 logging.debug('ftp: start transfer move files')
-                with ftplib.FTP(url, UploadConfig().user, UploadConfig().password) as session:
+                with ftplib.FTP(url, UploadConfig.user(), UploadConfig.password()) as session:
                     with open(f'{config.web_dir}/status.json', 'rb') as file:
                         session.storbinary('STOR status.json', file)  # send the file
                 logging.info('ftp: end of transfer')
@@ -64,11 +65,11 @@ class UploadFtp:
     @classmethod
     def upload_game(cls, filename: str) -> bool:
         """ upload a zpped game file to ftp """
-        if (url := UploadConfig().server) is not None:
+        if (url := UploadConfig.server()) is not None:
             logging.debug(f'ftp: upload_game {filename}')
             try:
                 logging.debug('ftp: start transfer zip file')
-                with ftplib.FTP(url, UploadConfig().user, UploadConfig().password) as session:
+                with ftplib.FTP(url, UploadConfig.user(), UploadConfig.password()) as session:
                     with open(f'{config.web_dir}/{filename}.zip', 'rb') as file:
                         session.storbinary(f'STOR {filename}.zip', file)  # send the file
                 logging.info(f'ftp: end of upload {filename} to ftp-server')
@@ -80,11 +81,11 @@ class UploadFtp:
     @classmethod
     def delete_files(cls) -> bool:
         """ delete files on ftp server """
-        if (url := UploadConfig().server) is not None:
+        if (url := UploadConfig.server()) is not None:
             logging.debug('ftp: delete files')
             try:
                 logging.debug('ftp: delete files')
-                with ftplib.FTP(url, UploadConfig().user, UploadConfig().password) as session:
+                with ftplib.FTP(url, UploadConfig.user(), UploadConfig.password()) as session:
                     files = session.nlst()
                     for filename in files:
                         for prefix in ['image', 'data']:

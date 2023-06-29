@@ -18,13 +18,14 @@
 from config import config
 from upload_ftp import UploadFtp
 from upload_http import UploadHttp
-from util import Singleton
+from util import Static
 
 
-class Upload(metaclass=Singleton):
+class Upload(Static):
     """ abstract implementation upload """
 
-    def upload_move(self, move: int) -> bool:
+    @classmethod
+    def upload_move(cls, move: int) -> bool:
         """ upload move to ftp server """
         if config.upload_server:
             if 'ftp' == config.upload_modus:
@@ -32,7 +33,8 @@ class Upload(metaclass=Singleton):
             return UploadHttp.upload_move(move=move)
         return False
 
-    def upload_status(self) -> bool:
+    @classmethod
+    def upload_status(cls) -> bool:
         """ upload status to ftp server """
         if config.upload_server:
             if 'ftp' == config.upload_modus:
@@ -40,7 +42,8 @@ class Upload(metaclass=Singleton):
             return UploadHttp.upload_status()
         return False
 
-    def upload_game(self, filename: str) -> bool:
+    @classmethod
+    def upload_game(cls, filename: str) -> bool:
         """ upload a zpped game file to ftp """
         if config.upload_server:
             if 'ftp' == config.upload_modus:
@@ -48,7 +51,8 @@ class Upload(metaclass=Singleton):
             return UploadHttp.upload_game(filename=filename)
         return False
 
-    def delete_files(self) -> bool:
+    @classmethod
+    def delete_files(cls) -> bool:
         """ delete files on ftp server """
         if config.upload_server:
             if 'ftp' == config.upload_modus:
