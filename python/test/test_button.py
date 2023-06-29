@@ -68,8 +68,7 @@ class ButtonTestCase(unittest.TestCase):
         self.pin_reset = Device.pin_factory.pin(ButtonEnum.RESET.value)
         self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
         # self.pin_config = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
-        display = Display()
-        watch = ScrabbleWatch(display)
+        watch = ScrabbleWatch(Display)
 
         cam = Camera(use_camera=CameraEnum.FILE)
         State.cam = cam

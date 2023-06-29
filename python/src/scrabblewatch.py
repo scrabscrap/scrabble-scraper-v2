@@ -42,7 +42,7 @@ class ScrabbleWatch(metaclass=Singleton):
         if _display is not None:
             self.display = _display
         else:
-            self.display = PlayerDisplay()  # default
+            self.display = PlayerDisplay  # default
 
     def start(self, player: int) -> None:
         """start timer"""

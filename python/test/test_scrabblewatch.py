@@ -54,8 +54,7 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         """test: timer"""
         display_pause = 0.1
 
-        display = Display()
-        watch = ScrabbleWatch(display)
+        watch = ScrabbleWatch(Display)
         logging.info('without start')
         watch.display.show_boot()
         time.sleep(display_pause)
