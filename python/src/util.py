@@ -34,17 +34,6 @@ class Static:  # pylint: disable=too-few-public-methods
         raise TypeError('Static classes cannot be instantiated')
 
 
-class Singleton(type):
-    """ Metaclass that creates a Singleton base type when called. """
-    _instances = {}  # type: ignore # storage for singleton classes
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls)\
-                .__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
 def runtime_measure(func):  # pragma: no cover # currently not used
     """perform runtime measure"""
 
