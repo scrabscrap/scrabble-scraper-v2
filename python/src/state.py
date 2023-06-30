@@ -24,9 +24,9 @@ from signal import alarm
 from time import sleep
 from typing import Callable, Optional, Tuple
 
+import hardware.camera_thread as cam
 from config import Config
 from hardware.button import Button
-from hardware.camera_thread import Camera
 from hardware.led import LED, LEDEnum
 from processing import (end_of_game, invalid_challenge, move, start_of_game,
                         store_status, store_zip_from_game, valid_challenge)
@@ -59,7 +59,6 @@ class State(Static):
     """State machine of the scrabble game"""
     current_state: str = START
     button_handler = Button
-    cam: Optional[Camera] = None
     last_submit: Optional[Future] = None  # last submit to thread pool; waiting for processing of the last move
     game: Game = Game(None)
     picture = None
@@ -87,7 +86,7 @@ class State(Static):
         logging.debug(f'{cls.game.nicknames}')
         ScrabbleWatch.display.show_ready(cls.game.nicknames)
         ScrabbleWatch.display.set_game(cls.game)
-        cls.picture = cls.cam.read(peek=True) if cls.cam else None  # type: ignore
+        cls.picture = cam.read(peek=True)
         cls.current_state = START
         return cls.current_state
 
@@ -116,7 +115,7 @@ class State(Static):
         _, (time0, time1), _ = ScrabbleWatch.status()
         ScrabbleWatch.start(next_player)
         LED.switch_on(next_led)  # turn on next player LED
-        cls.picture = cls.cam.read()  # type: ignore
+        cls.picture = cam.read()  # type: ignore
         cls.last_submit = pool.submit(move, cls.last_submit, cls.game, cls.picture, player, (time0, time1), cls.op_event)
         return next_state
 

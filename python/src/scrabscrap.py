@@ -22,7 +22,6 @@ import signal
 import sys
 from signal import pause
 from threading import Event
-from time import sleep
 
 from config import Config
 
@@ -32,8 +31,8 @@ logging.config.fileConfig(fname=f'{Config.work_dir()}/log.conf',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
 
+import hardware.camera_thread as cam
 from api_server_thread import ApiServer
-from hardware.camera_thread import Camera
 from scrabblewatch import ScrabbleWatch
 from state import State
 from threadpool import pool
@@ -54,8 +53,7 @@ def main() -> None:
             cleanup_done = True
             api.stop_server()
             timer.cancel()
-            if cam:
-                cam.cancel()
+            cam.cancel()
             pool.shutdown(cancel_futures=True)
 
     def signal_alarm(signum, _) -> None:
@@ -83,21 +81,16 @@ def main() -> None:
     timer = RepeatedTimer(1, ScrabbleWatch.tick)
     _ = pool.submit(timer.tick, Event())
 
-    # create cam
-    cam = None
-    sleep(2)  # wait for camera
+    cam.init()
     try:
-        cam = Camera()
         _ = pool.submit(cam.update, Event())
     except Exception as oops:  # type: ignore # pylint: disable=broad-exception-caught
         logging.exception(f'can not open camera {oops}')
 
     # start api server
-    api = ApiServer(cam=cam)
+    api = ApiServer()
     _ = pool.submit(api.start_server)
 
-    # State-Machine
-    State.cam = cam
     # init State Machine
     State.init()
 
