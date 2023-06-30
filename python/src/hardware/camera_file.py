@@ -17,55 +17,44 @@
 """
 import logging
 import os.path
-from concurrent.futures import Future
 from threading import Event
+from typing import Optional
 
 import cv2
 import numpy as np
+
 from config import Config
-from util import Singleton
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
+_resolution = (Config.video_width(), Config.video_height())
+formatter: str = Config.simulate_path()
+cnt: int = 1
 
-class CameraFile(metaclass=Singleton):  # type: ignore
-    """implement a camera simulation with images files"""
 
-    def __init__(self, formatter=None, resolution=(Config.video_width(), Config.video_height())):
-        logging.info('### init MockCamera')
-        self.frame = []
-        self.resolution = resolution
-        if Config.video_rotate():
-            self.rotation = 180
-        self.event = None
-        self.cnt = 1
-        if formatter is not None:
-            self.formatter = formatter
-        else:
-            self.formatter = Config.simulate_path()
-        self.img = cv2.imread(self.formatter.format(self.cnt))
+def init(new_formatter: Optional[str] = None, resolution=(Config.video_width(), Config.video_height())):
+    """init/config cam"""
+    global _resolution, formatter  # pylint: disable=global-statement
+    logging.info('### init MockCamera')
+    _resolution = resolution
+    if new_formatter is not None:
+        formatter = new_formatter
+    else:
+        formatter = Config.simulate_path()
 
-    def read(self, peek=False) -> Mat:
-        """read next picture (no counter increment if peek=True)"""
-        self.img = cv2.imread(self.formatter.format(self.cnt))
-        logging.debug(f"read {self.cnt}: {self.formatter.format(self.cnt)} with peek={peek}")
-        if not peek:
-            self.cnt += 1 if os.path.isfile(
-                self.formatter.format(self.cnt + 1)) else 0
-        return cv2.resize(self.img, self.resolution)
 
-    def update(self, event: Event) -> None:
-        """update to next picture on thread event"""
-        self.event = event
-        while event.wait(0.05):
-            pass
-        event.clear()
+def read(peek=False) -> Mat:
+    """read next picture (no counter increment if peek=True)"""
+    global cnt  # pylint: disable=global-statement
+    logging.debug(f"read {cnt}: {formatter.format(cnt)} with peek={peek}")
+    img = cv2.imread(formatter.format(cnt))
+    if not peek:
+        cnt += 1 if os.path.isfile(formatter.format(cnt + 1)) else 0
+    return cv2.resize(img, _resolution)
 
-    def cancel(self) -> None:
-        """end of video thread"""
-        if self.event is not None:
-            self.event.set()
 
-    def done(self, result: Future) -> None:
-        """signal end of video thread"""
-        logging.info(f'done {result}')
+def update(event: Event) -> None:
+    """update to next picture on thread event"""
+    while event.wait(0.05):
+        pass
+    event.clear()

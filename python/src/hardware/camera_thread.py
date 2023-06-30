@@ -15,18 +15,17 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-import platform
-from concurrent.futures import Future
 from enum import Enum
 from threading import Event
-from typing import Union
+from typing import Optional
 
 import numpy as np
-from config import Config
-from util import Singleton
 
-from .camera_file import CameraFile
-from .camera_opencv import CameraOpenCV
+import hardware.camera_file as cam_file
+import hardware.camera_opencv as cam_opencv
+import hardware.camera_rpi as cam_rpi
+from config import Config
+from util import trace
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
@@ -39,35 +38,69 @@ class CameraEnum(Enum):
     FILE = 4
 
 
-class Camera(metaclass=Singleton):  # type: ignore
-    """implement a camera thread as proxy"""
+_camera: CameraEnum = CameraEnum.PICAMERA
+_is_init: bool = False
+_event: Optional[Event] = None
 
-    def __init__(self, src: int = 0, use_camera: CameraEnum = CameraEnum.AUTO,
-                 resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps(), **kwargs):
-        machine = platform.machine()
-        if (use_camera == CameraEnum.PICAMERA) or (use_camera == CameraEnum.AUTO and machine in ('armv7l', 'armv6l')):
-            from .camera_rpi import CameraRPI
-            self.stream: Union[CameraRPI, CameraOpenCV, CameraFile] = CameraRPI(
-                resolution=resolution, framerate=framerate, **kwargs)
-        elif (use_camera == CameraEnum.OPENCV) or (use_camera == CameraEnum.AUTO and machine in ('aarch64')):
-            self.stream = CameraOpenCV(src=src, resolution=resolution, framerate=framerate)
-        elif use_camera in (CameraEnum.FILE, CameraEnum.AUTO):
-            self.stream = CameraFile()
 
-    def update(self, event: Event) -> None:
-        """update to next picture on thread event"""
-        self.stream.update(event)
+@trace
+def init(src: int = 0, use_camera: CameraEnum = CameraEnum.PICAMERA,  # pylint: disable=unused-argument
+         resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps(), **kwargs):
+    """init/config cam"""
+    global _is_init, _camera  # pylint: disable=global-statement
+    _camera = use_camera
+    if use_camera == CameraEnum.PICAMERA:
+        cam_rpi.init(resolution=resolution, framerate=framerate)
+    elif use_camera == CameraEnum.FILE:
+        cam_file.init(new_formatter=None, resolution=resolution)
+    elif use_camera == CameraEnum.OPENCV:
+        cam_opencv.init(src=src, resolution=resolution, framerate=framerate)
+    else:
+        cam_file.init(new_formatter=None, resolution=resolution)
+        _camera = CameraEnum.FILE
+    _is_init = True
 
-    def read(self, peek=False) -> Mat:
-        """read next picture (no counter increment if peek=True when using CameraFile)"""
-        if isinstance(self.stream, CameraFile):
-            return self.stream.read(peek=peek)
-        return self.stream.read()
 
-    def cancel(self) -> None:
-        """end of video thread"""
-        self.stream.cancel()
+def switch_cam(cam: CameraEnum) -> None:
+    """select new cam"""
+    global _camera  # pylint: disable=global-statement
+    if cam != _camera:
+        cancel()
+    _camera = cam
+    init()
 
-    def done(self, result: Future) -> None:
-        """signal end of video thread"""
-        self.stream.done(result)
+
+@trace
+def update(event: Event) -> None:
+    """update to next picture on thread event"""
+    global _event  # pylint: disable=global-statement
+    if not _is_init:
+        init()
+    _event = event
+    if _camera == CameraEnum.PICAMERA:
+        cam_rpi.update(event)
+    elif _camera == CameraEnum.FILE:
+        cam_file.update(event)
+    elif _camera == CameraEnum.OPENCV:
+        cam_opencv.update(event)
+    else:
+        cam_file.update(event)
+
+
+@trace
+def read(peek=False) -> Mat:
+    """read next picture (no counter increment if peek=True when using CameraFile)"""
+    if _camera == CameraEnum.PICAMERA:
+        return cam_rpi.read()
+    if _camera == CameraEnum.FILE:
+        return cam_file.read(peek=peek)
+    if _camera == CameraEnum.OPENCV:
+        return cam_opencv.read()
+    return cam_file.read()
+
+
+@trace
+def cancel() -> None:
+    """end of video thread"""
+    if _event is not None:
+        _event.set()

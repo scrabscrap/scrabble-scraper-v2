@@ -24,7 +24,9 @@ import unittest
 from time import sleep
 import glob
 
-from hardware.camera_thread import Camera, CameraEnum
+import hardware.camera_thread as cam
+import hardware.camera_file as cam_file
+from hardware.camera_thread import CameraEnum
 from config import Config
 
 TEST_DIR = os.path.dirname(__file__)
@@ -71,8 +73,7 @@ class GameRunnerTestCase(unittest.TestCase):
 
         files = glob.glob(f'{TEST_DIR}/*/game.ini') if FILES is None else FILES
         ScrabbleWatch.display = Display
-        cam = Camera(use_camera=CameraEnum.FILE)
-        State.cam = cam
+        cam.init(use_camera=CameraEnum.FILE)
 
         for file in files:
             # read *.ini
@@ -98,9 +99,8 @@ class GameRunnerTestCase(unittest.TestCase):
             self.config_setter('video', 'warp_coordinates', coordstr)
             logging.info(f'{Config.video_warp()}: {Config.video_warp_coordinates()}')
             self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom'))
-            cam.stream.formatter = formatter  # type: ignore
-            cam.stream.cnt = 1  # type: ignore
-            State.cam = cam
+            cam_file.formatter = formatter  # type: ignore
+            cam_file.cnt = 1  # type: ignore
             State.do_new_game()
             State.game.nicknames = (name1, name2)
 
@@ -113,7 +113,7 @@ class GameRunnerTestCase(unittest.TestCase):
                     csv_reader = csv.DictReader(csv_file, skipinitialspace=True)
                     for row in csv_reader:
                         logging.info(f'TEST: {row}')
-                        cam.stream.cnt = int(row["Move"])  # type: ignore
+                        cam_file.cnt = int(row["Move"])  # type: ignore
                         State.press_button(row["Button"].upper())
                         if State.last_submit is not None:
                             while not State.last_submit.done():  # type: ignore

@@ -18,65 +18,67 @@
 import atexit
 import logging
 import sys
-from concurrent.futures import Future
 from threading import Event
 from time import sleep
-from typing import Optional
+from typing import Any
 
 import cv2
 import numpy as np
+
 from config import Config
-from util import Singleton
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
+_frame: np.ndarray = np.array([])
+_stream: Any = None
+_resolution = (Config.video_width(), Config.video_height())
+_framerate = Config.video_fps()
 
-class CameraOpenCV(metaclass=Singleton):  # type: ignore
-    """implement a camera with OpenCV"""
 
-    def __init__(self, src: int = 0, resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps()):
-        # initialize the video camera stream and read the first frame
-        logging.info('### init OpenCV VideoCapture')
-        self.stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
-        # self.stream = cv2.VideoCapture(-1)
-        if not self.stream.isOpened():
-            logging.error('can not open VideoCapture')
-            sys.exit()
-        self.event: Optional[Event] = None
-        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
-        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
-        self.stream.set(cv2.CAP_PROP_FPS, framerate)
-        sleep(1)
-        _, self.frame = self.stream.read()
-        atexit.register(self._atexit)
+def init(src: int = 0, resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps()):
+    """init/config cam"""
+    global _stream, _resolution, _framerate  # pylint: disable=global-statement
+    logging.info('### init OpenCV VideoCapture')
+    _resolution = resolution
+    _framerate = framerate
+    _stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
+    # self.stream = cv2.VideoCapture(-1)
+    if not _stream.isOpened():
+        logging.error('can not open VideoCapture')
+        sys.exit()
+    _stream.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
+    _stream.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
+    _stream.set(cv2.CAP_PROP_FPS, framerate)
+    sleep(1)
+    atexit.register(_atexit)
 
-    def _atexit(self) -> None:
-        self.stream.release()
 
-    def update(self, event: Event) -> None:
-        """update to next picture on thread event"""
-        self.event = event
-        # keep looping infinitely until the thread is stopped
-        while True:
-            valid, self.frame = self.stream.read()
-            if not valid:
-                logging.warning('frame not valid')
-            if Config.video_rotate():
-                self.frame = cv2.rotate(self.frame, cv2.ROTATE_180)
-            if event.is_set():
-                break
-            sleep(0.06)
-        event.clear()
+def _atexit() -> None:
+    global _stream, _frame  # pylint: disable=global-statement
+    _stream.release()  # type: ignore
+    _frame = np.array([])
+    _stream = None
 
-    def read(self) -> Mat:
-        """read next picture"""
-        return self.frame
 
-    def cancel(self) -> None:
-        """end of video thread"""
-        if self.event is not None:
-            self.event.set()
+def update(event: Event) -> None:
+    """update to next picture on thread event"""
+    global _frame  # pylint: disable=global-statement
+    if _stream is None:
+        init()
+    # keep looping infinitely until the thread is stopped
+    while True:
+        valid, _frame = _stream.read()  # type: ignore
+        if not valid:
+            logging.warning('frame not valid')
+        if Config.video_rotate():
+            _frame = cv2.rotate(_frame, cv2.ROTATE_180)
+        if event.is_set():
+            break
+        sleep(0.06)
+    _atexit()
+    event.clear()
 
-    def done(self, result: Future) -> None:
-        """signal end of video thread"""
-        logging.info(f'cam done {result}')
+
+def read() -> Mat:
+    """read next picture"""
+    return _frame  # type: ignore

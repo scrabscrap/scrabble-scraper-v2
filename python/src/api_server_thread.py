@@ -35,6 +35,7 @@ from flask import (Flask, abort, redirect, render_template, request, send_file,
 from flask_sock import Sock
 from werkzeug.serving import make_server
 
+import hardware.camera_thread as cam
 from config import Config
 from game_board.board import overlay_grid
 from processing import get_last_warp, warp_image
@@ -50,15 +51,10 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     sock = Sock(app)
     last_msg = ''
     prev_msg = ''
-    cam = None
     flask_shutdown_blocked = False
     scrabscrap_version = ''
     simulator = False
     local_webapp = False
-
-    def __init__(self, cam=None) -> None:
-        if cam:
-            ApiServer.cam = cam
 
     @staticmethod
     def _clear_message():
@@ -139,8 +135,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             Config.config.set('video', 'warp_coordinates', np.array2string(
                 rect, formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=','))
         warp_coord_cnf = str(Config.video_warp_coordinates())
-        if ApiServer.cam is not None:
-            img = ApiServer.cam.read()
+        img = cam.read()
+        if img is not None:
             _, im_buf_arr = cv2.imencode(".jpg", img)
             png_output = base64.b64encode(im_buf_arr)
             warped = warp_image(img)
@@ -672,17 +668,15 @@ def main():
     # for testing
     from threading import Event
 
-    from hardware.camera_thread import Camera
-
     logging.config.fileConfig(fname=f'{Config.work_dir()}/log.conf',
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
-    cam = Camera()
+    cam.init()
     _ = pool.submit(cam.update, Event())
 
-    api = ApiServer(cam=cam)
+    api = ApiServer()
     pool.submit(api.start_server)
 
     sleep(240)  # stop after 2 min

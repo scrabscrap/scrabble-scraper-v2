@@ -28,8 +28,11 @@ from flask import redirect, render_template, request, url_for
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
+import hardware.camera_file as cam_file
+import hardware.camera_thread as cam
 from api_server_thread import ApiServer
 from config import Config
+from hardware.camera_thread import CameraEnum
 from hardware.led import LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
@@ -81,37 +84,37 @@ def yellow():
 def reset():
     """simulate press reset"""
     State.press_button('RESET')
-    ApiServer.cam.stream.cnt = 1  # type: ignore
+    cam_file.cnt = 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_first():
     """skip to first image"""
-    ApiServer.cam.stream.cnt = 1  # type: ignore
+    cam_file.cnt = 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_prev():
     """skip to previous image"""
     logging.debug('prev')
-    if ApiServer.cam.stream.cnt > 1:  # type: ignore
-        ApiServer.cam.stream.cnt -= 1  # type: ignore
+    if cam_file.cnt > 1:  # type: ignore
+        cam_file.cnt -= 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_next():
     """skip to next image"""
     logging.debug('next')
-    ApiServer.cam.stream.cnt += 1 if os.path.isfile(  # type: ignore
-        ApiServer.cam.stream.formatter.format(ApiServer.cam.stream.cnt + 1)) else 0  # type: ignore
+    cam_file.cnt += 1 if os.path.isfile(  # type: ignore
+        cam_file.formatter.format(cam_file.cnt + 1)) else 0  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_last():
     """skip to last image"""
     logging.debug('last')
-    while os.path.isfile(ApiServer.cam.stream.formatter.format(ApiServer.cam.stream.cnt + 1)):  # type: ignore
-        ApiServer.cam.stream.cnt += 1  # type: ignore
+    while os.path.isfile(cam_file.formatter.format(cam_file.cnt + 1)):  # type: ignore
+        cam_file.cnt += 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
@@ -122,8 +125,8 @@ def open_folder():
     ini_file = os.path.abspath(f'{Config.src_dir()}/../test/{folder}/scrabble.ini')
     if os.path.exists(ini_file):
         Config.reload(ini_file=ini_file)
-        ApiServer.cam.stream.cnt = 1  # type: ignore
-        ApiServer.cam.stream.formatter = Config.simulate_path()  # type: ignore
+        cam_file.cnt = 1  # type: ignore
+        cam_file.formatter = Config.simulate_path()  # type: ignore
     else:
         logging.warning(f'INI File not found / invalid: {ini_file}')
     return redirect(url_for('simulator'))
@@ -149,7 +152,7 @@ def simulator() -> str:
         png_current = urllib.parse.quote(base64.b64encode(pic_buf_arr))
         board = f'Score: {game.moves[-1].score} / {game.moves[-1].points}\n{game.board_str()}'
     # get next picture
-    img = ApiServer.cam.read(peek=True)  # type: ignore
+    img = cam_file.read(peek=True)  # type: ignore
     _, pic_buf_arr = cv2.imencode(".jpg", img)
     png_next = urllib.parse.quote(base64.b64encode(pic_buf_arr))
     # show log
@@ -172,7 +175,6 @@ def main():
     from threading import Event
 
     from display import Display
-    from hardware.camera_thread import Camera, CameraEnum
 
     logging.config.fileConfig(fname=Config.work_dir() + '/log.conf',
                               disable_existing_loggers=False,
@@ -184,7 +186,7 @@ def main():
     log.setLevel(logging.ERROR)
 
     # set Mock-Camera
-    cam = Camera(use_camera=CameraEnum.FILE)
+    cam.init(use_camera=CameraEnum.FILE)
     _ = pool.submit(cam.update, Event())
 
     # set Watch
@@ -193,7 +195,6 @@ def main():
     _ = pool.submit(timer.tick, Event())
 
     api = ApiServer()
-    ApiServer.cam = cam  # type: ignore
 
     api.app.add_url_rule('/simulator/red', 'red', red)
     api.app.add_url_rule('/simulator/green', 'green', green)
@@ -209,8 +210,6 @@ def main():
     api.app.add_url_rule('/simulator', 'simulator', simulator)
 
     # start State-Machine
-    State.cam = cam
-
     State.do_ready()
 
     api.start_server(port=5050, simulator=True)

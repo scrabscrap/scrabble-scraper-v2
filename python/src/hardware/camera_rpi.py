@@ -17,63 +17,66 @@
 """
 import atexit
 import logging
-from concurrent.futures import Future
 from threading import Event
 from time import sleep
 
 import numpy as np
-from picamera import PiCamera  # type: ignore
-from picamera.array import PiRGBArray
 
 from config import Config
-from util import Singleton
+
+try:
+    from picamera import PiCamera  # type: ignore
+    from picamera.array import PiRGBArray  # type: ignore
+except ImportError:
+    print('no PICamera available')
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
+_frame: np.ndarray = np.array([])
+_camera = None  # pylint: disable=invalid-name
+_raw_capture = None  # pylint: disable=invalid-name
+_stream = None  # pylint: disable=invalid-name
 
-class CameraRPI(metaclass=Singleton):  # type: ignore
-    """implement a camera with rpi native"""
 
-    def __init__(self, resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps()):
-        logging.info('### init PiCamera')
-        self.frame = []
-        self.camera = PiCamera()
-        self.camera.resolution = resolution
-        self.camera.framerate = framerate
-        self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
-        sleep(1)  # warmup camera
-        self.stream = self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True)
-        if Config.video_rotate():
-            self.camera.rotation = 180
-        self.event = None
-        atexit.register(self._atexit)
+def init(resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps()):
+    """init/config cam"""
+    global _frame, _camera, _raw_capture, _stream  # pylint: disable=global-statement
+    logging.info('### init PiCamera')
+    _frame = np.array([])
+    _camera = PiCamera(resolution=resolution, framerate=framerate)
+    if Config.video_rotate():
+        _camera.rotation = 180
+    _raw_capture = PiRGBArray(_camera, size=_camera.resolution)
+    sleep(1)  # warmup camera
+    _stream = _camera.capture_continuous(_raw_capture, format="bgr", use_video_port=True)
+    atexit.register(_atexit)
 
-    def _atexit(self) -> None:
-        logging.info('camera close')
-        self.stream.close()  # type: ignore
-        self.raw_capture.close()
-        self.camera.close()
 
-    def read(self) -> Mat:
-        """read next picture"""
-        return self.frame  # type: ignore
+def _atexit() -> None:
+    global _stream, _frame  # pylint: disable=global-statement
+    logging.info('camera close')
+    _stream.close()  # type: ignore
+    _raw_capture.close()  # type: ignore
+    _camera.close()  # type: ignore
+    _frame = np.array([])
+    _stream = None
 
-    def update(self, event: Event) -> None:
-        """update to next picture on thread event"""
-        self.event = event
-        for images in self.stream:
-            self.frame = images.array  # type: ignore
-            self.raw_capture.truncate(0)
-            if event.is_set():
-                break
-            sleep(0.05)  # reduce cpu usage
-        event.clear()
 
-    def cancel(self) -> None:
-        """end of video thread"""
-        if self.event is not None:
-            self.event.set()
+def read() -> Mat:
+    """read next picture"""
+    return _frame  # type: ignore
 
-    def done(self, result: Future) -> None:
-        """signal end of video thread"""
-        logging.info(f'cam done {result}')
+
+def update(event: Event) -> None:
+    """update to next picture on thread event"""
+    global _frame  # pylint: disable=global-statement
+    if _stream is None:
+        init()
+    for images in _stream:  # type: ignore
+        _frame = images.array  # type: ignore
+        _raw_capture.truncate(0)  # type: ignore
+        if event.is_set():
+            break
+        sleep(0.05)  # reduce cpu usage
+    _atexit()
+    event.clear()
