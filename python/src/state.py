@@ -323,33 +323,34 @@ class State(Static):
         pass
 
     # START, pause => not supported
+    # pylint: disable=unnecessary-lambda
     state: dict[tuple[str, str], Callable] = {
         (START, GREEN): lambda: State.do_start(1),
         (START, RED): lambda: State.do_start(0),
-        (START, RESET): do_new_game,
-        (START, REBOOT): do_reboot,
-        (START, AP): do_accesspoint,
+        (START, RESET): lambda: State.do_new_game(),
+        (START, REBOOT): lambda: State.do_reboot(),
+        (START, AP): lambda: State.do_accesspoint(),
         (S0, GREEN): lambda: State.do_move(0),
         (S0, YELLOW): lambda: State.do_pause(0),
         (P0, RED): lambda: State.do_resume(0),
         (P0, YELLOW): lambda: State.do_resume(0),
         (P0, DOUBT0): lambda: State.do_valid_challenge(0),
         (P0, DOUBT1): lambda: State.do_invalid_challenge(0),
-        (P0, RESET): do_end_of_game,
-        (P0, REBOOT): do_reboot,
-        (P0, AP): do_accesspoint,
+        (P0, RESET): lambda: State.do_end_of_game(),
+        (P0, REBOOT): lambda: State.do_reboot(),
+        (P0, AP): lambda: State.do_accesspoint(),
         (S1, RED): lambda: State.do_move(1),
         (S1, YELLOW): lambda: State.do_pause(1),
         (P1, GREEN): lambda: State.do_resume(1),
         (P1, YELLOW): lambda: State.do_resume(1),
         (P1, DOUBT1): lambda: State.do_valid_challenge(1),
         (P1, DOUBT0): lambda: State.do_invalid_challenge(1),
-        (P1, RESET): do_end_of_game,
-        (P1, REBOOT): do_reboot,
-        (P1, AP): do_accesspoint,
-        (EOG, GREEN): do_new_game,
-        (EOG, RED): do_new_game,
-        (EOG, YELLOW): do_new_game,
-        (EOG, REBOOT): do_reboot,
-        (EOG, AP): do_accesspoint
+        (P1, RESET): lambda: State.do_end_of_game(),
+        (P1, REBOOT): lambda: State.do_reboot(),
+        (P1, AP): lambda: State.do_accesspoint(),
+        (EOG, GREEN): lambda: State.do_new_game(),
+        (EOG, RED): lambda: State.do_new_game(),
+        (EOG, YELLOW): lambda: State.do_new_game(),
+        (EOG, REBOOT): lambda: State.do_reboot(),
+        (EOG, AP): lambda: State.do_accesspoint()
     }
