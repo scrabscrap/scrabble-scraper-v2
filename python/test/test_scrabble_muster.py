@@ -132,18 +132,21 @@ class ScrabbleMusterTestCase(unittest.TestCase):
                  TEST_DIR + "/board-tests/err-16.png",
                  TEST_DIR + "/board-tests/err-17.png",
                  TEST_DIR + "/board-tests/err-18.png",
+                 TEST_DIR + "/board-tests/err-19.png",
+                 TEST_DIR + "/board-tests/err-20.png",
                  TEST_DIR + "/board-tests/err-21.png",
                  TEST_DIR + "/board-tests/err-22.png",
-                 TEST_DIR + "/board-tests/err-24.png"
+                 TEST_DIR + "/board-tests/err-23.png",
+                 TEST_DIR + "/board-tests/err-24.png",
                  ]
+        # files = [
+        #     # to dark: TEST_DIR + "/board-tests/err-11.png",
+        # ]
 
         # error
-        # TEST_DIR + "/board-tests/err-11.png",
-        # TEST_DIR + "/board-tests/err-19.png",
-        # TEST_DIR + "/board-tests/err-20.png",
-        # TEST_DIR + "/board-tests/err-23.png",
         for file in files:
             img = cv2.imread(file)
+            logging.debug(f'file: {file}')
             warped = warp_image(img)
             warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
             _, tiles_candidates = filter_image(warped)

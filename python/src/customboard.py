@@ -47,12 +47,12 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 green_lower = np.array([20, 75, 35])
 green_upper = np.array([100, 255, 255])
-blue_lower = np.array([90, 80, 50])
-blue_upper = np.array([150, 255, 255])
-red_lower = np.array([0, 80, 50])
-red_upper = np.array([10, 255, 255])
-red_lower1 = np.array([120, 50, 50])
-red_upper1 = np.array([180, 255, 255])
+# blue_lower = np.array([90, 80, 50])
+# blue_upper = np.array([150, 255, 255])
+# red_lower = np.array([0, 80, 50])
+# red_upper = np.array([10, 255, 255])
+# red_lower1 = np.array([120, 50, 50])
+# red_upper1 = np.array([180, 255, 255])
 
 
 class CustomBoard(GameBoard):
@@ -84,23 +84,17 @@ class CustomBoard(GameBoard):
     def _is_tile(coord: tuple[int, int], color: tuple[int, int, int]) -> bool:
         if color[1] < 60:  # this is a grey image
             return True
-        if color[1] < 90:  # and color[2] > 165:  # maybe a grey image
+        if color[1] < 100:  # and color[2] > 165:  # maybe a grey image
             # return True
             if coord in TRIPLE_WORDS or coord in DOUBLE_WORDS:  # check for red
-                if (red_lower[0] <= color[0] <= red_upper[0]  # pylint: disable=too-many-boolean-expressions
-                    and red_lower[1] <= color[1]                                                  # noqa: W503
-                    and red_lower[2] <= color[2]) or (red_lower1[0] <= color[0] <= red_upper1[0]  # noqa: W503
-                        and red_lower1[1] <= color[1] and red_lower1[2] <= color[2]):             # noqa: W503, E128
+                if color[0] <= 5 or color[0] >= 160:
                     return False
             elif coord in TRIPLE_LETTER or coord in DOUBLE_LETTER:  # check for blue
-                if blue_lower[0] <= color[0] <= blue_upper[0] \
-                        and blue_lower[1] <= color[1] \
-                        and blue_lower[2] <= color[2]:
+                if 95 < color[0] < 110:
                     return False
             else:  # check for green
                 if green_lower[0] <= color[0] <= green_upper[0] \
-                        and green_lower[1] <= color[1] \
-                        and green_lower[2] <= color[2]:
+                        and green_lower[1] <= color[1]:
                     return False
             return True
         return False
@@ -116,6 +110,7 @@ class CustomBoard(GameBoard):
             px_row = int(offset + (col * grid_w))
             segment = img[px_col + 2:px_col + grid_h - 2, px_row + 2:px_row + grid_w - 2]
             info = img[px_col + 1:px_col + grid_h - 1, px_row + 1:px_row + grid_w - 1]
+            segment[:, :, 2] = 255  # ignore value for kmeas
             data = segment.reshape((-1, 3))
             data = np.float32(data)  # type: ignore
 
@@ -128,7 +123,7 @@ class CustomBoard(GameBoard):
 
             if CustomBoard._is_tile((col, row), color):
                 set_of_tiles.add((col, row))
-            else:
+            elif len(counts) > 2:
                 i = int(np.argmax(counts))
                 for i in range(0, k):
                     if (i != np.argmax(counts)) \
