@@ -342,11 +342,11 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         event.set()
 
     if logging.getLogger('root').isEnabledFor(logging.DEBUG):
-        msg = ''
-        msg = f'game status: {game.json_str()}\n\nscores {game.moves[-1].score}\n'
+        msg = '\n'
+        msg += f'{game.board_str()}\n'
         for i in range(0, len(game.moves)):  # pylint: disable=consider-using-enumerate
             msg += f'{game.moves[i].gcg_str(game.nicknames)}\n'
-        msg += f'{game.board_str()}'
+        msg += f'\ngame status: {game.json_str()}\nscores {game.moves[-1].score}'
         logging.debug(msg)
     _development_recording(game, img, suffix='~original')
     _development_recording(game, warped, suffix='~warped')
@@ -446,7 +446,7 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
         game.add_last_rack(points, rackstr)
         if event and not event.is_set():
             event.set()
-        logging.debug(f'last rack scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
+        logging.debug(f'last rack scores {game.moves[-1].score}\n{game.board_str()}\n{game.json_str()}')
         if Config.development_recording():
             logging.info(game.dev_str())
 
