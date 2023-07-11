@@ -15,6 +15,7 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+import pprint
 import logging
 from concurrent import futures
 from itertools import product
@@ -45,19 +46,46 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 # 19mm x 19mm
 
 
-green_lower = np.array([20, 75, 35])
-green_upper = np.array([100, 255, 255])
-# blue_lower = np.array([90, 80, 50])
-# blue_upper = np.array([150, 255, 255])
-# red_lower = np.array([0, 80, 50])
+green_lower = np.array([30, 85, 35])
+green_upper = np.array([90, 255, 255])
+blue_lower = np.array([95, 70, 50])
+blue_upper = np.array([130, 255, 255])
+red_lower = np.array([0, 100, 50])
+red_upper = np.array([10, 255, 255])
+red_lower1 = np.array([145, 50, 50])
+red_upper1 = np.array([180, 255, 255])
+# tiles [1, 4, 0] , [176, 97]
+# green_lower = np.array([30, 85, 35])
+# green_upper = np.array([90, 255, 255])
+# blue_lower = np.array([90, 70, 50])
+# blue_upper = np.array([130, 255, 255])
+# red_lower = np.array([0, 100, 50])
 # red_upper = np.array([10, 255, 255])
-# red_lower1 = np.array([120, 50, 50])
+# red_lower1 = np.array([145, 50, 50])
 # red_upper1 = np.array([180, 255, 255])
 
 
 class CustomBoard(GameBoard):
     """ Implentation custom scrabble board analysis """
     last_warp = None
+    statistic: dict = {
+        'green-lower': [256, 256, 256],
+        'green-upper': [-1, -1, -1],
+        'blue-lower': [256, 256, 256],
+        'blue-upper': [-1, -1, -1],
+        'light-blue-lower': [256, 256, 256],
+        'light-blue-upper': [-1, -1, -1],
+        'red-lower': [256, 256, 256],
+        'red-upper': [-1, -1, -1],
+        'red1-lower': [256, 256, 256],
+        'red1-upper': [-1, -1, -1],
+        'light-red-lower': [256, 256, 256],
+        'light-red-upper': [-1, -1, -1],
+        'light-red1-lower': [256, 256, 256],
+        'light-red1-upper': [-1, -1, -1],
+        'tiles-lower': [256, 256, 256],
+        'tiles-upper': [-1, -1, -1],
+    }
 
     @staticmethod
     def warp(__image: Mat) -> Mat:  # pylint: disable=too-many-locals
@@ -81,23 +109,50 @@ class CustomBoard(GameBoard):
         return result
 
     @staticmethod
-    def _is_tile(coord: tuple[int, int], color: tuple[int, int, int]) -> bool:
-        if color[1] < 60:  # this is a grey image
-            return True
-        if color[1] < 100:  # and color[2] > 165:  # maybe a grey image
-            # return True
-            if coord in TRIPLE_WORDS or coord in DOUBLE_WORDS:  # check for red
-                if color[0] <= 5 or color[0] >= 160:
-                    return False
-            elif coord in TRIPLE_LETTER or coord in DOUBLE_LETTER:  # check for blue
-                if 95 < color[0] < 110:
-                    return False
-            else:  # check for green
-                if green_lower[0] <= color[0] <= green_upper[0] \
-                        and green_lower[1] <= color[1]:
-                    return False
-            return True
-        return False
+    def _is_tile(coord: tuple[int, int], color: tuple[int, int, int]) -> bool:  # pylint: disable=too-many-return-statements
+        if coord in TRIPLE_WORDS:  # dark red
+            if red_lower[0] <= color[0] <= red_upper[0] and \
+                    red_lower[1] <= color[1] <= red_upper[1]:
+                CustomBoard.statistic['red-lower'] = np.minimum(color, CustomBoard.statistic['red-lower'])
+                CustomBoard.statistic['red-upper'] = np.maximum(color, CustomBoard.statistic['red-upper'])
+                return False
+            if red_lower1[0] <= color[0] <= red_upper1[0] and \
+                    red_lower1[1] <= color[1] <= red_upper1[1]:
+                CustomBoard.statistic['red1-lower'] = np.minimum(color, CustomBoard.statistic['red1-lower'])
+                CustomBoard.statistic['red1-upper'] = np.maximum(color, CustomBoard.statistic['red1-upper'])
+                return False
+        elif coord in DOUBLE_WORDS:  # light red
+            if red_lower[0] <= color[0] <= red_upper[0] and \
+                    red_lower[1] <= color[1] <= red_upper[1]:
+                CustomBoard.statistic['light-red-lower'] = np.minimum(color, CustomBoard.statistic['light-red-lower'])
+                CustomBoard.statistic['light-red-upper'] = np.maximum(color, CustomBoard.statistic['light-red-upper'])
+                return False
+            if red_lower1[0] <= color[0] <= red_upper1[0] and \
+                    red_lower1[1] <= color[1] <= red_upper1[1]:
+                CustomBoard.statistic['light-red1-lower'] = np.minimum(color, CustomBoard.statistic['light-red1-lower'])
+                CustomBoard.statistic['light-red1-upper'] = np.maximum(color, CustomBoard.statistic['light-red1-upper'])
+                return False
+        elif coord in TRIPLE_LETTER:  # dark blue
+            if blue_lower[0] <= color[0] <= blue_upper[0] and \
+                    blue_lower[1] <= color[1] <= blue_upper[1]:
+                CustomBoard.statistic['blue-lower'] = np.minimum(color, CustomBoard.statistic['blue-lower'])
+                CustomBoard.statistic['blue-upper'] = np.maximum(color, CustomBoard.statistic['blue-upper'])
+                return False
+        elif coord in DOUBLE_LETTER:  # light blue
+            if blue_lower[0] <= color[0] <= blue_upper[0] and \
+                    blue_lower[1] <= color[1] <= blue_upper[1]:
+                CustomBoard.statistic['light-blue-lower'] = np.minimum(color, CustomBoard.statistic['light-blue-lower'])
+                CustomBoard.statistic['light-blue-upper'] = np.maximum(color, CustomBoard.statistic['light-blue-upper'])
+                return False
+        else:  # green
+            if green_lower[0] <= color[0] <= green_upper[0] and \
+                    green_lower[1] <= color[1] <= green_upper[1]:
+                CustomBoard.statistic['green-lower'] = np.minimum(color, CustomBoard.statistic['green-lower'])
+                CustomBoard.statistic['green-upper'] = np.maximum(color, CustomBoard.statistic['green-upper'])
+                return False
+        CustomBoard.statistic['tiles-lower'] = np.minimum(color, CustomBoard.statistic['tiles-lower'])
+        CustomBoard.statistic['tiles-upper'] = np.maximum(color, CustomBoard.statistic['tiles-upper'])
+        return True
 
     @staticmethod
     def _filter_set_of_positions(coord: set, img: Mat, result: Mat, color_table: dict, set_of_tiles: set) -> dict:
@@ -110,7 +165,7 @@ class CustomBoard(GameBoard):
             px_row = int(offset + (col * grid_w))
             segment = img[px_col + 2:px_col + grid_h - 2, px_row + 2:px_row + grid_w - 2]
             info = img[px_col + 1:px_col + grid_h - 1, px_row + 1:px_row + grid_w - 1]
-            segment[:, :, 2] = 255  # ignore value for kmeas
+            # segment[:, :, 2] = 255  # ignore value for kmeas
             data = segment.reshape((-1, 3))
             data = np.float32(data)  # type: ignore
 
@@ -123,20 +178,11 @@ class CustomBoard(GameBoard):
 
             if CustomBoard._is_tile((col, row), color):
                 set_of_tiles.add((col, row))
-            elif len(counts) > 2:
-                i = int(np.argmax(counts))
-                for i in range(0, k):
-                    if (i != np.argmax(counts)) \
-                            and (i != np.argmin(counts)) \
-                            and (counts[i] > 145) \
-                            and (counts[i] + int(counts[np.argmax(counts)] * 0.1) > counts[np.argmax(counts)]) \
-                            and CustomBoard._is_tile((col, row), unique[i]):
-                        color = unique[i]
-                        logging.debug(f'({row}, {col}) use second color {color}')
-                        set_of_tiles.add((col, row))
+                info[:, :, 0], info[:, :, 1], info[:, :, 2] = color
+            else:
+                info[:, :, 0], info[:, :, 1], info[:, :, 2] = (0, 0, 0)
 
             color_table[(col, row)] = color
-            info[:, :, 0], info[:, :, 1], info[:, :, 2] = color
 
             if Config.development_recording():  # pragma: no cover
                 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -152,6 +198,40 @@ class CustomBoard(GameBoard):
                 # segment = cv2.putText(segment, f'{color[2]}', (1, 30), font, fontScale, font_color, 1, cv2.FILLED) # HS(V)
             result[px_col + 1:px_col + grid_h - 1, px_row + 1:px_row + grid_w - 1] = info
         return color_table
+
+    @staticmethod
+    def log_color_table(color_table, candidates) -> str:
+        """print color table"""
+        tmp = ''
+        for color in range(3):
+            tmp += '   '
+            for i in range(15):
+                tmp += f'{(i + 1):5d} '
+            tmp += '  \n'
+            for row in range(15):
+                tmp += f"{chr(ord('A') + row)} |"
+                for col in range(15):
+                    if (col, row) in candidates:
+                        tmp += f' [{color_table[(col, row)][color]:-3d}]'
+                    else:
+                        tmp += f'  {color_table[(col, row)][color]:-3d} '
+                tmp += ' |\n'
+            tmp += '\n'
+        return tmp
+
+    @staticmethod
+    def log_candidates(candidates) -> str:
+        """print candidates set"""
+        tmp = '   '
+        for i in range(15):
+            tmp += f'{(i + 1):2d} '
+        tmp += '  \n'
+        for row in range(15):
+            tmp += f"{chr(ord('A') + row)} |"
+            for col in range(15):
+                tmp += ' X ' if (col, row) in candidates else ' . '
+            tmp += ' |\n'
+        return tmp
 
     @staticmethod
     def filter_image(_image: Mat) -> tuple[Mat, set]:
@@ -177,28 +257,13 @@ class CustomBoard(GameBoard):
 
         set_of_tiles = tiles1 | tiles2 | tiles3
 
-        if logging.getLogger('root').isEnabledFor(logging.DEBUG):
-            tmp = '(H)SV'
-            for row in range(0, 15):
-                tmp += f'\n{row+1:2d}|'
-                for col in range(0, 15):
-                    tmp += f' {color_table[(col, row)][0]:-4d} '
-            tmp += '\nH(S)V'
-            for row in range(0, 15):
-                tmp += f'\n{row+1:2d}|'
-                for col in range(0, 15):
-                    tmp += f' {color_table[(col, row)][1]:-4d} '
-            tmp += '\nHS(V)'
-            for row in range(0, 15):
-                tmp += f'\n{row+1:2d}|'
-                for col in range(0, 15):
-                    tmp += f' {color_table[(col, row)][2]:-4d} '
-            logging.debug(f'{tmp}')
+        logging.debug(f'color statistic:\n {pprint.pformat(CustomBoard.statistic)}')
+        logging.debug(f'color table:\n{CustomBoard.log_color_table(color_table=color_table, candidates=set_of_tiles)}')
 
         result = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
         result = cv2.hconcat([img, result])  # type: ignore
         if any(x in set_of_tiles for x in [(6, 7), (7, 6), (8, 7), (7, 8)]):
-            logging.debug(f'candidates {set_of_tiles}')
+            logging.debug(f'candidates:\n{CustomBoard.log_candidates(set_of_tiles)}')
             return result, set_of_tiles
         logging.debug('no word detected')
         return result, set()
