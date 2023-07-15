@@ -48,7 +48,7 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 green_lower = np.array([30, 85, 35])
 green_upper = np.array([90, 255, 255])
-blue_lower = np.array([95, 70, 50])
+blue_lower = np.array([95, 60, 50])
 blue_upper = np.array([130, 255, 255])
 red_lower = np.array([0, 100, 50])
 red_upper = np.array([10, 255, 255])
