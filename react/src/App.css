@@ -46,27 +46,27 @@ body {
 /* bag */
 .bag-body {
   padding: .5rem !important;
-  background-color: #207F8E;
+  /* new: background-color: #207F8E; */
   max-width: 100%;
 }
 
 .tile {
-  /* old: background-color: #F5F5F5; */
-  background-color: #F5F5F5;
+  background-color: #FEF1BC;
+  /* new: background-color: #F5F5F5; */
   width: 25px;
   height: 25px;
   text-align: center;
   font-weight: bold;
   border-radius: 2px;
-  /* old: border: 1px solid gray; */
-  border: 1px solid #F5F5F5;
-  box-shadow: 0px 0px 3px #888;
+  border: 1px solid gray;
+  /* new: border: 1px solid #F5F5F5; */
+  /* box-shadow: 0px 0px 3px #888; */
 }
 
 span.tile {
   display: inline-block;
   margin: 1px;
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 /* bank */
@@ -80,8 +80,8 @@ span.tile {
   display: block;
   width: 217px;
   height: 31px;
-  /* old: background-color: #00e673; */
-  background-color: #43869B;
+  background-color: #00e673;
+  /* new: background-color: #43869B; */
   box-shadow: 0px 8px 6px -6px #888
 }
 
@@ -127,8 +127,8 @@ span.tile {
   height: 496px;
   display: inline-block;
   padding: 2;
-  /* old: background-color: #239b56; */
-  background-color: #43869B;
+  background-color: #239b56;
+  /* new: background-color: #43869B; */
   box-shadow: 0px 8px 6px -6px #888;
 }
 
@@ -141,40 +141,40 @@ span.tile {
 }
 
 .tableborder {
-  /* old: border: thin transparent green; */
-  /* old: background-color: green; */
-  border: thin transparent #43869B;
-  background-color: #2A6573;
+  border: thin transparent green;
+  background-color: green;
+  /* new: border: thin transparent #43869B; */
+  /* new: background-color: #2A6573; */
   color: white;
   font-size: 70%;
 }
 
 /* tripple word */
 .tabletw {
-  /* old: background-color: #FE4444; */
-  background-color: #CDC948;
+  background-color: #FE4444;
+  /* new: background-color: #CDC948; */
 }
 
 /* double word */
 .tabledw {
-  /* old: background-color: #f5b041; */
+  background-color: #f5b041;
   /* new original: background-color: #FFBD29; */
   /* HSB => H S-- B++ */
-  background-color: #ffd47a;
+  /* new: background-color: #ffd47a; */
 }
 
 /* triple letter */
 .tabletl {
-  /* old: background-color: #2471a3; /*
+  background-color: #2471a3;
   /* new original: background-color: #E3236FC8; */
   /* HSB => H S-- B++ */
-  background-color: #d79eb5;
+  /* new: background-color: #d79eb5; */
 }
 
 /* double letter */
 .tabledl {
-  /* old: background-color: #0099cc; */
+  background-color: #0099cc;
   /* new original: background-color: #232753C8; */
   /* HSB => H S-- B++ */
-  background-color: #616685;
+  /* new: background-color: #616685; */
 }
