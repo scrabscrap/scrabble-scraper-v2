@@ -45,15 +45,6 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 # -----
 # 19mm x 19mm
 
-
-green_lower = np.array([30, 85, 35])
-green_upper = np.array([90, 255, 255])
-blue_lower = np.array([95, 60, 50])
-blue_upper = np.array([130, 255, 255])
-red_lower = np.array([0, 100, 50])
-red_upper = np.array([10, 255, 255])
-red_lower1 = np.array([145, 50, 50])
-red_upper1 = np.array([180, 255, 255])
 # tiles [1, 4, 0] , [176, 97]
 # green_lower = np.array([30, 85, 35])
 # green_upper = np.array([90, 255, 255])
@@ -64,25 +55,36 @@ red_upper1 = np.array([180, 255, 255])
 # red_lower1 = np.array([145, 50, 50])
 # red_upper1 = np.array([180, 255, 255])
 
+field_lower = np.array([30, 85, 35])
+field_upper = np.array([90, 255, 255])
+
+letter_lower = np.array([95, 60, 50])
+letter_upper = np.array([130, 255, 255])
+
+word_lower = np.array([0, 100, 50])
+word_upper = np.array([10, 255, 255])
+word_lower1 = np.array([145, 50, 50])
+word_upper1 = np.array([180, 255, 255])
+
 
 class Custom2012Board(GameBoard):
     """ Implentation custom scrabble board analysis """
     last_warp = None
     statistic: dict = {
-        'green-lower': [256, 256, 256],
-        'green-upper': [-1, -1, -1],
-        'blue-lower': [256, 256, 256],
-        'blue-upper': [-1, -1, -1],
-        'light-blue-lower': [256, 256, 256],
-        'light-blue-upper': [-1, -1, -1],
-        'red-lower': [256, 256, 256],
-        'red-upper': [-1, -1, -1],
-        'red1-lower': [256, 256, 256],
-        'red1-upper': [-1, -1, -1],
-        'light-red-lower': [256, 256, 256],
-        'light-red-upper': [-1, -1, -1],
-        'light-red1-lower': [256, 256, 256],
-        'light-red1-upper': [-1, -1, -1],
+        'field-lower': [256, 256, 256],
+        'field-upper': [-1, -1, -1],
+        'tletter-lower': [256, 256, 256],
+        'tletter-upper': [-1, -1, -1],
+        'dletter-lower': [256, 256, 256],
+        'dletter-upper': [-1, -1, -1],
+        'tword-lower': [256, 256, 256],
+        'tword-upper': [-1, -1, -1],
+        'tword1-lower': [256, 256, 256],
+        'tword1-upper': [-1, -1, -1],
+        'dword-lower': [256, 256, 256],
+        'dword-upper': [-1, -1, -1],
+        'dword1-lower': [256, 256, 256],
+        'dword1-upper': [-1, -1, -1],
         'tiles-lower': [256, 256, 256],
         'tiles-upper': [-1, -1, -1],
     }
@@ -111,44 +113,44 @@ class Custom2012Board(GameBoard):
     @staticmethod
     def _is_tile(coord: tuple[int, int], color: tuple[int, int, int]) -> bool:  # pylint: disable=too-many-return-statements
         if coord in TRIPLE_WORDS:  # dark red
-            if red_lower[0] <= color[0] <= red_upper[0] and \
-                    red_lower[1] <= color[1] <= red_upper[1]:
-                Custom2012Board.statistic['red-lower'] = np.minimum(color, Custom2012Board.statistic['red-lower'])
-                Custom2012Board.statistic['red-upper'] = np.maximum(color, Custom2012Board.statistic['red-upper'])
+            if word_lower[0] <= color[0] <= word_upper[0] and \
+                    word_lower[1] <= color[1] <= word_upper[1]:
+                Custom2012Board.statistic['tword-lower'] = np.minimum(color, Custom2012Board.statistic['tword-lower'])
+                Custom2012Board.statistic['tword-upper'] = np.maximum(color, Custom2012Board.statistic['tword-upper'])
                 return False
-            if red_lower1[0] <= color[0] <= red_upper1[0] and \
-                    red_lower1[1] <= color[1] <= red_upper1[1]:
-                Custom2012Board.statistic['red1-lower'] = np.minimum(color, Custom2012Board.statistic['red1-lower'])
-                Custom2012Board.statistic['red1-upper'] = np.maximum(color, Custom2012Board.statistic['red1-upper'])
+            if word_lower1[0] <= color[0] <= word_upper1[0] and \
+                    word_lower1[1] <= color[1] <= word_upper1[1]:
+                Custom2012Board.statistic['tword1-lower'] = np.minimum(color, Custom2012Board.statistic['tword1-lower'])
+                Custom2012Board.statistic['tword1-upper'] = np.maximum(color, Custom2012Board.statistic['tword1-upper'])
                 return False
         elif coord in DOUBLE_WORDS:  # light red
-            if red_lower[0] <= color[0] <= red_upper[0] and \
-                    red_lower[1] <= color[1] <= red_upper[1]:
-                Custom2012Board.statistic['light-red-lower'] = np.minimum(color, Custom2012Board.statistic['light-red-lower'])
-                Custom2012Board.statistic['light-red-upper'] = np.maximum(color, Custom2012Board.statistic['light-red-upper'])
+            if word_lower[0] <= color[0] <= word_upper[0] and \
+                    word_lower[1] <= color[1] <= word_upper[1]:
+                Custom2012Board.statistic['dword-lower'] = np.minimum(color, Custom2012Board.statistic['dword-lower'])
+                Custom2012Board.statistic['dword-upper'] = np.maximum(color, Custom2012Board.statistic['dword-upper'])
                 return False
-            if red_lower1[0] <= color[0] <= red_upper1[0] and \
-                    red_lower1[1] <= color[1] <= red_upper1[1]:
-                Custom2012Board.statistic['light-red1-lower'] = np.minimum(color, Custom2012Board.statistic['light-red1-lower'])
-                Custom2012Board.statistic['light-red1-upper'] = np.maximum(color, Custom2012Board.statistic['light-red1-upper'])
+            if word_lower1[0] <= color[0] <= word_upper1[0] and \
+                    word_lower1[1] <= color[1] <= word_upper1[1]:
+                Custom2012Board.statistic['dword1-lower'] = np.minimum(color, Custom2012Board.statistic['dword1-lower'])
+                Custom2012Board.statistic['dword1-upper'] = np.maximum(color, Custom2012Board.statistic['dword1-upper'])
                 return False
         elif coord in TRIPLE_LETTER:  # dark blue
-            if blue_lower[0] <= color[0] <= blue_upper[0] and \
-                    blue_lower[1] <= color[1] <= blue_upper[1]:
-                Custom2012Board.statistic['blue-lower'] = np.minimum(color, Custom2012Board.statistic['blue-lower'])
-                Custom2012Board.statistic['blue-upper'] = np.maximum(color, Custom2012Board.statistic['blue-upper'])
+            if letter_lower[0] <= color[0] <= letter_upper[0] and \
+                    letter_lower[1] <= color[1] <= letter_upper[1]:
+                Custom2012Board.statistic['tletter-lower'] = np.minimum(color, Custom2012Board.statistic['tletter-lower'])
+                Custom2012Board.statistic['tletter-upper'] = np.maximum(color, Custom2012Board.statistic['tletter-upper'])
                 return False
         elif coord in DOUBLE_LETTER:  # light blue
-            if blue_lower[0] <= color[0] <= blue_upper[0] and \
-                    blue_lower[1] <= color[1] <= blue_upper[1]:
-                Custom2012Board.statistic['light-blue-lower'] = np.minimum(color, Custom2012Board.statistic['light-blue-lower'])
-                Custom2012Board.statistic['light-blue-upper'] = np.maximum(color, Custom2012Board.statistic['light-blue-upper'])
+            if letter_lower[0] <= color[0] <= letter_upper[0] and \
+                    letter_lower[1] <= color[1] <= letter_upper[1]:
+                Custom2012Board.statistic['dletter-lower'] = np.minimum(color, Custom2012Board.statistic['dletter-lower'])
+                Custom2012Board.statistic['dletter-upper'] = np.maximum(color, Custom2012Board.statistic['dletter-upper'])
                 return False
         else:  # green
-            if green_lower[0] <= color[0] <= green_upper[0] and \
-                    green_lower[1] <= color[1] <= green_upper[1]:
-                Custom2012Board.statistic['green-lower'] = np.minimum(color, Custom2012Board.statistic['green-lower'])
-                Custom2012Board.statistic['green-upper'] = np.maximum(color, Custom2012Board.statistic['green-upper'])
+            if field_lower[0] <= color[0] <= field_upper[0] and \
+                    field_lower[1] <= color[1] <= field_upper[1]:
+                Custom2012Board.statistic['field-lower'] = np.minimum(color, Custom2012Board.statistic['field-lower'])
+                Custom2012Board.statistic['field-upper'] = np.maximum(color, Custom2012Board.statistic['field-upper'])
                 return False
         Custom2012Board.statistic['tiles-lower'] = np.minimum(color, Custom2012Board.statistic['tiles-lower'])
         Custom2012Board.statistic['tiles-upper'] = np.maximum(color, Custom2012Board.statistic['tiles-upper'])

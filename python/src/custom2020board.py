@@ -45,39 +45,37 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 # -----
 # 19mm x 19mm
 
-
-# hsv 0-180, 0-255, 0-155
+# hsv 0-180, 0-255, 0-255
 # color_triple_letter = np.array([168, 66, 214])
 # color_double_letter = np.array([116, 69, 133])
 # color_triple_word = np.array([29, 166, 204])
 # color_double_word = np.array([21, 133, 255])
 # color_field = np.array([97, 145, 156])
 
-green_lower = np.array([85, 120, 128])  # empty field
-green_upper = np.array([115, 255, 255])
+field_lower = np.array([85, 120, 128])  # empty field
+field_upper = np.array([115, 255, 255])
 
-blue_lower = np.array([105, 50, 100])   # letter
-blue_upper = np.array([180, 255, 255])
+letter_lower = np.array([105, 50, 100])   # letter
+letter_upper = np.array([180, 255, 255])
 
-red_lower = np.array([10, 110, 100])    # word
-red_upper = np.array([40, 255, 255])
+word_lower = np.array([10, 110, 100])    # word
+word_upper = np.array([40, 255, 255])
 
 
 class Custom2020Board(GameBoard):
     """ Implentation custom scrabble board analysis """
-    """ Implentation custom scrabble board analysis """
     last_warp = None
     statistic: dict = {
-        'green-lower': [256, 256, 256],
-        'green-upper': [-1, -1, -1],
-        'blue-lower': [256, 256, 256],
-        'blue-upper': [-1, -1, -1],
-        'light-blue-lower': [256, 256, 256],
-        'light-blue-upper': [-1, -1, -1],
-        'red-lower': [256, 256, 256],
-        'red-upper': [-1, -1, -1],
-        'light-red-lower': [256, 256, 256],
-        'light-red-upper': [-1, -1, -1],
+        'field-lower': [256, 256, 256],
+        'field-upper': [-1, -1, -1],
+        'tletter-lower': [256, 256, 256],
+        'tletter-upper': [-1, -1, -1],
+        'dletter-lower': [256, 256, 256],
+        'dletter-upper': [-1, -1, -1],
+        'tword-lower': [256, 256, 256],
+        'tword-upper': [-1, -1, -1],
+        'dword-lower': [256, 256, 256],
+        'dword-upper': [-1, -1, -1],
         'tiles-lower': [256, 256, 256],
         'tiles-upper': [-1, -1, -1],
     }
@@ -106,34 +104,34 @@ class Custom2020Board(GameBoard):
     @staticmethod
     def _is_tile(coord: tuple[int, int], color: tuple[int, int, int]) -> bool:  # pylint: disable=too-many-return-statements
         if coord in TRIPLE_WORDS:  # dark red
-            if red_lower[0] <= color[0] <= red_upper[0] and \
-                    red_lower[1] <= color[1] <= red_upper[1]:
-                Custom2020Board.statistic['red-lower'] = np.minimum(color, Custom2020Board.statistic['red-lower'])
-                Custom2020Board.statistic['red-upper'] = np.maximum(color, Custom2020Board.statistic['red-upper'])
+            if word_lower[0] <= color[0] <= word_upper[0] and \
+                    word_lower[1] <= color[1] <= word_upper[1]:
+                Custom2020Board.statistic['tword-lower'] = np.minimum(color, Custom2020Board.statistic['tword-lower'])
+                Custom2020Board.statistic['tword-upper'] = np.maximum(color, Custom2020Board.statistic['tword-upper'])
                 return False
         elif coord in DOUBLE_WORDS:  # light red
-            if red_lower[0] <= color[0] <= red_upper[0] and \
-                    red_lower[1] <= color[1] <= red_upper[1]:
-                Custom2020Board.statistic['light-red-lower'] = np.minimum(color, Custom2020Board.statistic['light-red-lower'])
-                Custom2020Board.statistic['light-red-upper'] = np.maximum(color, Custom2020Board.statistic['light-red-upper'])
+            if word_lower[0] <= color[0] <= word_upper[0] and \
+                    word_lower[1] <= color[1] <= word_upper[1]:
+                Custom2020Board.statistic['dword-lower'] = np.minimum(color, Custom2020Board.statistic['dword-lower'])
+                Custom2020Board.statistic['dword-upper'] = np.maximum(color, Custom2020Board.statistic['dword-upper'])
                 return False
         elif coord in TRIPLE_LETTER:  # dark blue
-            if blue_lower[0] <= color[0] <= blue_upper[0] and \
-                    blue_lower[1] <= color[1] <= blue_upper[1]:
-                Custom2020Board.statistic['blue-lower'] = np.minimum(color, Custom2020Board.statistic['blue-lower'])
-                Custom2020Board.statistic['blue-upper'] = np.maximum(color, Custom2020Board.statistic['blue-upper'])
+            if letter_lower[0] <= color[0] <= letter_upper[0] and \
+                    letter_lower[1] <= color[1] <= letter_upper[1]:
+                Custom2020Board.statistic['tletter-lower'] = np.minimum(color, Custom2020Board.statistic['tletter-lower'])
+                Custom2020Board.statistic['tletter-upper'] = np.maximum(color, Custom2020Board.statistic['tletter-upper'])
                 return False
         elif coord in DOUBLE_LETTER:  # light blue
-            if blue_lower[0] <= color[0] <= blue_upper[0] and \
-                    blue_lower[1] <= color[1] <= blue_upper[1]:
-                Custom2020Board.statistic['light-blue-lower'] = np.minimum(color, Custom2020Board.statistic['light-blue-lower'])
-                Custom2020Board.statistic['light-blue-upper'] = np.maximum(color, Custom2020Board.statistic['light-blue-upper'])
+            if letter_lower[0] <= color[0] <= letter_upper[0] and \
+                    letter_lower[1] <= color[1] <= letter_upper[1]:
+                Custom2020Board.statistic['dletter-lower'] = np.minimum(color, Custom2020Board.statistic['dletter-lower'])
+                Custom2020Board.statistic['dletter-upper'] = np.maximum(color, Custom2020Board.statistic['dletter-upper'])
                 return False
         else:  # green
-            if green_lower[0] <= color[0] <= green_upper[0] and \
-                    green_lower[1] <= color[1] <= green_upper[1]:
-                Custom2020Board.statistic['green-lower'] = np.minimum(color, Custom2020Board.statistic['green-lower'])
-                Custom2020Board.statistic['green-upper'] = np.maximum(color, Custom2020Board.statistic['green-upper'])
+            if field_lower[0] <= color[0] <= field_upper[0] and \
+                    field_lower[1] <= color[1] <= field_upper[1]:
+                Custom2020Board.statistic['field-lower'] = np.minimum(color, Custom2020Board.statistic['field-lower'])
+                Custom2020Board.statistic['field-upper'] = np.maximum(color, Custom2020Board.statistic['field-upper'])
                 return False
         Custom2020Board.statistic['tiles-lower'] = np.minimum(color, Custom2020Board.statistic['tiles-lower'])
         Custom2020Board.statistic['tiles-upper'] = np.maximum(color, Custom2020Board.statistic['tiles-upper'])
