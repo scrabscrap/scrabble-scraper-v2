@@ -28,7 +28,8 @@ import numpy as np
 
 from classicboard import ClassicBoard
 from config import Config
-from customboard import CustomBoard
+from custom2012board import Custom2012Board
+from custom2020board import Custom2020Board
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from game_board.tiles import tiles
 from scrabble import Game, InvalidMoveExeption, Move, MoveType, NoMoveException
@@ -43,22 +44,30 @@ def get_last_warp() -> Optional[Mat]:
     """Delegates the warp of the ``img`` according to the configured board style"""
     if Config.video_warp() and Config.board_layout() == 'classic':
         return ClassicBoard.last_warp
-    return CustomBoard.last_warp
+    if Config.board_layout() in ('custom', 'custom2012'):
+        return Custom2012Board.last_warp
+    if Config.board_layout() == 'custom2020':
+        return Custom2020Board.last_warp
+    return None
 
 
 def clear_last_warp():
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if Config.board_layout() == 'classic':
+    if Config.board_layout() in ('custom', 'custom2012'):
+        Custom2012Board.last_warp = None
+    elif Config.board_layout() == 'custom2020':
+        Custom2020Board.last_warp = None
+    elif Config.board_layout() == 'classic':
         ClassicBoard.last_warp = None
-    else:
-        CustomBoard.last_warp = None
 
 
 def warp_image(img: Mat) -> Mat:
     """Delegates the warp of the ``img`` according to the configured board style"""
     logging.debug(f'({Config.board_layout()})')
-    if Config.video_warp() and Config.board_layout() == 'custom':
-        return CustomBoard.warp(img)
+    if Config.video_warp() and Config.board_layout() in ('custom', 'custom2012'):
+        return Custom2012Board.warp(img)
+    if Config.video_warp() and Config.board_layout() == 'custom2020':
+        return Custom2020Board.warp(img)
     if Config.video_warp() and Config.board_layout() == 'classic':
         return ClassicBoard.warp(img)
     return img
@@ -67,8 +76,10 @@ def warp_image(img: Mat) -> Mat:
 def filter_image(img: Mat) -> tuple[Optional[Mat], set]:
     """Delegates the image filter of the ``img`` according to the configured board style"""
     logging.debug(f'({Config.board_layout()})')
-    if Config.board_layout() == 'custom':
-        return CustomBoard.filter_image(img)
+    if Config.board_layout() in ('custom', 'custom2012'):
+        return Custom2012Board.filter_image(img)
+    if Config.board_layout() == 'custom2020':
+        return Custom2020Board.filter_image(img)
     if Config.board_layout() == 'classic':
         return ClassicBoard.filter_image(img)
     return None, set()

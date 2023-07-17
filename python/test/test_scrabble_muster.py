@@ -74,7 +74,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         self.config_setter('output', 'server_upload', False)
         self.config_setter('video', 'warp', True)
         self.config_setter('video', 'warp_coordinates', None)
-        self.config_setter('board', 'layout', 'custom')
+        self.config_setter('board', 'layout', 'custom2012')
         self.config_setter('development', 'recording', False)
         return super().setUp()
 
