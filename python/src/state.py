@@ -239,6 +239,12 @@ class State(Static):
             ScrabbleWatch.reset()
             cls.game.new_game()
             gc.collect()
+
+        try:
+            _ = pool.submit(cam.update, threading.Event())
+        except Exception as oops:  # type: ignore # pylint: disable=broad-exception-caught
+            logging.exception(f'can not open camera {oops}')
+
         start_of_game(cls.game)
         if not cls.op_event.is_set():
             cls.op_event.set()
@@ -255,7 +261,7 @@ class State(Static):
             LED.switch_on({})  # type: ignore
             ScrabbleWatch.display.show_ready(('prepare', 'end'))
             end_of_game(None, cls.game, cls.op_event)
-
+            cam.cancel()
         ScrabbleWatch.display.show_end_of_game()
 
         with suppress(Exception):
