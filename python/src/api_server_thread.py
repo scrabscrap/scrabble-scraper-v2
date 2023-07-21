@@ -585,8 +585,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """ start scrabscrap upgrade """
 
         if State.current_state == 'START':
-            watch = ScrabbleWatch()
-            watch.display.show_ready(('Update...', 'pls wait'))
+            ScrabbleWatch.display.show_ready(('Update...', 'pls wait'))
             os.system(f'{Config.src_dir()}/../../scripts/upgrade.sh {Config.system_gitbranch()} |'
                       f' tee -a {Config.log_dir()}/messages.log &')
             return redirect(url_for('route_logs'))
