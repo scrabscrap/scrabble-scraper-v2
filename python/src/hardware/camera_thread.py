@@ -39,16 +39,20 @@ class CameraEnum(Enum):
 
 
 _camera: CameraEnum = CameraEnum.PICAMERA
+_resolution: tuple[int, int] = (Config.video_width(), Config.video_height())
+_framerate: int = Config.video_fps()
 _is_init: bool = False
 _event: Optional[Event] = None
 
 
 @trace
-def init(src: int = 0, use_camera: CameraEnum = CameraEnum.PICAMERA,  # pylint: disable=unused-argument
-         resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps(), **kwargs):
+def init(src: int = 0, use_camera: CameraEnum = _camera,  # pylint: disable=unused-argument
+         resolution=_resolution, framerate=_framerate):
     """init/config cam"""
-    global _is_init, _camera  # pylint: disable=global-statement
+    global _is_init, _camera, _resolution, _framerate  # pylint: disable=global-statement
     _camera = use_camera
+    _resolution = resolution
+    _framerate = framerate
     if use_camera == CameraEnum.PICAMERA:
         cam_rpi.init(resolution=resolution, framerate=framerate)
     elif use_camera == CameraEnum.FILE:

@@ -81,11 +81,11 @@ def main() -> None:
     timer = RepeatedTimer(1, ScrabbleWatch.tick)
     _ = pool.submit(timer.tick, Event())
 
-    cam.init()
-    try:
-        _ = pool.submit(cam.update, Event())
-    except Exception as oops:  # type: ignore # pylint: disable=broad-exception-caught
-        logging.exception(f'can not open camera {oops}')
+    # cam.init()
+    # try:
+    #     _ = pool.submit(cam.update, Event())
+    # except Exception as oops:  # type: ignore # pylint: disable=broad-exception-caught
+    #     logging.exception(f'can not open camera {oops}')
 
     # start api server
     api = ApiServer()

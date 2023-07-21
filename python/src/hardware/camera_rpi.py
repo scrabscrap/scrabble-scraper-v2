@@ -47,7 +47,7 @@ def init(resolution=(Config.video_width(), Config.video_height()), framerate=Con
     if Config.video_rotate():
         _camera.rotation = 180
     _raw_capture = PiRGBArray(_camera, size=_camera.resolution)
-    sleep(1)  # warmup camera
+    sleep(0.3)  # warmup camera
     _stream = _camera.capture_continuous(_raw_capture, format="bgr", use_video_port=True)
     atexit.register(_atexit)
 
