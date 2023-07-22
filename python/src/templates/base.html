@@ -86,13 +86,15 @@
               <li><a class="dropdown-item" href="/test_ftp"><i class="bi-upload"></i> FTP</a></li>
               {% if apiserver.simulator %}
               <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/simulator"><i class="bi-easel"></i> Simulator</a></li>
+              <li><a class="dropdown-item" href="/simulator" target="simulator"><i class="bi-easel"></i> Simulator</a>
+              </li>
               {% endif %}
             </ul>
           </li>
           {% if apiserver.local_webapp %}
           <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="/webapp/index.html"><i class="bi-eye"></i> Web-App</a>
+            <a class="nav-link" aria-current="page" href="/webapp/index.html" target="webapp"><i class="bi-eye"></i>
+              Web-App</a>
           </li>
           {% endif %}
           <li class="nav-item dropdown">
