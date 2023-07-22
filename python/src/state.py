@@ -234,7 +234,7 @@ class State(Static):
 
         with suppress(Exception):
             cls.current_state = BLOCKING
-            LED.switch_on({})  # type: ignore
+            LED.switch_on({LEDEnum.green, LEDEnum.red})  # type: ignore
             cls.picture = None
             ScrabbleWatch.reset()
             cls.game.new_game()

@@ -108,7 +108,7 @@ class ButtonTestCase(unittest.TestCase):
         State.do_ready()
 
         time.sleep(display_pause)
-        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1
 
         self._press_button(self.pin_red)  # start Green, Disp0
         assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
@@ -133,7 +133,7 @@ class ButtonTestCase(unittest.TestCase):
         display_pause = 0.01
 
         time.sleep(display_pause)
-        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1
 
         self._press_button(self.pin_red)  # start Green, Disp0
         assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
@@ -158,7 +158,7 @@ class ButtonTestCase(unittest.TestCase):
         display_pause = 0.01
 
         time.sleep(display_pause)
-        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1
 
         self._press_button(self.pin_red)  # start Green, Disp0
         time.sleep(display_pause)
@@ -247,7 +247,7 @@ class ButtonTestCase(unittest.TestCase):
 
         State.do_new_game()
         assert State.current_state == 'START'
-        assert LEDEnum.green.value == 0 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 0
+        assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1
 
         self._press_button(self.pin_red)  # S1 start Green, Disp0
         assert State.current_state == 'S0'
