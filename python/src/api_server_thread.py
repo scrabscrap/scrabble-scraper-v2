@@ -38,6 +38,7 @@ from werkzeug.serving import make_server
 import hardware.camera_thread as cam
 from config import Config
 from game_board.board import overlay_grid
+from hardware.camera_thread import CameraEnum
 from processing import get_last_warp, warp_image
 from scrabblewatch import ScrabbleWatch
 from state import EOG, START, State
@@ -638,12 +639,15 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
         ApiServer.simulator = simulator
+        version_dirty = subprocess.run(['git', 'diff', '--stat'], check=False,
+                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        version_flag: str = '\u2757' if len(version_dirty.stdout) > 0 else ''
         version_info = subprocess.run(['git', 'describe', '--tags'], check=False,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if version_info.returncode > 0:
             version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        ApiServer.scrabscrap_version = version_info.stdout.decode()[:14]
+        ApiServer.scrabscrap_version = version_flag + version_info.stdout.decode()[:14]
         if os.path.exists(f'{Config.src_dir()}/static/webapp/index.html'):
             ApiServer.local_webapp = True
         self.app.config['DEBUG'] = False
@@ -671,8 +675,12 @@ def main():
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
+    try:
+        cam.init()
+    except NameError:
+        # set Mock-Camera
+        cam.init(use_camera=CameraEnum.FILE)
 
-    cam.init()
     _ = pool.submit(cam.update, Event())
 
     api = ApiServer()
