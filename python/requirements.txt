@@ -6,7 +6,7 @@ gpiozero==1.6.2
 imutils==0.5.4
 luma.oled==3.12.0
 netifaces==0.11.0
-numpy==1.25.1
+numpy==1.25.2
 opencv-contrib-python==4.5.5.62
 opencv-python==4.5.5.62
 picamera==1.13; sys_platform != "darwin" and platform_machine != "x86_64"
@@ -14,12 +14,12 @@ Pillow==10.0.0
 # qs tools
 autopep8==2.0.2
 coverage==7.2.7
-flake8==6.0.0
+flake8==6.1.0
 mypy==1.4.1
 pylint==2.17.5
 # debug, misc
 cPython==0.0.6
-pipdeptree==2.11.0
+pipdeptree==2.12.0
 snakeviz==2.2.0
 # mypy types
 types-requests
