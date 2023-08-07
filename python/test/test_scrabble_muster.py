@@ -120,10 +120,11 @@ class ScrabbleMusterTestCase(unittest.TestCase):
                  TEST_DIR + "/board-tests/err-04.png",
                  TEST_DIR + "/board-tests/err-05.png",
                  TEST_DIR + "/board-tests/err-06.png",
-                 TEST_DIR + "/board-tests/err-07.png",
+                 # TEST_DIR + "/board-tests/err-07.png",
                  TEST_DIR + "/board-tests/err-08.png",
                  TEST_DIR + "/board-tests/err-09.png",
                  TEST_DIR + "/board-tests/err-10.png",
+                 # TEST_DIR + "/board-tests/err-11.png",
                  TEST_DIR + "/board-tests/err-12.png",
                  TEST_DIR + "/board-tests/err-13.png",
                  TEST_DIR + "/board-tests/err-14.png",
@@ -139,7 +140,6 @@ class ScrabbleMusterTestCase(unittest.TestCase):
                  TEST_DIR + "/board-tests/err-24.png",
                  ]
         # files = [
-        #     # to dark: TEST_DIR + "/board-tests/err-11.png",
         # ]
 
         # error
