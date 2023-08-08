@@ -32,7 +32,7 @@ class Custom2012Board(CustomBoard):
     # TWORD_COLOR = ([145, 100, 10], [190, 255, 255])  # H: 0-10 & 145-180
     # DWORD_COLOR = ([145, 100, 10], [190, 255, 255])  # H: 0-10 & 145-180
 
-    TWORD_COLOR1 = ([145, 50, 10], [180, 100, 255])  # overwrite H: 145-180, S: _50_-100
+    TWORD_COLOR1 = ([145, 50, 10], [189, 100, 255])  # overwrite H: 145-189, S: _50_-100
     DWORD_COLOR1 = ([145, 50, 10], [180, 100, 255])  # overwrite H: 145-180, S: _50_-100
 
     @classmethod
