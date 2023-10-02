@@ -2,7 +2,7 @@
 # libs #
 Flask==2.3.3
 flask-sock==0.6.0
-gpiozero==1.6.2
+gpiozero==2.0
 imutils==0.5.4
 luma.oled==3.13.0
 netifaces==0.11.0
@@ -49,7 +49,7 @@ types-requests
 #     - MarkupSafe [required: >=2.0, installed: 2.1.2]
 #   - Werkzeug [required: >=2.2.2, installed: 2.2.2]
 #     - MarkupSafe [required: >=2.1.1, installed: 2.1.2]
-# gpiozero==1.6.2
+# gpiozero==2.0
 #   - colorzero [required: Any, installed: 2.0]
 #     - setuptools [required: Any, installed: 67.2.0]
 # imutils==0.5.4
