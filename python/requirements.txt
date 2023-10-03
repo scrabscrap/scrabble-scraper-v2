@@ -1,7 +1,7 @@
 # install: pip install -r requirements.txt --only-binary=:all:
 # libs #
 Flask==3.0.0
-flask-sock==0.6.0
+flask-sock==0.7.0
 gpiozero==2.0
 imutils==0.5.4
 luma.oled==3.13.0
