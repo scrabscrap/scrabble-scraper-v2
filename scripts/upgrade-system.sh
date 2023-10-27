@@ -43,7 +43,7 @@ libatk-bridge2.0-0 libswscale5 libsnappy1v5 libcodec2-0.9 libsodium23 libudfread
 libswresample3 libcairo-gobject2 libx265-192 libthai0 libva-x11-2 ocl-icd-libopencl1 \
 libepoxy0 libpango-1.0-0 libavutil56 libva2 librabbitmq4 libgme0 libatspi2.0-0 \
 libgraphite2-3 libhdf5-103-1 libgfortran5 libsoxr0 libpgm-5.3-0 libopenmpt0 libxrender1 \
-libdatrie1 libgdk-pixbuf-2.0-0 libopenjp2-7 libwebpmux3 --fix-missing
+libdatrie1 libgdk-pixbuf-2.0-0 libopenjp2-7 libwebpmux3 libopenblas-dev --fix-missing
 
 # create an OpenCV Python environment
 echo "####################################################################"
@@ -61,6 +61,7 @@ echo "####################################################################"
 echo "## Upgrade pip libraries                                          ##"
 echo "####################################################################"
 source "$ROOT_PATH/python/.venv/bin/activate"
+pip uninstall $(pip freeze) -y
 pip install -U pip setuptools wheel
 pip install -U --upgrade-strategy eager -r requirements.txt --only-binary=:all:
 
