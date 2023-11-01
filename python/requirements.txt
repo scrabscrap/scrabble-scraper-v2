@@ -8,7 +8,7 @@ luma.oled==3.13.0
 netifaces==0.11.0
 numpy==1.26.1
 # opencv-contrib-python==4.5.5.62
-opencv-python-headless==4.6.0.66
+opencv-python-headless==4.8.1.78
 picamera==1.13; sys_platform != "darwin" and platform_machine != "x86_64"
 Pillow==10.1.0
 # qs tools
@@ -98,7 +98,7 @@ types-requests
 # ├── tomli [required: >=1.1.0, installed: 2.0.1]
 # └── typing-extensions [required: >=4.1.0, installed: 4.8.0]
 # netifaces==0.11.0
-# opencv-python-headless==4.6.0.66
+# opencv-python-headless==4.8.1.78
 # ├── numpy [required: >=1.14.5, installed: 1.26.1]
 # ├── numpy [required: >=1.17.3, installed: 1.26.1]
 # └── numpy [required: >=1.19.3, installed: 1.26.1]
