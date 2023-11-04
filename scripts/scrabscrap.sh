@@ -19,7 +19,7 @@ mkdir -p "$WORKDIR/recording"
 
 # copy defaults if not exists
 cp -n "$PYTHONDIR/defaults/scrabble.ini" "$WORKDIR/scrabble.ini"
-cp -n "$PYTHONDIR/defaults/ftp-secret.ini" "$WORKDIR/ftp-secret.ini"
+cp -n "$PYTHONDIR/defaults/upload-secret.ini" "$WORKDIR/upload-secret.ini"
 cp -n "$PYTHONDIR/defaults/log.conf" "$WORKDIR/log.conf"
 
 # start app

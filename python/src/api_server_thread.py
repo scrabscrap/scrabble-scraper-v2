@@ -527,7 +527,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         ApiServer.last_msg = 'test ftp config entries\n'
         cfg = configparser.ConfigParser()
         try:
-            with open(f'{Config.work_dir()}/ftp-secret.ini', 'r', encoding="UTF-8") as config_file:
+            with open(f'{Config.work_dir()}/upload-secret.ini', 'r', encoding="UTF-8") as config_file:
                 cfg.read_file(config_file)
         except IOError as err:
             ApiServer.last_msg += f'can not read ftp INI-File {err}\n'
