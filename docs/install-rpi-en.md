@@ -40,7 +40,7 @@ sudo apt install -y git python3-venv python3-dev
 #install the tool to detect the ic2 ports (i2cdetect -y 1)
 sudo apt install -y i2c-tools
 #install the libs for OpenCV
-sudo apt install -y libgsm1 libatk1.0-0 libavcodec58 libcairo2 libvpx6 libvorbisenc2 
+sudo apt-get install -yq libgsm1 libatk1.0-0 libavcodec58 libcairo2 libvpx6 libvorbisenc2 
 libwayland-egl1 libva-drm2 libwavpack1 libshine3 libdav1d4 libwayland-client0 libxcursor1 
 libopus0 libchromaprint1 libxinerama1 libpixman-1-0 libzmq5 libmp3lame0 libxcb-shm0 libsz2 
 libgtk-3-0 libharfbuzz0b libilmbase25 libvdpau1 libssh-gcrypt-4 libpangocairo-1.0-0 
@@ -52,7 +52,7 @@ libatk-bridge2.0-0 libswscale5 libsnappy1v5 libcodec2-0.9 libsodium23 libudfread
 libswresample3 libcairo-gobject2 libx265-192 libthai0 libva-x11-2 ocl-icd-libopencl1 
 libepoxy0 libpango-1.0-0 libavutil56 libva2 librabbitmq4 libgme0 libatspi2.0-0 
 libgraphite2-3 libhdf5-103-1 libgfortran5 libsoxr0 libpgm-5.3-0 libopenmpt0 libxrender1 
-libdatrie1 libgdk-pixbuf-2.0-0 libopenjp2-7 libwebpmux3 --fix-missing
+libdatrie1 libgdk-pixbuf-2.0-0 libopenjp2-7 libwebpmux3 libopenblas-dev --fix-missing
 ```
 
 ### Clone of the ScrabScrap repository
