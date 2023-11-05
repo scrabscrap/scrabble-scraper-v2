@@ -140,7 +140,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         if img is not None:
             _, im_buf_arr = cv2.imencode(".jpg", img)
             png_output = base64.b64encode(im_buf_arr)
-            warped = warp_image(img)
+            warped, _ = warp_image(img)
             warp_coord = json.dumps(get_last_warp().tolist())  # type: ignore
             overlay = overlay_grid(warped)
             _, im_buf_arr = cv2.imencode(".jpg", overlay)

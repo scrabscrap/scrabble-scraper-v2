@@ -87,8 +87,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         files = [TEST_DIR + "/board-tests/board-04.png"]
         for file in files:
             img = cv2.imread(file)
-            warped = warp_image(img)
-            warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+            warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
             ignore_coords = set()
             filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
@@ -146,8 +145,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         for file in files:
             img = cv2.imread(file)
             logging.debug(f'file: {file}')
-            warped = warp_image(img)
-            warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+            warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
             ignore_coords = set()
             filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
@@ -177,8 +175,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
         for file in files:
             img = cv2.imread(file)
-            warped = warp_image(img)
-            warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+            warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
             ignore_coords = set()
             filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)

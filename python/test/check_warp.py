@@ -83,10 +83,8 @@ def main() -> None:
     # _, img = cv2.imencode(".jpg", img)
     cv2.imwrite('log/img.jpg', img)
 
-    warped = warp_image(img)
+    warped, warped_gray = warp_image(img)
     cv2.imwrite('log/warped.jpg', warped)
-
-    warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # grayscale image
     cv2.imwrite('log/warped_gray.jpg', warped_gray)
 
     _, tiles_candidates = filter_image(warped)                          # find potential tiles on board

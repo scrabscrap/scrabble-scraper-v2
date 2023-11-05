@@ -61,16 +61,18 @@ def clear_last_warp():
         ClassicBoard.last_warp = None
 
 
-def warp_image(img: Mat) -> Mat:
+def warp_image(img: Mat) -> tuple[Mat, Mat]:
     """Delegates the warp of the ``img`` according to the configured board style"""
     logging.debug(f'({Config.board_layout()})')
+    warped = img
     if Config.video_warp() and Config.board_layout() in ('custom', 'custom2012'):
-        return Custom2012Board.warp(img)
+        warped = Custom2012Board.warp(img)
     if Config.video_warp() and Config.board_layout() == 'custom2020':
-        return Custom2020Board.warp(img)
+        warped = Custom2020Board.warp(img)
     if Config.video_warp() and Config.board_layout() == 'classic':
-        return ClassicBoard.warp(img)
-    return img
+        warped = ClassicBoard.warp(img)
+    warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+    return warped, warped_gray
 
 
 def filter_image(img: Mat) -> tuple[Optional[Mat], set]:
@@ -561,8 +563,7 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[
     if waitfor is not None:                                                    # wait for previous moves
         done, not_done = futures.wait({waitfor})
         assert len(not_done) == 0, 'error while waiting for future'
-    warped = warp_image(img)                                                   # 1. warp image if necessary
-    warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)                     # 2. grayscale image
+    warped, warped_gray = warp_image(img)                                      # 1. warp image if necessary
     filtered_image, tiles_candidates = filter_image(warped)                    # 3. find potential tiles on board
     _development_recording(game, filtered_image, suffix='~filter', is_next_move=True)
 
