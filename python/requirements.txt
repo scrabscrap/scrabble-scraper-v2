@@ -15,7 +15,7 @@ Pillow==10.1.0
 autopep8==2.0.4
 coverage==7.3.2
 flake8==6.1.0
-mypy==1.6.1
+mypy==1.7.0
 pylint==3.0.2
 # debug, misc
 cPython==0.0.6
@@ -93,7 +93,7 @@ types-requests
 #     ├── RPi.GPIO [required: Any, installed: 0.7.1]
 #     ├── smbus2 [required: Any, installed: 0.4.3]
 #     └── spidev [required: Any, installed: 3.6]
-# mypy==1.6.1
+# mypy==1.7.0
 # ├── mypy-extensions [required: >=1.0.0, installed: 1.0.0]
 # ├── tomli [required: >=1.1.0, installed: 2.0.1]
 # └── typing-extensions [required: >=4.1.0, installed: 4.8.0]
