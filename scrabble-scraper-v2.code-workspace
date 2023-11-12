@@ -2,7 +2,7 @@
   "folders": [
     {
       "name": "Python",
-      "path": "python",
+      "path": "python"
     },
     {
       "name": "Web-App",
@@ -15,6 +15,9 @@
     {
       "name": "Scripts",
       "path": "scripts"
+    },
+    {
+      "path": "php"
     }
   ],
   "settings": {
