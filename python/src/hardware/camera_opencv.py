@@ -35,20 +35,20 @@ _resolution = (Config.video_width(), Config.video_height())
 _framerate = Config.video_fps()
 
 
-def init(src: int = 0, resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps()):
+def init(src: int = 0, resolution=None, framerate=None):
     """init/config cam"""
     global _stream, _resolution, _framerate  # pylint: disable=global-statement
     logging.info('### init OpenCV VideoCapture')
-    _resolution = resolution
-    _framerate = framerate
+    _resolution = resolution if resolution is not None else _resolution
+    _framerate = framerate if framerate is not None else _framerate
     _stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
     # self.stream = cv2.VideoCapture(-1)
     if not _stream.isOpened():
         logging.error('can not open VideoCapture')
         sys.exit()
-    _stream.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
-    _stream.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
-    _stream.set(cv2.CAP_PROP_FPS, framerate)
+    _stream.set(cv2.CAP_PROP_FRAME_WIDTH, _resolution[0])
+    _stream.set(cv2.CAP_PROP_FRAME_HEIGHT, _resolution[1])
+    _stream.set(cv2.CAP_PROP_FPS, _framerate)
     sleep(1)
     atexit.register(_atexit)
 

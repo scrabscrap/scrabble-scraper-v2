@@ -38,7 +38,7 @@ _raw_capture = None  # pylint: disable=invalid-name
 _stream = None  # pylint: disable=invalid-name
 
 
-def init(resolution=(Config.video_width(), Config.video_height()), framerate=Config.video_fps()):
+def init(resolution=None, framerate=None):
     """init/config cam"""
     global _frame, _camera, _raw_capture, _stream  # pylint: disable=global-statement
     logging.info('### init PiCamera')

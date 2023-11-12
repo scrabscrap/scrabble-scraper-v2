@@ -32,11 +32,11 @@ formatter: str = Config.simulate_path()
 cnt: int = 1
 
 
-def init(new_formatter: Optional[str] = None, resolution=(Config.video_width(), Config.video_height())):
+def init(new_formatter: Optional[str] = None, resolution=None):
     """init/config cam"""
     global _resolution, formatter  # pylint: disable=global-statement
     logging.info('### init MockCamera')
-    _resolution = resolution
+    _resolution = resolution if resolution is not None else _resolution
     if new_formatter is not None:
         formatter = new_formatter
     else:

@@ -46,21 +46,21 @@ _event: Optional[Event] = None
 
 
 @trace
-def init(src: int = 0, use_camera: CameraEnum = _camera,  # pylint: disable=unused-argument
-         resolution=_resolution, framerate=_framerate):
+def init(src: int = 0, use_camera: Optional[CameraEnum] = None, resolution=None, framerate=None):
+    # pylint: disable=unused-argument
     """init/config cam"""
     global _is_init, _camera, _resolution, _framerate  # pylint: disable=global-statement
-    _camera = use_camera
-    _resolution = resolution
-    _framerate = framerate
-    if use_camera == CameraEnum.PICAMERA:
-        cam_rpi.init(resolution=resolution, framerate=framerate)
-    elif use_camera == CameraEnum.FILE:
-        cam_file.init(new_formatter=None, resolution=resolution)
-    elif use_camera == CameraEnum.OPENCV:
-        cam_opencv.init(src=src, resolution=resolution, framerate=framerate)
+    _camera = use_camera if use_camera is not None else _camera
+    _resolution = resolution if resolution is not None else _resolution
+    _framerate = framerate if framerate is not None else _framerate
+    if _camera == CameraEnum.PICAMERA:
+        cam_rpi.init(resolution=resolution, framerate=_framerate)
+    elif _camera == CameraEnum.FILE:
+        cam_file.init(new_formatter=None, resolution=_resolution)
+    elif _camera == CameraEnum.OPENCV:
+        cam_opencv.init(src=src, resolution=_resolution, framerate=_framerate)
     else:
-        cam_file.init(new_formatter=None, resolution=resolution)
+        cam_file.init(new_formatter=None, resolution=_resolution)
         _camera = CameraEnum.FILE
     _is_init = True
 
