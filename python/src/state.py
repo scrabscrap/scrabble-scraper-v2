@@ -87,6 +87,9 @@ class State(Static):
         ScrabbleWatch.display.show_ready(cls.game.nicknames)
         ScrabbleWatch.display.set_game(cls.game)
         cls.picture = cam.read(peek=True)
+        if cls.picture is None:
+            logging.error('can not read image from camera')
+            ScrabbleWatch.display.show_cam_err()
         cls.current_state = START
         return cls.current_state
 
@@ -244,6 +247,7 @@ class State(Static):
             _ = pool.submit(cam.update, threading.Event())
         except Exception as oops:  # type: ignore # pylint: disable=broad-exception-caught
             logging.exception(f'can not open camera {oops}')
+            ScrabbleWatch.display.show_cam_err()
 
         start_of_game(cls.game)
         if not cls.op_event.is_set():
