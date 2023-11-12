@@ -28,7 +28,7 @@ class App extends Component {
       image: null,
       settings: {
         obs: this.getCookie('OBS', false),
-        obsbank: this.getCookie('OBSBANK', true),
+        obsbank: this.getCookie('OBSBANK', false),
         websocket: true,
         header_text: 'SCRABBLE SCRAPER'
       },

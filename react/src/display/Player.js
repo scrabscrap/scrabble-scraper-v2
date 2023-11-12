@@ -70,7 +70,7 @@ class Player extends Component {
                         </span>
                     </p>
 
-                    <div className={this.props.obs ? 'hidden obs-bank-camera pt-4' : 'hidden'} >
+                    <div className={this.props.obs ? 'obs-bank-camera pt-4' : 'hidden'} >
                         <center><div><h2>&#x1F4F9;</h2></div></center>
                     </div>
                 </div>
