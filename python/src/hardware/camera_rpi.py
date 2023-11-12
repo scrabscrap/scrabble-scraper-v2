@@ -28,7 +28,8 @@ try:
     from picamera import PiCamera  # type: ignore
     from picamera.array import PiRGBArray  # type: ignore
 except ImportError:
-    print('no PICamera available')
+    print('>>> no PICamera available <<<')
+    from hardware.fake_picamera import PiCamera, PiRGBArray
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
