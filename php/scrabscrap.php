@@ -35,9 +35,9 @@ if(isset($_POST["delete"])) {
           $errors[] = "ERROR: " . basename($fileName) . " NOK - invalid file extension\n";
       }
   
-      if ($fileSize > 20000000) {
-          $errors[] = "ERROR: " . basename($fileName) . " NOK - Filesize\n";
-      }
+      // if (($fileExtension != 'zip') && ($fileSize > 4000000)) {
+      //    $errors[] = "ERROR: " . basename($fileName) . " NOK - Filesize\n";
+      // }
       if (empty($errors)) {
           $didUpload = move_uploaded_file($fileTmpName, $uploadPath);
           if ($didUpload) {
