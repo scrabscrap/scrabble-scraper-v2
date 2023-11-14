@@ -39,8 +39,6 @@ def init(new_formatter: Optional[str] = None, resolution=None):
     _resolution = resolution if resolution is not None else _resolution
     if new_formatter is not None:
         formatter = new_formatter
-    else:
-        formatter = Config.simulate_path()
 
 
 def read(peek=False) -> Mat:
