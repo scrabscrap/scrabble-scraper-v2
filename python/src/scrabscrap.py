@@ -81,9 +81,6 @@ def main() -> None:
     # init State Machine
     State.init()
 
-    if cam is None or not cam.cam_is_init:
-        ScrabbleWatch.display.show_cam_err()
-
     logging.info('####################################################################')
     logging.info('## ScrabScrap ready                                               ##')
     logging.info('####################################################################')

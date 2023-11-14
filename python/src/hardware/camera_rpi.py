@@ -44,21 +44,27 @@ def init(resolution=None, framerate=None):
     global _frame, _camera, _raw_capture, _stream  # pylint: disable=global-statement
     logging.info('### init PiCamera')
     _frame = np.array([])
-    _camera = PiCamera(resolution=resolution, framerate=framerate)  # type: ignore # reportUnboundVariable
+    if _camera is None:
+        _camera = PiCamera(resolution=resolution, framerate=framerate)  # type: ignore # reportUnboundVariable
     if Config.video_rotate():
         _camera.rotation = 180
-    _raw_capture = PiRGBArray(_camera, size=_camera.resolution)  # type: ignore # reportUnboundVariable
+    if _raw_capture is None:
+        _raw_capture = PiRGBArray(_camera, size=_camera.resolution)  # type: ignore # reportUnboundVariable
     sleep(0.3)  # warmup camera
-    _stream = _camera.capture_continuous(_raw_capture, format="bgr", use_video_port=True)
+    if _stream is None:
+        _stream = _camera.capture_continuous(_raw_capture, format="bgr", use_video_port=True)
     atexit.register(_atexit)
 
 
 def _atexit() -> None:
     global _stream, _frame  # pylint: disable=global-statement
     logging.info('camera close')
-    _stream.close()  # type: ignore
-    _raw_capture.close()  # type: ignore
-    _camera.close()  # type: ignore
+    if _stream:
+        _stream.close()  # type: ignore
+    if _raw_capture:
+        _raw_capture.close()  # type: ignore
+    if _camera:
+        _camera.close()  # type: ignore
     _frame = np.array([])
     _stream = None
 
