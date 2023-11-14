@@ -54,7 +54,7 @@ jobs:
         run: |
           cd python
           python -m pip install --upgrade pip
-          pip install mypy pytest
+          pip install mypy pytest types-requests
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Check with mypy
         id: mypy
@@ -121,7 +121,7 @@ jobs:
         run: |
           cd python
           python -m pip install --upgrade pip
-          pip install flake8 pytest
+          pip install flake8 pytest coverage
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Run test coverage
         id: unittest
