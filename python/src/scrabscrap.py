@@ -38,36 +38,29 @@ from state import State
 from threadpool import pool
 from timer_thread import RepeatedTimer
 
-cleanup_done = False  # pylint: disable=invalid-name
-
 
 def main() -> None:
     """entry point for scrabscrap"""
 
     def _cleanup():
-        global cleanup_done  # pylint: disable=invalid-name,global-statement
-        # not a constant see _cleanup()
-
-        logging.debug(f'main-_atexit {cleanup_done}')
-        if not cleanup_done:
-            cleanup_done = True
-            api.stop_server()
-            timer.cancel()
-            cam.cancel()
-            pool.shutdown(cancel_futures=True)
+        atexit.unregister(_cleanup)
+        logging.debug('main-_atexit')
+        api.stop_server()
+        timer.cancel()
+        cam.cancel()
+        pool.shutdown(cancel_futures=True)
 
     def signal_alarm(signum, _) -> None:
         import os
 
         logging.debug(f'Alarm handler called with signal {signum}')
-        _cleanup()
         signal.alarm(0)
+        _cleanup()
         if Config.system_quit() in ('reboot'):
             os.system('sudo shutdown -r now')
-            sys.exit(0)
         elif Config.system_quit() in ('shutdown'):
             os.system('sudo shutdown now')
-            sys.exit(0)
+        sys.exit(0)
 
     logging.info('####################################################################')
     logging.info('## ScrabScrap loading ...                                         ##')
@@ -81,12 +74,6 @@ def main() -> None:
     timer = RepeatedTimer(1, ScrabbleWatch.tick)
     _ = pool.submit(timer.tick, Event())
 
-    # cam.init()
-    # try:
-    #     _ = pool.submit(cam.update, Event())
-    # except Exception as oops:  # type: ignore # pylint: disable=broad-exception-caught
-    #     logging.exception(f'can not open camera {oops}')
-
     # start api server
     api = ApiServer()
     _ = pool.submit(api.start_server)
@@ -94,7 +81,7 @@ def main() -> None:
     # init State Machine
     State.init()
 
-    if cam is None:
+    if cam is None or not cam.cam_is_init:
         ScrabbleWatch.display.show_cam_err()
 
     logging.info('####################################################################')

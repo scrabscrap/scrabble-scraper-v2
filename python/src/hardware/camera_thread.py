@@ -41,7 +41,7 @@ class CameraEnum(Enum):
 _camera: CameraEnum = CameraEnum.PICAMERA
 _resolution: tuple[int, int] = (Config.video_width(), Config.video_height())
 _framerate: int = Config.video_fps()
-_is_init: bool = False
+cam_is_init: bool = False
 _event: Optional[Event] = None
 
 
@@ -49,7 +49,7 @@ _event: Optional[Event] = None
 def init(src: int = 0, use_camera: Optional[CameraEnum] = None, resolution=None, framerate=None):
     # pylint: disable=unused-argument
     """init/config cam"""
-    global _is_init, _camera, _resolution, _framerate  # pylint: disable=global-statement
+    global cam_is_init, _camera, _resolution, _framerate  # pylint: disable=global-statement
     _camera = use_camera if use_camera is not None else _camera
     _resolution = resolution if resolution is not None else _resolution
     _framerate = framerate if framerate is not None else _framerate
@@ -62,7 +62,7 @@ def init(src: int = 0, use_camera: Optional[CameraEnum] = None, resolution=None,
     else:
         cam_file.init(new_formatter=None, resolution=_resolution)
         _camera = CameraEnum.FILE
-    _is_init = True
+    cam_is_init = True
 
 
 def switch_cam(cam: CameraEnum) -> None:
@@ -78,7 +78,7 @@ def switch_cam(cam: CameraEnum) -> None:
 def update(event: Event) -> None:
     """update to next picture on thread event"""
     global _event  # pylint: disable=global-statement
-    if not _is_init:
+    if not cam_is_init:
         init()
     _event = event
     if _camera == CameraEnum.PICAMERA:
