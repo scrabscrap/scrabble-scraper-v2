@@ -54,7 +54,7 @@ def init(src: int = 0, use_camera: Optional[CameraEnum] = None, resolution=None,
     _resolution = resolution if resolution is not None else _resolution
     _framerate = framerate if framerate is not None else _framerate
     if _camera == CameraEnum.PICAMERA:
-        cam_rpi.init(resolution=resolution, framerate=_framerate)
+        cam_rpi.init(resolution=_resolution, framerate=_framerate)
     elif _camera == CameraEnum.FILE:
         cam_file.init(new_formatter=None, resolution=_resolution)
     elif _camera == CameraEnum.OPENCV:
