@@ -61,7 +61,7 @@ echo "####################################################################"
 echo "## Upgrade pip libraries                                          ##"
 echo "####################################################################"
 source "$ROOT_PATH/python/.venv/bin/activate"
-pip uninstall $(pip freeze) -y
+pip freeze | grep -v -f requirements.txt - | grep -v '^#' | xargs pip uninstall -y
 pip install -U pip setuptools wheel
 pip install -U --upgrade-strategy eager -r requirements.txt --only-binary=:all:
 

@@ -1,0 +1,25 @@
+## dev tools (install latest version)
+# pip install -U -r requirements-devel.txt
+
+autopep8
+# pycodestyle
+# tomli
+coverage
+flake8
+# mccabe
+# pyflakes
+mypy
+# mypy-extensions
+# typing_extensions
+pipdeptree
+pylint
+# astroid
+# dill
+# isort
+# mccabe
+# typing_extensions
+# platformdirs
+# tomlkit
+snakeviz
+# tornado
+types-requests
