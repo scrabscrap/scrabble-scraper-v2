@@ -1,3 +1,10 @@
+---
+output:
+  pdf_document:
+    path: pdf/pin-layout.pdf
+    highlight: tango
+geometry: margin=2cm
+---
 
 # Pin Belegung
 

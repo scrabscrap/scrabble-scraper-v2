@@ -1,3 +1,11 @@
+---
+output:
+  pdf_document:
+    path: pdf/install-rpi-de.pdf
+    highlight: tango
+geometry: margin=2cm
+---
+
 # Installation ScrabScrap v2
 
 ## Basis-Installation des RPI

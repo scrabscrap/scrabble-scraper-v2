@@ -1,3 +1,11 @@
+---
+output:
+  pdf_document:
+    path: pdf/manual-wifi-en.pdf
+    highlight: tango
+geometry: margin=2cm
+---
+
 # Configuration of the WiFi entries
 
 ## Add a new WiFi

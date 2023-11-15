@@ -1,3 +1,11 @@
+---
+output:
+  pdf_document:
+    path: pdf/manual-wlan-de.pdf
+    highlight: tango
+geometry: margin=2cm
+---
+
 # Konfiguration der WLAN Einträge
 
 ## Neues WLAN hinzufügen

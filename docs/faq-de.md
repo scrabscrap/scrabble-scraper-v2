@@ -1,3 +1,11 @@
+---
+output:
+  pdf_document:
+    path: pdf/faq-de.pdf
+    highlight: tango
+geometry: margin=2cm
+---
+
 # FAQ
 
 ## Vorbereitungen

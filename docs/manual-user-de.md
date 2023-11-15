@@ -1,3 +1,11 @@
+---
+output: 
+  pdf_document:
+    path: pdf/manual-user-de.pdf
+    highlight: tango
+geometry: margin=2cm
+---
+
 ## ScrabScrap - Spieler 1 (Grün)
 
 ### Spielzug
