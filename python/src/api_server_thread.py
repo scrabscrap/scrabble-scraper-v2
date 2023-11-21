@@ -519,6 +519,42 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         return redirect(url_for('route_index'))
 
     @ staticmethod
+    @ app.route('/test_analyze')
+    def do_test_analyze():
+        """ start simple analyze test """
+        from processing import analyze, filter_image  # , filter_candidates
+        from scrabble import board_to_string
+
+        if State.current_state in ('START', 'EOG', 'P0', 'P1'):
+            log_message = 'run analyze test'
+
+            ApiServer.flask_shutdown_blocked = True
+            logging.info(log_message)
+
+            img = cam.read(peek=True)
+            warped, warped_gray = warp_image(img)
+            _, tiles_candidates = filter_image(warped)
+            # tiles_candidates = filter_candidates((7, 7), tiles_candidates, set())
+            board = {}
+            new_board = analyze(warped_gray, board, tiles_candidates)
+            logging.info(f'\n{board_to_string(new_board)}')
+            # find log
+            process = subprocess.run(['tail', '-200', f'{Config.log_dir()}/messages.log'], check=False,
+                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            log_out = process.stdout.decode()
+            if (f := log_out.rfind(log_message)) > 0:
+                log_out = log_out[f + len(log_message):]
+            # create b64 image
+            _, im_buf_arr = cv2.imencode(".jpg", overlay_grid(warped))
+            png_overlay = base64.b64encode(im_buf_arr)
+
+            ApiServer.flask_shutdown_blocked = False
+            ApiServer.last_msg = log_out
+            return render_template('analyze.html', apiserver=ApiServer, log=log_out, img_data=urllib.parse.quote(png_overlay))
+        ApiServer.last_msg = 'not in State START, EOG, P0, P1'
+        return redirect(url_for('route_index'))
+
+    @ staticmethod
     @ app.route('/test_ftp')
     def do_test_ftp():
         """ is ftp accessible  """

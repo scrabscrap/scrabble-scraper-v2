@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="py-2">
+            <div class="card">
+                <div class="card-header bg-info">Analyze Test</div>
+                <div class="card-body">
+                    <form action="/test_analyze" method="post">
+                        <div class="row">
+                            <div class="col-6">
+                                <img style="padding:5px; max-width: 40vw" src="data:image/jpg;base64,{{img_data}}" />
+                            </div>
+                            <div class="col-6">
+                                <div class="card-body">
+                                    <div style="font-family: monospace; display: flex; flex-direction: column-reverse; 
+                                        max-height: 500px; overflow: auto;font-size: 50%; white-space: pre-wrap;"
+                                        id="logentry">
+                                        {{log}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

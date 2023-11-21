@@ -31,6 +31,29 @@ from game_board.tiles import bag_as_list, scores
 API_VERSION = '1.1'
 
 
+def board_to_string(board: dict) -> str:
+    """print out Scrabble board dictionary"""
+    result = '\n  |'
+    for i in range(15):
+        result += f'{(i + 1):2d} '
+    result += ' | '
+    for i in range(15):
+        result += f'{(i + 1):2d} '
+    result += '\n'
+    for row in range(15):
+        result += f"{chr(ord('A') + row)} |"
+        for col in range(15):
+            if (col, row) in board:
+                result += f' {board[(col, row)][0]} '
+            else:
+                result += ' . '
+        result += ' | '
+        for col in range(15):
+            result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' . '
+        result += ' | \n'
+    return result
+
+
 class MoveType(Enum):
     """Enumeration for move types"""
     REGULAR = 1
@@ -370,26 +393,7 @@ class Game():
         if move_index > len(self.moves):
             return ''
         board = self.moves[move_index].board
-        result = '  |'
-        for i in range(15):
-            result += f'{(i + 1):2d} '
-        result += ' | '
-        for i in range(15):
-            result += f'{(i + 1):2d} '
-        result += '\n'
-        for row in range(15):
-            result += f"{chr(ord('A') + row)} |"
-            for col in range(15):
-                if (col, row) in board:
-                    result += f'[{board[(col, row)][0]}]' \
-                        if (col, row) in self.moves[move_index].new_tiles else f' {board[(col, row)][0]} '
-                else:
-                    result += ' - ' if (col, row) in self.moves[move_index].removed_tiles else ' . '
-            result += ' | '
-            for col in range(15):
-                result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' . '
-            result += ' | \n'
-        return result
+        return board_to_string(board=board)
 
     @property
     def nicknames(self) -> Tuple[str, str]:
