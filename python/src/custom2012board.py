@@ -38,17 +38,9 @@ class Custom2012Board(CustomBoard):
     @classmethod
     def _is_tile(cls, coord: tuple[int, int], color: tuple[int, int, int]) -> bool:
         # pylint: disable=too-many-return-statements
-        def between(val: tuple[int, int, int], lower: list[int], upper: list[int]) -> bool:
-            if upper[0] > 180:
-                return (lower[0] <= val[0] or val[0] <= (upper[0] - 180)) and \
-                    (lower[1] <= val[1] <= upper[1]) and \
-                    (lower[2] <= val[2] <= upper[2])
-            return (lower[0] <= val[0] <= upper[0]) and \
-                (lower[1] <= val[1] <= upper[1]) and \
-                (lower[2] <= val[2] <= upper[2])
 
         if coord in TRIPLE_WORDS:  # dark red
-            if between(color, cls.TWORD_COLOR1[cls.LOWER], cls.TWORD_COLOR1[cls.UPPER]):
+            if cls.between(color, cls.TWORD_COLOR1[cls.LOWER], cls.TWORD_COLOR1[cls.UPPER]):
                 if 'tword1' not in cls.statistic:
                     cls.statistic['tword1'] = ([256, 256, 256], [-1, -1, -1])
                 cls.statistic['tword1'] = (np.minimum(color, cls.statistic['tword1'][cls.LOWER]),
@@ -56,7 +48,7 @@ class Custom2012Board(CustomBoard):
                 return False
             return super()._is_tile(coord, color)
         if coord in DOUBLE_WORDS:  # light red
-            if between(color, cls.DWORD_COLOR1[cls.LOWER], cls.DWORD_COLOR1[cls.UPPER]):
+            if cls.between(color, cls.DWORD_COLOR1[cls.LOWER], cls.DWORD_COLOR1[cls.UPPER]):
                 if 'dword1' not in cls.statistic:
                     cls.statistic['dword1'] = ([256, 256, 256], [-1, -1, -1])
                 cls.statistic['dword1'] = (np.minimum(color, cls.statistic['dword1'][cls.LOWER]),

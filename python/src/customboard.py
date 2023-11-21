@@ -91,39 +91,42 @@ class CustomBoard(GameBoard):
         return result
 
     @classmethod
-    def _is_tile(cls, coord: tuple[int, int], color: tuple[int, int, int]) -> bool:
-        # pylint: disable=too-many-return-statements
-        def between(val: tuple[int, int, int], lower: list[int], upper: list[int]) -> bool:
-            if upper[0] > 180:
-                return (lower[0] <= val[0] or val[0] <= (upper[0] - 180)) and \
-                    (lower[1] <= val[1] <= upper[1]) and \
-                    (lower[2] <= val[2] <= upper[2])
-            return (lower[0] <= val[0] <= upper[0]) and \
+    def between(cls, val: tuple[int, int, int], lower: list[int], upper: list[int]) -> bool:
+        """check if hsl value is between lower and upper"""
+        if upper[0] > 180:
+            return (lower[0] <= val[0] or val[0] <= (upper[0] - 180)) and \
                 (lower[1] <= val[1] <= upper[1]) and \
                 (lower[2] <= val[2] <= upper[2])
+        return (lower[0] <= val[0] <= upper[0]) and \
+            (lower[1] <= val[1] <= upper[1]) and \
+            (lower[2] <= val[2] <= upper[2])
+
+    @classmethod
+    def _is_tile(cls, coord: tuple[int, int], color: tuple[int, int, int]) -> bool:
+        # pylint: disable=too-many-return-statements
 
         if coord in TRIPLE_WORDS:  # dark red
-            if between(color, cls.TWORD_COLOR[cls.LOWER], cls.TWORD_COLOR[cls.UPPER]):
+            if cls.between(color, cls.TWORD_COLOR[cls.LOWER], cls.TWORD_COLOR[cls.UPPER]):
                 cls.statistic['tword'] = (np.minimum(color, cls.statistic['tword'][cls.LOWER]),
                                           np.maximum(color, cls.statistic['tword'][cls.UPPER]))
                 return False
         elif coord in DOUBLE_WORDS:  # light red
-            if between(color, cls.TWORD_COLOR[cls.LOWER], cls.TWORD_COLOR[cls.UPPER]):
+            if cls.between(color, cls.TWORD_COLOR[cls.LOWER], cls.TWORD_COLOR[cls.UPPER]):
                 cls.statistic['dword'] = (np.minimum(color, cls.statistic['dword'][cls.LOWER]),
                                           np.maximum(color, cls.statistic['dword'][cls.UPPER]))
                 return False
         elif coord in TRIPLE_LETTER:  # dark blue
-            if between(color, cls.TLETTER_COLOR[cls.LOWER], cls.TLETTER_COLOR[cls.UPPER]):
+            if cls.between(color, cls.TLETTER_COLOR[cls.LOWER], cls.TLETTER_COLOR[cls.UPPER]):
                 cls.statistic['tletter'] = (np.minimum(color, cls.statistic['tletter'][cls.LOWER]),
                                             np.maximum(color, cls.statistic['tletter'][cls.UPPER]))
                 return False
         elif coord in DOUBLE_LETTER:  # light blue
-            if between(color, cls.DLETTER_COLOR[cls.LOWER], cls.DLETTER_COLOR[cls.UPPER]):
+            if cls.between(color, cls.DLETTER_COLOR[cls.LOWER], cls.DLETTER_COLOR[cls.UPPER]):
                 cls.statistic['dletter'] = (np.minimum(color, cls.statistic['dletter'][cls.LOWER]),
                                             np.maximum(color, cls.statistic['dletter'][cls.UPPER]))
                 return False
         else:  # green
-            if between(color, cls.FIELD_COLOR[cls.LOWER], cls.FIELD_COLOR[cls.UPPER]):
+            if cls.between(color, cls.FIELD_COLOR[cls.LOWER], cls.FIELD_COLOR[cls.UPPER]):
                 cls.statistic['field'] = (np.minimum(color, cls.statistic['field'][cls.LOWER]),
                                           np.maximum(color, cls.statistic['field'][cls.UPPER]))
                 return False
