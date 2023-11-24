@@ -32,9 +32,9 @@ Pillow==10.1.0
 pyftdi==0.55.0
 pyserial==3.5
 pyusb==1.2.1
-RPi.GPIO==0.7.1
+RPi.GPIO==0.7.1; sys_platform != "darwin" and platform_machine != "x86_64"
 smbus2==0.4.3
-spidev==3.6
+spidev==3.6; sys_platform != "darwin" and platform_machine != "x86_64"
 # netifaces
 netifaces==0.11.0
 # opencv
