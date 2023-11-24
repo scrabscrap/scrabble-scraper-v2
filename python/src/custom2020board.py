@@ -28,10 +28,12 @@ class Custom2020Board(CustomBoard):
     # color_double_word = np.array([21, 133, 255])
     # color_field = np.array([97, 145, 156])
 
-    FIELD_COLOR = ([85, 120, 128], [115, 255, 255])
+    # layout 2020
+    TLETTER = [[148, 80, 10], [180, 255, 255], [0, 80, 10], [10, 255, 255]]  # H 336 => 168
+    DLETTER = [[0, 10, 0], [180, 255, 80]]                                   # H 235 => 117 # no spec color if very dark
+    TWORD = [[10, 80, 50], [50, 255, 255]]                                   # H 60  => 30
+    DWORD = [[0, 160, 60], [40, 255, 255]]                                   # H 40 => 20
+    FIELD = [[75, 5, 5], [125, 255, 255]]                                    # H 194 => 97
 
-    TLETTER_COLOR = ([105, 50, 100], [180, 255, 255])
-    DLETTER_COLOR = ([105, 50, 100], [180, 255, 255])
-
-    TWORD_COLOR = ([10, 110, 100], [40, 255, 255])
-    DWORD_COLOR = ([10, 110, 100], [40, 255, 255])
+    SATURATION = [[0, 0, 0], [180, 60, 60]]
+    TILES_THRESHOLD = 1500

@@ -119,7 +119,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
                  TEST_DIR + "/board-tests/err-04.png",
                  TEST_DIR + "/board-tests/err-05.png",
                  TEST_DIR + "/board-tests/err-06.png",
-                 # TEST_DIR + "/board-tests/err-07.png",
+                 TEST_DIR + "/board-tests/err-07.png",
                  TEST_DIR + "/board-tests/err-08.png",
                  TEST_DIR + "/board-tests/err-09.png",
                  TEST_DIR + "/board-tests/err-10.png",
@@ -165,6 +165,10 @@ class ScrabbleMusterTestCase(unittest.TestCase):
     def test_new_images(self):
         """Test some new images"""
         files = [
+            TEST_DIR + "/board-tests/board-00.png",
+            # TEST_DIR + "/board-tests/board-01.png",
+            TEST_DIR + "/board-tests/board-02.png",
+            TEST_DIR + "/board-tests/board-03.png"
         ]
 
         # Fehler:
