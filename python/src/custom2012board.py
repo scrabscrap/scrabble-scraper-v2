@@ -15,44 +15,15 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-import numpy as np
-
 from customboard import CustomBoard
-from game_board.board import DOUBLE_WORDS, TRIPLE_WORDS
 
 
 class Custom2012Board(CustomBoard):
     """ Implementation custom 2012 scrabble board analysis """
 
-    # FIELD_COLOR = ([30, 85, 10], [90, 255, 255])
-
-    # TLETTER_COLOR = ([95, 60, 10], [130, 255, 255])
-    # DLETTER_COLOR = ([95, 60, 10], [130, 255, 255])
-
-    # TWORD_COLOR = ([145, 100, 10], [190, 255, 255])  # H: 0-10 & 145-180
-    # DWORD_COLOR = ([145, 100, 10], [190, 255, 255])  # H: 0-10 & 145-180
-
-    TWORD_COLOR1 = ([145, 50, 10], [189, 100, 255])  # overwrite H: 145-189, S: _50_-100
-    DWORD_COLOR1 = ([145, 50, 10], [180, 100, 255])  # overwrite H: 145-180, S: _50_-100
-
-    @classmethod
-    def _is_tile(cls, coord: tuple[int, int], color: tuple[int, int, int]) -> bool:
-        # pylint: disable=too-many-return-statements
-
-        if coord in TRIPLE_WORDS:  # dark red
-            if cls.between(color, cls.TWORD_COLOR1[cls.LOWER], cls.TWORD_COLOR1[cls.UPPER]):
-                if 'tword1' not in cls.statistic:
-                    cls.statistic['tword1'] = ([256, 256, 256], [-1, -1, -1])
-                cls.statistic['tword1'] = (np.minimum(color, cls.statistic['tword1'][cls.LOWER]),
-                                           np.maximum(color, cls.statistic['tword1'][cls.UPPER]))
-                return False
-            return super()._is_tile(coord, color)
-        if coord in DOUBLE_WORDS:  # light red
-            if cls.between(color, cls.DWORD_COLOR1[cls.LOWER], cls.DWORD_COLOR1[cls.UPPER]):
-                if 'dword1' not in cls.statistic:
-                    cls.statistic['dword1'] = ([256, 256, 256], [-1, -1, -1])
-                cls.statistic['dword1'] = (np.minimum(color, cls.statistic['dword1'][cls.LOWER]),
-                                           np.maximum(color, cls.statistic['dword1'][cls.UPPER]))
-                return False
-            return super()._is_tile(coord, color)
-        return super()._is_tile(coord, color)
+    # layout 2012
+    # TLETTER = [[95, 80, 20], [130, 255, 255]]                                # 205 => 102 (-7, +28)
+    # DLETTER = [[95, 60, 20], [130, 255, 255]]
+    # TWORD = [[145, 80, 10], [180, 255, 255], [0, 80, 10], [10, 255, 255]]    # 360 => 180 (-35, +10)
+    # DWORD = [[145, 50, 10], [180, 255, 255], [0, 80, 10], [10, 255, 255]]
+    # FIELD = [[30, 85, 20], [90, 255, 255]]                                   # 140 => 70  (-40, + 20)
