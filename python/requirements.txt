@@ -46,5 +46,5 @@ picamera==1.13; sys_platform != "darwin" and platform_machine != "x86_64"
 requests==2.31.0
 certifi==2023.11.17
 charset-normalizer==3.3.2
-idna==3.4
+idna==3.5
 urllib3==2.1.0
