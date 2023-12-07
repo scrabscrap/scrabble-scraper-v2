@@ -62,7 +62,7 @@ class PlayerDisplay(Display):
             DEVICE[i].hide()
 
     @classmethod
-    def show_boot(cls, current_ip=('', '')) -> None:
+    def show_boot(cls) -> None:
         logging.debug('Loading message')
         try:
             wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member

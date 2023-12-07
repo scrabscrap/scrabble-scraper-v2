@@ -203,9 +203,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/moves', methods=['GET', 'POST'])
     def route_moves():  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
         """ edit moves form """
-        def get_coord(coord) -> str:
-            (col, row) = coord
-            return chr(ord('A') + row) + str(col + 1)
+        def get_coord(_coord) -> str:
+            (_col, _row) = _coord
+            return chr(ord('A') + _row) + str(_col + 1)
 
         ApiServer._clear_message()
         game = State.game

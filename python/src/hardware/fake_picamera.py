@@ -19,7 +19,7 @@ import logging
 import numpy as np
 
 
-class BGR():  # pylint: disable=too-few-public-methods
+class BGR:  # pylint: disable=too-few-public-methods
     """Fake class"""
 
     def __init__(self, sz):
@@ -35,7 +35,7 @@ class BGR():  # pylint: disable=too-few-public-methods
 
 # class picamera(object):
 #     """Fake class"""
-class PiCamera():
+class PiCamera:
     """Fake class"""
     resolution = (0, 0)
 
@@ -287,7 +287,7 @@ class PiCamera():
         pass
 
 
-class PiRGBArray():
+class PiRGBArray:
     # pylint: disable=invalid-name too-few-public-methods
     """
     Fake: Produces a 3-dimensional RGB array from an RGB capture.

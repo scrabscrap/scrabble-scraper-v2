@@ -15,7 +15,7 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-from typing import List, Optional
+from typing import List
 
 import cv2
 from config import Config
@@ -43,7 +43,7 @@ def scores(tile: str) -> int:
     return Config.tiles_scores()[tile]
 
 
-def load_tiles(filepath: Optional[str] = None) -> List[OneTile]:
+def load_tiles() -> List[OneTile]:
     """load tile images from disk"""
 
     tiles.clear()

@@ -185,7 +185,7 @@ class State(Static):
 
     @classmethod
     def do_new_player_names(cls, name1: str, name2: str) -> None:
-        "set new player names and upload status, if state is START"
+        """set new player names and upload status, if state is START"""
         cls.game.nicknames = (name1, name2)
         if cls.current_state == START:
             store_status(cls.game)

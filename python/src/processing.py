@@ -114,27 +114,26 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
                 suggest_prop = int(thresh * 100)
         return suggest_tile, suggest_prop
 
-    def find_tile(coord: tuple[int, int], gray: Mat, _board: dict):
-        (col, row) = coord
-        (tile, prop) = _board[coord] if coord in _board else ('_', 76)
+    def find_tile():
+        (tile, prop) = board[coord] if coord in board else ('_', 76)
         if prop > 90:
             logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {tile} ({prop}) tile on board prop > 90 ")
-            return _board[coord]
+            return board[coord]
         (tile, prop) = match(gray, tile, prop)
         if prop < 90:
             (tile, prop) = match(imutils.rotate(gray, -10), tile, prop)
         if prop < 90:
             (tile, prop) = match(imutils.rotate(gray, 10), tile, prop)
-        _board[coord] = (tile, prop) if tile is not None else ('_', 76)
-        return _board[coord]
+        board[coord] = (tile, prop) if tile is not None else ('_', 76)
+        return board[coord]
 
     for coord in coord_list:
         (col, row) = coord
         _y = get_y_position(row)
         _x = get_x_position(col)
         gray = warped_gray[_y - 15:_y + GRID_H + 15, _x - 15:_x + GRID_W + 15]
-        tile, prop = find_tile(coord, gray, board)
-        logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {tile} ({prop:2}) found")
+        new_tile, new_prop = find_tile()
+        logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {new_tile} ({new_prop:2}) found")
     return board
 
 
@@ -247,6 +246,7 @@ def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, c
     The provided tiles(word) will be set on the board with a probability of 99%
 
     Args:
+        waitfor: flag for running tasks
         game(Move): the game to fix
         move_number: the move to fix(beginning with 1)
         coord: coordinates on board(0 <= col < 15, 0 <= row < 15)
@@ -342,6 +342,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         img: the image to analyze
         player(int): active player
         played_time(int, int): current player times
+        event: event to set
     """
     warped, board = _image_processing(waitfor, game, img)
 
@@ -375,6 +376,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         game(Game): the current game data
         player(int): active player
         played_time(int, int): current player times
+        event: event to set
     """
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
@@ -399,6 +401,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         game(Game): the current game data
         player(int): active player
         played_time(int, int): current player times
+        event: event to set
     """
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
@@ -450,6 +453,7 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
     Args:
         waitfor(futures): wait for jobs to complete
         game(Game): the current game data
+        event: event to set
     """
     while waitfor is not None and waitfor.running():
         time.sleep(0.05)
@@ -470,14 +474,14 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
 def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
     from game_board.tiles import bag_as_list, scores
 
-    def calculate_bag(mov) -> list[str]:
-        values = [t for (t, _) in mov.board.values()]
-        bag = bag_as_list.copy()
+    def calculate_bag(_mov) -> list[str]:
+        values = [t for (t, _) in _mov.board.values()]
+        result = bag_as_list.copy()
         for val in values:
             toremove = '_' if val.isalpha() and val.islower() else val
-            if toremove in bag:
-                bag.remove(toremove)
-        return bag
+            if toremove in result:
+                result.remove(toremove)
+        return result
 
     bag_len = 0
     i = -1
@@ -659,11 +663,11 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
         if must_recalculate:
             _word = ''
             (col, row) = mov.coord
-            for i, char in enumerate(mov.word):                                # fix mov.word
+            for j, char in enumerate(mov.word):                                # fix mov.word
                 if mov.is_vertical:
-                    _word += board[(col, row + i)][0] if char != '.' else '.'
+                    _word += board[(col, row + j)][0] if char != '.' else '.'
                 else:
-                    _word += board[(col + i, row)][0] if char != '.' else '.'
+                    _word += board[(col + j, row)][0] if char != '.' else '.'
             mov.word = _word
             mov.points, prev_score, mov.is_scrabble = mov.calculate_score(prev_score)
             mov.score = prev_score                                             # store previous score
@@ -695,7 +699,7 @@ def _store(game: Game, move_index: int, with_image: bool = True):  # pragma: no 
                 pool.submit(Upload.upload_status)                    # upload empty status
         except IOError as error:
             logging.error(f'error writing game move {move_index}: {error}')
-    elif (-len(moves) <= move_index < len(moves)):
+    elif -len(moves) <= move_index < len(moves):
         if with_image and moves[move_index].img is not None:
             if not cv2.imwrite(f'{Config.web_dir()}/image-{moves[move_index].move}.jpg',
                                moves[move_index].img, [cv2.IMWRITE_JPEG_QUALITY, 99]):  # type: ignore

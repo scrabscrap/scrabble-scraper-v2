@@ -195,8 +195,8 @@ class Move:  # pylint: disable=too-many-instance-attributes
 
     def calculate_score(self, previous_score: Tuple[int, int]) -> Tuple[int, Tuple[int, int], bool]:
         """calculate score of the current move"""
-        def crossing_points(pos: Tuple[int, int]) -> int:
-            col, row = pos
+        def crossing_points(_pos: Tuple[int, int]) -> int:
+            col, row = _pos
             word: str = ''
             if self.is_vertical:
                 while col > 0 and (col - 1, row) in self.board:
@@ -212,13 +212,13 @@ class Move:  # pylint: disable=too-many-instance-attributes
                     row += 1
             if len(word) > 1:
                 xval = sum(scores(letter) for letter in word)
-                if pos in DOUBLE_LETTER:
+                if _pos in DOUBLE_LETTER:
                     xval += scores(self.board[pos][0])
-                elif pos in TRIPLE_LETTER:
+                elif _pos in TRIPLE_LETTER:
                     xval += scores(self.board[pos][0]) * 2
-                elif pos in DOUBLE_WORDS:
+                elif _pos in DOUBLE_WORDS:
                     xval *= 2
-                elif pos in TRIPLE_WORDS:
+                elif _pos in TRIPLE_WORDS:
                     xval *= 3
                 return xval
             return 0
@@ -258,7 +258,7 @@ class Move:  # pylint: disable=too-many-instance-attributes
         return val, score, is_scrabble
 
 
-class Game():
+class Game:
     """Represents the current game"""
 
     def __init__(self, nicknames: Optional[Tuple[str, str]]):
@@ -512,7 +512,7 @@ class Game():
 
         Args:
             points (int, int): points for player 0 / 1
-            rack_str str: remaining rack
+            rack_str: remaining rack
 
         Returns:
             self(Game): current game

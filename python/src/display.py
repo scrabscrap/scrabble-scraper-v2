@@ -34,9 +34,9 @@ class Display(Static):
         logging.debug('display stop')
 
     @classmethod
-    def show_boot(cls, current_ip=('', '')) -> None:
+    def show_boot(cls) -> None:
         """show boot message"""
-        logging.debug(f'Boot message: {current_ip}')
+        logging.debug('Boot message')
 
     @classmethod
     def show_reset(cls) -> None:
