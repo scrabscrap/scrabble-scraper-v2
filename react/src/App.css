@@ -40,7 +40,7 @@ body {
   height: auto;
   display: block;
   background-color: white;
-  box-shadow: 0px 8px 6px -6px #888;
+  box-shadow: 0 8px 6px -6px #888;
 }
 
 /* bag */
@@ -65,8 +65,7 @@ body {
 
 span.tile {
   display: inline-block;
-  margin: 1px;
-  margin-top: 2px;
+    margin: 2px 1px 1px;
 }
 
 /* bank */
@@ -82,7 +81,7 @@ span.tile {
   height: 31px;
   background-color: #00e673;
   /* new: background-color: #43869B; */
-  box-shadow: 0px 8px 6px -6px #888
+  box-shadow: 0 8px 6px -6px #888
 }
 
 /* moves */
@@ -95,7 +94,7 @@ span.tile {
 }
 
 .moves {
-  font: "Lucida Console", Monaco, monospace;
+  font-family: "Lucida Console", Monaco, monospace;
 }
 
 .table-move {
@@ -126,10 +125,10 @@ span.tile {
   width: 496px;
   height: 496px;
   display: inline-block;
-  padding: 2;
+  padding: 2px;
   background-color: #239b56;
   /* new: background-color: #43869B; */
-  box-shadow: 0px 8px 6px -6px #888;
+  box-shadow: 0 8px 6px -6px #888;
 }
 
 .tableboard td {
@@ -141,7 +140,9 @@ span.tile {
 }
 
 .tableborder {
-  border: thin transparent green;
+  border-width: thin;
+  border-style: hidden;
+  border-color: green;
   background-color: green;
   /* new: border: thin transparent #43869B; */
   /* new: background-color: #2A6573; */

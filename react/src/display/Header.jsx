@@ -5,8 +5,8 @@ import Settings from './Settings'
 class Header extends Component {
 
     render() {
-        var items = []
-        var str = this.props.settings.header_text
+        const items = [];
+        const str = this.props.settings.header_text;
 
         for (let i in str) {
             if (str[i] !== ' ') {
@@ -32,7 +32,7 @@ class Header extends Component {
                         <div className='col'>
                             <button type='button' data-toggle='tooltip' data-placement='top' title='Refresh page'
                                 className={buttonclass}
-                                onClick={() => window.location.reload(true)}>
+                                onClick={() => window.location.reload()}>
                                 &#x21BB;
                             </button>
                             <Settings settings={this.props.settings} updateSettings={this.props.updateSettings} />

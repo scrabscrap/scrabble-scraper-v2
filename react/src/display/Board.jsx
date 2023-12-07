@@ -4,7 +4,7 @@ class Board extends Component {
 
     cell(board, coord) {
         if (board != null) {
-            var e = board[coord]
+            const e = board[coord];
             if (e != null) {
                 return (<div id={coord} className='tile'>{e}</div>);
             } else {

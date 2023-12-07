@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 class Bag extends Component {
 
     render() {
-        var items = []
+        const items = [];
 
         if (this.props.bag != null) {
             for (const [key, value] of this.props.bag.entries()) {

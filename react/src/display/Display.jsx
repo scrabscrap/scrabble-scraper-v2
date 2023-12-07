@@ -13,7 +13,7 @@ class Display extends Component {
         const data = this.props.state
         console.debug(data)
 
-        var player_on_move = ''
+        let player_on_move = '';
         // fileconnect: data.op represents last move, therefor switch player_on_move
         if (data.op === 'S0') { player_on_move = (data.settings.websocket) ? '0' : '1' }
         if (data.op === 'S1') { player_on_move = (data.settings.websocket) ? '1' : '0' }

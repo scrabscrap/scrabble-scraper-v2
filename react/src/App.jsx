@@ -66,8 +66,8 @@ class App extends Component {
 
   componentDidMount() {
     if (navigator.userAgent.includes("OBS")) {
-      var { settings } = this.state
-      settings.obs = true
+        const {settings} = this.state;
+        settings.obs = true
       settings.obsbank = true
       this.setState({ settings: settings })
       this.setCookie('OBS', settings.obs)
@@ -98,9 +98,9 @@ class App extends Component {
   ws_firsttry = (new Date()).getTime()  // last websocket open 
   ws_intervalID;                        // var for timeout
   connect = () => {
-    var ws = new WebSocket(WS_URL);
+      const ws = new WebSocket(WS_URL);
 
-    ws.onopen = () => {  // websocket onopen event listener
+      ws.onopen = () => {  // websocket onopen event listener
       console.log('ws: connected ' + WS_URL);
       this.setState({ ws: ws });
       clearTimeout(this.ws_intervalID);          // clear Interval on on open of websocket connection
@@ -111,8 +111,8 @@ class App extends Component {
       const data = JSON.parse(msg.data);
       console.debug('ws: setState (websocket) ' + data?.op)
       this.ws_firsttry = (new Date()).getTime()
-      let img_str = data.image
-      if (data.image != null) {
+      let img_str
+        if (data.image != null) {
         if (data.op === 'START') {
           img_str = null
         } else if (data.image.startsWith('b\'')) {
@@ -130,8 +130,8 @@ class App extends Component {
           if (value.includes('(unknown)')) { unknown_move = true }
         }
       }
-      var header_text
-      if (data.status && data.status.tournament) {
+        let header_text;
+        if (data.status && data.status.tournament) {
         header_text = data.status.tournament
       } else {
         header_text = this.state.settings.header_text
@@ -224,8 +224,8 @@ class App extends Component {
               if (value.includes('(unknown)')) { unknown_move = true }
             }
           }
-          var header_text
-          if (data && data.tournament) {
+            let header_text;
+            if (data && data.tournament) {
             header_text = data.tournament
           } else {
             header_text = this.state.settings.header_text
