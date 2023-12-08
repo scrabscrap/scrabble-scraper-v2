@@ -160,3 +160,6 @@ node_modules/
 build/
 .pnp/
 *.iml
+
+# JetBrains Fleet
+.fleet/
