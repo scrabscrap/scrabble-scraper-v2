@@ -711,11 +711,8 @@ def main():
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
-    try:
-        cam.init()
-    except NameError:
-        # set Mock-Camera
-        cam.init(use_camera=CameraEnum.FILE)
+    # set Mock-Camera
+    cam.init(use_camera=CameraEnum.FILE)
 
     _ = pool.submit(cam.update, Event())
 
