@@ -295,7 +295,7 @@ class Game:
         keys = self.moves[move_index].board.keys()
         values = self.moves[move_index].board.values()
         keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in keys]
-        values1 = [t for (t, p) in values]
+        values1 = [t for (t, _) in values]
         bag = bag_as_list.copy()
         for i in values1:
             toremove = '_' if i.isalpha() and i.islower() else i
