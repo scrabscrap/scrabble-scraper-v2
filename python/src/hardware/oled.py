@@ -178,13 +178,6 @@ class PlayerDisplay(Display):
                 draw.text(MIDDLE, '\u2620ftp', font=FONT, anchor='mm', align='center', fill=WHITE)
 
     @classmethod
-    def show_config(cls) -> None:
-        logging.debug('Cfg message')
-        for i in range(2):
-            with canvas(DEVICE[i]) as draw:
-                draw.text(MIDDLE, '\u270ECfg', font=FONT, anchor='mm', align='center', fill=WHITE)
-
-    @classmethod
     def set_game(cls, game: Game) -> None:
         cls.game = game
         cls.last_score = (0, 0)

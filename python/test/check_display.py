@@ -53,7 +53,6 @@ class DisplayTestCase(unittest.TestCase):
 
         ScrabbleWatch.display.show_boot()
         ScrabbleWatch.display.show_cam_err()
-        ScrabbleWatch.display.show_config()
         ScrabbleWatch.display.show_ftp_err()
         ScrabbleWatch.reset()
         ScrabbleWatch.display.show_ready()

@@ -62,8 +62,6 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         time.sleep(display_pause)
         ScrabbleWatch.display.show_ftp_err()
         time.sleep(display_pause)
-        ScrabbleWatch.display.show_config()
-        time.sleep(display_pause)
         ScrabbleWatch.display.show_ready()
         time.sleep(display_pause)
         logging.info('start player 0')

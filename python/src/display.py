@@ -93,11 +93,6 @@ class Display(Static):
         logging.debug('FTP err message')
 
     @classmethod
-    def show_config(cls) -> None:
-        """show config message"""
-        logging.debug('Cfg message')
-
-    @classmethod
     def set_game(cls, game: Game) -> None:
         """set current game to display scores"""
         pass
