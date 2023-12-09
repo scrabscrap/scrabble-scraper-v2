@@ -128,34 +128,32 @@ class GameRunnerTestCase(unittest.TestCase):
         cam_file.cnt = 1  # type: ignore
         State.do_new_game()
         State.game.nicknames = (name1, name2)
+        State.press_button(start_button.upper())  # green begins
 
-        with self.subTest(csvfile):
-            State.press_button(start_button.upper())  # green begins
+        # run test: loop csv
+        with open(csvfile, mode='r') as csv_file:
+            logging.info(f'TESTFILE: {csvfile}')
+            csv_reader = csv.DictReader(csv_file, skipinitialspace=True)
+            for row in csv_reader:
+                logging.info(f'TEST: {row}')
+                cam_file.cnt = int(row["Move"])  # type: ignore
+                State.press_button(row["Button"].upper())
+                if State.last_submit is not None:
+                    while not State.last_submit.done():  # type: ignore
+                        sleep(0.1)
 
-            # run test: loop csv
-            with open(csvfile, mode='r') as csv_file:
-                logging.info(f'TESTFILE: {csvfile}')
-                csv_reader = csv.DictReader(csv_file, skipinitialspace=True)
-                for row in csv_reader:
-                    logging.info(f'TEST: {row}')
-                    cam_file.cnt = int(row["Move"])  # type: ignore
-                    State.press_button(row["Button"].upper())
-                    if State.last_submit is not None:
-                        while not State.last_submit.done():  # type: ignore
-                            sleep(0.1)
-
-                    self.assertEqual(row["State"].upper(), State.current_state,
-                                     f'invalid state {State.current_state} at move {int(row["Move"])}')
-                    if State.current_state not in ('P0', 'P1'):
-                        self.assertEqual(int(row["Points"]), State.game.moves[-1].points,
-                                         f'invalid points {State.game.moves[-1].points} at move {int(row["Move"])}')
-                        self.assertEqual(int(row["Score1"]), State.game.moves[-1].score[0],
-                                         f'invalid score 1 {State.game.moves[-1].score[0]} at move {int(row["Move"])}')
-                        self.assertEqual(int(row["Score2"]), State.game.moves[-1].score[1],
-                                         f'invalid score 2 {State.game.moves[-1].score[1]} at move {int(row["Move"])}')
-                        self.assertEqual(row["Word"], State.game.moves[-1].word,
-                                         f'invalid word {State.game.moves[-1].word} at move {int(row["Move"])}')
-                State.do_end_of_game()
+                self.assertEqual(row["State"].upper(), State.current_state,
+                                 f'invalid state {State.current_state} at move {int(row["Move"])}')
+                if State.current_state not in ('P0', 'P1'):
+                    self.assertEqual(int(row["Points"]), State.game.moves[-1].points,
+                                     f'invalid points {State.game.moves[-1].points} at move {int(row["Move"])}')
+                    self.assertEqual(int(row["Score1"]), State.game.moves[-1].score[0],
+                                     f'invalid score 1 {State.game.moves[-1].score[0]} at move {int(row["Move"])}')
+                    self.assertEqual(int(row["Score2"]), State.game.moves[-1].score[1],
+                                     f'invalid score 2 {State.game.moves[-1].score[1]} at move {int(row["Move"])}')
+                    self.assertEqual(row["Word"], State.game.moves[-1].word,
+                                     f'invalid word {State.game.moves[-1].word} at move {int(row["Move"])}')
+            State.do_end_of_game()
         logging.info(f'### end of tests {file} ###')
 
 
