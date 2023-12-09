@@ -40,7 +40,7 @@ class UploadFtp(Static):
                         session.storbinary(f'STOR data-{move}.json', file)  # send the file
                     with open(f'{Config.web_dir()}/data-{move}.json', 'rb') as file:
                         session.storbinary('STOR status.json', file)  # send the file
-                logging.info('ftp: end of transfer')
+                logging.info(f'ftp: end of transfer {move}')
                 return True
             except IOError as oops:
                 logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
@@ -56,7 +56,7 @@ class UploadFtp(Static):
                 with ftplib.FTP(url, UploadConfig.user(), UploadConfig.password()) as session:
                     with open(f'{Config.web_dir()}/status.json', 'rb') as file:
                         session.storbinary('STOR status.json', file)  # send the file
-                logging.info('ftp: end of transfer')
+                logging.info('ftp: end of transfer status.json')
                 return True
             except IOError as oops:
                 logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')

@@ -35,7 +35,7 @@ from game_board.tiles import tiles
 from scrabble import Game, InvalidMoveExeption, Move, MoveType, NoMoveException
 from threadpool import pool
 from upload import Upload
-from util import trace
+from util import runtime_measure, trace
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
@@ -61,6 +61,7 @@ def clear_last_warp():
         ClassicBoard.last_warp = None
 
 
+@ runtime_measure
 def warp_image(img: Mat) -> tuple[Mat, Mat]:
     """Delegates the warp of the ``img`` according to the configured board style"""
     logging.debug(f'({Config.board_layout()})')
@@ -75,6 +76,7 @@ def warp_image(img: Mat) -> tuple[Mat, Mat]:
     return warped, warped_gray
 
 
+@ runtime_measure
 def filter_image(img: Mat) -> tuple[Optional[Mat], set]:
     """Delegates the image filter of the ``img`` according to the configured board style"""
     logging.debug(f'({Config.board_layout()})')
@@ -133,7 +135,7 @@ def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> 
         _x = get_x_position(col)
         gray = warped_gray[_y - 15:_y + GRID_H + 15, _x - 15:_x + GRID_W + 15]
         new_tile, new_prop = find_tile()
-        logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {new_tile} ({new_prop:2}) found")
+        logging.info(f"{chr(ord('A') + row)}{col + 1:2}: {new_tile} ({new_prop:2}) found")
     return board
 
 
@@ -151,7 +153,7 @@ def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, e
         assert len(not_done) == 0, 'error while waiting for future'
 
     moves = game.moves
-    logging.debug(f'set blanko {coord} to {value}')
+    logging.info(f'set blanko {coord} to {value}')
 
     for mov in moves:
         board = mov.board
@@ -175,7 +177,7 @@ def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, 
         assert len(not_done) == 0, 'error while waiting for future'
 
     if 0 < move_number <= len(game.moves):
-        logging.debug(f'insert before move {move_number}')
+        logging.info(f'insert before move {move_number}')
         assert game.moves[move_number - 1].move == move_number
 
         index = move_number - 1
@@ -320,9 +322,9 @@ def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, c
             previous_board = new_move.board
             previous_score = new_move.score
             moves[i] = new_move
-            logging.info(f'recalculate move #{moves[i].move} ({moves[i].type})')
-            logging.info(f'new points {moves[i].points} new score {moves[i].score}')
-            logging.debug(f'\n{game.board_str(i)}')
+            logging.info(f'recalculate move #{moves[i].move} ({moves[i].type}) '
+                         f'new points {moves[i].points} new score {moves[i].score}')
+            logging.info(f'\n{game.board_str(i)}')
             _store(game, i, with_image=False)
     else:
         logging.warning(f'wrong move number for change move: {move_number}')
@@ -355,13 +357,12 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
     if event and not event.is_set():
         event.set()
 
+    logging.info(f'\n{game.board_str()}')
     if logging.getLogger('root').isEnabledFor(logging.DEBUG):
         msg = '\n'
-        msg += f'{game.board_str()}\n'
         for i in range(0, len(game.moves)):  # pylint: disable=consider-using-enumerate
             msg += f'{game.moves[i].gcg_str(game.nicknames)}\n'
-        msg += f'\ngame status: {game.json_str()}\nscores {game.moves[-1].score}'
-        logging.debug(msg)
+        logging.debug(f'{msg}\napi: {game.json_str()}\nscores: {game.moves[-1].score}')
     _development_recording(game, img, suffix='~original')
     _development_recording(game, warped, suffix='~warped')
     _store(game, -1)
@@ -385,7 +386,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         if event and not event.is_set():
             event.set()
 
-        logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
+        logging.info(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
         _store(game, -1)
     except Exception as oops:  # pylint: disable=broad-exception-caught
         logging.error(f'exception on valid_challenge {oops}')
@@ -410,7 +411,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         if event and not event.is_set():
             event.set()
 
-        logging.debug(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
+        logging.info(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
         _store(game, -1)
     except Exception as oops:  # pylint: disable=broad-exception-caught
         logging.error(f'exception on in_valid_challenge {oops}')
@@ -428,6 +429,7 @@ def start_of_game(game: Game):
     """ start of game """
     import glob
     import os
+
     import util
 
     pool.submit(Upload.delete_files)  # first delete images and data files on ftp server
@@ -463,7 +465,7 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
         game.add_last_rack(points, rackstr)
         if event and not event.is_set():
             event.set()
-        logging.debug(f'last rack scores {game.moves[-1].score}\n{game.board_str()}\n{game.json_str()}')
+        logging.info(f'last rack scores {game.moves[-1].score}\n{game.board_str()}\n{game.json_str()}')
         if Config.development_recording():
             logging.info(game.dev_str())
 
@@ -500,7 +502,7 @@ def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
         from_bag = min(mov_len, bag_len)
         rack[mov.player] -= (mov_len - from_bag)
         bag_len -= from_bag
-        logging.debug(f'player={mov.player} rack-size={rack[mov.player]} from-bag={from_bag}')
+        logging.info(f'player={mov.player} rack-size={rack[mov.player]} from-bag={from_bag}')
     if len(game.moves) > 0:
         bag = calculate_bag(game.moves[-1])
         points = 0
@@ -562,6 +564,7 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
     return vertical, (minx, miny), _word
 
 
+@ runtime_measure
 def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[Mat, dict]:
     # pylint: disable=too-many-locals
     if waitfor is not None:                                                    # wait for previous moves
@@ -583,7 +586,7 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[
                     del _move.board[i]
                 except KeyError:
                     pass  # already deleted
-            logging.warning(f'try to recalculate move #{_move.move}')
+            logging.info(f'try to recalculate move #{_move.move}')
             try:
                 _move.is_vertical, _move.coord, _move.word = _find_word(_move.board, sorted(_move.new_tiles))
                 _move.type = MoveType.REGULAR
@@ -671,7 +674,7 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
             mov.word = _word
             mov.points, prev_score, mov.is_scrabble = mov.calculate_score(prev_score)
             mov.score = prev_score                                             # store previous score
-            logging.debug(f'move {mov.move} after recalculate {prev_score}')
+            logging.info(f'move {mov.move} after recalculate {prev_score}')
         else:
             prev_score = mov.score                                             # store previous score
     return prev_score

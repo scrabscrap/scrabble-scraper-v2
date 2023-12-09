@@ -321,9 +321,9 @@ class State(Static):
             cls.current_state = cls.state[(cls.current_state, button)]()
             if not cls.op_event.is_set():
                 cls.op_event.set()
-            logging.debug(f'{button}')
+            logging.info(f'{button}')
         except KeyError:
-            logging.info('Key Error - ignore')
+            logging.warning('Key Error - ignore')
 
     @classmethod
     def release_button(cls, button: str) -> None:

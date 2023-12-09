@@ -38,14 +38,14 @@ def runtime_measure(func):  # pragma: no cover # currently not used
     """perform runtime measure"""
 
     @functools.wraps(func)
-    def do_runtime_measure(*args, **kwargs):
+    def runtime(*args, **kwargs):
         start = time.perf_counter()
         ret = func(*args, **kwargs)
         end = time.perf_counter()
-        logging.debug(f'{func.__name__} took {end-start} sec(s).')
+        logging.info(f'{func.__name__} took {(end-start):.4f} sec(s).')
         return ret
 
-    return do_runtime_measure
+    return runtime
 
 
 def trace(func):

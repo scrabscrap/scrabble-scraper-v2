@@ -178,7 +178,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
                 recording = 'recording' in request.form.keys()
                 if Config.development_recording() != recording:
-                    logging.debug(f'development.recording changed to {recording}')
+                    logging.info(f'development.recording changed to {recording}')
                     if 'development' not in Config.config.sections():
                         Config.config.add_section('development')
                     Config.config.set('development', 'recording', str(recording))
@@ -229,7 +229,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 if (move_number := request.form.get('move.move', type=int)) is not None and \
                     (score0 := request.form.get('move.score0', type=int)) is not None and \
                         (score1 := request.form.get('move.score1', type=int)) is not None:
-                    logging.debug(f'in values {move_number}: new score {(score0, score1)}')
+                    logging.info(f'in values {move_number}: new score {(score0, score1)}')
                     if 0 < move_number <= len(game.moves) and (game.moves[move_number - 1].score != (score0, score1)):
                         ApiServer.last_msg = f'update move# {move_number}: new score {(score0, score1)}'
                         State.do_change_score(move_number, (score0, score1))
@@ -351,7 +351,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     State.do_new_game()
             elif request.form.get('btnselect'):
                 for i in request.form.keys():
-                    logging.debug(f'wpa network select {i}')
+                    logging.info(f'wpa network select {i}')
                     _ = subprocess.call(f"sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0", shell=True)
                 sleep(5)
                 State.do_new_game()
@@ -365,7 +365,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             elif request.form.get('btndelete'):
                 for i in request.form.keys():
                     if request.form.get(i) == 'on':
-                        logging.debug(f'wpa network delete {i}')
+                        logging.info(f'wpa network delete {i}')
                         _ = subprocess.call(f"sudo -n /usr/sbin/wpa_cli remove_network {i} -i wlan0", shell=True)
                     _ = subprocess.call("sudo -n /usr/sbin/wpa_cli save_config -i wlan0", shell=True)
             return redirect('/wifi')
