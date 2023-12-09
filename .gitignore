@@ -157,7 +157,6 @@ ignore/
 work/
 .vscode/
 node_modules/
-build/
 .pnp/
 *.iml
 
