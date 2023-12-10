@@ -84,59 +84,56 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
     def test_names(self):
         """Test: Namess on board"""
-        files = [TEST_DIR + "/board-tests/board-04.png"]
-        for file in files:
+        files = {
+            TEST_DIR + "/board2012/board-04.png": {(3, 7): 'A', (4, 7): 'N', (5, 7): 'K', (6, 7): 'E', (7, 7): '_',
+                                                   (8, 7): 'S', (9, 7): 'T', (10, 7): 'E', (11, 7): 'F', (12, 7): 'A',
+                                                   (13, 7): 'N'}
+        }
+
+        for file, expected in files.items():
             img = cv2.imread(file)
+            logging.debug(f'file: {file}')
+
             warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
-            ignore_coords = set()
-            filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
+            # ignore_coords = set()
+            # filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
+            # ! check all tiles
+            filtered_candidates = tiles_candidates
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= {self.print_board(new_board)}')
-            res = {(3, 7): 'A',
-                   (4, 7): 'N',
-                   (5, 7): 'K',
-                   (6, 7): 'E',
-                   (7, 7): '_',
-                   (8, 7): 'S',
-                   (9, 7): 'T',
-                   (10, 7): 'E',
-                   (11, 7): 'F',
-                   (12, 7): 'A',
-                   (13, 7): 'N'}
-            keys = new_board.keys()
-            values = new_board.values()
-            keys1 = [(x, y) for (x, y) in keys]
-            values1 = [t for (t, p) in values]
-            self.assertEqual(dict(zip(*[keys1, values1])), res, "Test")
+            logging.debug(f'new board= \n{self.print_board(new_board)}')
 
-    def test_err_images(self):
+            keys = [(x, y) for (x, y) in new_board.keys()]
+            values = [t for (t, p) in new_board.values()]
+            self.assertEqual(dict(zip(*[keys, values])), expected, "Test")
+
+    def test_board2012_err(self):
         """Regression test: old error images """
-        files = [TEST_DIR + "/board-tests/err-01.png",
-                 TEST_DIR + "/board-tests/err-02.png",
-                 TEST_DIR + "/board-tests/err-03.png",
-                 TEST_DIR + "/board-tests/err-04.png",
-                 TEST_DIR + "/board-tests/err-05.png",
-                 TEST_DIR + "/board-tests/err-06.png",
-                 TEST_DIR + "/board-tests/err-07.png",
-                 TEST_DIR + "/board-tests/err-08.png",
-                 TEST_DIR + "/board-tests/err-09.png",
-                 TEST_DIR + "/board-tests/err-10.png",
-                 # TEST_DIR + "/board-tests/err-11.png",
-                 TEST_DIR + "/board-tests/err-12.png",
-                 TEST_DIR + "/board-tests/err-13.png",
-                 TEST_DIR + "/board-tests/err-14.png",
-                 TEST_DIR + "/board-tests/err-15.png",
-                 TEST_DIR + "/board-tests/err-16.png",
-                 TEST_DIR + "/board-tests/err-17.png",
-                 TEST_DIR + "/board-tests/err-18.png",
-                 TEST_DIR + "/board-tests/err-19.png",
-                 TEST_DIR + "/board-tests/err-20.png",
-                 TEST_DIR + "/board-tests/err-21.png",
-                 TEST_DIR + "/board-tests/err-22.png",
-                 TEST_DIR + "/board-tests/err-23.png",
-                 TEST_DIR + "/board-tests/err-24.png",
+        files = [TEST_DIR + "/board2012/err-01.png",
+                 TEST_DIR + "/board2012/err-02.png",
+                 TEST_DIR + "/board2012/err-03.png",
+                 TEST_DIR + "/board2012/err-04.png",
+                 TEST_DIR + "/board2012/err-05.png",
+                 TEST_DIR + "/board2012/err-06.png",
+                 TEST_DIR + "/board2012/err-07.png",
+                 TEST_DIR + "/board2012/err-08.png",
+                 TEST_DIR + "/board2012/err-09.png",
+                 TEST_DIR + "/board2012/err-10.png",
+                 # TEST_DIR + "/board2012/err-11.png",
+                 TEST_DIR + "/board2012/err-12.png",
+                 TEST_DIR + "/board2012/err-13.png",
+                 TEST_DIR + "/board2012/err-14.png",
+                 TEST_DIR + "/board2012/err-15.png",
+                 TEST_DIR + "/board2012/err-16.png",
+                 TEST_DIR + "/board2012/err-17.png",
+                 TEST_DIR + "/board2012/err-18.png",
+                 TEST_DIR + "/board2012/err-19.png",
+                 TEST_DIR + "/board2012/err-20.png",
+                 TEST_DIR + "/board2012/err-21.png",
+                 TEST_DIR + "/board2012/err-22.png",
+                 TEST_DIR + "/board2012/err-23.png",
+                 TEST_DIR + "/board2012/err-24.png",
                  ]
         # files = [
         # ]
@@ -145,13 +142,14 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         for file in files:
             img = cv2.imread(file)
             logging.debug(f'file: {file}')
+
             warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
             ignore_coords = set()
             filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= {self.print_board(new_board)}')
+            logging.debug(f'new board= \n{self.print_board(new_board)}')
             # last_board = ret  # falls der Test vorige Boards berücksichtigen soll
             res = {(4, 11): 'G', (5, 7): 'Y', (5, 10): 'U', (5, 11): 'S', (6, 7): 'L', (6, 10): 'Ü',
                    (7, 7): 'A', (7, 8): 'E', (7, 9): 'E', (7, 10): 'N', (8, 7): 'T', (9, 7): 'Z',
@@ -162,39 +160,79 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             values1 = [t for (t, p) in values]
             self.assertEqual(dict(zip(*[keys1, values1])), res, f'Test error: {file}')
 
-    def test_new_images(self):
-        """Test some new images"""
-        files = [
-            TEST_DIR + "/board-tests/board-00.png",
-            # TEST_DIR + "/board-tests/board-01.png",
-            TEST_DIR + "/board-tests/board-02.png",
-            TEST_DIR + "/board-tests/board-03.png"
-        ]
+    def test_board2012(self):
+        """Test some board 2012 images"""
+        files = {
+            TEST_DIR + "/board2012/board-00.png": {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
+                                                   (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
+                                                   (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'},
+            # TEST_DIR + "/board2012/board-01.png": {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
+            #                                        (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
+            #                                        (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'},
+            TEST_DIR + "/board2012/board-02.png": {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
+                                                   (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
+                                                   (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'},
+            TEST_DIR + "/board2012/board-03.png": {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
+                                                   (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
+                                                   (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'}
+        }
 
-        # Fehler:
-        # TEST_DIR + "/board-tests/board-00.png",
-        # TEST_DIR + "/board-tests/board-01.png",
-        # TEST_DIR + "/board-tests/board-02.png",
-        # TEST_DIR + "/board-tests/board-03.png"
-
-        for file in files:
+        for file, expected in files.items():
             img = cv2.imread(file)
             warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
-            ignore_coords = set()
-            filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
+            # ignore_coords = set()
+            # filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
+            # ! check all tiles
+            filtered_candidates = tiles_candidates
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= {self.print_board(new_board)}')
+            logging.debug(f'new board= \n{self.print_board(new_board)}')
 
-            res = {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
-                   (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
-                   (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'}
-            keys = new_board.keys()
-            values = new_board.values()
-            keys1 = [(x, y) for (x, y) in keys]
-            values1 = [t for (t, p) in values]
-            self.assertEqual(dict(zip(*[keys1, values1])), res, f'Test error: {file}')
+            keys = [(x, y) for (x, y) in new_board.keys()]
+            values = [t for (t, p) in new_board.values()]
+            self.assertEqual(dict(zip(*[keys, values])), expected, f'Test error: {file}')
+
+    def test_board2020(self):
+        """Test some board 2020 images"""
+        files = {
+            # TEST_DIR + "/board2020/board-01.png": {},
+            TEST_DIR + "/board2020/board-02.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                                                   (8, 6): 'Ü', (8, 5): 'K'},
+            TEST_DIR + "/board2020/board-03.jpg": {(7, 7): 'E', (6, 7): 'W', (8, 7): 'R'},
+            TEST_DIR + "/board2020/board-04.jpg": {(7, 7): 'E', (6, 7): 'W', (8, 7): 'R', (8, 6): 'Ü', (8, 5): 'K'},
+            TEST_DIR + "/board2020/board-05.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                                                   (8, 6): 'Ü', (8, 5): 'K'},
+            TEST_DIR + "/board2020/board-06.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                                                   (8, 6): 'Ü', (8, 5): 'K'},
+            TEST_DIR + "/board2020/board-07.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                                                   (8, 6): 'Ü', (8, 5): 'K'},
+            TEST_DIR + "/board2020/board-08.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                                                   (8, 6): 'Ü', (8, 5): 'K'},
+            TEST_DIR + "/board2020/board-09.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                                                   (8, 6): 'Ü', (8, 5): 'K'},
+            TEST_DIR + "/board2020/board-10.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                                                   (8, 6): 'Ü', (8, 5): 'K'}
+        }
+
+        for file, expected in files.items():
+            img = cv2.imread(file)
+            self.config_setter('board', 'layout', 'custom2020')
+            logging.debug(f'file: {file}')
+
+            warped, warped_gray = warp_image(img)
+            _, tiles_candidates = filter_image(warped)
+            # ignore_coords = set()
+            # filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
+            # ! check all tiles
+            filtered_candidates = tiles_candidates
+            board = {}
+            new_board = analyze(warped_gray, board, filtered_candidates)
+            logging.debug(f'new board= \n{self.print_board(new_board)}')
+
+            keys = [(x, y) for (x, y) in new_board.keys()]
+            values = [t for (t, p) in new_board.values()]
+            self.assertEqual(dict(zip(*[keys, values])), expected, f'Test error: {file}')
 
 
 # unit tests per commandline
