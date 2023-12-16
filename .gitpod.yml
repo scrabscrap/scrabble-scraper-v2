@@ -4,7 +4,7 @@ image:
 ports:
   - port: 5050
     onOpen: open-browser
-  - port: 3000
+  - port: 5173
     onOpen: open-browser
 
 tasks:
@@ -33,12 +33,14 @@ gitConfig:
 
 vscode:
   extensions:
-    - ms-python.python
-    - mhutchie.git-graph
     - davidanson.vscode-markdownlint
     - ms-azuretools.vscode-docker
-    - tomoki1207.pdf
-    # not available
-    # - ms-python.isort
-    # - ms-python.vscode-pylance
-    # - maattdd.gitless
+    - GitHub.vscode-pull-request-github
+    - mhutchie.git-graph
+    - ms-python.autopep8
+    - ms-python.flake8
+    - ms-python.isort
+    - ms-python.pylint
+    - ms-python.python
+    - ms-python.vscode-pylance
+    - VisualStudioExptTeam.vscodeintellicode
