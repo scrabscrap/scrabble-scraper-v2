@@ -35,12 +35,13 @@ vscode:
   extensions:
     - davidanson.vscode-markdownlint
     - ms-azuretools.vscode-docker
-    - GitHub.vscode-pull-request-github
     - mhutchie.git-graph
-    - ms-python.autopep8
     - ms-python.flake8
     - ms-python.isort
     - ms-python.pylint
     - ms-python.python
-    - ms-python.vscode-pylance
-    - VisualStudioExptTeam.vscodeintellicode
+    # not found in OPen VSX
+    # - ms-python.autopep8
+    # - ms-python.vscode-pylance
+    # - VisualStudioExptTeam.vscodeintellicode
+    # - GitHub.vscode-pull-request-github
