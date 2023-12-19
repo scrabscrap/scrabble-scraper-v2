@@ -19,7 +19,7 @@ import functools
 import logging
 import time
 from logging.handlers import BaseRotatingHandler
-from typing import Union
+from typing import Callable, Union, Any
 
 # def onexit(f):
 #     # see: https://peps.python.org/pep-0318/#examples
@@ -34,25 +34,24 @@ class Static:  # pylint: disable=too-few-public-methods
         raise TypeError('Static classes cannot be instantiated')
 
 
-def runtime_measure(func):  # pragma: no cover # currently not used
+def runtime_measure(func: Callable[..., Any]) -> Callable[..., Any]:  # pragma: no cover # currently not used
     """perform runtime measure"""
 
     @functools.wraps(func)
-    def runtime(*args, **kwargs):
+    def runtime(*args: Any, **kwargs: Any) -> Any:
         start = time.perf_counter()
-        ret = func(*args, **kwargs)
-        end = time.perf_counter()
-        logging.info(f'{func.__name__} took {(end-start):.4f} sec(s).')
-        return ret
+        result = func(*args, **kwargs)
+        logging.info(f'{func.__name__} took {(time.perf_counter()-start):.4f} sec(s).')
+        return result
 
     return runtime
 
 
-def trace(func):
+def trace(func: Callable[..., Any]) -> Callable[..., Any]:
     """perform method trace"""
 
     @functools.wraps(func)
-    def do_trace(*args, **kwargs):
+    def do_trace(*args: Any, **kwargs: Any) -> Any:
         try:
             logging.debug(f'entering {func.__name__}')
             return func(*args, **kwargs)
