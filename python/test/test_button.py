@@ -30,11 +30,10 @@ from time import sleep
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
-import hardware.camera_thread as cam
 from config import Config
 from display import Display
 from hardware.button import ButtonEnum
-from hardware.camera_thread import CameraEnum
+from hardware.camera import switch_camera
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
@@ -69,7 +68,7 @@ class ButtonTestCase(unittest.TestCase):
         self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
         # self.pin_config = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
         ScrabbleWatch.display = Display
-        cam.init(use_camera=CameraEnum.FILE)
+        switch_camera('file')
         State.init()
         return super().setUp()
 

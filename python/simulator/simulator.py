@@ -28,11 +28,9 @@ from flask import redirect, render_template, request, url_for
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
-import hardware.camera_file as cam_file
-import hardware.camera_thread as cam
 from api_server_thread import ApiServer
 from config import Config
-from hardware.camera_thread import CameraEnum
+from hardware.camera import cam, switch_camera
 from hardware.led import LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
@@ -84,37 +82,37 @@ def yellow():
 def reset():
     """simulate press reset"""
     State.press_button('RESET')
-    cam_file.cnt = 1  # type: ignore
+    cam.conter = 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_first():
     """skip to first image"""
-    cam_file.cnt = 1  # type: ignore
+    cam.counter = 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_prev():
     """skip to previous image"""
     logging.debug('prev')
-    if cam_file.cnt > 1:  # type: ignore
-        cam_file.cnt -= 1  # type: ignore
+    if cam.counter > 1:  # type: ignore
+        cam.counter -= 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_next():
     """skip to next image"""
     logging.debug('next')
-    cam_file.cnt += 1 if os.path.isfile(  # type: ignore
-        cam_file.formatter.format(cam_file.cnt + 1)) else 0  # type: ignore
+    cam.counter += 1 if os.path.isfile(  # type: ignore
+        cam.formatter.format(cam.counter + 1)) else 0  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_last():
     """skip to last image"""
     logging.debug('last')
-    while os.path.isfile(cam_file.formatter.format(cam_file.cnt + 1)):  # type: ignore
-        cam_file.cnt += 1  # type: ignore
+    while os.path.isfile(cam.formatter.format(cam.counter + 1)):  # type: ignore
+        cam.counter += 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
@@ -125,8 +123,8 @@ def open_folder():
     ini_file = os.path.abspath(f'{Config.src_dir()}/../test/{folder}/scrabble.ini')
     if os.path.exists(ini_file):
         Config.reload(ini_file=ini_file)
-        cam_file.cnt = 1  # type: ignore
-        cam_file.formatter = Config.simulate_path()  # type: ignore
+        cam.counter = 1  # type: ignore
+        cam.formatter = Config.simulate_path()  # type: ignore
     else:
         logging.warning(f'INI File not found / invalid: {ini_file}')
     return redirect(url_for('simulator'))
@@ -152,7 +150,7 @@ def simulator() -> str:
         png_current = urllib.parse.quote(base64.b64encode(pic_buf_arr))
         board = f'Score: {game.moves[-1].score} / {game.moves[-1].points}\n{game.board_str()}'
     # get next picture
-    img = cam_file.read(peek=True)  # type: ignore
+    img = cam.read(peek=True)  # type: ignore
     _, pic_buf_arr = cv2.imencode(".jpg", img)
     png_next = urllib.parse.quote(base64.b64encode(pic_buf_arr))
     # show log
@@ -186,8 +184,9 @@ def main():
     log.setLevel(logging.ERROR)
 
     # set Mock-Camera
-    cam.init(use_camera=CameraEnum.FILE)
+    switch_camera('file')
     _ = pool.submit(cam.update, Event())
+    cam.resize = False
 
     # set Watch
     ScrabbleWatch.display = Display

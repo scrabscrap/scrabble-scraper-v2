@@ -31,7 +31,7 @@ logging.config.fileConfig(fname=Config.work_dir() + '/log.conf', disable_existin
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
 from game_board.board import overlay_grid, overlay_tiles
-from hardware.camera_thread import Camera
+from hardware.camera import cam, switch_camera
 from processing import analyze, filter_candidates, filter_image, warp_image
 from threadpool import pool
 
@@ -74,8 +74,7 @@ def main() -> None:
     signal.signal(signal.SIGALRM, main_cleanup)
 
     # open Camera
-    cam = Camera()
-    # cam = MockCamera()
+    switch_camera('file')
     _ = pool.submit(cam.update, Event())
     sleep(1)  # camera warmup
 

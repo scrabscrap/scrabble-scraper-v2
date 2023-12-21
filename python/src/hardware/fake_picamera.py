@@ -39,9 +39,9 @@ class PiCamera:
     """Fake class"""
     resolution = (0, 0)
 
-    def __init__(self, resolution=None):
+    def __init__(self, resolution=None, framerate=None, sensor_mode=None):
         # empty constructor
-        logging.warning(f'using fake raspberry pi camera resolution={resolution}')
+        logging.warning(f'using fake raspberry pi camera resolution={resolution} / framerate {framerate} /  mode {sensor_mode}')
         pass
 
     def __enter__(self):
@@ -344,3 +344,7 @@ class PiRGBArray:
         # pylint: disable=unused-argument invalid-name too-few-public-methods
         """Fake method"""
         self.array = BGR(size)
+
+    def close(self) -> None:
+        """Fake method"""
+        pass

@@ -23,10 +23,8 @@ import os
 import unittest
 from time import sleep
 
-import hardware.camera_thread as cam
-import hardware.camera_file as cam_file
-from hardware.camera_thread import CameraEnum
 from config import Config
+from hardware.camera import cam
 
 TEST_DIR = os.path.dirname(__file__)
 logging.config.fileConfig(fname=f'{os.path.dirname(os.path.abspath(__file__))}/test_log.conf',
@@ -95,11 +93,12 @@ class GameRunnerTestCase(unittest.TestCase):
     def run_game(self, file: str):
         """Test csv games"""
         from display import Display
+        from hardware.camera import switch_camera
         from scrabblewatch import ScrabbleWatch
         from state import State
 
         ScrabbleWatch.display = Display
-        cam.init(use_camera=CameraEnum.FILE)
+        switch_camera('file')
 
         # read *.ini
         test_config = configparser.ConfigParser()
@@ -124,8 +123,9 @@ class GameRunnerTestCase(unittest.TestCase):
         self.config_setter('video', 'warp_coordinates', coordstr)
         logging.info(f'{Config.video_warp()}: {Config.video_warp_coordinates()}')
         self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom'))
-        cam_file.formatter = formatter  # type: ignore
-        cam_file.cnt = 1  # type: ignore
+        cam.formatter = formatter  # type: ignore
+        cam.counter = 1  # type: ignore
+        cam.resize = False
         State.do_new_game()
         State.game.nicknames = (name1, name2)
         State.press_button(start_button.upper())  # green begins
@@ -136,7 +136,7 @@ class GameRunnerTestCase(unittest.TestCase):
             csv_reader = csv.DictReader(csv_file, skipinitialspace=True)
             for row in csv_reader:
                 logging.info(f'TEST: {row}')
-                cam_file.cnt = int(row["Move"])  # type: ignore
+                cam.counter = int(row["Move"])  # type: ignore
                 State.press_button(row["Button"].upper())
                 if State.last_submit is not None:
                     while not State.last_submit.done():  # type: ignore
