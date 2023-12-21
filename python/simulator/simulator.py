@@ -211,7 +211,7 @@ def main():
 
     # start State-Machine
     State.do_ready()
-
+    logging.debug(f'#### workdir {Config.work_dir()}')
     api.start_server(port=5050, simulator=True)
 
     api.stop_server()

@@ -36,6 +36,7 @@ from flask_sock import Sock
 from werkzeug.serving import make_server
 
 import hardware.camera_thread as cam
+import upload
 from config import Config
 from game_board.board import overlay_grid
 from hardware.camera_thread import CameraEnum
@@ -43,7 +44,7 @@ from processing import get_last_warp, warp_image
 from scrabblewatch import ScrabbleWatch
 from state import EOG, START, State
 from threadpool import pool
-from upload_config import UploadConfig
+from upload_impl import upload_config
 
 
 class ApiServer:  # pylint: disable=too-many-public-methods
@@ -315,6 +316,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         Config.config.remove_option(section, option)
                         ApiServer.last_msg = f'delete {section}.{option}'
                     Config.save()
+                    if option in ('upload_modus'):  # reload upload configuratio
+                        upload.update_upload_mode()
+                        upload_config.reload()
             except ValueError:
                 logging.error(f'Error on settings: {request.form.items()}')
                 ApiServer.last_msg = 'error: Value error in Parameter'
@@ -322,17 +326,17 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         if request.method == 'POST' and request.form.get('btnupload'):
             password = request.form.get('password')
             if (server := request.form.get('server')) and (user := request.form.get('user')):
-                UploadConfig.set_server(server)
-                UploadConfig.set_user(user)
+                upload_config.server = server
+                upload_config.user = user
                 if password is not None:
-                    UploadConfig.set_password(password)
-                UploadConfig.store()
+                    upload_config.password = password
+                upload_config.store()
                 ApiServer.last_msg = 'upload config saved'
         # fall through: request.method == 'GET':
         out = StringIO()
         Config.config.write(out)
         return render_template('settings.html', apiserver=ApiServer, settingsinfo=out.getvalue(),
-                               server=UploadConfig.server(), user=UploadConfig.user())
+                               server=upload_config.server, user=upload_config.user)
 
     @ staticmethod
     @ app.route('/wifi', methods=['GET', 'POST'])
@@ -556,33 +560,24 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         return redirect(url_for('route_index'))
 
     @ staticmethod
-    @ app.route('/test_ftp')
-    def do_test_ftp():
+    @ app.route('/test_upload')
+    def do_test_upload():
         """ is ftp accessible  """
-        import ftplib
 
-        ApiServer.last_msg = 'test ftp config entries\n'
-        cfg = configparser.ConfigParser()
+        ApiServer.last_msg = 'test upload config entries\n'
+        if upload_config.server is None:
+            ApiServer.last_msg += "no server entry found\n"
+        if upload_config.user in (None, ''):
+            ApiServer.last_msg += "no user entry found\n"
+        if upload_config.password in (None, ''):
+            ApiServer.last_msg += "no password entry found\n"
+
         try:
-            with open(f'{Config.work_dir()}/upload-secret.ini', 'r', encoding="UTF-8") as config_file:
-                cfg.read_file(config_file)
-        except IOError as err:
-            ApiServer.last_msg += f'can not read ftp INI-File {err}\n'
-        ApiServer.last_msg += f"ftp-server={cfg.get('ftp', 'ftp-server', fallback='')}\n"
-        ApiServer.last_msg += f"ftp-user={cfg.get('ftp', 'ftp-user', fallback='')}\n"
-        if cfg.get('ftp', 'ftp-password', fallback=None):
-            ApiServer.last_msg += "password found\n"
-            try:
-                with ftplib.FTP(cfg.get('ftp', 'ftp-server', fallback=''),
-                                cfg.get('ftp', 'ftp-user', fallback=''),
-                                cfg.get('ftp', 'ftp-password', fallback='')) as session:
-                    with open(f'{Config.work_dir()}/scrabble.ini', 'rb') as file:
-                        session.storbinary('STOR scrabble.ini', file)  # send the file
-                    ApiServer.last_msg += "upload successful\n"
-            except IOError as err:
-                ApiServer.last_msg += f'ftp: upload failure {err}\n'
-        else:
-            ApiServer.last_msg += "no password found\n"
+            result = upload.upload.upload_status()
+            ApiServer.last_msg += 'upload success' if result else 'upload = False'
+        except IOError as oops:
+            logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
+            ApiServer.last_msg += f'http: I/O error({oops.errno}): {oops.strerror}'
         return redirect(url_for('route_index'))
 
     @ staticmethod
