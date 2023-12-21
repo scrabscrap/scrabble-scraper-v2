@@ -34,7 +34,7 @@ from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from game_board.tiles import tiles
 from scrabble import Game, InvalidMoveExeption, Move, MoveType, NoMoveException
 from threadpool import pool
-from upload import Upload
+from upload import upload
 from util import runtime_measure, trace
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
@@ -432,7 +432,7 @@ def start_of_game(game: Game):
 
     import util
 
-    pool.submit(Upload.delete_files)  # first delete images and data files on ftp server
+    pool.submit(upload.delete_files)  # first delete images and data files on ftp server
     try:
         file_list = glob.glob(f'{Config.web_dir()}/image-*.jpg')
         for file_path in file_list:
@@ -699,7 +699,7 @@ def _store(game: Game, move_index: int, with_image: bool = True):  # pragma: no 
             with open(f'{Config.web_dir()}/status.json', "w", encoding='UTF-8') as handle:
                 handle.write(game.json_str())
             if Config.upload_server():
-                pool.submit(Upload.upload_status)                    # upload empty status
+                pool.submit(upload.upload_status)                    # upload empty status
         except IOError as error:
             logging.error(f'error writing game move {move_index}: {error}')
     elif -len(moves) <= move_index < len(moves):
@@ -719,7 +719,7 @@ def _store(game: Game, move_index: int, with_image: bool = True):  # pragma: no 
         _development_recording(game, None, info=True)
 
         if Config.upload_server():
-            pool.submit(Upload.upload_move, moves[move_index].move)
+            pool.submit(upload.upload_move, moves[move_index].move)
 
 
 def store_zip_from_game(game: Game):  # pragma: no cover
@@ -750,7 +750,7 @@ def store_zip_from_game(game: Game):  # pragma: no cover
             if os.path.exists(f'{Config.work_dir()}/recording/gameRecording.log'):
                 _zip.write(f'{Config.work_dir()}/recording/gameRecording.log', arcname='recording/gameRecording.log')
     if Config.upload_server():
-        Upload.upload_game(f'{zip_filename}')
+        upload.upload_game(f'{zip_filename}')
 
 
 def _development_recording(game: Game, img: Optional[Mat], suffix: str = '', info: bool = False,

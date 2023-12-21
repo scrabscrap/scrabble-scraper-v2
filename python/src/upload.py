@@ -15,47 +15,26 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+import logging
+
 from config import Config
-from upload_ftp import UploadFtp
-from upload_http import UploadHttp
-from util import Static
+from upload_impl import Upload, UploadFtp, UploadHttp
+
+upload_implementations = {
+    "https": UploadHttp,
+    "http": UploadHttp,
+    "ftp": UploadFtp
+}
+
+upload: Upload = upload_implementations[Config.upload_modus()]()
 
 
-class Upload(Static):
-    """ abstract implementation upload """
-
-    @classmethod
-    def upload_move(cls, move: int) -> bool:
-        """ upload move to ftp server """
-        if Config.upload_server():
-            if 'ftp' == Config.upload_modus():
-                return UploadFtp.upload_move(move=move)
-            return UploadHttp.upload_move(move=move)
-        return False
-
-    @classmethod
-    def upload_status(cls) -> bool:
-        """ upload status to ftp server """
-        if Config.upload_server():
-            if 'ftp' == Config.upload_modus():
-                return UploadFtp.upload_status()
-            return UploadHttp.upload_status()
-        return False
-
-    @classmethod
-    def upload_game(cls, filename: str) -> bool:
-        """ upload a zpped game file to ftp """
-        if Config.upload_server():
-            if 'ftp' == Config.upload_modus():
-                return UploadFtp.upload_game(filename=filename)
-            return UploadHttp.upload_game(filename=filename)
-        return False
-
-    @classmethod
-    def delete_files(cls) -> bool:
-        """ delete files on ftp server """
-        if Config.upload_server():
-            if 'ftp' == Config.upload_modus():
-                return UploadFtp.delete_files()
-            return UploadHttp.delete_files()
-        return False
+def update_upload_mode() -> bool:
+    """set new upload mode"""
+    global upload  # pylint: disable=global-statement
+    mode = Config.upload_modus().lower()
+    if mode in upload_implementations:
+        upload = upload_implementations[mode]()
+        return True
+    logging.warning(f'invalid upload mode \'{mode}\'')
+    return False
