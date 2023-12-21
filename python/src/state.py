@@ -24,9 +24,9 @@ from signal import alarm
 from time import sleep
 from typing import Callable, Optional, Tuple
 
-import hardware.camera_thread as cam
 from config import Config
 from hardware.button import Button
+from hardware.camera import cam
 from hardware.led import LED, LEDEnum
 from processing import (end_of_game, invalid_challenge, move, start_of_game,
                         store_status, store_zip_from_game, valid_challenge)
@@ -239,20 +239,10 @@ class State(Static):
             cls.game.new_game()
             gc.collect()
 
-        exception_on_camera = False
-        try:
-            cam.init()
-            _ = pool.submit(cam.update, threading.Event())
-        except Exception as oops:  # type: ignore # pylint: disable=broad-exception-caught
-            logging.exception(f'can not open camera {oops}')
-            exception_on_camera = True
-
         start_of_game(cls.game)
         if not cls.op_event.is_set():
             cls.op_event.set()
         next_state = cls.do_ready()
-        if exception_on_camera:
-            ScrabbleWatch.display.show_cam_err()
         return next_state
 
     @classmethod
@@ -266,7 +256,6 @@ class State(Static):
             LED.switch_on({})  # type: ignore
             ScrabbleWatch.display.show_ready(('prepare', 'end'))
             end_of_game(None, cls.game, cls.op_event)
-            cam.cancel()
         ScrabbleWatch.display.show_end_of_game()
 
         with suppress(Exception):

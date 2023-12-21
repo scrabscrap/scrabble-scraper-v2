@@ -168,12 +168,12 @@ class Config(Static):  # pylint: disable=too-many-public-methods
     @classmethod
     def video_width(cls) -> int:
         """used image width"""
-        return cls.config.getint('video', 'width', fallback=992)
+        return cls.config.getint('video', 'width', fallback=912)
 
     @classmethod
     def video_height(cls) -> int:
         """used image height"""
-        return cls.config.getint('video', 'height', fallback=976)
+        return cls.config.getint('video', 'height', fallback=912)
 
     @classmethod
     def video_fps(cls) -> int:
@@ -188,7 +188,7 @@ class Config(Static):  # pylint: disable=too-many-public-methods
     @classmethod
     def board_layout(cls) -> str:
         """which board layout should be used"""
-        return cls.config.get('board', 'layout', fallback='custom').replace('"', '')
+        return cls.config.get('board', 'layout', fallback='custom2012').replace('"', '')
 
     @classmethod
     def tiles_language(cls) -> str:

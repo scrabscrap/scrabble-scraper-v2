@@ -31,7 +31,7 @@ logging.config.fileConfig(fname=f'{Config.work_dir()}/log.conf',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
 
-import hardware.camera_thread as cam
+from hardware.camera import cam
 from api_server_thread import ApiServer
 from scrabblewatch import ScrabbleWatch
 from state import State
@@ -68,6 +68,9 @@ def main() -> None:
 
     signal.signal(signal.SIGALRM, signal_alarm)
     atexit.register(_cleanup)
+
+    # start camera
+    _ = pool.submit(cam.update, Event())
 
     # create Timer
     ScrabbleWatch.display.show_boot()  # Boot Message

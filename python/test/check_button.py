@@ -24,7 +24,7 @@ logging.basicConfig(
 
 from config import Config
 from display import Display
-from hardware.camera_thread import Camera, CameraEnum
+from hardware.camera import cam, switch_camera
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import AP, DOUBT0, DOUBT1, GREEN, REBOOT, RED, RESET, YELLOW, State
@@ -84,7 +84,7 @@ class CheckButtonTestCase(unittest.TestCase):
     def test_button(self):
         """start button event handler - display LED on Button press"""
         ScrabbleWatch.display = Display
-        cam = Camera(use_camera=CameraEnum.FILE)
+        switch_camera('file')
 
         SimulateState.cam = cam
         SimulateState.init()

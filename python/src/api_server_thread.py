@@ -35,11 +35,10 @@ from flask import (Flask, abort, redirect, render_template, request, send_file,
 from flask_sock import Sock
 from werkzeug.serving import make_server
 
-import hardware.camera_thread as cam
+from hardware.camera import cam
 import upload
 from config import Config
 from game_board.board import overlay_grid
-from hardware.camera_thread import CameraEnum
 from processing import get_last_warp, warp_image
 from scrabblewatch import ScrabbleWatch
 from state import EOG, START, State
@@ -726,13 +725,14 @@ def main():
     """ main for standalone test """
     # for testing
     from threading import Event
+    from hardware.camera import switch_camera
 
     logging.config.fileConfig(fname=f'{Config.work_dir()}/log.conf',
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
     # set Mock-Camera
-    cam.init(use_camera=CameraEnum.FILE)
+    switch_camera('file')
 
     _ = pool.submit(cam.update, Event())
 
