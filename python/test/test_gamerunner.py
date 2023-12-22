@@ -23,7 +23,7 @@ import os
 import unittest
 from time import sleep
 
-from config import Config
+from config import config
 from hardware.camera import cam
 
 TEST_DIR = os.path.dirname(__file__)
@@ -38,23 +38,23 @@ class GameRunnerTestCase(unittest.TestCase):
         """set scrabble config"""
 
         if value is not None:
-            if section not in Config.config.sections():
-                Config.config.add_section(section)
-            Config.config.set(section, option, str(value))
+            if section not in config.config.sections():
+                config.config.add_section(section)
+            config.config.set(section, option, str(value))
         else:
-            Config.config.remove_option(section, option)
+            config.config.remove_option(section, option)
 
     def setUp(self):
         from processing import clear_last_warp
 
-        Config.is_testing = True
+        config.is_testing = True
         clear_last_warp()
         self.config_setter('output', 'upload_server', False)
         self.config_setter('development', 'recording', False)
         return super().setUp()
 
     def tearDown(self) -> None:
-        Config.is_testing = False
+        config.is_testing = False
         return super().tearDown()
 
     def test_game01(self):
@@ -121,7 +121,7 @@ class GameRunnerTestCase(unittest.TestCase):
         # set config
         self.config_setter('video', 'warp', warp)
         self.config_setter('video', 'warp_coordinates', coordstr)
-        logging.info(f'{Config.video_warp()}: {Config.video_warp_coordinates()}')
+        logging.info(f'{config.video_warp}: {config.video_warp_coordinates}')
         self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom'))
         cam.formatter = formatter  # type: ignore
         cam.counter = 1  # type: ignore

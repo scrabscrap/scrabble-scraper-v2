@@ -27,7 +27,7 @@ import imutils
 import numpy as np
 
 from classicboard import ClassicBoard
-from config import Config
+from config import config
 from custom2012board import Custom2012Board
 from custom2020board import Custom2020Board
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
@@ -42,35 +42,35 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 
 def get_last_warp() -> Optional[Mat]:
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if Config.video_warp() and Config.board_layout() == 'classic':
+    if config.video_warp and config.board_layout == 'classic':
         return ClassicBoard.last_warp
-    if Config.board_layout() in ('custom', 'custom2012'):
+    if config.board_layout in ('custom', 'custom2012'):
         return Custom2012Board.last_warp
-    if Config.board_layout() == 'custom2020':
+    if config.board_layout == 'custom2020':
         return Custom2020Board.last_warp
     return None
 
 
 def clear_last_warp():
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if Config.board_layout() in ('custom', 'custom2012'):
+    if config.board_layout in ('custom', 'custom2012'):
         Custom2012Board.last_warp = None
-    elif Config.board_layout() == 'custom2020':
+    elif config.board_layout == 'custom2020':
         Custom2020Board.last_warp = None
-    elif Config.board_layout() == 'classic':
+    elif config.board_layout == 'classic':
         ClassicBoard.last_warp = None
 
 
 @ runtime_measure
 def warp_image(img: Mat) -> tuple[Mat, Mat]:
     """Delegates the warp of the ``img`` according to the configured board style"""
-    logging.debug(f'({Config.board_layout()})')
+    logging.debug(f'({config.board_layout})')
     warped = img
-    if Config.video_warp() and Config.board_layout() in ('custom', 'custom2012'):
+    if config.video_warp and config.board_layout in ('custom', 'custom2012'):
         warped = Custom2012Board.warp(img)
-    if Config.video_warp() and Config.board_layout() == 'custom2020':
+    if config.video_warp and config.board_layout == 'custom2020':
         warped = Custom2020Board.warp(img)
-    if Config.video_warp() and Config.board_layout() == 'classic':
+    if config.video_warp and config.board_layout == 'classic':
         warped = ClassicBoard.warp(img)
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
     return warped, warped_gray
@@ -79,12 +79,12 @@ def warp_image(img: Mat) -> tuple[Mat, Mat]:
 @ runtime_measure
 def filter_image(img: Mat) -> tuple[Optional[Mat], set]:
     """Delegates the image filter of the ``img`` according to the configured board style"""
-    logging.debug(f'({Config.board_layout()})')
-    if Config.board_layout() in ('custom', 'custom2012'):
+    logging.debug(f'({config.board_layout})')
+    if config.board_layout in ('custom', 'custom2012'):
         return Custom2012Board.filter_image(img)
-    if Config.board_layout() == 'custom2020':
+    if config.board_layout == 'custom2020':
         return Custom2020Board.filter_image(img)
-    if Config.board_layout() == 'classic':
+    if config.board_layout == 'classic':
         return ClassicBoard.filter_image(img)
     return None, set()
 
@@ -304,9 +304,9 @@ def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, c
             new_move.board |= tiles_to_add
 
             if new_move.type == MoveType.CHALLENGE_BONUS and new_move.player == 0:
-                new_move.score = (previous_score[0] - Config.malus_doubt(), previous_score[1])
+                new_move.score = (previous_score[0] - config.malus_doubt, previous_score[1])
             elif new_move.type == MoveType.CHALLENGE_BONUS and new_move.player == 1:
-                new_move.score = (previous_score[0], previous_score[1] - Config.malus_doubt())
+                new_move.score = (previous_score[0], previous_score[1] - config.malus_doubt)
             elif new_move.type == MoveType.WITHDRAW:
                 if len(moves) > 1:
                     new_move.points = -moves[i - 1].points
@@ -434,10 +434,10 @@ def start_of_game(game: Game):
 
     pool.submit(upload.delete_files)  # first delete images and data files on ftp server
     try:
-        file_list = glob.glob(f'{Config.web_dir()}/image-*.jpg')
+        file_list = glob.glob(f'{config.web_dir}/image-*.jpg')
         for file_path in file_list:
             os.remove(file_path)
-        file_list = glob.glob(f'{Config.web_dir()}/data-*.json')
+        file_list = glob.glob(f'{config.web_dir}/data-*.json')
         for file_path in file_list:
             os.remove(file_path)
         if len(file_list) > 0:
@@ -466,7 +466,7 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
         if event and not event.is_set():
             event.set()
         logging.info(f'last rack scores {game.moves[-1].score}\n{game.board_str()}\n{game.json_str()}')
-        if Config.development_recording():
+        if config.development_recording:
             logging.info(game.dev_str())
 
         _store(game, -2)
@@ -597,15 +597,15 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[
                 logging.warning(f'could not correct move #{_move.move}')
 
     ignore_coords = set()
-    if len(game.moves) > Config.scrabble_verify_moves():
+    if len(game.moves) > config.scrabble_verify_moves:
         # if opponents move has a valid challenge
-        if game.moves[-Config.scrabble_verify_moves() + 1].type in (MoveType.PASS_TURN, MoveType.EXCHANGE, MoveType.WITHDRAW):
+        if game.moves[-1 * config.scrabble_verify_moves + 1].type in (MoveType.PASS_TURN, MoveType.EXCHANGE, MoveType.WITHDRAW):
             ignore_coords = set(
-                {i: i for i in game.moves[-Config.scrabble_verify_moves() + 1].board.keys()
+                {i: i for i in game.moves[-1 * config.scrabble_verify_moves + 1].board.keys()
                  if i in game.moves[-1].board.keys()})
         else:
             ignore_coords = set(
-                {i: i for i in game.moves[-Config.scrabble_verify_moves()].board.keys() if i in game.moves[-1].board.keys()})
+                {i: i for i in game.moves[-1 * config.scrabble_verify_moves].board.keys() if i in game.moves[-1].board.keys()})
     tiles_candidates = tiles_candidates | ignore_coords                        # tiles_candidates must contain ignored_coords
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
     logging.debug(f'filtered_candidates {filtered_candidates}')
@@ -653,7 +653,7 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     """
 
     logging.info(f'changed tiles: {changed}')
-    to_inspect = min(Config.scrabble_verify_moves(), len(game.moves)) * -1
+    to_inspect = min(config.scrabble_verify_moves, len(game.moves)) * -1
     prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
     must_recalculate = False
     for i in range(to_inspect, 0):
@@ -689,36 +689,36 @@ def _store(game: Game, move_index: int, with_image: bool = True):  # pragma: no 
         with_image: write img file
     """
 
-    if Config.is_testing:
+    if config.is_testing:
         logging.info('skip store because flag is_testing is set')
         return
     moves = game.moves
     if len(moves) < 1:
         try:
             logging.debug('empty game - upload empty status.json')
-            with open(f'{Config.web_dir()}/status.json', "w", encoding='UTF-8') as handle:
+            with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
                 handle.write(game.json_str())
-            if Config.upload_server():
+            if config.upload_server:
                 pool.submit(upload.upload_status)                    # upload empty status
         except IOError as error:
             logging.error(f'error writing game move {move_index}: {error}')
     elif -len(moves) <= move_index < len(moves):
         if with_image and moves[move_index].img is not None:
-            if not cv2.imwrite(f'{Config.web_dir()}/image-{moves[move_index].move}.jpg',
+            if not cv2.imwrite(f'{config.web_dir}/image-{moves[move_index].move}.jpg',
                                moves[move_index].img, [cv2.IMWRITE_JPEG_QUALITY, 99]):  # type: ignore
                 logging.error(f'error writing image-{moves[move_index].move}.jpg')
         try:
-            with open(f'{Config.web_dir()}/data-{game.moves[move_index].move}.json', "w", encoding='UTF-8') as handle:
+            with open(f'{config.web_dir}/data-{game.moves[move_index].move}.json', "w", encoding='UTF-8') as handle:
                 handle.write(game.json_str(game.moves[move_index].move))
             if game.moves[-1].move == game.moves[move_index].move:
                 logging.debug('write status.json')
-                with open(f'{Config.web_dir()}/status.json', "w", encoding='UTF-8') as handle:
+                with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
                     handle.write(game.json_str(moves[move_index].move))
         except IOError as error:
             logging.error(f'error writing game move {moves[move_index].move}: {error}')
         _development_recording(game, None, info=True)
 
-        if Config.upload_server():
+        if config.upload_server:
             pool.submit(upload.upload_move, moves[move_index].move)
 
 
@@ -729,43 +729,43 @@ def store_zip_from_game(game: Game):  # pragma: no cover
     import uuid
     from zipfile import ZipFile
 
-    if Config.is_testing:
+    if config.is_testing:
         logging.info('skip store because flag is_testing is set')
         return
     game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
     zip_filename = f'{game_id}-{str(uuid.uuid4())}'
-    with ZipFile(f'{Config.web_dir()}/{zip_filename}.zip', 'w') as _zip:
+    with ZipFile(f'{config.web_dir}/{zip_filename}.zip', 'w') as _zip:
         logging.info(f"create zip with {len(game.moves):d} files")
         for i in range(1, len(game.moves) + 1):
-            if os.path.exists(f'{Config.web_dir()}/image-{i}.jpg'):
-                _zip.write(f'{Config.web_dir()}/image-{i}.jpg', arcname=f'image-{i}.jpg')
-            if os.path.exists(f'{Config.web_dir()}/data-{i}.json'):
-                _zip.write(f'{Config.web_dir()}/data-{i}.json', arcname=f'data-{i}.json')
-        if os.path.exists(f'{Config.log_dir()}/messages.log'):
-            _zip.write(f'{Config.log_dir()}/messages.log', arcname='messages.log')
-        if Config.development_recording():
-            file_list = glob.glob(f'{Config.work_dir()}/recording/{game_id}-*')
+            if os.path.exists(f'{config.web_dir}/image-{i}.jpg'):
+                _zip.write(f'{config.web_dir}/image-{i}.jpg', arcname=f'image-{i}.jpg')
+            if os.path.exists(f'{config.web_dir}/data-{i}.json'):
+                _zip.write(f'{config.web_dir}/data-{i}.json', arcname=f'data-{i}.json')
+        if os.path.exists(f'{config.log_dir}/messages.log'):
+            _zip.write(f'{config.log_dir}/messages.log', arcname='messages.log')
+        if config.development_recording:
+            file_list = glob.glob(f'{config.work_dir}/recording/{game_id}-*')
             for filename in file_list:
                 _zip.write(f'{filename}', arcname=f'recording/{os.path.basename(filename)}')
-            if os.path.exists(f'{Config.work_dir()}/recording/gameRecording.log'):
-                _zip.write(f'{Config.work_dir()}/recording/gameRecording.log', arcname='recording/gameRecording.log')
-    if Config.upload_server():
+            if os.path.exists(f'{config.work_dir}/recording/gameRecording.log'):
+                _zip.write(f'{config.work_dir}/recording/gameRecording.log', arcname='recording/gameRecording.log')
+    if config.upload_server:
         upload.upload_game(f'{zip_filename}')
 
 
 def _development_recording(game: Game, img: Optional[Mat], suffix: str = '', info: bool = False,
                            is_next_move: bool = False):  # pragma: no cover
 
-    if Config.is_testing:
+    if config.is_testing:
         logging.info('skip store because flag is_testing is set')
         return
-    if Config.development_recording():
+    if config.development_recording:
         logging.debug(f'suffix "{suffix}" info {info}')
         recording_logger = logging.getLogger("gameRecordingLogger")
         game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
         if img is not None:
             move_number = len(game.moves) + 1 if is_next_move else len(game.moves)
-            cv2.imwrite(f'{Config.work_dir()}/recording/{game_id}-{move_number}{suffix}.jpg',
+            cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}{suffix}.jpg',
                         img, [cv2.IMWRITE_JPEG_QUALITY, 99])
         if info and len(game.moves) > 0:
             try:

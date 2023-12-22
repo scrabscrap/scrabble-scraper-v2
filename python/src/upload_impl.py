@@ -23,7 +23,7 @@ from typing import Optional, Protocol
 import requests
 from requests.auth import HTTPBasicAuth
 
-from config import Config
+from config import config
 
 
 class Upload(Protocol):
@@ -63,9 +63,9 @@ class UploadHttp(Upload):
 
     def upload_move(self, move: int) -> bool:
         try:
-            files = {f'image-{move}.jpg': open(f'{Config.web_dir()}/image-{move}.jpg', 'rb'),  # pylint: disable=R1732
-                     f'data-{move}.json': open(f'{Config.web_dir()}/data-{move}.json', 'rb'),  # pylint: disable=R1732
-                     'status.json': open(f'{Config.web_dir()}/status.json', 'rb')  # pylint: disable=R1732
+            files = {f'image-{move}.jpg': open(f'{config.web_dir}/image-{move}.jpg', 'rb'),  # pylint: disable=R1732
+                     f'data-{move}.json': open(f'{config.web_dir}/data-{move}.json', 'rb'),  # pylint: disable=R1732
+                     'status.json': open(f'{config.web_dir}/status.json', 'rb')  # pylint: disable=R1732
                      }
             logging.debug(f'http: start transfer move files {files}')
             return self.upload(data={'upload': 'true'}, files=files)
@@ -76,7 +76,7 @@ class UploadHttp(Upload):
     def upload_status(self) -> bool:
         logging.debug('http: start transfer status file status.json')
         try:
-            files = {'status.json': open(f'{Config.web_dir()}/status.json', 'rb')}  # pylint: disable=consider-using-with
+            files = {'status.json': open(f'{config.web_dir}/status.json', 'rb')}  # pylint: disable=consider-using-with
             return self.upload(data={'upload': 'true'}, files=files)
         except IOError as oops:
             logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
@@ -85,7 +85,7 @@ class UploadHttp(Upload):
     def upload_game(self, filename: str) -> bool:
         logging.debug(f'http: start transfer game {filename}.zip')
         try:
-            files = {f'{filename}.zip': open(f'{Config.web_dir()}/{filename}.zip', 'rb')}  # pylint: disable=R1732
+            files = {f'{filename}.zip': open(f'{config.web_dir}/{filename}.zip', 'rb')}  # pylint: disable=R1732
             return self.upload(data={'upload': 'true'}, files=files)
         except IOError as oops:
             logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
@@ -115,20 +115,20 @@ class UploadFtp(Upload):
 
     def upload_move(self, move: int) -> bool:
         files = {
-            f'image-{move}.jpg': f'{Config.web_dir()}/image-{move}.jpg',
-            f'data-{move}.json': f'{Config.web_dir()}/data-{move}.json',
-            'status.json': f'{Config.web_dir()}/data-{move}.json'
+            f'image-{move}.jpg': f'{config.web_dir}/image-{move}.jpg',
+            f'data-{move}.json': f'{config.web_dir}/data-{move}.json',
+            'status.json': f'{config.web_dir}/data-{move}.json'
         }
         logging.debug('ftp: start transfer move files {files}')
         return self.upload(files=files)
 
     def upload_status(self) -> bool:
-        files = {'status.json': f'{Config.web_dir()}/status.json'}
+        files = {'status.json': f'{config.web_dir}/status.json'}
         logging.debug(f'ftp: start transfer status file {files}')
         return self.upload(files=files)
 
     def upload_game(self, filename: str) -> bool:
-        files = {f'{filename}.zip': f'{Config.web_dir()}/{filename}.zip'}
+        files = {f'{filename}.zip': f'{config.web_dir}/{filename}.zip'}
         logging.debug('ftp: start transfer game {files}')
         return self.upload(files=files)
 
@@ -152,7 +152,7 @@ class UploadFtp(Upload):
 class UploadConfig():
     """ read upload configuration """
     SECTION = 'upload'
-    INIFILE = f'{Config.work_dir()}/upload-secret.ini'
+    INIFILE = f'{config.work_dir}/upload-secret.ini'
 
     def __init__(self) -> None:
         self.parser = configparser.ConfigParser()

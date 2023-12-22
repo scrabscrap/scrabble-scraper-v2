@@ -19,7 +19,7 @@ import logging
 import time
 import unittest
 
-from config import Config
+from config import config
 from hardware.led import LED, LEDEnum
 
 logging.basicConfig(
@@ -30,11 +30,11 @@ class LedTestCase(unittest.TestCase):
     """Test pattern for LED"""
 
     def setUp(self) -> None:
-        Config.is_testing = True
+        config.is_testing = True
         return super().setUp()
 
     def tearDown(self) -> None:
-        Config.is_testing = False
+        config.is_testing = False
         return super().tearDown()
 
     def test_led(self):

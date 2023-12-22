@@ -18,9 +18,8 @@
 import logging
 from typing import Optional
 
-from config import Config
+from config import config
 from scrabble import Game
-
 from util import Static
 
 
@@ -102,8 +101,8 @@ class Display(Static):
         """render display content"""
         assert player in [0, 1], "invalid player number"
 
-        minutes, seconds = divmod(abs(Config.max_time() - played_time[player]), 60)
-        text = f'-{minutes:1d}:{seconds:02d}' if Config.max_time() - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
+        minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
+        text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
         # log message only if player changed
         if cls.lastplayer != player:
             logging.debug(f'render_display {player}: {text} ({current}/{info})')
