@@ -24,9 +24,9 @@ from time import sleep
 
 import cv2
 
-from config import Config
+from config import config
 
-logging.config.fileConfig(fname=Config.work_dir() + '/log.conf', disable_existing_loggers=False,
+logging.config.fileConfig(fname=config.work_dir + '/log.conf', disable_existing_loggers=False,
                           defaults={'level': 'DEBUG',
                                     'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 

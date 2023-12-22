@@ -22,7 +22,7 @@ import unittest
 
 import cv2
 
-from config import Config
+from config import config
 from processing import analyze, filter_candidates, filter_image, warp_image
 
 TEST_DIR = os.path.dirname(__file__)
@@ -38,11 +38,11 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         """set value in scrabscrap config"""
 
         if value is not None:
-            if section not in Config.config.sections():
-                Config.config.add_section(section)
-            Config.config.set(section, option, str(value))
+            if section not in config.config.sections():
+                config.config.add_section(section)
+            config.config.set(section, option, str(value))
         else:
-            Config.config.remove_option(section, option)
+            config.config.remove_option(section, option)
 
     def print_board(self, board: dict) -> str:
         """print out Scrabble board dictionary"""
@@ -69,7 +69,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
     def setUp(self):
         from processing import clear_last_warp
 
-        Config.is_testing = True
+        config.is_testing = True
         clear_last_warp()
         self.config_setter('output', 'server_upload', False)
         self.config_setter('video', 'warp', True)
@@ -79,7 +79,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         return super().setUp()
 
     def tearDown(self) -> None:
-        Config.is_testing = False
+        config.is_testing = False
         return super().tearDown()
 
     def test_names(self):

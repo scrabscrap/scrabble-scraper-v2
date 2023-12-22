@@ -18,7 +18,8 @@
 from typing import List
 
 import cv2
-from config import Config
+
+from config import config
 
 
 class OneTile:  # pylint: disable=too-few-public-methods
@@ -31,7 +32,7 @@ class OneTile:  # pylint: disable=too-few-public-methods
         self.h = 0
 
 
-bag = Config.tiles_bag()
+bag = config.tiles_bag
 bag_as_list: List = sum([[k] * bag[k] for k in bag], [])
 tiles: List[OneTile] = []
 
@@ -40,15 +41,15 @@ def scores(tile: str) -> int:
     """returns 0 if  '_' or lower chars otherwise the scoring value """
     if tile.islower() or tile == '_':
         return 0
-    return Config.tiles_scores()[tile]
+    return config.tiles_scores[tile]
 
 
 def load_tiles() -> List[OneTile]:
     """load tile images from disk"""
 
     tiles.clear()
-    filepath = Config.tiles_image_path()
-    tile_list = [*Config.tiles_scores()]
+    filepath = config.tiles_image_path
+    tile_list = [*config.tiles_scores]
     tile_list.remove('_')  # without blank
     for tile_name in tile_list:
         image = cv2.imread(f'{filepath}/{tile_name}.png')

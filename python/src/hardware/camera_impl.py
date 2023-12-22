@@ -10,7 +10,7 @@ from typing import Optional, Protocol
 import cv2
 import numpy as np
 
-from config import Config
+from config import config
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
@@ -35,10 +35,10 @@ class CameraFile(Camera):
     """Implementation for file access"""
 
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
-        self.resolution = resolution if resolution else (Config.video_width(), Config.video_height())
-        self.framerate = framerate if framerate else Config.video_fps()
+        self.resolution = resolution if resolution else (config.video_width, config.video_height)
+        self.framerate = framerate if framerate else config.video_fps
         self._counter = 1
-        self._formatter = Config.simulate_path()
+        self._formatter = config.simulate_path
         self._resize = True
 
     @property
@@ -89,8 +89,8 @@ class CameraOpenCV(Camera):
     """camera implementation for OpenCV"""
 
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
-        self.resolution = resolution if resolution else (Config.video_width(), Config.video_height())
-        self.framerate = framerate if framerate else Config.video_fps()
+        self.resolution = resolution if resolution else (config.video_width, config.video_height)
+        self.framerate = framerate if framerate else config.video_fps
         # self.stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
         self.stream = cv2.VideoCapture(0)
         if not self.stream.isOpened():
@@ -118,7 +118,7 @@ class CameraOpenCV(Camera):
             valid, self.frame = self.stream.read()  # type: ignore
             if not valid:
                 logging.warning('CameraOpenCV: frame not valid')
-            if Config.video_rotate():
+            if config.video_rotate:
                 self.frame = cv2.rotate(self.frame, cv2.ROTATE_180)
             if event.is_set():
                 break

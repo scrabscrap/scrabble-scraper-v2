@@ -23,7 +23,7 @@ import re
 from enum import Enum
 from typing import List, Optional, Tuple
 
-from config import Config
+from config import config
 from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER,
                               TRIPLE_WORDS)
 from game_board.tiles import bag_as_list, scores
@@ -276,13 +276,13 @@ class Game:
             to_json = json.dumps(
                 {
                     'api': API_VERSION,
-                    'tournament': Config.tournament(),
+                    'tournament': config.tournament,
                     'time': str(self.gamestart),
                     'move': 0,
                     'score1': 0,
                     'score2': 0,
-                    'time1': Config.max_time(),
-                    'time2': Config.max_time(),
+                    'time1': config.max_time,
+                    'time2': config.max_time,
                     'name1': name1,
                     'name2': name2,
                     'onmove': name1,
@@ -307,13 +307,13 @@ class Game:
         to_json = json.dumps(
             {
                 'api': API_VERSION,
-                'tournament': Config.tournament(),
+                'tournament': config.tournament,
                 'time': self.moves[move_index].time,
                 'move': self.moves[move_index].move,
                 'score1': self.moves[move_index].score[0],
                 'score2': self.moves[move_index].score[1],
-                'time1': Config.max_time() - self.moves[move_index].played_time[0],
-                'time2': Config.max_time() - self.moves[move_index].played_time[1],
+                'time1': config.max_time - self.moves[move_index].played_time[0],
+                'time2': config.max_time - self.moves[move_index].played_time[1],
                 'name1': name1,
                 'name2': name2,
                 'onmove': self.nicknames[self.moves[move_index].player],
@@ -328,7 +328,7 @@ class Game:
         game_id = self.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
         out_str = f"game: {game_id}\ngame.ini\n" \
             "[default]\n"  \
-            f"warp = {Config.video_warp()}\n" \
+            f"warp = {config.video_warp}\n" \
             f"name1 = {self.nicknames[0]}\n" \
             f"name2 = {self.nicknames[1]}\n" \
             f"formatter = {game_id}-{{:d}}.jpg\n" \
@@ -338,8 +338,8 @@ class Game:
                 out_str += "start = Red\n"  # first move: green
             else:
                 out_str += "start = Green\n"
-        if Config.video_warp_coordinates():
-            out_str += f"warp-coord = {Config.video_warp_coordinates()}\n"
+        if config.video_warp_coordinates:
+            out_str += f"warp-coord = {config.video_warp_coordinates}\n"
 
         out_str += "\ngame.csv\n"
         out_str += "Move, Button, State, Coord, Word, Points, Score1, Score2\n"
@@ -457,14 +457,14 @@ class Game:
         logging.debug('scrabble: create move invalid challenge')
         move = copy.deepcopy(last_move)
         move.type = MoveType.CHALLENGE_BONUS
-        move.points = -Config.malus_doubt()
+        move.points = config.malus_doubt * -1
         move.player = player
         move.word = ''
         move.removed_tiles = {}
         move.new_tiles = {}
         move.played_time = played_time
-        move.score = (move.score[0] - Config.malus_doubt(), move.score[1]
-                      ) if player == 0 else (move.score[0], move.score[1] - Config.malus_doubt())
+        move.score = (move.score[0] - config.malus_doubt, move.score[1]
+                      ) if player == 0 else (move.score[0], move.score[1] - config.malus_doubt)
         self.moves.append(move)
         move.move = len(self.moves)  # set move number
         logging.info(f'invalid challenge: player {move.player} points {move.points} score {move.score}')

@@ -30,7 +30,7 @@ from time import sleep
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
-from config import Config
+from config import config
 from display import Display
 from hardware.button import ButtonEnum
 from hardware.camera import switch_camera
@@ -46,15 +46,15 @@ class ButtonTestCase(unittest.TestCase):
         """set scrabble config"""
 
         if value is not None:
-            if section not in Config.config.sections():
-                Config.config.add_section(section)
-            Config.config.set(section, option, str(value))
+            if section not in config.config.sections():
+                config.config.add_section(section)
+            config.config.set(section, option, str(value))
         else:
-            Config.config.remove_option(section, option)
+            config.config.remove_option(section, option)
 
     def setUp(self) -> None:
         self.config_setter('output', 'upload_server', False)
-        Config.is_testing = True
+        config.is_testing = True
 
         # set default pin factory
         Device.pin_factory = MockFactory()
@@ -66,7 +66,7 @@ class ButtonTestCase(unittest.TestCase):
         self.pin_doubt1 = Device.pin_factory.pin(ButtonEnum.DOUBT1.value)
         self.pin_reset = Device.pin_factory.pin(ButtonEnum.RESET.value)
         self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
-        # self.pin_config = Device.pin_factory.pin(ButtonEnum.CONFIG.value)
+        # self.pin_config = Device.pin_factory.pin(ButtonEnum.config.value)
         ScrabbleWatch.display = Display
         switch_camera('file')
         State.init()
@@ -76,7 +76,7 @@ class ButtonTestCase(unittest.TestCase):
         State.do_new_game()
         LED.switch_on({})  # type: ignore
         Device.pin_factory.reset()  # type: ignore
-        Config.is_testing = False
+        config.is_testing = False
         # for thread in threading.enumerate():
         #    if not thread.name.startswith('Main'):
         #        logging.debug(f'thread: {thread.name}')

@@ -7,9 +7,9 @@ from time import sleep
 from typing import Optional
 
 import numpy as np
-from hardware.camera_impl import Camera, camera_dict
 
-from config import Config
+from config import config
+from hardware.camera_impl import Camera, camera_dict
 
 try:
     from picamera import PiCamera  # type: ignore
@@ -17,7 +17,8 @@ try:
     RPI_CAMERA = True
 except ImportError:
     logging.error('>>> no PICamera available <<<')
-    from hardware.fake_picamera import PiCamera, PiRGBArray  # pylint: disable=ungrouped-imports
+    from hardware.fake_picamera import (  # pylint: disable=ungrouped-imports
+        PiCamera, PiRGBArray)
     RPI_CAMERA = False
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
@@ -27,8 +28,8 @@ class CameraRPI(Camera):  # pylint: disable=too-many-instance-attributes
     """uses RPI camera"""
 
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
-        self.resolution = resolution if resolution else (Config.video_width(), Config.video_height())
-        self.framerate = framerate if framerate else Config.video_fps()
+        self.resolution = resolution if resolution else (config.video_width, config.video_height)
+        self.framerate = framerate if framerate else config.video_fps
         self.frame = np.array([])
         self.lastframe = np.array([])
         self.frame_index = -1
@@ -38,7 +39,7 @@ class CameraRPI(Camera):  # pylint: disable=too-many-instance-attributes
 
     def _camera_open(self) -> None:
         self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
-        if Config.video_rotate():
+        if config.video_rotate:
             self.camera.rotation = 180
         self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
         sleep(0.3)  # warm up camera

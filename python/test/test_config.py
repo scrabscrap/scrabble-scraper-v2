@@ -19,7 +19,7 @@ import json
 import os
 import unittest
 
-from config import Config
+from config import config
 
 EMPTY_CONFIG = os.path.dirname(__file__) + '/test_config_empty.ini'
 
@@ -31,44 +31,45 @@ class ConfigTestCase(unittest.TestCase):
         return super().setUp()
 
     def test_default_values(self):
-        Config.reload(ini_file=EMPTY_CONFIG + '-invalid')  # only log output expected
-        Config.reload(ini_file=EMPTY_CONFIG, clean=True)
-        self.assertEqual(Config.src_dir(), os.path.abspath(os.path.dirname(__file__) + '/../src'))
-        self.assertEqual(Config.work_dir(), os.path.abspath(Config.src_dir() + '/../work'))
-        self.assertEqual(Config.log_dir(), os.path.abspath(Config.src_dir() + '/../work/log'))
-        self.assertEqual(Config.web_dir(), os.path.abspath(Config.src_dir() + '/../work/web'))
-        self.assertFalse(Config.simulate())
+        config.reload(ini_file=EMPTY_CONFIG + '-invalid')  # only log output expected
+        config.reload(ini_file=EMPTY_CONFIG, clean=True)
+        self.assertEqual(config.src_dir, os.path.abspath(os.path.dirname(__file__) + '/../src'))
+        self.assertEqual(config.work_dir, os.path.abspath(config.src_dir + '/../work'))
+        self.assertEqual(config.log_dir, os.path.abspath(config.src_dir + '/../work/log'))
+        self.assertEqual(config.web_dir, os.path.abspath(config.src_dir + '/../work/web'))
+        self.assertFalse(config.simulate)
         # self.assertEqual(config.simulate_path, config.work_dir + '/simulate/image-{:d}.jpg')
-        self.assertFalse(Config.development_recording())
-        self.assertEqual(Config.malus_doubt(), 10)
-        self.assertEqual(Config.max_time(), 1800)
-        self.assertEqual(Config.min_time(), -300)
-        self.assertEqual(Config.doubt_timeout(), 20)
-        self.assertEqual(Config.scrabble_verify_moves(), 3)
-        self.assertFalse(Config.show_score())
-        self.assertFalse(Config.upload_server())
-        self.assertEqual(Config.upload_modus(), 'http')
-        self.assertTrue(Config.video_warp())
-        self.assertIsNone(Config.video_warp_coordinates())
-        self.assertEqual(Config.video_width(), 912)
-        self.assertEqual(Config.video_height(), 912)
-        self.assertEqual(Config.video_fps(), 30)
-        self.assertFalse(Config.video_rotate())
-        self.assertEqual(Config.board_layout(), 'custom2012')
-        self.assertEqual(Config.tiles_language(), 'de')
-        self.assertEqual(Config.tiles_image_path(), os.path.abspath(Config.src_dir() + '/game_board/img/default'))
-        self.assertDictEqual(Config.tiles_bag(),
+        self.assertFalse(config.development_recording)
+        self.assertEqual(config.malus_doubt, 10)
+        self.assertEqual(config.max_time, 1800)
+        self.assertEqual(config.min_time, -300)
+        self.assertEqual(config.doubt_timeout, 20)
+        self.assertEqual(config.scrabble_verify_moves, 3)
+        self.assertFalse(config.show_score)
+        self.assertFalse(config.upload_server)
+        self.assertEqual(config.upload_modus, 'http')
+        self.assertTrue(config.video_warp)
+        self.assertIsNone(config.video_warp_coordinates)
+        self.assertEqual(config.video_width, 912)
+        self.assertEqual(config.video_height, 912)
+        self.assertEqual(config.video_fps, 30)
+        self.assertFalse(config.video_rotate)
+        self.assertEqual(config.board_layout, 'custom2012')
+        self.assertEqual(config.tiles_language, 'de')
+        self.assertEqual(config.tiles_image_path, os.path.abspath(config.src_dir + '/game_board/img/default'))
+        self.assertDictEqual(config.tiles_bag,
                              json.loads('{"A": 5, "B": 2, "C": 2, "D": 4, "E": 15, "F": 2, "G": 3, "H": 4, "I": 6, '
                                         '"J": 1, "K": 2, "L": 3, "M": 4, "N": 9, "O": 3, "P": 1, "Q": 1, "R": 6, "S": 7, '
                                         '"T": 6, "U": 6, "V": 1, "W": 1, "X": 1, "Y": 1, "Z": 1, '
                                         '"\u00c4": 1, "\u00d6": 1, "\u00dc": 1, "_": 2}'))
-        self.assertDictEqual(Config.tiles_scores(),
-                             json.loads('{"A": 1, "B": 3, "C": 4, "D": 2, "E": 1, "F": 4, "G": 2, "H": 4, "I": 1, '
-                                        '"J": 8, "K": 5, "L": 1, "M": 3, "N": 1, "O": 2, "P": 3, "Q": 10, "R": 1, "S": 1, '
-                                        '"T": 1, "U": 1, "V": 4, "W": 4, "X": 8, "Y": 4, "Z": 10, "_": 0}'))
-        self.assertEqual(Config.system_quit(), 'shutdown')
-        self.assertEqual(Config.system_gitbranch(), 'main')
-        Config.reload()
+        self.assertDictEqual(config.tiles_scores,
+                             json.loads('{"A": 1, "B": 3, "C": 4, "D": 1, "E": 1, "F": 4, "G": 2, "H": 2, "I": 1,'
+                                        '"J": 6, "K": 4, "L": 2, "M": 3, "N": 1, "O": 2, "P": 4, "Q": 10, "R": 1,'
+                                        '"S": 1, "T": 1, "U": 1, "V": 6, "W": 3, "X": 8, "Y": 10, "Z": 3,'
+                                        '"\u00c4": 6, "\u00d6": 8, "\u00dc": 6, "_": 0}'))
+        self.assertEqual(config.system_quit, 'shutdown')
+        self.assertEqual(config.system_gitbranch, 'main')
+        config.reload()
 
 
 if __name__ == '__main__':

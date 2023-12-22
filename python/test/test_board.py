@@ -17,8 +17,8 @@
 '''
 import unittest
 
+from config import config
 from game_board import board
-from config import Config
 
 
 class BoardTestCase(unittest.TestCase):
@@ -26,11 +26,11 @@ class BoardTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
         self.counter = 0
-        Config.is_testing = True
+        config.is_testing = True
         return super().setUp()
 
     def tearDown(self) -> None:
-        Config.is_testing = False
+        config.is_testing = False
         return super().tearDown()
 
     def test_board(self):

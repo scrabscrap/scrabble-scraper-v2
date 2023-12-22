@@ -17,7 +17,7 @@
 """
 import logging
 
-from config import Config
+from config import config
 from upload_impl import Upload, UploadFtp, UploadHttp
 
 upload_implementations = {
@@ -26,13 +26,13 @@ upload_implementations = {
     "ftp": UploadFtp
 }
 
-upload: Upload = upload_implementations[Config.upload_modus()]()
+upload: Upload = upload_implementations[config.upload_modus]()
 
 
 def update_upload_mode() -> bool:
     """set new upload mode"""
     global upload  # pylint: disable=global-statement
-    mode = Config.upload_modus().lower()
+    mode = config.upload_modus.lower()
     if mode in upload_implementations:
         upload = upload_implementations[mode]()
         return True
