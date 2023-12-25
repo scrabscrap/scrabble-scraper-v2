@@ -140,7 +140,7 @@ class GameRunnerTestCase(unittest.TestCase):
                 State.press_button(row["Button"].upper())
                 if State.last_submit is not None:
                     while not State.last_submit.done():  # type: ignore
-                        sleep(0.1)
+                        sleep(0.01)
 
                 self.assertEqual(row["State"].upper(), State.current_state,
                                  f'invalid state {State.current_state} at move {int(row["Move"])}')
