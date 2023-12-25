@@ -380,7 +380,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         event: event to set
     """
     while waitfor is not None and waitfor.running():
-        time.sleep(0.05)
+        time.sleep(0.01)
     try:
         game.add_valid_challenge(player, played_time)
         if event and not event.is_set():
@@ -405,7 +405,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         event: event to set
     """
     while waitfor is not None and waitfor.running():
-        time.sleep(0.05)
+        time.sleep(0.01)
     try:
         game.add_invalid_challenge(player, played_time)                            # 9. add move
         if event and not event.is_set():
@@ -458,7 +458,7 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
         event: event to set
     """
     while waitfor is not None and waitfor.running():
-        time.sleep(0.05)
+        time.sleep(0.01)
     # time.sleep(1.5)
     if len(game.moves) > 0:
         points, rackstr = _end_of_game_calculate_rack(game)
