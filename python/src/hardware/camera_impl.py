@@ -102,7 +102,7 @@ class CameraOpenCV(Camera):
             self.stream.set(cv2.CAP_PROP_FPS, self.framerate)
         self.frame = np.array([])
         self.event: Optional[Event] = None
-        sleep(1)                                                                            # warm up camera
+        sleep(0.5)                                                                            # warm up camera
         atexit.register(self._atexit)                                                       # cleanup on exit
 
     def _atexit(self) -> None:
