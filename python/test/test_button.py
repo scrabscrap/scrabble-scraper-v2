@@ -96,7 +96,7 @@ class ButtonTestCase(unittest.TestCase):
 
         if State.last_submit is not None:
             while not State.last_submit.done():  # type: ignore
-                sleep(0.1)
+                sleep(0.01)
         logging.info(f'leds: green {LEDEnum.green.value} yellow {LEDEnum.yellow.value} '
                      f'red {LEDEnum.red.value} state nw {State.current_state}')
 
