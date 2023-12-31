@@ -18,6 +18,7 @@
 import logging
 import logging.config
 import os
+import sys
 import unittest
 
 import cv2
@@ -27,8 +28,8 @@ from processing import analyze, filter_candidates, filter_image, warp_image
 
 TEST_DIR = os.path.dirname(__file__)
 
-logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/test_log.conf',
-                          disable_existing_loggers=True)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
+                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 
 class ScrabbleMusterTestCase(unittest.TestCase):

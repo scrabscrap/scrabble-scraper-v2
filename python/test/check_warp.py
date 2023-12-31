@@ -18,17 +18,16 @@
 import logging
 import logging.config
 import signal
+import sys
 from concurrent import futures
 from threading import Event
 from time import sleep
 
 import cv2
 
-from config import config
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
+                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
-logging.config.fileConfig(fname=config.work_dir + '/log.conf', disable_existing_loggers=False,
-                          defaults={'level': 'DEBUG',
-                                    'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
 from game_board.board import overlay_grid, overlay_tiles
 from hardware.camera import cam, switch_camera

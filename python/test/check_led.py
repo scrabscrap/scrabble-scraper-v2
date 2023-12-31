@@ -16,14 +16,15 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
+import sys
 import time
 import unittest
 
 from config import config
 from hardware.led import LED, LEDEnum
 
-logging.basicConfig(
-    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
+                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 
 class LedTestCase(unittest.TestCase):

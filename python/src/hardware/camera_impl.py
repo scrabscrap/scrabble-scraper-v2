@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 
 from config import config
+from util import runtime_measure
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
 
@@ -40,6 +41,7 @@ class CameraFile(Camera):
         self._counter = 1
         self._formatter = config.simulate_path
         self._resize = True
+        self.last_img = np.array([])
 
     @property
     def resize(self) -> bool:
@@ -68,12 +70,25 @@ class CameraFile(Camera):
     def counter(self, value: int) -> None:
         self._counter = value
 
+    @runtime_measure
     def read(self, peek: bool = False) -> Mat:
+        logging.debug(f'CameraFile read: {self._formatter.format(self._counter)}')
         img = cv2.imread(self._formatter.format(self._counter))
         if not peek:
             self._counter += 1 if os.path.isfile(self._formatter.format(self._counter + 1)) else 0
         if self._resize:
-            return cv2.resize(img, self.resolution)
+            img = cv2.resize(img, self.resolution)
+        # if np.array_equal(self.last_img.shape, img.shape):
+        #     h, w = self.last_img.shape[:2]
+        #     diff = cv2.subtract(cv2.cvtColor(self.last_img, cv2.COLOR_BGR2GRAY), cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
+        #     err = np.sum(diff**2)
+        #     mse = err / (float(h * w))
+        #     if np.array_equal(self.last_img, img):
+        #         logging.warning(f'no changes in image - try to restart camera {mse}')
+        #     else:
+        #         # np.mean(np.abs(self.last_img - img))
+        #         logging.warning(f'got changes in image {mse}')
+        # self.last_img = img.copy()
         return img
 
     def update(self, event: Event) -> None:

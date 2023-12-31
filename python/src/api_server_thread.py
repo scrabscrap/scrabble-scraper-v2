@@ -34,6 +34,7 @@ from flask import (Flask, abort, redirect, render_template, request, send_file,
                    send_from_directory, url_for)
 from flask_sock import Sock
 from werkzeug.serving import make_server
+from display import DisplayMock
 
 import upload
 from config import config
@@ -732,6 +733,10 @@ def main():
                               disable_existing_loggers=False,
                               defaults={'level': 'DEBUG',
                                         'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
+
+    # set Mock-Display
+    ScrabbleWatch.display = DisplayMock()
+
     # set Mock-Camera
     switch_camera('file')
 

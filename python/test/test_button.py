@@ -17,26 +17,24 @@
 """
 import logging
 import logging.config
-import os
+import sys
 import time
 import unittest
-
-logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/test_log.conf',
-                          disable_existing_loggers=False)
-
-
 from time import sleep
 
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
 from config import config
-from display import Display
+from display import DisplayMock
 from hardware.button import ButtonEnum
 from hardware.camera import switch_camera
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
+                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 
 class ButtonTestCase(unittest.TestCase):
@@ -67,7 +65,7 @@ class ButtonTestCase(unittest.TestCase):
         self.pin_reset = Device.pin_factory.pin(ButtonEnum.RESET.value)
         self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
         # self.pin_config = Device.pin_factory.pin(ButtonEnum.config.value)
-        ScrabbleWatch.display = Display
+        ScrabbleWatch.display = DisplayMock()
         switch_camera('file')
         State.init()
         return super().setUp()

@@ -17,17 +17,17 @@
 """
 import logging
 import logging.config
-import os
+import sys
 import unittest
-
-logging.config.fileConfig(fname=os.path.dirname(os.path.abspath(__file__)) + '/test_log.conf',
-                          disable_existing_loggers=False)
 
 from config import config
 from display import Display
 from scrabble import Move, MoveType
 from scrabblewatch import ScrabbleWatch
 from state import State
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
+                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 
 class AlgorithmTestCase(unittest.TestCase):

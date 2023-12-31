@@ -92,12 +92,12 @@ class GameRunnerTestCase(unittest.TestCase):
 
     def run_game(self, file: str):
         """Test csv games"""
-        from display import Display
+        from display import DisplayMock
         from hardware.camera import switch_camera
         from scrabblewatch import ScrabbleWatch
         from state import State
 
-        ScrabbleWatch.display = Display
+        ScrabbleWatch.display = DisplayMock()
         switch_camera('file')
 
         # read *.ini

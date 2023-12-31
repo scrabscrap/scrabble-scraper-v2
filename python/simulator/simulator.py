@@ -172,7 +172,7 @@ def main():
 
     from threading import Event
 
-    from display import Display
+    from display import DisplayMock
 
     logging.config.fileConfig(fname=config.work_dir + '/log.conf',
                               disable_existing_loggers=False,
@@ -189,7 +189,7 @@ def main():
     cam.resize = False
 
     # set Watch
-    ScrabbleWatch.display = Display
+    ScrabbleWatch.display = DisplayMock()
     timer = RepeatedTimer(1, ScrabbleWatch.tick)
     _ = pool.submit(timer.tick, Event())
 

@@ -99,7 +99,7 @@ class State(Static):
         logging.info(f'{cls.current_state} - (start) -> {next_state}')
         ScrabbleWatch.start(player)
         LED.switch_on(next_led)  # turn on LED red
-        ScrabbleWatch.display.render_display(0, [0, 0], [0, 0])
+        ScrabbleWatch.display.render_display(0, (0, 0), (0, 0))
         return next_state
 
     @classmethod
