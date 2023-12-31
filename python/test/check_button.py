@@ -23,7 +23,7 @@ logging.basicConfig(
     level=logging.INFO, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 from config import config
-from display import Display
+from display import DisplayMock
 from hardware.camera import cam, switch_camera
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
@@ -83,7 +83,7 @@ class CheckButtonTestCase(unittest.TestCase):
 
     def test_button(self):
         """start button event handler - display LED on Button press"""
-        ScrabbleWatch.display = Display
+        ScrabbleWatch.display = DisplayMock()
         switch_camera('file')
 
         SimulateState.cam = cam

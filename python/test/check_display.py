@@ -25,7 +25,7 @@ try:
     from hardware.oled import PlayerDisplay
 except (FileNotFoundError, ImportError):
     logging.warning('no i2c device found or import error')
-    from display import Display as PlayerDisplay  # type: ignore # fallback on ImportError
+    from display import DisplayMock as PlayerDisplay  # type: ignore # fallback on ImportError
 
 from config import config
 from scrabblewatch import ScrabbleWatch
@@ -49,7 +49,7 @@ class DisplayTestCase(unittest.TestCase):
     @trace
     def test_display(self):
         """show different pattern on the OLED Displays"""
-        ScrabbleWatch.display = PlayerDisplay
+        ScrabbleWatch.display = PlayerDisplay()
 
         ScrabbleWatch.display.show_boot()
         ScrabbleWatch.display.show_cam_err()
@@ -123,8 +123,7 @@ class DisplayTestCase(unittest.TestCase):
         ScrabbleWatch.resume()
 
         logging.debug('overtime')
-        ScrabbleWatch.time[0] = 1798
-        ScrabbleWatch.time[1] = 1795
+        ScrabbleWatch.time = (1798, 1795)
         ScrabbleWatch.start(0)
         for _ in range(10):
             ScrabbleWatch.tick()

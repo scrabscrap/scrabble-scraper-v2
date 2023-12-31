@@ -16,17 +16,18 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
+import sys
 import threading
 import time
 import unittest
 
-logging.basicConfig(
-    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
-
 from config import config
-from display import Display
+from display import DisplayMock
 from hardware.led import LED
 from scrabblewatch import ScrabbleWatch
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
+                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 
 # noinspection PyMethodMayBeStatic
@@ -54,7 +55,7 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         """test: timer"""
         display_pause = 0.1
 
-        ScrabbleWatch.display = Display
+        ScrabbleWatch.display = DisplayMock()
         logging.info('without start')
         ScrabbleWatch.display.show_boot()
         time.sleep(display_pause)
@@ -85,7 +86,7 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         ScrabbleWatch.start(1)
         time.sleep(0.5)
         logging.info('set time to 1798')
-        ScrabbleWatch.time[1] = 1798
+        ScrabbleWatch.time = (ScrabbleWatch.time[0], 1798)
         time.sleep(1)
         logging.info('end of sleep')
         # watch.display.stop()

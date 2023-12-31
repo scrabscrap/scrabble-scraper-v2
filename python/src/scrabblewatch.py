@@ -18,24 +18,25 @@
 import logging
 import os
 
+from display import Display
 from util import Static
 
 try:
     os.stat('/dev/i2c-1')
-    from hardware.oled import PlayerDisplay as Display
+    from hardware.oled import PlayerDisplay as DisplayImpl
 except (FileNotFoundError, ImportError):
     logging.warning('no i2c device found or import error')
-    from display import Display  # type: ignore
+    from display import DisplayMock as DisplayImpl  # type: ignore # pylint: disable=ungrouped-imports
 
 
 class ScrabbleWatch(Static):
     """timer for played time"""
     play_time: int = 0
-    time: list[int] = [0, 0]
-    current: list[int] = [0, 0]
+    time: tuple[int, int] = (0, 0)
+    current: tuple[int, int] = (0, 0)
     paused: bool = True
     player: int = 0  # 0/1 ... player 1/player 2
-    display = Display
+    display: Display = DisplayImpl()
 
     @classmethod
     def start(cls, player: int) -> None:
@@ -43,7 +44,7 @@ class ScrabbleWatch(Static):
         last = cls.player
         cls.play_time = 0
         cls.player = player
-        cls.current = [0, 0]
+        cls.current = (0, 0)
         cls.paused = False
         cls.display.render_display(last, cls.time, cls.current)
 
@@ -64,8 +65,8 @@ class ScrabbleWatch(Static):
         cls.paused = True
         cls.display.show_reset()
         cls.play_time = 0
-        cls.time = [0, 0]
-        cls.current = [0, 0]
+        cls.time = (0, 0)
+        cls.current = (0, 0)
         cls.player = 0
 
     @classmethod
@@ -73,12 +74,12 @@ class ScrabbleWatch(Static):
         """add one second"""
         cls.play_time += 1
         if not cls.paused:
-            cls.time[cls.player] += 1
-            cls.current[cls.player] += 1
+            cls.time = (cls.time[0] + 1, cls.time[1]) if cls.player == 0 else (cls.time[0], cls.time[1] + 1)
+            cls.current = (cls.current[0] + 1, cls.current[1]) if cls.player == 0 else (cls.current[0], cls.current[1] + 1)
             cls.display.render_display(cls.player, cls.time, cls.current)
 
     @classmethod
-    def status(cls) -> tuple[int, list[int], list[int]]:
+    def status(cls) -> tuple[int, tuple[int, int], tuple[int, int]]:
         """ get current timer status
 
             Returns
