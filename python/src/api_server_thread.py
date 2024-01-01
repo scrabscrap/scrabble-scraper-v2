@@ -55,6 +55,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     flask_shutdown_blocked = False
     scrabscrap_version = ''
     simulator = False
+    tailscale = False
     local_webapp = False
 
     @staticmethod
@@ -617,6 +618,29 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         return redirect(url_for('route_index'))
 
     @ staticmethod
+    @ app.route('/vpn', defaults={'op': 'status'})
+    @ app.route('/vpn/<path:op>')
+    def do_vpn(op):
+        """install vpn ops (start, stop, status, install, auth, uninstall)
+        """
+        if op == 'status':
+            os.system(f'{Config.src_dir()}/../../scripts/tailscale.sh STATUS | tee -a {Config.log_dir()}/messages.log &')
+        elif op == 'install':
+            os.system(f'{Config.src_dir()}/../../scripts/tailscale.sh INSTALL | tee -a {Config.log_dir()}/messages.log &')
+        elif op == 'start':
+            os.system(f'{Config.src_dir()}/../../scripts/tailscale.sh UP | tee -a {Config.log_dir()}/messages.log &')
+        elif op == 'stop':
+            os.system(f'{Config.src_dir()}/../../scripts/tailscale.sh DOWN | tee -a {Config.log_dir()}/messages.log &')
+        elif op == 'auth':
+            os.system(f'{Config.src_dir()}/../../scripts/tailscale.sh REAUTH | tee -a {Config.log_dir()}/messages.log &')
+        elif op == 'uninstall':
+            os.system(f'{Config.src_dir()}/../../scripts/tailscale.sh UNINSTALL | tee -a {Config.log_dir()}/messages.log &')
+        else:
+            logging.warning('invalid operation for vpn')
+        ApiServer.tailscale = os.path.isfile('/usr/bin/tailscale')
+        return redirect(url_for('route_logs'))
+
+    @ staticmethod
     @ app.route('/upgrade_scrabscrap')
     def do_update_scrabscrap():
         """ start scrabscrap upgrade """
@@ -675,6 +699,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
         ApiServer.simulator = simulator
+        ApiServer.tailscale = os.path.isfile('/usr/bin/tailscale')
         version_dirty = subprocess.run(['git', 'diff', '--stat'], check=False,
                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         version_flag: str = '\u2757' if len(version_dirty.stdout) > 0 else ''

@@ -93,6 +93,39 @@
               {% endif %}
             </ul>
           </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <i class="bi-cloud"></i> VPN
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              {% if apiserver.tailscale %}
+              <li><a class="dropdown-item" href="/vpn/status"><i class="bi-question-circle"></i> Status
+                  Tailscale</a>
+              </li>
+              <li><a class="dropdown-item" href="/vpn/start"><i class="bi-toggle-on"></i> Start Tailscale</a></li>
+              <li><a class="dropdown-item" href="/vpn/stop"><i class="bi-toggle-off"></i> Stop Tailscale</a></li>
+              <div class="dropdown-divider"></div>
+              <li><a class="dropdown-item" href="/vpn/auth"><i class="bi-key"></i> Reauth Tailscale</a></li>
+              <li><a class="dropdown-item disabled" href="/vpn/install"><i class="bi-cart-plus"></i> Install
+                  Tailscale</a></li>
+              <li><a class="dropdown-item" href="/vpn/uninstall"><i class="bi-cart-dash"></i> Remove Tailscale</a></li>
+              {% else %}
+              <li><a class="dropdown-item disabled" href="/vpn/status"><i class="bi-question-circle"></i> Status
+                  Tailscale</a>
+              </li>
+              <li><a class="dropdown-item disabled" href="/vpn/start"><i class="bi-toggle-on"></i> Start Tailscale</a>
+              </li>
+              <li><a class="dropdown-item disabled" href="/vpn/stop"><i class="bi-toggle-off"></i> Stop Tailscale</a>
+              </li>
+              <div class="dropdown-divider"></div>
+              <li><a class="dropdown-item disabled" href="/vpn/auth"><i class="bi-key"></i> Reauth Tailscale</a></li>
+              <li><a class="dropdown-item" href="/vpn/install"><i class="bi-cart-plus"></i> Install Tailscale</a></li>
+              <li><a class="dropdown-item disabled" href="/vpn/uninstall"><i class="bi-cart-dash"></i> Remove
+                  Tailscale</a></li>
+              {% endif %}
+            </ul>
+          </li>
           {% if apiserver.local_webapp %}
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="/webapp/index.html" target="webapp"><i class="bi-eye"></i>
