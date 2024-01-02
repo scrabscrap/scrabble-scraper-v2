@@ -703,7 +703,10 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         if version_info.returncode > 0:
             version_info = subprocess.run(['git', 'rev-parse', 'HEAD'], check=False,
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        ApiServer.scrabscrap_version = version_flag + version_info.stdout.decode()[:14]
+        branch_info = subprocess.run(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], check=False,
+                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        branch = '' if 'main' == branch_info.stdout.decode().strip() else f'({branch_info.stdout.decode().strip()})'
+        ApiServer.scrabscrap_version = f'{branch} {version_flag}{version_info.stdout.decode()[:14]}'
         if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
             ApiServer.local_webapp = True
         self.app.config['DEBUG'] = False
