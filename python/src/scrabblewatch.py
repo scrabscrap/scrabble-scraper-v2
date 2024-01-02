@@ -23,6 +23,7 @@ from util import Static
 
 try:
     os.stat('/dev/i2c-1')
+    os.stat('/dev/i2c-3')
     from hardware.oled import PlayerDisplay as DisplayImpl
 except (FileNotFoundError, ImportError):
     logging.warning('no i2c device found or import error')

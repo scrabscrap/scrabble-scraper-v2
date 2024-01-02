@@ -34,12 +34,12 @@ from flask import (Flask, abort, redirect, render_template, request, send_file,
                    send_from_directory, url_for)
 from flask_sock import Sock
 from werkzeug.serving import make_server
-from display import DisplayMock
 
 import upload
 from config import config
+from display import DisplayMock
 from game_board.board import overlay_grid
-from hardware.camera import cam
+from hardware import camera
 from processing import get_last_warp, warp_image
 from scrabblewatch import ScrabbleWatch
 from state import EOG, START, State
@@ -138,7 +138,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             config.config.set('video', 'warp_coordinates', np.array2string(
                 rect, formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=','))
         warp_coord_cnf = str(config.video_warp_coordinates)
-        img = cam.read()
+        img = camera.cam.read()
         if img is not None:
             _, im_buf_arr = cv2.imencode(".jpg", img)
             png_output = base64.b64encode(im_buf_arr)
@@ -536,7 +536,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             ApiServer.flask_shutdown_blocked = True
             logging.info(log_message)
 
-            img = cam.read(peek=True)
+            img = camera.cam.read(peek=True)
             warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
             # tiles_candidates = filter_candidates((7, 7), tiles_candidates, set())
@@ -740,14 +740,14 @@ def main():
     # set Mock-Camera
     switch_camera('file')
 
-    _ = pool.submit(cam.update, Event())
+    _ = pool.submit(camera.cam.update, Event())
 
     api = ApiServer()
     pool.submit(api.start_server)
 
     sleep(240)  # stop after 2 min
     api.stop_server()
-    cam.cancel()
+    camera.cam.cancel()
 
 
 if __name__ == '__main__':

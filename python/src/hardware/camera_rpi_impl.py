@@ -2,6 +2,7 @@
 import atexit
 import importlib.util
 import logging
+import subprocess
 from threading import Event
 from time import sleep
 from typing import Optional
@@ -12,7 +13,7 @@ from config import config
 from hardware.camera_impl import Camera, camera_dict
 
 try:
-    from picamera import PiCamera  # type: ignore
+    from picamera import PiCamera, PiCameraError  # type: ignore
     from picamera.array import PiRGBArray  # type: ignore
     RPI_CAMERA = True
 except ImportError:
@@ -38,7 +39,15 @@ class CameraRPI(Camera):  # pylint: disable=too-many-instance-attributes
         atexit.register(self._atexit)                                                       # cleanup on exit
 
     def _camera_open(self) -> None:
-        self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
+        global RPI_CAMERA  # pylint: disable=global-statement
+
+        try:
+            self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
+        except PiCameraError as oops:
+            logging.error(f'camera error {oops}')
+            RPI_CAMERA = False
+            del camera_dict['picamera']
+            return
         if config.video_rotate:
             self.camera.rotation = 180
         self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
@@ -84,4 +93,10 @@ class CameraRPI(Camera):  # pylint: disable=too-many-instance-attributes
 
 # add 'picamera' to camera dict if 'picamera' is available
 if importlib.util.find_spec('picamera'):
-    camera_dict.update({'picamera': CameraRPI})
+    process = subprocess.run(['vcgencmd', 'get_camera'], check=False, capture_output=True)
+    if 'detected=1' in process.stdout.decode():
+        camera_dict.update({'picamera': CameraRPI})
+        logging.info('picamera added')
+    else:
+        RPI_CAMERA = False
+        logging.error(f'picamera not detected {process.stdout.decode()}')

@@ -25,14 +25,13 @@ from time import sleep
 
 import cv2
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
-                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
-
-
+from hardware import camera
 from game_board.board import overlay_grid, overlay_tiles
-from hardware.camera import cam, switch_camera
 from processing import analyze, filter_candidates, filter_image, warp_image
 from threadpool import pool
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
+                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 
 def print_board(board: dict) -> str:
@@ -63,7 +62,7 @@ def main() -> None:
 
     def main_cleanup(signum, _) -> None:
         logging.debug(f'Signal handler called with signal {signum}')
-        cam.cancel()
+        camera.cam.cancel()
         # reset alarm
         signal.alarm(0)
 
@@ -73,11 +72,11 @@ def main() -> None:
     signal.signal(signal.SIGALRM, main_cleanup)
 
     # open Camera
-    switch_camera('file')
-    _ = pool.submit(cam.update, Event())
+    camera.switch_camera('file')
+    _ = pool.submit(camera.cam.update, Event())
     sleep(1)  # camera warmup
 
-    img = cam.read()
+    img = camera.cam.read()
     # _, img = cv2.imencode(".jpg", img)
     cv2.imwrite('log/img.jpg', img)
 
@@ -111,7 +110,7 @@ def main() -> None:
     overlay = overlay_tiles(overlay, board)
     cv2.imwrite('log/overlay.jpg', overlay)
 
-    cam.cancel()
+    camera.cam.cancel()
     pool.shutdown(cancel_futures=True)
 
 

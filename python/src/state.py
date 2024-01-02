@@ -25,8 +25,8 @@ from time import sleep
 from typing import Callable, Optional, Tuple
 
 from config import config
+from hardware import camera
 from hardware.button import Button
-from hardware.camera import cam
 from hardware.led import LED, LEDEnum
 from processing import (end_of_game, invalid_challenge, move, start_of_game,
                         store_status, store_zip_from_game, valid_challenge)
@@ -114,7 +114,7 @@ class State(Static):
         _, (time0, time1), _ = ScrabbleWatch.status()
         ScrabbleWatch.start(next_player)
         LED.switch_on(next_led)  # turn on next player LED
-        cls.picture = cam.read()  # type: ignore
+        cls.picture = camera.cam.read()  # type: ignore
         cls.last_submit = pool.submit(move, cls.last_submit, cls.game, cls.picture, player, (time0, time1), cls.op_event)
         return next_state
 

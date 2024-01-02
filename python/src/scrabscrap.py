@@ -23,20 +23,18 @@ import sys
 from signal import pause
 from threading import Event
 
-from config import config
-
-logging.config.fileConfig(fname=f'{config.work_dir}/log.conf',
-                          disable_existing_loggers=False,
-                          defaults={'level': 'DEBUG',
-                                    'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
-
-
-from hardware.camera import cam
 from api_server_thread import ApiServer
+from config import config
+from hardware import camera
 from scrabblewatch import ScrabbleWatch
 from state import State
 from threadpool import pool
 from timer_thread import RepeatedTimer
+
+logging.config.fileConfig(fname=f'{config.work_dir}/log.conf',
+                          disable_existing_loggers=True,
+                          defaults={'level': 'DEBUG',
+                                    'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
 
 
 def main() -> None:
@@ -47,7 +45,7 @@ def main() -> None:
         logging.debug('main-_atexit')
         api.stop_server()
         timer.cancel()
-        cam.cancel()
+        camera.cam.cancel()
         pool.shutdown(cancel_futures=True)
 
     def signal_alarm(signum, _) -> None:
@@ -70,7 +68,7 @@ def main() -> None:
     atexit.register(_cleanup)
 
     # start camera
-    _ = pool.submit(cam.update, Event())
+    _ = pool.submit(camera.cam.update, Event())
 
     # create Timer
     ScrabbleWatch.display.show_boot()  # Boot Message

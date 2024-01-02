@@ -30,7 +30,7 @@ from gpiozero.pins.mock import MockFactory
 
 from api_server_thread import ApiServer
 from config import config
-from hardware.camera import cam, switch_camera
+from hardware import camera
 from hardware.led import LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
@@ -82,37 +82,37 @@ def yellow():
 def reset():
     """simulate press reset"""
     State.press_button('RESET')
-    cam.conter = 1  # type: ignore
+    camera.cam.conter = 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_first():
     """skip to first image"""
-    cam.counter = 1  # type: ignore
+    camera.cam.counter = 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_prev():
     """skip to previous image"""
     logging.debug('prev')
-    if cam.counter > 1:  # type: ignore
-        cam.counter -= 1  # type: ignore
+    if camera.cam.counter > 1:  # type: ignore
+        camera.cam.counter -= 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_next():
     """skip to next image"""
     logging.debug('next')
-    cam.counter += 1 if os.path.isfile(  # type: ignore
-        cam.formatter.format(cam.counter + 1)) else 0  # type: ignore
+    camera.cam.counter += 1 if os.path.isfile(  # type: ignore
+        camera.cam.formatter.format(camera.cam.counter + 1)) else 0  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_last():
     """skip to last image"""
     logging.debug('last')
-    while os.path.isfile(cam.formatter.format(cam.counter + 1)):  # type: ignore
-        cam.counter += 1  # type: ignore
+    while os.path.isfile(camera.cam.formatter.format(camera.cam.counter + 1)):  # type: ignore
+        camera.cam.counter += 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
@@ -123,8 +123,8 @@ def open_folder():
     ini_file = os.path.abspath(f'{config.src_dir}/../test/{folder}/scrabble.ini')
     if os.path.exists(ini_file):
         config.reload(ini_file=ini_file)
-        cam.counter = 1  # type: ignore
-        cam.formatter = config.simulate_path()  # type: ignore
+        camera.cam.counter = 1  # type: ignore
+        camera.cam.formatter = config.simulate_path()  # type: ignore
     else:
         logging.warning(f'INI File not found / invalid: {ini_file}')
     return redirect(url_for('simulator'))
@@ -150,7 +150,7 @@ def simulator() -> str:
         png_current = urllib.parse.quote(base64.b64encode(pic_buf_arr))
         board = f'Score: {game.moves[-1].score} / {game.moves[-1].points}\n{game.board_str()}'
     # get next picture
-    img = cam.read(peek=True)  # type: ignore
+    img = camera.cam.read(peek=True)  # type: ignore
     _, pic_buf_arr = cv2.imencode(".jpg", img)
     png_next = urllib.parse.quote(base64.b64encode(pic_buf_arr))
     # show log
@@ -184,9 +184,9 @@ def main():
     log.setLevel(logging.ERROR)
 
     # set Mock-Camera
-    switch_camera('file')
-    _ = pool.submit(cam.update, Event())
-    cam.resize = False
+    camera.switch_camera('file')
+    _ = pool.submit(camera.cam.update, Event())
+    camera.cam.resize = False
 
     # set Watch
     ScrabbleWatch.display = DisplayMock()
@@ -214,7 +214,7 @@ def main():
     api.start_server(port=5050, simulator=True)
 
     api.stop_server()
-    cam.cancel()
+    camera.cam.cancel()
     timer.cancel()
 
 
