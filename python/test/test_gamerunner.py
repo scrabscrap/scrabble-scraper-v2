@@ -24,7 +24,7 @@ import unittest
 from time import sleep
 
 from config import config
-from hardware.camera import cam
+from hardware import camera
 
 TEST_DIR = os.path.dirname(__file__)
 logging.config.fileConfig(fname=f'{os.path.dirname(os.path.abspath(__file__))}/test_log.conf',
@@ -93,12 +93,11 @@ class GameRunnerTestCase(unittest.TestCase):
     def run_game(self, file: str):
         """Test csv games"""
         from display import DisplayMock
-        from hardware.camera import switch_camera
         from scrabblewatch import ScrabbleWatch
         from state import State
 
         ScrabbleWatch.display = DisplayMock()
-        switch_camera('file')
+        camera.switch_camera('file')
 
         # read *.ini
         test_config = configparser.ConfigParser()
@@ -123,9 +122,9 @@ class GameRunnerTestCase(unittest.TestCase):
         self.config_setter('video', 'warp_coordinates', coordstr)
         logging.info(f'{config.video_warp}: {config.video_warp_coordinates}')
         self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom'))
-        cam.formatter = formatter  # type: ignore
-        cam.counter = 1  # type: ignore
-        cam.resize = False
+        camera.cam.formatter = formatter  # type: ignore
+        camera.cam.counter = 1  # type: ignore
+        camera.cam.resize = False
         State.do_new_game()
         State.game.nicknames = (name1, name2)
         State.press_button(start_button.upper())  # green begins
@@ -136,7 +135,7 @@ class GameRunnerTestCase(unittest.TestCase):
             csv_reader = csv.DictReader(csv_file, skipinitialspace=True)
             for row in csv_reader:
                 logging.info(f'TEST: {row}')
-                cam.counter = int(row["Move"])  # type: ignore
+                camera.cam.counter = int(row["Move"])  # type: ignore
                 State.press_button(row["Button"].upper())
                 if State.last_submit is not None:
                     while not State.last_submit.done():  # type: ignore
