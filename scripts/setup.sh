@@ -20,20 +20,23 @@ sudo apt-get install -yq git python3-venv python3-dev
 sudo apt-get install -yq i2c-tools
 
 # install libraries and tools
-# install libs for OpenCV
-sudo apt-get install -yq libgsm1 libatk1.0-0 libavcodec58 libcairo2 libvpx6 libvorbisenc2 \
-libwayland-egl1 libva-drm2 libwavpack1 libshine3 libdav1d4 libwayland-client0 libxcursor1 \
-libopus0 libchromaprint1 libxinerama1 libpixman-1-0 libzmq5 libmp3lame0 libxcb-shm0 libsz2 \
-libgtk-3-0 libharfbuzz0b libilmbase25 libvdpau1 libssh-gcrypt-4 libpangocairo-1.0-0 \
-libtwolame0 libnorm1 libxi6 libxfixes3 libxcomposite1 libxcb-render0 libwayland-cursor0 \
-libvorbisfile3 libspeex1 libxrandr2 libxkbcommon0 libtheora0 libaec0 libx264-160 libaom0 \
-libzvbi0 libopenexr25 libogg0 libpangoft2-1.0-0 librsvg2-2 libxvidcore4 libsrt1.4-gnutls \
-libbluray2 libvorbis0a libdrm2 libmpg123-0 libatlas3-base libxdamage1 libavformat58 \
-libatk-bridge2.0-0 libswscale5 libsnappy1v5 libcodec2-0.9 libsodium23 libudfread0 \
-libswresample3 libcairo-gobject2 libx265-192 libthai0 libva-x11-2 ocl-icd-libopencl1 \
-libepoxy0 libpango-1.0-0 libavutil56 libva2 librabbitmq4 libgme0 libatspi2.0-0 \
-libgraphite2-3 libhdf5-103-1 libgfortran5 libsoxr0 libpgm-5.3-0 libopenmpt0 libxrender1 \
-libdatrie1 libgdk-pixbuf-2.0-0 libopenjp2-7 libwebpmux3 libopenblas-dev --fix-missing
+#opencv opencv-python-headless==4.6.0.66
+sudo apt-get install -yq ocl-icd-libopencl1 libchromaprint1 libmp3lame0 libx264-160 libva-drm2 libaom0 libharfbuzz0b \
+  libx265-192 libcodec2-0.9 libvorbis0a libpangoft2-1.0-0 libspeex1 libssh-gcrypt-4 libva2 libgraphite2-3 \
+  libogg0 libswresample3 libsoxr0 libxcb-render0 librsvg2-2 libavcodec58 libavformat58 libvorbisenc2 libsodium23 \
+  libdrm2 libsrt1.4-gnutls libpixman-1-0 libdatrie1 libwebpmux3 libthai0 libmpg123-0 libswscale5 libshine3 libzmq5 \
+  libwavpack1 libpangocairo-1.0-0 libopenmpt0 libtheora0 libcairo2 libxrender1 libpango-1.0-0 libvorbisfile3 \
+  libsnappy1v5 libgfortran5 libxcb-shm0 libcairo-gobject2 libxfixes3 libavutil56 libgsm1 libzvbi0 libbluray2 \
+  libatlas3-base libopus0 libopenjp2-7 libudfread0 libvdpau1 libvpx6 libpgm-5.3-0 libdav1d4 libgdk-pixbuf-2.0-0 \
+  libnorm1 libgme0 librabbitmq4 libva-x11-2 libtwolame0 libxvidcore4 --fix-missing
+
+# numpy numpy==1.26.2
+sudo apt-get install -yq libopenblas0-pthread libgfortran5 --fix-missing
+# pillow Pillow==10.1.0
+sudo apt-get install -yq libwebpdemux2 libwebpmux3 liblcms2-2 libopenjp2-7 --fix-missing
+
+# cleanup
+sudo apt -yq autoremove
 
 # create an OpenCV Python environment
 cd ~/scrabble-scraper-v2/python
