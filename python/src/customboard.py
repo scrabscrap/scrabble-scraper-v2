@@ -107,16 +107,13 @@ class CustomBoard(GameBoard):
 
     @classmethod
     def log_candidates(cls, candidates) -> str:
-        """print candidates set"""
-        tmp = '   '
-        for i in range(15):
-            tmp += f'{(i + 1):2d} '
-        tmp += '  \n'
-        for row in range(15):
-            tmp += f"{chr(ord('A') + row)} |"
-            for col in range(15):
-                tmp += ' X ' if (col, row) in candidates else ' . '
-            tmp += ' |\n'
+        """Print candidates set"""
+        board_size = 15
+        tmp = '   ' + ' '.join(f' {i + 1:2d}' for i in range(board_size)) + '  \n'
+        tmp += '\n'.join([
+            f"{chr(ord('A') + row)} | {' '.join(' X ' if (col, row) in candidates else ' . ' for col in range(board_size))} |"
+            for row in range(board_size)
+        ])
         return tmp
 
     @classmethod

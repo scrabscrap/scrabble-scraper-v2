@@ -32,25 +32,21 @@ API_VERSION = '1.1'
 
 
 def board_to_string(board: dict) -> str:
-    """print out Scrabble board dictionary"""
-    result = '\n  |'
-    for i in range(15):
-        result += f'{(i + 1):2d} '
-    result += ' | '
-    for i in range(15):
-        result += f'{(i + 1):2d} '
-    result += '\n'
+    """Print out Scrabble board dictionary"""
+    result = '\n  |' + ' '.join(f'{i + 1:2d}' for i in range(15)) + ' | ' + ' '.join(f'{i + 1:2d}' for i in range(15)) + '\n'
     for row in range(15):
-        result += f"{chr(ord('A') + row)} |"
+        left = f"{chr(ord('A') + row)} |"
+        right = '| '
         for col in range(15):
-            if (col, row) in board:
-                result += f' {board[(col, row)][0]} '
+            cell_key = (col, row)
+            if cell_key in board:
+                key, value = board[cell_key]
+                left += f' {key} '
+                right += f' {value}'
             else:
-                result += ' . '
-        result += ' | '
-        for col in range(15):
-            result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' . '
-        result += ' | \n'
+                left += ' . '
+                right += ' . '
+        result += left + right + ' | \n'
     return result
 
 
