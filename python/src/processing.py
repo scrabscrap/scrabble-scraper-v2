@@ -656,14 +656,10 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     to_inspect = min(config.scrabble_verify_moves, len(game.moves)) * -1
     prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
     must_recalculate = False
-    for i in range(to_inspect, 0):
-        mov = game.moves[i]
-        for coord in changed.keys():
-            if coord in mov.board.keys():                                      # tiles on board are changed
-                logging.info(f'need correction {mov.board[coord]} -> {changed[coord]} {mov.score}/{mov.points}')
-                mov.board[coord] = changed[coord]
-                must_recalculate = True
+    for mov in reversed(game.moves[to_inspect:]):
+        must_recalculate = must_recalculate or any(coord in mov.board.keys() for coord in changed.keys())
         if must_recalculate:
+            mov.board.update({coord: changed[coord] for coord in changed.keys() if coord in mov.board.keys()})
             _word = ''
             (col, row) = mov.coord
             for j, char in enumerate(mov.word):                                # fix mov.word
