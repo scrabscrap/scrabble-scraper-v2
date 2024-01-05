@@ -541,27 +541,27 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
         logging.warning(f'illegal move: {changed}')
         raise InvalidMoveExeption('move: illegal move horizontal and vertical changes detected')
     if len(changed) == 1:  # only 1 tile
-        (col, row) = changed[-1]
+        col, row = changed[-1]
         horizontal = ((col - 1, row) in board) or ((col + 1, row) in board)
         vertical = ((col, row - 1) in board) or ((col, row + 1) in board) if not horizontal else False
-    (col, row) = changed[0]
-    (minx, miny) = changed[0]
-    _word = ''
+    col, row = changed[0]
+    min_col, min_row = col, row
+    word = ''
     if vertical:
         while row > 0 and (col, row - 1) in board:
             row -= 1
-        miny = row
+        min_row = row
         while row < 15 and (col, row) in board:
-            _word += board[(col, row)][0] if (col, row) in changed else '.'
+            word += board[(col, row)][0] if (col, row) in changed else '.'
             row += 1
     else:
         while col > 0 and (col - 1, row) in board:
             col -= 1
-        minx = col
+        min_col = col
         while col < 15 and (col, row) in board:
-            _word += board[(col, row)][0] if (col, row) in changed else '.'
+            word += board[(col, row)][0] if (col, row) in changed else '.'
             col += 1
-    return vertical, (minx, miny), _word
+    return vertical, (min_col, min_row), word
 
 
 @ runtime_measure
