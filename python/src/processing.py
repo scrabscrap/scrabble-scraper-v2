@@ -152,25 +152,21 @@ def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, e
         _, not_done = futures.wait({waitfor})
         assert len(not_done) == 0, 'error while waiting for future'
 
-    moves = game.moves
     logging.info(f'set blanko {coord} to {value}')
-
-    for mov in moves:
+    for mov in game.moves:
         board = mov.board
         _, col, row = mov.calc_coord(coord)
         if (col, row) in board.keys() and (board[(col, row)][0] == '_' or board[(col, row)][0].islower()):
             board[(col, row)] = (value, board[(col, row)][1])
             if (col, row) in mov.new_tiles:
                 mov.new_tiles[(col, row)] = value
-                if mov.is_vertical:
-                    mov.word = mov.word[:row - mov.coord[1]] + value + mov.word[row - mov.coord[1] + 1:]
-                else:
-                    mov.word = mov.word[:col - mov.coord[0]] + value + mov.word[col - mov.coord[0] + 1:]
+                index = row - mov.coord[1] if mov.is_vertical else col - mov.coord[0]
+                mov.word = f'{mov.word[:index]}{value}{mov.word[index + 1:]}'
     if event and not event.is_set():
         event.set()
 
 
-def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, event=None):
+def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, event=None):  # pylint: disable=too-many-locals
     """insert two exchange moves before move number"""
     if waitfor is not None:                                                    # wait for previous moves
         _, not_done = futures.wait({waitfor})
@@ -198,10 +194,10 @@ def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, 
         game.moves.insert(index, move2)
         game.moves.insert(index, move1)
 
-        for i in range(index, len(game.moves)):
-            game.moves[i].move = i + 1
-            logging.debug(f'set/store move index {i} / move number {game.moves[i].move}')
-            _store(game, i)
+        for i, mov in enumerate(game.moves[index:]):
+            mov.move = i + index + 1
+            logging.debug(f'set/store move index {index + i} / move number {mov.move}')
+            _store(game, mov)
         if event and not event.is_set():
             event.set()
     else:
@@ -223,16 +219,17 @@ def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, 
         assert len(not_done) == 0, 'error while waiting for future'
 
     if 0 < move_number <= len(game.moves):
-        assert game.moves[move_number - 1].move == move_number
-        index = move_number - 1
-        delta = (game.moves[index].score[0] - score[0], game.moves[index].score[1] - score[1])
+        mov = game.moves[move_number - 1]
+        assert mov.move == move_number
+
+        delta = tuple(np.subtract(mov.score, score))
         if delta[0] != 0 or delta[1] != 0:
-            game.moves[index].modification_cache['score'] = game.moves[index].score
-        logging.debug(f'set score for move {move_number} {game.moves[index].score} => {score} / delta {delta}')
-        for i in range(index, len(game.moves)):
-            game.moves[i].score = (game.moves[i].score[0] - delta[0], game.moves[i].score[1] - delta[1])
-            logging.info(f'move {i}: {game.moves[i].score}')
-            _store(game, i, with_image=False)
+            mov.modification_cache['score'] = mov.score
+        logging.debug(f'set score for move {move_number} {mov.score} => {score} / delta {delta}')
+        for mov in game.moves[move_number - 1:]:
+            mov.score = tuple(np.subtract(mov.score, delta))
+            logging.info(f'>> move {mov.move}: {mov.score}')
+            _store(game, mov, with_image=False)
         if event and not event.is_set():
             event.set()
     else:
@@ -325,7 +322,7 @@ def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, c
             logging.info(f'recalculate move #{moves[i].move} ({moves[i].type}) '
                          f'new points {moves[i].points} new score {moves[i].score}')
             logging.info(f'\n{game.board_str(i)}')
-            _store(game, i, with_image=False)
+            _store(game, game.moves[i], with_image=False)
     else:
         logging.warning(f'wrong move number for change move: {move_number}')
         raise ValueError("invalid move number")
@@ -363,7 +360,7 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
         logging.debug(f'{msg}\nscores: {game.moves[-1].score}\napi: {game.json_str()}')
     _development_recording(game, img, suffix='~original')
     _development_recording(game, warped, suffix='~warped')
-    _store(game, -1)
+    _store(game, game.moves[-1])
 
 
 @ trace
@@ -385,7 +382,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
             event.set()
 
         logging.info(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
-        _store(game, -1)
+        _store(game, game.moves[-1])
     except Exception as oops:  # pylint: disable=broad-exception-caught
         logging.error(f'exception on valid_challenge {oops}')
         logging.info('no new move')
@@ -410,7 +407,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
             event.set()
 
         logging.info(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
-        _store(game, -1)
+        _store(game, game.moves[-1])
     except Exception as oops:  # pylint: disable=broad-exception-caught
         logging.error(f'exception on in_valid_challenge {oops}')
         logging.info('no new move')
@@ -419,7 +416,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
 @ trace
 def store_status(game: Game):
     """store current status.json - does not update data - *.json !"""
-    _store(game, 0)
+    _store(game, None)
 
 
 @ trace
@@ -442,7 +439,7 @@ def start_of_game(game: Game):
             util.rotate_logs()
     except OSError:
         logging.error('OS Error on delete web data/image files')
-    _store(game, 0)
+    _store(game, None)
 
 
 @ trace
@@ -467,8 +464,8 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
         if config.development_recording:
             logging.info(game.dev_str())
 
-        _store(game, -2)
-        _store(game, -1)
+        _store(game, game.moves[-2])
+        _store(game, game.moves[-1])
 
 
 def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
@@ -510,10 +507,11 @@ def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
 
 
 def _changes(board: dict, previous_board: dict) -> Tuple[dict, dict, dict, dict]:
-    for i in previous_board.keys():
-        if i in board.keys() and previous_board[i][1] > board[i][1]:
-            logging.debug(f'use value from old board {i}')
-            board[i] = previous_board[i]
+
+    for coord, (prev_value, prev_score) in previous_board.items():
+        if coord in board and prev_score > board[coord][1]:
+            logging.debug(f'use value from old board {coord}')
+            board[coord] = (prev_value, prev_score)
     new_tiles = {i: board[i] for i in set(board.keys()).difference(previous_board)}
     removed_tiles = {i: previous_board[i] for i in set(previous_board.keys()).difference(board)}
     changed_tiles = {i: board[i] for i in previous_board if
@@ -670,7 +668,7 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     return prev_score
 
 
-def _store(game: Game, move_index: int, with_image: bool = True):  # pragma: no cover
+def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = True):  # pragma: no cover
     """ store and upload move
 
     Args:
@@ -682,34 +680,34 @@ def _store(game: Game, move_index: int, with_image: bool = True):  # pragma: no 
     if config.is_testing:
         logging.info('skip store because flag is_testing is set')
         return
-    moves = game.moves
-    if len(moves) < 1:
+
+    if game.moves and move_to_store:
+        if with_image and move_to_store.img is not None:
+            if not cv2.imwrite(f'{config.web_dir}/image-{move_to_store.move}.jpg',
+                               move_to_store.img, [cv2.IMWRITE_JPEG_QUALITY, 99]):
+                logging.error(f'error writing image-{move_to_store.move}.jpg')
         try:
-            logging.debug('empty game - upload empty status.json')
+            with open(f'{config.web_dir}/data-{move_to_store.move}.json', "w", encoding='UTF-8') as handle:
+                handle.write(game.json_str(move_to_store.move))
+            if game.moves[-1].move == move_to_store.move:
+                logging.debug('write status.json')
+                with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
+                    handle.write(game.json_str(move_to_store.move))
+        except IOError as error:
+            logging.error(f'error writing game move {move_to_store.move}: {error}')
+        _development_recording(game, None, info=True)
+
+        if config.upload_server:
+            pool.submit(upload.upload_move, move_to_store.move)
+    else:
+        try:
+            logging.debug('upload status.json')
             with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
                 handle.write(game.json_str())
             if config.upload_server:
                 pool.submit(upload.upload_status)                    # upload empty status
         except IOError as error:
-            logging.error(f'error writing game move {move_index}: {error}')
-    elif -len(moves) <= move_index < len(moves):
-        if with_image and moves[move_index].img is not None:
-            if not cv2.imwrite(f'{config.web_dir}/image-{moves[move_index].move}.jpg',
-                               moves[move_index].img, [cv2.IMWRITE_JPEG_QUALITY, 99]):  # type: ignore
-                logging.error(f'error writing image-{moves[move_index].move}.jpg')
-        try:
-            with open(f'{config.web_dir}/data-{game.moves[move_index].move}.json', "w", encoding='UTF-8') as handle:
-                handle.write(game.json_str(game.moves[move_index].move))
-            if game.moves[-1].move == game.moves[move_index].move:
-                logging.debug('write status.json')
-                with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
-                    handle.write(game.json_str(moves[move_index].move))
-        except IOError as error:
-            logging.error(f'error writing game move {moves[move_index].move}: {error}')
-        _development_recording(game, None, info=True)
-
-        if config.upload_server:
-            pool.submit(upload.upload_move, moves[move_index].move)
+            logging.error(f'error writing status.json: {error}')
 
 
 def store_zip_from_game(game: Game):  # pragma: no cover
@@ -726,11 +724,11 @@ def store_zip_from_game(game: Game):  # pragma: no cover
     zip_filename = f'{game_id}-{str(uuid.uuid4())}'
     with ZipFile(f'{config.web_dir}/{zip_filename}.zip', 'w') as _zip:
         logging.info(f"create zip with {len(game.moves):d} files")
-        for i in range(1, len(game.moves) + 1):
-            if os.path.exists(f'{config.web_dir}/image-{i}.jpg'):
-                _zip.write(f'{config.web_dir}/image-{i}.jpg', arcname=f'image-{i}.jpg')
-            if os.path.exists(f'{config.web_dir}/data-{i}.json'):
-                _zip.write(f'{config.web_dir}/data-{i}.json', arcname=f'data-{i}.json')
+        for mov in game.moves:
+            if os.path.exists(f'{config.web_dir}/image-{mov.move}.jpg'):
+                _zip.write(f'{config.web_dir}/image-{mov.move}.jpg', arcname=f'image-{mov.move}.jpg')
+            if os.path.exists(f'{config.web_dir}/data-{mov.move}.json'):
+                _zip.write(f'{config.web_dir}/data-{mov.move}.json', arcname=f'data-{mov.move}.json')
         if os.path.exists(f'{config.log_dir}/messages.log'):
             _zip.write(f'{config.log_dir}/messages.log', arcname='messages.log')
         if config.development_recording:
