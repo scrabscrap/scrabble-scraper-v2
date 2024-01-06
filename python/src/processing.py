@@ -359,10 +359,8 @@ def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_ti
 
     logging.info(f'\n{game.board_str()}')
     if logging.getLogger('root').isEnabledFor(logging.DEBUG):
-        msg = '\n'
-        for i in range(0, len(game.moves)):  # pylint: disable=consider-using-enumerate
-            msg += f'{game.moves[i].gcg_str(game.nicknames)}\n'
-        logging.debug(f'{msg}\napi: {game.json_str()}\nscores: {game.moves[-1].score}')
+        msg = '\n' + ''.join(f'{mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
+        logging.debug(f'{msg}\nscores: {game.moves[-1].score}\napi: {game.json_str()}')
     _development_recording(game, img, suffix='~original')
     _development_recording(game, warped, suffix='~warped')
     _store(game, -1)
@@ -491,8 +489,6 @@ def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
         mov = game.moves[i]
         bag = calculate_bag(mov)
         if len(bag) >= 14:  # now find changed tiles
-            mov = game.moves[i]
-            bag = calculate_bag(mov)
             bag_len = len(bag) - 14
             break
     rack = [7, 7]
@@ -505,9 +501,7 @@ def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
         logging.info(f'player={mov.player} rack-size={rack[mov.player]} from-bag={from_bag}')
     if len(game.moves) > 0:
         bag = calculate_bag(game.moves[-1])
-        points = 0
-        for elem in bag:
-            points += scores(elem)
+        points = sum(scores(elem) for elem in bag)
         if rack[0] == 0 and rack[1] > 0:
             return (points, -points), "".join(bag)
         if rack[1] == 0 and rack[0] > 0:
