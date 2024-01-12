@@ -50,8 +50,11 @@ class CameraRPI(Camera):  # pylint: disable=too-many-instance-attributes
             return
         if config.video_rotate:
             self.camera.rotation = 180
+        self.camera.awb_mode = 'auto'
+        self.camera.exposure_mode = 'auto'
+        self.camera.still_stats = 'true'
         self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
-        sleep(0.3)  # warm up camera
+        sleep(1.5)  # warm up camera
         self.stream = self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True)
         logging.debug(f'open camera: {self.camera.resolution} / {self.camera.framerate} / {self.camera.sensor_mode}')
 
