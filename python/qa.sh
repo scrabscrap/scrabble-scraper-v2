@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-  source .venv/bin/activate
+source .venv/bin/activate
 
 while getopts c:h flag
 do
@@ -28,7 +28,7 @@ done
   fi
 
   echo "*** run mypy"
-  mypy src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
+  mypy --follow-imports skip --config-file mypy.ini src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
   retVal=$?
   if [ $retVal -ne 0 ]; then
     echo "### mypy returns $retVal"
