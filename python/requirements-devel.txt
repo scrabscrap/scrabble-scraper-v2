@@ -23,4 +23,5 @@ pylint
 snakeviz
 # tornado
 types-requests
+types-pillow
 opencv-stubs==0.0.8
