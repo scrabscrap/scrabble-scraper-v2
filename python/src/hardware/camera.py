@@ -19,8 +19,6 @@ import atexit
 import importlib.util
 import logging
 import os
-import subprocess
-import sys
 from threading import Event
 from time import sleep
 from typing import Optional, Protocol
@@ -30,17 +28,9 @@ import numpy as np
 from config import config
 from util import runtime_measure
 
-try:
-    from picamera import PiCamera, PiCameraError  # type: ignore
-    from picamera.array import PiRGBArray  # type: ignore
-except ImportError:
-    logging.error('>>> no PICamera available <<<')
-    from hardware.fake_picamera import (  # pylint: disable=ungrouped-imports
-        PiCamera,
-        PiRGBArray,
-    )
-
 Mat = np.ndarray[int, np.dtype[np.generic]]
+
+camera_dict: dict = {}
 
 
 class Camera(Protocol):
@@ -59,70 +49,129 @@ class Camera(Protocol):
         """end of video thread"""
 
 
-class CameraRPI(Camera):  # pylint: disable=too-many-instance-attributes
-    """uses RPI camera"""
+if importlib.util.find_spec('picamera'):
+    import subprocess
 
-    def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
-        self.resolution = resolution if resolution else (config.video_width, config.video_height)
-        self.framerate = framerate if framerate else config.video_fps
-        self.frame = np.array([])
-        self.lastframe = np.array([])
-        self.frame_index = -1
-        self.event: Optional[Event] = None
-        self._camera_open()
-        atexit.register(self._atexit)                                                       # cleanup on exit
+    from picamera import PiCamera  # type: ignore # pylint: disable=import-error
+    from picamera.array import PiRGBArray  # type: ignore # pylint: disable=import-error
 
-    def _camera_open(self) -> None:
-        try:
+    class CameraRPI(Camera):  # pylint: disable=too-many-instance-attributes
+        """uses RPI camera"""
+
+        def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
+            self.resolution = resolution if resolution else (config.video_width, config.video_height)
+            self.framerate = framerate if framerate else config.video_fps
+            self.frame = np.array([])
+            self.lastframe = np.array([])
+            self.event: Optional[Event] = None
             self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
-        except PiCameraError as oops:
-            logging.error(f'camera error {oops}')
-            del camera_dict['picamera']
-            return
-        if config.video_rotate:
-            self.camera.rotation = 180
-        self.camera.awb_mode = 'auto'
-        self.camera.exposure_mode = 'auto'
-        self.camera.still_stats = 'true'
-        self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
-        sleep(1.5)  # warm up camera
-        self.stream = self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True)
-        logging.debug(f'open camera: {self.camera.resolution} / {self.camera.framerate} / {self.camera.sensor_mode}')
+            if config.video_rotate:
+                self.camera.rotation = 180
+            self.camera.awb_mode = 'auto'
+            self.camera.exposure_mode = 'auto'
+            self.camera.still_stats = 'true'
+            self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
+            sleep(1.5)  # warm up camera
+            self.stream = self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True)
+            logging.debug(f'open camera: {self.camera.resolution} / {self.camera.framerate} / {self.camera.sensor_mode}')
+            atexit.register(self._atexit)                                                       # cleanup on exit
 
-    def _camera_close(self) -> None:
-        if self.stream:
-            self.stream.close()
-        if self.camera:
-            self.camera.close()
+        def _camera_close(self) -> None:
+            if self.stream:
+                self.stream.close()
+            if self.camera:
+                self.camera.close()
 
-    def _atexit(self) -> None:
-        logging.error('rpi: camera close')
-        self._camera_close()
-        self.frame = np.array([])
+        def _atexit(self) -> None:
+            logging.error('rpi: camera close')
+            self._camera_close()
+            self.frame = np.array([])
 
-    def read(self, peek: bool = False) -> Mat:
-        if np.array_equal(self.lastframe, self.frame):
-            logging.warning('image is equal to previous image')
-        self.lastframe = self.frame
-        return self.frame
+        def read(self, peek: bool = False) -> Mat:
+            if np.array_equal(self.lastframe, self.frame):
+                logging.warning('image is equal to previous image')
+            self.lastframe = self.frame
+            return self.frame
 
-    def update(self, event: Event) -> None:
-        self.event = event
-        for images in self.stream:
-            self.frame = images.array
-            self.raw_capture.truncate(0)
-            if event.is_set():
-                logging.info('event is set - exit update cam')
-                break
-            sleep(0.04)  # approx 25 fps
-        self._atexit()
-        event.clear()
-
-    def cancel(self) -> None:
-        if self.event:
-            self.event.set()
-        else:
+        def update(self, event: Event) -> None:
+            self.event = event
+            for images in self.stream:
+                self.frame = images.array
+                self.raw_capture.truncate(0)
+                if event.is_set():
+                    logging.info('event is set - exit update cam')
+                    break
+                sleep(0.04)  # approx 25 fps
             self._atexit()
+            event.clear()
+
+        def cancel(self) -> None:
+            if self.event:
+                self.event.set()
+            else:
+                self._atexit()
+
+    process = subprocess.run(['vcgencmd', 'get_camera'], check=False, capture_output=True)
+    if 'detected=1' in process.stdout.decode():
+        camera_dict.update({'picamera': CameraRPI})
+        logging.info('picamera added')
+    else:
+        logging.error(f'picamera not detected {process.stdout.decode()}')
+
+elif importlib.util.find_spec('picamera2'):
+    import subprocess
+
+    import libcamera  # type: ignore # pylint: disable=import-error
+    from picamera2 import Picamera2  # type: ignore # pylint: disable=import-error
+
+    class CameraRPI64(Camera):
+        """uses RPI 64bit camera"""
+
+        def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
+            """init/config cam"""
+
+            logging.info('### init PiCamera 64')
+            self.resolution = resolution if resolution else (config.video_width, config.video_height)
+            self.framerate = framerate if framerate else config.video_fps
+            self.frame = np.array([])
+            self.lastframe = np.array([])
+            self.event: Optional[Event] = None
+            self.camera = Picamera2()
+            cfg = self.camera.create_still_configuration(main={"format": 'XRGB8888', "size": resolution})
+            if config.video_rotate:
+                cfg["transform"] = libcamera.Transform(hflip=1, vflip=1)  # self.camera.rotation = 180
+            self.camera.configure(cfg)
+            self.camera.start()
+            self.wait = round(1 / framerate, 2)  # type: ignore
+            sleep(1.5)  # warmup camera
+            atexit.register(self._atexit)
+
+        def _atexit(self) -> None:
+            logging.debug('rpi 64: camera close')
+            if self.camera is not None:
+                self.camera.close()
+
+        def read(self, peek: bool = False) -> Mat:
+            """read next picture"""
+            return self.frame
+
+        def update(self, event: Event) -> None:
+            """update to next picture on thread event"""
+            self.event = event
+            while True:
+                self.frame = self.camera.capture_array()  # type: ignore
+                if event.is_set():
+                    break
+                sleep(self.wait)
+            event.clear()
+
+    process = subprocess.run(['vcgencmd', 'get_camera'], check=False, capture_output=True)
+    if 'detected=1' in process.stdout.decode():
+        camera_dict.update({'picamera': CameraRPI64})
+        camera_dict.update({'picamera2': CameraRPI64})
+        logging.info('picamera2 added')
+    else:
+        logging.error(f'picamera2 not detected {process.stdout.decode()}')
 
 
 class CameraFile(Camera):
@@ -192,14 +241,13 @@ class CameraOpenCV(Camera):
         self.stream = cv2.VideoCapture(0)
         if not self.stream.isOpened():
             logging.error('CameraOpenCV can not open camera')
-            sys.exit(-1)
         else:
             self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.resolution[0])
             self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
             self.stream.set(cv2.CAP_PROP_FPS, self.framerate)
         self.frame = np.array([])
         self.event: Optional[Event] = None
-        sleep(0.5)                                                                            # warm up camera
+        sleep(1.5)                                                                          # warm up camera
         atexit.register(self._atexit)                                                       # cleanup on exit
 
     def _atexit(self) -> None:
@@ -231,19 +279,11 @@ class CameraOpenCV(Camera):
             self._atexit()
 
 
-camera_dict: dict = {
+camera_dict.update({
     "file": CameraFile,
     "opencv": CameraOpenCV
-}
+})
 
-# add 'picamera' to camera dict if 'picamera' is available
-if importlib.util.find_spec('picamera'):
-    process = subprocess.run(['vcgencmd', 'get_camera'], check=False, capture_output=True)
-    if 'detected=1' in process.stdout.decode():
-        camera_dict.update({'picamera': CameraRPI})
-        logging.info('picamera added')
-    else:
-        logging.error(f'picamera not detected {process.stdout.decode()}')
 
 # default picamera - fallback file
 cam: Camera = camera_dict['picamera']() if 'picamera' in camera_dict else camera_dict['file']()
@@ -252,17 +292,20 @@ cam: Camera = camera_dict['picamera']() if 'picamera' in camera_dict else camera
 def switch_camera(camera: str) -> Camera:
     """switch camera - threadpool has to be restarted"""
     global cam  # pylint: disable=global-statement
-    if cam:
-        cam.cancel()
 
     if camera.lower() in camera_dict:
+        if cam:
+            cam.cancel()
         logging.info(f'switch camera to {camera}')
         cam = camera_dict[camera]()
+    else:
+        raise ValueError(f'invalid camera selected: {camera}')
     return cam
 
 
 def main() -> None:
     """main function"""
+    import sys
 
     from threadpool import pool
 
@@ -278,6 +321,13 @@ def main() -> None:
     logging.info(f'cam type: {type(cam)}')
     pool.submit(cam.update, event=Event())                                                  # start cam
     sleep(5)
+    try:
+        switch_camera('picamera')
+        logging.info(f'cam type: {type(cam)}')
+        pool.submit(cam.update, event=Event())                                                  # start cam
+        sleep(5)
+    except ValueError as oops:
+        logging.error(f'{oops}')
     cam.cancel()
 
 
