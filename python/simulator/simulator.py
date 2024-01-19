@@ -124,7 +124,7 @@ def open_folder():
     if os.path.exists(ini_file):
         config.reload(ini_file=ini_file)
         camera.cam.counter = 1  # type: ignore
-        camera.cam.formatter = config.simulate_path()  # type: ignore
+        camera.cam.formatter = config.simulate_path  # type: ignore
     else:
         logging.warning(f'INI File not found / invalid: {ini_file}')
     return redirect(url_for('simulator'))
