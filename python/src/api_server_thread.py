@@ -32,7 +32,7 @@ import cv2
 import numpy as np
 from flask import (Flask, abort, redirect, render_template, request, send_file,
                    send_from_directory, url_for)
-from flask_sock import Sock
+from flask_sock import Sock, ConnectionClosed
 from werkzeug.serving import make_server
 
 import upload
@@ -648,14 +648,23 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         ApiServer.last_msg = 'not in State START'
         return redirect(url_for('route_index'))
 
-    @ staticmethod
-    @ app.route('/logentry')
-    def logentry():
-        """ returns last 100 log lines """
-        process = subprocess.run(['tail', '-100', f'{config.log_dir}/messages.log'], check=False,
-                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        log_out = process.stdout.decode()
-        return log_out
+    @ sock.route('/ws_log')
+    def ws_log(sock):  # pylint: disable=no-self-argument
+        """websocket for logging"""
+        f = open(f'{config.log_dir}/messages.log', 'r', encoding='utf-8')  # pylint: disable=consider-using-with
+        # with will close at eof
+        tmp = '\n' + ''.join(f.readlines()[-200:])    # first read last 200 lines
+        sock.send(tmp)  # type: ignore  # pylint: disable=no-member
+        while True:
+            tmp = f.readline()
+            if tmp and tmp != '':   # new data available
+                try:
+                    sock.send(tmp)  # type: ignore  # pylint: disable=no-member
+                except ConnectionClosed:
+                    f.close()
+                    return
+            else:
+                sleep(0.5)
 
     @ staticmethod
     @ app.route('/status', methods=['POST', 'GET'])
@@ -676,15 +685,18 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             clock2 = config.max_time - clock2
             jsonstr = State.game.json_str()
             logging.debug(f'send socket {State.current_state} clock1 {clock1} clock2: {clock2}')
-            if (State.current_state in ['S0', 'S1', 'P0', 'P1']) and State.picture is not None:
-                _, im_buf_arr = cv2.imencode(".jpg", State.picture)
-                png_output = base64.b64encode(im_buf_arr)
-                logging.debug('b64encode')
-                sock.send(f'{{"op": "{State.current_state}", '  # type: ignore  # pylint: disable=no-member
-                          f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}')
-            else:
-                sock.send(f'{{"op": "{State.current_state}", '  # type:ignore  # pylint: disable=no-member
-                          f'"clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}')
+            try:
+                if (State.current_state in ['S0', 'S1', 'P0', 'P1']) and State.picture is not None:
+                    _, im_buf_arr = cv2.imencode(".jpg", State.picture)
+                    png_output = base64.b64encode(im_buf_arr)
+                    logging.debug('b64encode')
+                    sock.send(f'{{"op": "{State.current_state}", '  # type: ignore  # pylint: disable=no-member
+                              f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}')
+                else:
+                    sock.send(f'{{"op": "{State.current_state}", '  # type:ignore  # pylint: disable=no-member
+                              f'"clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}')
+            except ConnectionClosed:
+                return
             State.op_event.wait()
 
     def start_server(self, host: str = '0.0.0.0', port=5050, simulator=False):
