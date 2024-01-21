@@ -352,13 +352,16 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     process1 = subprocess.call(
                         "sudo -n /usr/sbin/wpa_cli reconfigure -i wlan0", shell=True)
                     ApiServer.last_msg = f'configure wifi return={process}; reconfigure wpa return={process1}'
+                    logging.info(f'{ApiServer.last_msg}')
                     sleep(5)
                     State.do_new_game()
             elif request.form.get('btnselect'):
                 for i in request.form.keys():
                     logging.info(f'wpa network select {i}')
-                    _ = subprocess.call(f"sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0", shell=True)
+                    process = subprocess.call(f"sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0", shell=True)
                 sleep(5)
+                ApiServer.last_msg = f'select wifi return={process}'
+                logging.info(f'{ApiServer.last_msg}')
                 State.do_new_game()
             elif request.form.get('btnscan'):
                 _ = subprocess.run(['sudo', '-n', '/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'], check=False,
