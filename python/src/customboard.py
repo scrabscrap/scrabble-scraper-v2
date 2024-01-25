@@ -169,7 +169,7 @@ class CustomBoard(GameBoard):
         mask_result = mask_saturation | mask_tword | mask_dword | mask_tletter | mask_dletter | mask_field
         mask_result = cv2.bitwise_not(mask_result)
         candidates = set()
-        filtered_pixels = dict()
+        filtered_pixels = {}
         for col in range(15):
             for row in range(15):
                 px_col = int(OFFSET + (row * GRID_H))
