@@ -19,9 +19,16 @@ import logging
 
 import cv2
 import numpy as np
-
-from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W,
-                              OFFSET, TRIPLE_LETTER, TRIPLE_WORDS)
+from config import config
+from game_board.board import (
+    DOUBLE_LETTER,
+    DOUBLE_WORDS,
+    GRID_H,
+    GRID_W,
+    OFFSET,
+    TRIPLE_LETTER,
+    TRIPLE_WORDS,
+)
 from gameboard import GameBoard
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
@@ -80,7 +87,7 @@ class CustomBoard(GameBoard):
     FIELD = [[30, 85, 20], [90, 255, 255]]                                   # 140 => 70  (-40, + 20)
 
     SATURATION = [[0, 110, 0], [180, 255, 255]]
-    TILES_THRESHOLD = 1200
+    TILES_THRESHOLD = config.board_tiles_threshold
 
     last_warp = None
 
@@ -104,6 +111,17 @@ class CustomBoard(GameBoard):
         matrix = cv2.getPerspectiveTransform(rect, dst)
         result = cv2.warpPerspective(__image, matrix, (800, 800))
         return result
+
+    @classmethod
+    def log_pixels(cls, filtered_pixels) -> str:
+        """Print candidates set"""
+        board_size = 15
+        tmp = '  |' + ''.join(f'{i + 1:5d} ' for i in range(board_size)) + '\n'
+        tmp += '\n'.join([
+            f"{chr(ord('A') + row)} |{''.join(f' {filtered_pixels[(col, row)]:4d} ' for col in range(board_size))}|"
+            for row in range(board_size)
+        ])
+        return tmp
 
     @classmethod
     def log_candidates(cls, candidates) -> str:
@@ -151,17 +169,20 @@ class CustomBoard(GameBoard):
         mask_result = mask_saturation | mask_tword | mask_dword | mask_tletter | mask_dletter | mask_field
         mask_result = cv2.bitwise_not(mask_result)
         candidates = set()
+        filtered_pixels = dict()
         for col in range(15):
             for row in range(15):
                 px_col = int(OFFSET + (row * GRID_H))
                 px_row = int(OFFSET + (col * GRID_W))
                 segment = mask_result[px_col + 2:px_col + GRID_H - 2, px_row + 2:px_row + GRID_W - 2]
                 number_of_not_black_pix = np.sum(segment != 0)
+                filtered_pixels.update({(col, row): number_of_not_black_pix})
                 if number_of_not_black_pix > cls.TILES_THRESHOLD:
                     candidates.add((col, row))
         if logging.getLogger().isEnabledFor(logging.DEBUG):
             result = cv2.hconcat([mask_saturation, mask_tword, mask_dword,
                                   mask_field, mask_tletter, mask_dletter, mask_result])
+            logging.debug(f'filtered pixels:\n{cls.log_pixels(filtered_pixels=filtered_pixels)}')
             logging.debug(f'candidates:\n{cls.log_candidates(candidates=candidates)}')
         else:
             result = None

@@ -180,6 +180,11 @@ class Config:  # pylint: disable=too-many-public-methods
         return self.config.get('board', 'layout', fallback='custom2012').replace('"', '')
 
     @property
+    def board_tiles_threshold(self) -> int:
+        """count of non black pixel to recognize a tile"""
+        return self.config.getint('board', 'tiles_theshold', fallback=1000)
+
+    @property
     def tiles_language(self) -> str:
         """used language for the tiles"""
         # use german language as default

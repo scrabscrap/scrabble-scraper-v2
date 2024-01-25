@@ -460,7 +460,8 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
         game.add_last_rack(points, rackstr)
         if event and not event.is_set():
             event.set()
-        logging.info(f'last rack scores {game.moves[-1].score}\n{game.board_str()}\n{game.json_str()}')
+        msg = '\n' + ''.join(f'{mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
+        logging.debug(f'last rack scores:\n{game.board_str()}{msg}\nscores: {game.moves[-1].score}\napi: {game.json_str()}')
         if config.development_recording:
             logging.info(game.dev_str())
 
