@@ -87,6 +87,9 @@ class GameRunnerTestCase(unittest.TestCase):
     def test_game13(self):
         self.run_game(file='test/game13/game.ini')
 
+    def test_game14(self):
+        self.run_game(file='test/game14/game.ini')
+
     def test_game2023dm01(self):
         self.run_game(file='test/game2023DM-01/game.ini')
 
@@ -152,7 +155,8 @@ class GameRunnerTestCase(unittest.TestCase):
                                      f'invalid score 2 {State.game.moves[-1].score[1]} at move {int(row["Move"])}')
                     self.assertEqual(row["Word"], State.game.moves[-1].word,
                                      f'invalid word {State.game.moves[-1].word} at move {int(row["Move"])}')
-            State.do_end_of_game()
+            if State.current_state not in ('EOG'):
+                State.do_end_of_game()
         logging.info(f'### end of tests {file} ###')
 
 
