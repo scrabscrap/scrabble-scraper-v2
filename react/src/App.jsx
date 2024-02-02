@@ -68,7 +68,7 @@ class App extends Component {
     if (navigator.userAgent.includes("OBS")) {
         const {settings} = this.state;
         settings.obs = true
-      settings.obsbank = true
+      settings.obsbank = this.getCookie('OBSBANK', false) 
       this.setState({ settings: settings })
       this.setCookie('OBS', settings.obs)
       this.setCookie('OBSBANK', settings.obsbank)
