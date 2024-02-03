@@ -722,6 +722,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         branch = '' if 'main' == branch_info.stdout.decode().strip() else f'({branch_info.stdout.decode().strip()})'
         ApiServer.scrabscrap_version = f'{branch} {version_flag}{version_info.stdout.decode()[:14]}'
+        logging.info(f'ScrabScrap Version: {ApiServer.scrabscrap_version}')
         if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
             ApiServer.local_webapp = True
         self.app.config['DEBUG'] = False
