@@ -227,7 +227,7 @@ def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, 
             mov.modification_cache['score'] = mov.score
         logging.debug(f'set score for move {move_number} {mov.score} => {score} / delta {delta}')
         for mov in game.moves[move_number - 1:]:
-            mov.score = tuple(np.subtract(mov.score, delta))
+            mov.score = (int(mov.score[0] - delta[0]), int(mov.score[1] - delta[1]))
             logging.info(f'>> move {mov.move}: {mov.score}')
             _store(game, mov, with_image=False)
         if event and not event.is_set():
