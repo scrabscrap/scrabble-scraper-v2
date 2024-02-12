@@ -44,7 +44,7 @@ numpy==1.26.3
 picamera==1.13; sys_platform != "darwin" and platform_machine != "x86_64"
 # requests
 requests==2.31.0
-certifi==2023.11.17
+certifi==2024.2.2
 charset-normalizer==3.3.2
 idna==3.6
 urllib3==2.2.0
