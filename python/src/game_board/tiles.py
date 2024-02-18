@@ -18,6 +18,7 @@
 from typing import List
 
 import cv2
+import numpy as np
 
 from config import config
 
@@ -27,7 +28,7 @@ class OneTile:  # pylint: disable=too-few-public-methods
 
     def __init__(self):
         self.name = "Placeholder"
-        self.img = []
+        self.img = np.array([], dtype=np.uint8)
         self.w = 0
         self.h = 0
 

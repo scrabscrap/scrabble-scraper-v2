@@ -16,22 +16,16 @@
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
+from typing import Optional
 
 import cv2
 import numpy as np
-from config import config
-from game_board.board import (
-    DOUBLE_LETTER,
-    DOUBLE_WORDS,
-    GRID_H,
-    GRID_W,
-    OFFSET,
-    TRIPLE_LETTER,
-    TRIPLE_WORDS,
-)
-from gameboard import GameBoard
 
-Mat = np.ndarray[int, np.dtype[np.generic]]
+from config import config
+from game_board.board import (DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W,
+                              OFFSET, TRIPLE_LETTER, TRIPLE_WORDS)
+from gameboard import GameBoard
+from util import TImage, TWarp
 
 # dimension board custom
 # ----------------------
@@ -47,7 +41,7 @@ Mat = np.ndarray[int, np.dtype[np.generic]]
 # 19mm x 19mm
 
 
-def _create_masks() -> tuple[Mat, Mat, Mat, Mat, Mat]:
+def _create_masks() -> tuple[TImage, TImage, TImage, TImage, TImage]:
     tword = np.zeros((800, 800), dtype="uint8")
     dword = np.zeros((800, 800), dtype="uint8")
     tletter = np.zeros((800, 800), dtype="uint8")
@@ -89,10 +83,10 @@ class CustomBoard(GameBoard):
     SATURATION = [[0, 110, 0], [180, 255, 255]]
     TILES_THRESHOLD = config.board_tiles_threshold
 
-    last_warp = None
+    last_warp: Optional[TWarp] = None
 
     @classmethod
-    def warp(cls, __image: Mat) -> Mat:  # pylint: disable=too-many-locals
+    def warp(cls, __image: TImage) -> TImage:  # pylint: disable=too-many-locals
         """" implement warp of a custom board """
 
         rect = cls.find_board(__image)
@@ -135,7 +129,7 @@ class CustomBoard(GameBoard):
         return tmp
 
     @classmethod
-    def filter_image(cls, _image: Mat) -> tuple[Mat, set]:  # pylint: disable=too-many-locals
+    def filter_image(cls, _image: TImage) -> tuple[Optional[TImage], set]:  # pylint: disable=too-many-locals
 
         img = cv2.medianBlur(_image, 5)
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -175,13 +169,13 @@ class CustomBoard(GameBoard):
                 px_col = int(OFFSET + (row * GRID_H))
                 px_row = int(OFFSET + (col * GRID_W))
                 segment = mask_result[px_col + 2:px_col + GRID_H - 2, px_row + 2:px_row + GRID_W - 2]
-                number_of_not_black_pix = np.sum(segment != 0)
+                number_of_not_black_pix: int = np.sum(segment != 0)
                 filtered_pixels.update({(col, row): number_of_not_black_pix})
                 if number_of_not_black_pix > cls.TILES_THRESHOLD:
                     candidates.add((col, row))
         if logging.getLogger().isEnabledFor(logging.DEBUG):
-            result = cv2.hconcat([mask_saturation, mask_tword, mask_dword,
-                                  mask_field, mask_tletter, mask_dletter, mask_result])
+            result = cv2.hconcat((mask_saturation, mask_tword, mask_dword,
+                                  mask_field, mask_tletter, mask_dletter, mask_result))
             logging.debug(f'filtered pixels:\n{cls.log_pixels(filtered_pixels=filtered_pixels)}')
             logging.debug(f'candidates:\n{cls.log_candidates(candidates=candidates)}')
         else:

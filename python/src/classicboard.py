@@ -22,9 +22,7 @@ import numpy as np
 
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from gameboard import GameBoard
-
-Mat = np.ndarray[int, np.dtype[np.generic]]
-
+from util import TImage
 
 # dimensions board classic
 # ------------------------
@@ -47,8 +45,8 @@ class ClassicBoard(GameBoard):
     def __init__(self):
         pass
 
-    @staticmethod
-    def warp(__image):  # pylint: disable=too-many-locals
+    @classmethod
+    def warp(cls, __image: TImage) -> TImage:  # pylint: disable=too-many-locals
         """" implement warp of a classic board """
 
         rect = ClassicBoard.find_board(__image)
@@ -93,8 +91,8 @@ class ClassicBoard(GameBoard):
         resized = cv2.resize(crop, (800, 800))
         return resized
 
-    @staticmethod
-    def filter_image(_img) -> tuple[Mat, set]:
+    @classmethod
+    def filter_image(cls, _img: TImage) -> tuple[TImage, set]:
         """ implement filter for classic board """
         _gray = cv2.cvtColor(_img, cv2.COLOR_BGR2GRAY)
         _, thresh = cv2.threshold(_gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
@@ -114,8 +112,8 @@ class ClassicBoard(GameBoard):
         logging.debug(f'candidates {_tiles_candidates}')
         return _gray, _tiles_candidates
 
-    @staticmethod
-    def _mark_grid(coord: tuple[int, int], _grid, _blank_grid, _board: set, _blank_candidates: dict):
+    @classmethod
+    def _mark_grid(cls, coord: tuple[int, int], _grid, _blank_grid, _board: set, _blank_candidates: dict):
         (col, row) = coord
         if col not in range(0, 15):
             return
@@ -134,7 +132,7 @@ class ClassicBoard(GameBoard):
             percentage = np.count_nonzero(_img_blank) * 100 // _img_blank.size
             if percentage > 85:
                 _blank_candidates[coord] = ('_', 76 + (percentage - 90) * 2)
-            ClassicBoard._mark_grid((col + 1, row), _grid, _blank_grid, _board, _blank_candidates)
-            ClassicBoard._mark_grid((col - 1, row), _grid, _blank_grid, _board, _blank_candidates)
-            ClassicBoard._mark_grid((col, row + 1), _grid, _blank_grid, _board, _blank_candidates)
-            ClassicBoard._mark_grid((col, row - 1), _grid, _blank_grid, _board, _blank_candidates)
+            cls._mark_grid((col + 1, row), _grid, _blank_grid, _board, _blank_candidates)
+            cls._mark_grid((col - 1, row), _grid, _blank_grid, _board, _blank_candidates)
+            cls._mark_grid((col, row + 1), _grid, _blank_grid, _board, _blank_candidates)
+            cls._mark_grid((col, row - 1), _grid, _blank_grid, _board, _blank_candidates)

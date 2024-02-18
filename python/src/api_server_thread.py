@@ -32,7 +32,7 @@ import cv2
 import numpy as np
 from flask import (Flask, abort, redirect, render_template, request, send_file,
                    send_from_directory, url_for)
-from flask_sock import Sock, ConnectionClosed
+from flask_sock import ConnectionClosed, Sock
 from werkzeug.serving import make_server
 
 import upload
@@ -141,12 +141,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         img = camera.cam.read()
         if img is not None:
             _, im_buf_arr = cv2.imencode(".jpg", img)
-            png_output = base64.b64encode(im_buf_arr)
+            png_output = base64.b64encode(bytes(im_buf_arr))
             warped, _ = warp_image(img)
             warp_coord = json.dumps(get_last_warp().tolist())  # type: ignore
             overlay = overlay_grid(warped)
             _, im_buf_arr = cv2.imencode(".jpg", overlay)
-            png_overlay = base64.b64encode(im_buf_arr)
+            png_overlay = base64.b64encode(bytes(im_buf_arr))
         else:
             png_output = ''
             png_overlay = ''
@@ -356,6 +356,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     sleep(5)
                     State.do_new_game()
             elif request.form.get('btnselect'):
+                process = -1
                 for i in request.form.keys():
                     logging.info(f'wpa network select {i}')
                     process = subprocess.call(f"sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0", shell=True)
@@ -554,7 +555,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 log_out = log_out[f + len(log_message):]
             # create b64 image
             _, im_buf_arr = cv2.imencode(".jpg", overlay_grid(warped))
-            png_overlay = base64.b64encode(im_buf_arr)
+            png_overlay = base64.b64encode(bytes(im_buf_arr))
 
             ApiServer.flask_shutdown_blocked = False
             ApiServer.last_msg = log_out
@@ -691,7 +692,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             try:
                 if (State.current_state in ['S0', 'S1', 'P0', 'P1']) and State.picture is not None:
                     _, im_buf_arr = cv2.imencode(".jpg", State.picture)
-                    png_output = base64.b64encode(im_buf_arr)
+                    png_output = base64.b64encode(bytes(im_buf_arr))
                     logging.debug('b64encode')
                     sock.send(f'{{"op": "{State.current_state}", '  # type: ignore  # pylint: disable=no-member
                               f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}')

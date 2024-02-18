@@ -25,10 +25,9 @@ from typing import Optional, Protocol
 
 import cv2
 import numpy as np
-from config import config
-from util import runtime_measure
 
-Mat = np.ndarray[int, np.dtype[np.generic]]
+from config import config
+from util import TImage, runtime_measure
 
 camera_dict: dict = {}
 
@@ -39,7 +38,7 @@ class Camera(Protocol):
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
         """constructor"""
 
-    def read(self, peek: bool = False) -> Mat:
+    def read(self, peek: bool = False) -> TImage:
         """read next picture"""
 
     def update(self, event: Event) -> None:
@@ -87,7 +86,7 @@ if importlib.util.find_spec('picamera'):
             self._camera_close()
             self.frame = np.array([])
 
-        def read(self, peek: bool = False) -> Mat:
+        def read(self, peek: bool = False) -> TImage:
             if np.array_equal(self.lastframe, self.frame):
                 logging.warning('image is equal to previous image')
             self.lastframe = self.frame
@@ -151,7 +150,7 @@ elif importlib.util.find_spec('picamera2'):
             if self.camera is not None:
                 self.camera.close()
 
-        def read(self, peek: bool = False) -> Mat:
+        def read(self, peek: bool = False) -> TImage:
             """read next picture"""
             return self.frame
 
@@ -213,7 +212,7 @@ class CameraFile(Camera):
         self._counter = value
 
     @runtime_measure
-    def read(self, peek: bool = False) -> Mat:
+    def read(self, peek: bool = False) -> TImage:
         logging.debug(f'CameraFile read: {self._formatter.format(self._counter)}')
         img = cv2.imread(self._formatter.format(self._counter))
         if not peek:
@@ -238,7 +237,7 @@ class CameraOpenCV(Camera):
         self.resolution = resolution if resolution else (config.video_width, config.video_height)
         self.framerate = framerate if framerate else config.video_fps
         # self.stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
-        self.stream = cv2.VideoCapture(0)
+        self.stream = cv2.VideoCapture(0)  # type: ignore # mypy: Too many arguments for "VideoCapture"
         if not self.stream.isOpened():
             logging.error('CameraOpenCV can not open camera')
         else:
@@ -254,7 +253,7 @@ class CameraOpenCV(Camera):
         self.stream.release()
         self.frame = np.array([])
 
-    def read(self, peek: bool = False) -> Mat:
+    def read(self, peek: bool = False) -> TImage:
         return self.frame
 
     def update(self, event: Event) -> None:

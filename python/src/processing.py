@@ -35,12 +35,10 @@ from game_board.tiles import tiles
 from scrabble import Game, InvalidMoveExeption, Move, MoveType, NoMoveException
 from threadpool import pool
 from upload import upload
-from util import runtime_measure, trace
-
-Mat = np.ndarray[int, np.dtype[np.generic]]
+from util import TImage, TWarp, runtime_measure, trace
 
 
-def get_last_warp() -> Optional[Mat]:
+def get_last_warp() -> Optional[TWarp]:
     """Delegates the warp of the ``img`` according to the configured board style"""
     if config.video_warp and config.board_layout == 'classic':
         return ClassicBoard.last_warp
@@ -62,7 +60,7 @@ def clear_last_warp():
 
 
 @ runtime_measure
-def warp_image(img: Mat) -> tuple[Mat, Mat]:
+def warp_image(img: TImage) -> tuple[TImage, TImage]:
     """Delegates the warp of the ``img`` according to the configured board style"""
     logging.debug(f'({config.board_layout})')
     warped = img
@@ -77,7 +75,7 @@ def warp_image(img: Mat) -> tuple[Mat, Mat]:
 
 
 @ runtime_measure
-def filter_image(img: Mat) -> tuple[Optional[Mat], set]:
+def filter_image(img: TImage) -> tuple[Optional[TImage], set]:
     """Delegates the image filter of the ``img`` according to the configured board style"""
     logging.debug(f'({config.board_layout})')
     if config.board_layout in ('custom', 'custom2012'):
@@ -105,9 +103,9 @@ def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], 
     return result
 
 
-def analyze(warped_gray: Mat, board: dict, coord_list: set[tuple[int, int]]) -> dict:
+def analyze(warped_gray: TImage, board: dict, coord_list: set[tuple[int, int]]) -> dict:
     """find tiles on board"""
-    def match(img: Mat, suggest_tile: str, suggest_prop: int) -> tuple[str, int]:
+    def match(img: TImage, suggest_tile: str, suggest_prop: int) -> tuple[str, int]:
         for _tile in tiles:
             res = cv2.matchTemplate(img, _tile.img, cv2.TM_CCOEFF_NORMED)  # type: ignore
             _, thresh, _, _ = cv2.minMaxLoc(res)
@@ -331,7 +329,7 @@ def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, c
 
 
 @ trace
-def move(waitfor: Optional[Future], game: Game, img: Mat, player: int, played_time: Tuple[int, int], event=None):
+def move(waitfor: Optional[Future], game: Game, img: TImage, player: int, played_time: Tuple[int, int], event=None):
     # pylint: disable=too-many-arguments
     """Process a move
 
@@ -558,7 +556,7 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
 
 
 @ runtime_measure
-def _image_processing(waitfor: Optional[Future], game: Game, img: Mat) -> Tuple[Mat, dict]:
+def _image_processing(waitfor: Optional[Future], game: Game, img: TImage) -> Tuple[TImage, dict]:
     # pylint: disable=too-many-locals
     if waitfor is not None:                                                    # wait for previous moves
         done, not_done = futures.wait({waitfor})
@@ -742,7 +740,7 @@ def store_zip_from_game(game: Game):  # pragma: no cover
         upload.upload_game(f'{zip_filename}')
 
 
-def _development_recording(game: Game, img: Optional[Mat], suffix: str = '', info: bool = False,
+def _development_recording(game: Game, img: Optional[TImage], suffix: str = '', info: bool = False,
                            is_next_move: bool = False):  # pragma: no cover
 
     if config.is_testing:

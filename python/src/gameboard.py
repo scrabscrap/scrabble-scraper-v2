@@ -16,30 +16,31 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+from typing import Optional
+
 import cv2
 import imutils
 import numpy as np
 
 from config import config
-
-Mat = np.ndarray[int, np.dtype[np.generic]]
+from util import TImage, TWarp
 
 
 class GameBoard:
     """ Implementation of a scrabble board analysis """
 
-    @staticmethod
-    def warp(__image):
+    @classmethod
+    def warp(cls, __image):
         """" implement warp of a game board """
         pass
 
-    @staticmethod
-    def filter_image(_img) -> tuple[Mat, set]:
+    @classmethod
+    def filter_image(cls, _img: TImage) -> tuple[Optional[TImage], set]:
         """ implement filter for game board """
-        return _img
+        return _img, set()
 
     @staticmethod
-    def find_board(__image):
+    def find_board(__image) -> TWarp:
         """ try to find the game board border"""
         if config.video_warp_coordinates is not None:
             rect = np.array(config.video_warp_coordinates, dtype="float32")
@@ -55,10 +56,9 @@ class GameBoard:
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
             dilated = cv2.dilate(th3, kernel)
 
-            cnts = cv2.findContours(
-                dilated.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cnts = cv2.findContours(dilated.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cnts = imutils.grab_contours(cnts)
-            cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
+            cnts = sorted(cnts, key=cv2.contourArea, reverse=True)  # type: ignore
             pts = None
             for contour in cnts:
                 peri = cv2.arcLength(contour, True)
