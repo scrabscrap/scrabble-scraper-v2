@@ -147,12 +147,12 @@ def simulator() -> str:
     game = State.game
     if (len(game.moves) > 0) and (game.moves[-1].img is not None):
         _, pic_buf_arr = cv2.imencode(".jpg", game.moves[-1].img)
-        png_current = urllib.parse.quote(base64.b64encode(pic_buf_arr))
+        png_current = urllib.parse.quote(base64.b64encode(bytes(pic_buf_arr)))
         board = f'Score: {game.moves[-1].score} / {game.moves[-1].points}\n{game.board_str()}'
     # get next picture
     img = camera.cam.read(peek=True)  # type: ignore
     _, pic_buf_arr = cv2.imencode(".jpg", img)
-    png_next = urllib.parse.quote(base64.b64encode(pic_buf_arr))
+    png_next = urllib.parse.quote(base64.b64encode(bytes(pic_buf_arr)))
     # show log
     if os.path.exists(f'{config.log_dir}/messages.log'):
         process = subprocess.run(['tail', '-75', f'{config.log_dir}/messages.log'], check=True,
@@ -186,7 +186,8 @@ def main():
     # set Mock-Camera
     camera.switch_camera('file')
     _ = pool.submit(camera.cam.update, Event())
-    camera.cam.resize = False
+    if isinstance(camera.cam, camera.CameraFile):
+        camera.cam.resize = False
 
     # set Watch
     ScrabbleWatch.display = DisplayMock()
