@@ -131,7 +131,7 @@ class CustomBoard(GameBoard):
     @classmethod
     def filter_image(cls, _image: TImage) -> tuple[Optional[TImage], set]:  # pylint: disable=too-many-locals
 
-        img = cv2.medianBlur(_image, 5)
+        img = cv2.blur(_image, (3, 3))
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         mask_saturation = cv2.inRange(hsv, np.array(cls.SATURATION[0]), np.array(cls.SATURATION[1]))
 
