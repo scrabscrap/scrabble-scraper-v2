@@ -529,7 +529,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
     @ staticmethod
     @ app.route('/test_analyze')
-    def do_test_analyze():
+    def do_test_analyze():  # pylint: disable=too-many-locals
         """ start simple analyze test """
         from concurrent import futures
 
