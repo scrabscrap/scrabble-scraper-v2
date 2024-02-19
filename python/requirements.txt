@@ -19,7 +19,7 @@ simple-websocket==1.0.0
 wsproto==1.2.0
 h11==0.14.0
 # gpio
-gpiozero==2.0
+gpiozero==2.0.1
 colorzero==2.0
 setuptools
 # imutils
