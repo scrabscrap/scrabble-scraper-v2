@@ -324,7 +324,7 @@ camera_dict.update({
 
 
 # default picamera - fallback file
-cam: Camera = camera_dict['picamera-static']() if 'picamera-static' in camera_dict else camera_dict['file']()
+cam: Camera = camera_dict['picamera-still']() if 'picamera-still' in camera_dict else camera_dict['file']()
 
 
 def switch_camera(camera: str) -> Camera:
