@@ -27,7 +27,7 @@ imutils==0.5.4
 # luma
 luma.oled==3.13.0
 luma.core==2.4.2
-cbor2==5.6.1
+cbor2==5.6.2
 Pillow==10.2.0
 pyftdi==0.55.0
 pyserial==3.5
