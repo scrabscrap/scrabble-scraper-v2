@@ -30,6 +30,7 @@ from config import config
 from util import TImage, runtime_measure
 
 camera_dict: dict = {}
+logging.basicConfig(level=logging.INFO, force=True)
 
 
 class Camera(Protocol):
@@ -54,8 +55,46 @@ if importlib.util.find_spec('picamera'):
     from picamera import PiCamera  # type: ignore # pylint: disable=import-error
     from picamera.array import PiRGBArray  # type: ignore # pylint: disable=import-error
 
+    class CameraRPIStill(Camera):  # pylint: disable=too-many-instance-attributes
+        """uses RPI camera no continuous_capture"""
+
+        def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
+            self.resolution = resolution if resolution else (config.video_width, config.video_height)
+            self.framerate = framerate if framerate else config.video_fps
+            self.frame = np.empty((self.resolution[0] * self.resolution[1] * 3,), dtype=np.uint8)
+            self.lastframe = np.array([])
+            self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
+            logging.info(f'open camera: {self.camera.resolution} / {self.camera.framerate} / {self.camera.sensor_mode}')
+            if config.video_rotate:
+                self.camera.rotation = 180
+            sleep(2)
+            while self.camera.analog_gain < 0:
+                sleep(0.1)
+            atexit.register(self._atexit)                                                       # cleanup on exit
+
+        def _atexit(self) -> None:
+            logging.error('close camera')
+            if self.camera:
+                self.camera.close()
+            self.frame = np.array([])
+
+        @runtime_measure
+        def read(self, peek: bool = False) -> TImage:
+            if np.array_equal(self.lastframe, self.frame):
+                logging.warning('image is equal to previous image')
+            self.lastframe = self.frame.copy()
+            self.camera.capture(self.frame, 'bgr')
+            self.frame = self.frame.reshape((self.resolution[1], self.resolution[0], 3))
+            return self.frame
+
+        def update(self, event: Event) -> None:
+            pass
+
+        def cancel(self) -> None:
+            self._atexit()
+
     class CameraRPI(Camera):  # pylint: disable=too-many-instance-attributes
-        """uses RPI camera"""
+        """uses RPI camera with continuous_capture"""
 
         def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
             self.resolution = resolution if resolution else (config.video_width, config.video_height)
@@ -66,11 +105,10 @@ if importlib.util.find_spec('picamera'):
             self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
             if config.video_rotate:
                 self.camera.rotation = 180
-            self.camera.awb_mode = 'auto'
-            self.camera.exposure_mode = 'auto'
-            self.camera.still_stats = 'true'
             self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
-            sleep(1.5)  # warm up camera
+            sleep(2)  # warm up camera
+            while self.camera.analog_gain < 0:
+                sleep(0.1)
             self.stream = self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True)
             logging.debug(f'open camera: {self.camera.resolution} / {self.camera.framerate} / {self.camera.sensor_mode}')
             atexit.register(self._atexit)                                                       # cleanup on exit
@@ -82,7 +120,7 @@ if importlib.util.find_spec('picamera'):
                 self.camera.close()
 
         def _atexit(self) -> None:
-            logging.error('rpi: camera close')
+            logging.error('close camera')
             self._camera_close()
             self.frame = np.array([])
 
@@ -113,6 +151,7 @@ if importlib.util.find_spec('picamera'):
     process = subprocess.run(['vcgencmd', 'get_camera'], check=False, capture_output=True)
     if 'detected=1' in process.stdout.decode():
         camera_dict.update({'picamera': CameraRPI})
+        camera_dict.update({'picamera-still': CameraRPIStill})
         logging.info('picamera added')
     else:
         logging.error(f'picamera not detected {process.stdout.decode()}')
@@ -285,7 +324,7 @@ camera_dict.update({
 
 
 # default picamera - fallback file
-cam: Camera = camera_dict['picamera']() if 'picamera' in camera_dict else camera_dict['file']()
+cam: Camera = camera_dict['picamera-static']() if 'picamera-static' in camera_dict else camera_dict['file']()
 
 
 def switch_camera(camera: str) -> Camera:
