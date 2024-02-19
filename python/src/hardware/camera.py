@@ -308,7 +308,6 @@ class CameraOpenCV(Camera):
             sleep(0.04)  # approx 25 fps
         event.clear()
         self._atexit()
-        return super().update(event)
 
     def cancel(self) -> None:
         if self.event:
@@ -331,7 +330,14 @@ def switch_camera(camera: str) -> Camera:
     """switch camera - threadpool has to be restarted"""
     global cam  # pylint: disable=global-statement
 
-    if camera.lower() in camera_dict:
+    if camera == '':
+        if cam:
+            clazz = cam.__class__
+            cam.cancel()
+            sleep(1)
+            logging.info('restart camera')
+            cam = clazz()
+    elif camera.lower() in camera_dict:
         if cam:
             cam.cancel()
         logging.info(f'switch camera to {camera}')
@@ -359,10 +365,14 @@ def main() -> None:
     logging.info(f'cam type: {type(cam)}')
     pool.submit(cam.update, event=Event())                                                  # start cam
     sleep(5)
+    switch_camera('')
+    logging.info(f'cam type: {type(cam)}')
+    pool.submit(cam.update, event=Event())                                                  # restart cam
+    sleep(5)
     try:
         switch_camera('picamera')
         logging.info(f'cam type: {type(cam)}')
-        pool.submit(cam.update, event=Event())                                                  # start cam
+        pool.submit(cam.update, event=Event())                                              # start cam
         sleep(5)
     except ValueError as oops:
         logging.error(f'{oops}')

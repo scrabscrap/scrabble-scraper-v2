@@ -102,7 +102,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
     @ staticmethod
     @ app.route('/cam', methods=['GET', 'POST'])
-    def route_cam():
+    def route_cam():  # pylint: disable=too-many-branches
         """ display current camera picture """
         if request.method == 'POST':
             if request.form.get('btndelete'):
@@ -113,6 +113,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     config.config.add_section('video')
                 config.config.set('video', 'warp_coordinates', request.form.get('warp_coordinates'))
                 config.save()
+            elif request.form.get('btnrestart'):
+                camera.switch_camera('')
             return redirect('/cam')
         if len(request.args.keys()) > 0:
             coord = list(request.args.keys())[0]
