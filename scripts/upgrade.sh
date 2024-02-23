@@ -25,6 +25,9 @@ if git merge-base --is-ancestor origin/$BRANCH HEAD; then
     sudo apt-get update -yq
     sudo apt-get upgrade -yq
     sudo apt-get autoremove -yq
+
+    # End ScrabScrap
+    pkill -SIGALRM python 2> /dev/null
     echo "####################################################################"
     echo "## reboot                                                         ##"
     echo "####################################################################"

@@ -658,8 +658,10 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @ app.route('/upgrade_scrabscrap')
     def do_update_scrabscrap():
         """ start scrabscrap upgrade """
+        from hardware.led import LED, LEDEnum
 
         if State.current_state == 'START':
+            LED.blink_on({LEDEnum.yellow})
             ScrabbleWatch.display.show_ready(('Update...', 'pls wait'))
             os.system(f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} |'
                       f' tee -a {config.log_dir}/messages.log &')
