@@ -15,6 +15,10 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+from scrabblewatch import ScrabbleWatch  # pylint: disable=wrong-import-order
+# display fast boot message on display
+ScrabbleWatch.display.show_boot()  # Boot Message
+
 import atexit
 import logging
 import logging.config
@@ -26,7 +30,6 @@ from threading import Event
 from api_server_thread import ApiServer
 from config import config
 from hardware import camera
-from scrabblewatch import ScrabbleWatch
 from state import State
 from threadpool import pool
 from timer_thread import RepeatedTimer
