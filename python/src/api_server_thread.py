@@ -73,6 +73,18 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         return ApiServer.app.send_static_file(f'webapp/{path}')
 
     @staticmethod
+    @app.route('/awb/<path:awb>')
+    def awb(awb):
+        """set white balance for cam"""
+        if awb in ('auto', 'sunlight', 'cloudy', 'shade', 'tungsten', 'incandescent', 'horizon', 'flash'):
+            camera.cam.camera.awb_mode = awb
+            logging.info(f'awb: {awb}')
+            sleep(2)  # camera warm up
+        else:
+            logging.error(f'invalid awb mode {awb}')
+        return redirect('/cam')
+
+    @staticmethod
     @app.route('/', methods=['GET', 'POST'])
     @app.route('/index', methods=['GET', 'POST'])
     def route_index():
