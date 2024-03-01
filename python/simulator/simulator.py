@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import base64
 import logging
 import logging.config
@@ -103,8 +104,7 @@ def cam_prev():
 def cam_next():
     """skip to next image"""
     logging.debug('next')
-    camera.cam.counter += 1 if os.path.isfile(  # type: ignore
-        camera.cam.formatter.format(camera.cam.counter + 1)) else 0  # type: ignore
+    camera.cam.counter += 1 if os.path.isfile(camera.cam.formatter.format(camera.cam.counter + 1)) else 0  # type: ignore
     return redirect(url_for('simulator'))
 
 
@@ -131,10 +131,13 @@ def open_folder():
 
 
 def simulator() -> str:
-    """"render simulator on web page"""
+    """ "render simulator on web page"""
     # get simulate folders
-    list_of_dir = [f for f in os.listdir(f'{config.src_dir}/../test')
-                   if os.path.isdir(f'{config.src_dir}/../test/{f}') and f.startswith('game')]
+    list_of_dir = [
+        f
+        for f in os.listdir(f'{config.src_dir}/../test')
+        if os.path.isdir(f'{config.src_dir}/../test/{f}') and f.startswith('game')
+    ]
     # display time
     _, (time0, time1), _ = ScrabbleWatch.status()
     minutes, seconds = divmod(abs(1800 - time0), 60)
@@ -146,25 +149,36 @@ def simulator() -> str:
     board = ''
     game = State.game
     if (len(game.moves) > 0) and (game.moves[-1].img is not None):
-        _, pic_buf_arr = cv2.imencode(".jpg", game.moves[-1].img)
+        _, pic_buf_arr = cv2.imencode('.jpg', game.moves[-1].img)
         png_current = urllib.parse.quote(base64.b64encode(bytes(pic_buf_arr)))
         board = f'Score: {game.moves[-1].score} / {game.moves[-1].points}\n{game.board_str()}'
     # get next picture
     img = camera.cam.read(peek=True)  # type: ignore
-    _, pic_buf_arr = cv2.imencode(".jpg", img)
+    _, pic_buf_arr = cv2.imencode('.jpg', img)
     png_next = urllib.parse.quote(base64.b64encode(bytes(pic_buf_arr)))
     # show log
     if os.path.exists(f'{config.log_dir}/messages.log'):
-        process = subprocess.run(['tail', '-75', f'{config.log_dir}/messages.log'], check=True,
-                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        process = subprocess.run(
+            ['tail', '-75', f'{config.log_dir}/messages.log'], check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
         log_out = process.stdout.decode()
     else:
         log_out = '## empty ##'
 
-    return render_template('simulator.html', apiserver=ApiServer,
-                           img_next=png_next, img_current=png_current, log=log_out,
-                           green=LEDEnum.green.value, yellow=LEDEnum.yellow.value, red=LEDEnum.red.value,
-                           left=left, right=right, folder=list_of_dir, board=board)
+    return render_template(
+        'simulator.html',
+        apiserver=ApiServer,
+        img_next=png_next,
+        img_current=png_current,
+        log=log_out,
+        green=LEDEnum.green.value,
+        yellow=LEDEnum.yellow.value,
+        red=LEDEnum.red.value,
+        left=left,
+        right=right,
+        folder=list_of_dir,
+        board=board,
+    )
 
 
 def main():
@@ -174,10 +188,11 @@ def main():
 
     from display import DisplayMock
 
-    logging.config.fileConfig(fname=config.work_dir + '/log.conf',
-                              disable_existing_loggers=False,
-                              defaults={'level': 'DEBUG',
-                                        'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'})
+    logging.config.fileConfig(
+        fname=config.work_dir + '/log.conf',
+        disable_existing_loggers=False,
+        defaults={'level': 'DEBUG', 'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'},
+    )
 
     # flask log only error
     log = logging.getLogger('werkzeug')

@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 import time
 from enum import Enum
@@ -45,6 +46,7 @@ class ButtonEnum(Enum):
 
 class Button(Static):
     """Handle button press and release"""
+
     bounce: dict = {}
     func_pressed: Optional[Callable] = None
     func_released: Optional[Callable] = None
@@ -55,7 +57,7 @@ class Button(Static):
         press = time.time()
         if press > cls.bounce[ButtonEnum(button.pin.number).name] + 0.1:  # type: ignore
             if cls.func_pressed:
-                cls.func_pressed(ButtonEnum(button.pin.number).name)    # type: ignore # pylint: disable=not-callable
+                cls.func_pressed(ButtonEnum(button.pin.number).name)  # type: ignore # pylint: disable=not-callable
 
     @classmethod
     def button_released(cls, button: GpioButton) -> None:  # pragma: no cover  # currently not used callback
@@ -76,11 +78,11 @@ class Button(Static):
                 input_button = GpioButton(button.value)
                 input_button.when_pressed = cls.button_pressed
                 input_button.when_released = cls.button_released
-                cls.bounce[button.name] = .0
+                cls.bounce[button.name] = 0.0
             else:
                 logging.debug(f'Button {button.name} when held')
                 input_button = GpioButton(button.value)
                 input_button.hold_time = 3
                 input_button.when_held = cls.button_pressed
                 input_button.when_released = cls.button_released
-                cls.bounce[button.name] = .0
+                cls.bounce[button.name] = 0.0

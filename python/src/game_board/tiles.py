@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 from typing import List
 
 import cv2
@@ -27,7 +28,7 @@ class OneTile:  # pylint: disable=too-few-public-methods
     """representation of a tile"""
 
     def __init__(self):
-        self.name = "Placeholder"
+        self.name = 'Placeholder'
         self.img = np.array([], dtype=np.uint8)
         self.w = 0
         self.h = 0
@@ -39,7 +40,7 @@ tiles: List[OneTile] = []
 
 
 def scores(tile: str) -> int:
-    """returns 0 if  '_' or lower chars otherwise the scoring value """
+    """returns 0 if  '_' or lower chars otherwise the scoring value"""
     if tile.islower() or tile == '_':
         return 0
     return config.tiles_scores[tile]

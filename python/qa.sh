@@ -21,7 +21,7 @@ do
 done
 
   echo "*** run flake8"
-  flake8 src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py --max-line-length=128 --ignore=E402 --exclude="ignore/*" --count --show-source --statistics
+  flake8 src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py --config=.flake8 --exclude="ignore/*" --count --show-source --statistics
   retVal=$?
   if [ $retVal -ne 0 ]; then
     echo "### flake8 returns $retVal"

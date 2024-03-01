@@ -1,21 +1,21 @@
-
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 from typing import Optional
 
 import cv2
@@ -27,31 +27,30 @@ from util import TImage, TWarp
 
 
 class GameBoard:
-    """ Implementation of a scrabble board analysis """
+    """Implementation of a scrabble board analysis"""
 
     @classmethod
     def warp(cls, __image):
-        """" implement warp of a game board """
+        """ " implement warp of a game board"""
         pass
 
     @classmethod
     def filter_image(cls, _img: TImage) -> tuple[Optional[TImage], set]:
-        """ implement filter for game board """
+        """implement filter for game board"""
         return _img, set()
 
     @staticmethod
     def find_board(__image) -> TWarp:
-        """ try to find the game board border"""
+        """try to find the game board border"""
         if config.video_warp_coordinates is not None:
-            rect = np.array(config.video_warp_coordinates, dtype="float32")
+            rect = np.array(config.video_warp_coordinates, dtype='float32')
         else:
             # based on: https://www.pyimagesearch.com/2014/08/25/4-point-opencv-getperspective-transform-example/
             (blue, _, _) = cv2.split(__image.copy())
 
             # Otsu's thresholding after Gaussian filtering
             blur = cv2.GaussianBlur(blue, (5, 5), 0)
-            _, th3 = cv2.threshold(
-                blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+            _, th3 = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
             dilated = cv2.dilate(th3, kernel)
@@ -66,7 +65,7 @@ class GameBoard:
                 if len(approx) == 4:
                     pts = approx.reshape(4, 2)
                     break
-            rect = np.zeros((4, 2), dtype="float32")
+            rect = np.zeros((4, 2), dtype='float32')
             if pts is None:
                 rect[0] = [0, 0]
                 rect[1] = [__image.shape[1] - 1, 0]

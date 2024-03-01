@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import copy
 import logging
 import time
@@ -59,7 +60,7 @@ def clear_last_warp():
         ClassicBoard.last_warp = None
 
 
-@ runtime_measure
+@runtime_measure
 def warp_image(img: TImage) -> tuple[TImage, TImage]:
     """Delegates the warp of the ``img`` according to the configured board style"""
     logging.debug(f'({config.board_layout})')
@@ -74,7 +75,7 @@ def warp_image(img: TImage) -> tuple[TImage, TImage]:
     return warped, warped_gray
 
 
-@ runtime_measure
+@runtime_measure
 def filter_image(img: TImage) -> tuple[Optional[TImage], set]:
     """Delegates the image filter of the ``img`` according to the configured board style"""
     logging.debug(f'({config.board_layout})')
@@ -88,7 +89,7 @@ def filter_image(img: TImage) -> tuple[Optional[TImage], set]:
 
 
 def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], ignore_set: set[tuple[int, int]]) -> set:
-    """ allow only valid field for analysis"""
+    """allow only valid field for analysis"""
     (col, row) = coord
     result: set = set()
     if coord not in candidates:  # already visited
@@ -105,6 +106,7 @@ def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], 
 
 def analyze(warped_gray: TImage, board: dict, coord_list: set[tuple[int, int]]) -> dict:
     """find tiles on board"""
+
     def match(img: TImage, suggest_tile: str, suggest_prop: int) -> tuple[str, int]:
         for _tile in tiles:
             res = cv2.matchTemplate(img, _tile.img, cv2.TM_CCOEFF_NORMED)  # type: ignore
@@ -131,7 +133,7 @@ def analyze(warped_gray: TImage, board: dict, coord_list: set[tuple[int, int]]) 
         (col, row) = coord
         _y = get_y_position(row)
         _x = get_x_position(col)
-        gray = warped_gray[_y - 15:_y + GRID_H + 15, _x - 15:_x + GRID_W + 15]
+        gray = warped_gray[_y - 15 : _y + GRID_H + 15, _x - 15 : _x + GRID_W + 15]
         new_tile, new_prop = find_tile()
         logging.info(f"{chr(ord('A') + row)}{col + 1:2}: {new_tile} ({new_prop:2}) found")
     return board
@@ -140,13 +142,13 @@ def analyze(warped_gray: TImage, board: dict, coord_list: set[tuple[int, int]]) 
 def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, event=None):
     """set char for blanko
 
-        Args:
-        game(Move): the game to fix
-        coord: coord of blank
-        value: char for blank
-        event: event to inform webservice
+    Args:
+    game(Move): the game to fix
+    coord: coord of blank
+    value: char for blank
+    event: event to inform webservice
     """
-    if waitfor is not None:                                                    # wait for previous moves
+    if waitfor is not None:  # wait for previous moves
         _, not_done = futures.wait({waitfor})
         assert len(not_done) == 0, 'error while waiting for future'
 
@@ -166,7 +168,7 @@ def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, e
 
 def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, event=None):  # pylint: disable=too-many-locals
     """insert two exchange moves before move number"""
-    if waitfor is not None:                                                    # wait for previous moves
+    if waitfor is not None:  # wait for previous moves
         _, not_done = futures.wait({waitfor})
         assert len(not_done) == 0, 'error while waiting for future'
 
@@ -182,12 +184,32 @@ def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, 
         previous_score = game.moves[index - 1].score if index > 0 else (0, 0)
         img = game.moves[index].img.copy() if game.moves[index].img is not None else None  # type: ignore
 
-        move1 = Move(MoveType.EXCHANGE, player=player1, coord=(0, 0), is_vertical=True, word='', new_tiles={},
-                     removed_tiles={}, board=board, played_time=played_time,
-                     previous_score=previous_score, img=img)
-        move2 = Move(MoveType.EXCHANGE, player=player2, coord=(0, 0), is_vertical=True, word='', new_tiles={},
-                     removed_tiles={}, board=board, played_time=played_time,
-                     previous_score=previous_score, img=img)
+        move1 = Move(
+            MoveType.EXCHANGE,
+            player=player1,
+            coord=(0, 0),
+            is_vertical=True,
+            word='',
+            new_tiles={},
+            removed_tiles={},
+            board=board,
+            played_time=played_time,
+            previous_score=previous_score,
+            img=img,
+        )
+        move2 = Move(
+            MoveType.EXCHANGE,
+            player=player2,
+            coord=(0, 0),
+            is_vertical=True,
+            word='',
+            new_tiles={},
+            removed_tiles={},
+            board=board,
+            played_time=played_time,
+            previous_score=previous_score,
+            img=img,
+        )
 
         game.moves.insert(index, move2)
         game.moves.insert(index, move1)
@@ -200,19 +222,19 @@ def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, 
             event.set()
     else:
         logging.warning(f'wrong move number for insert after move: {move_number}')
-        raise ValueError("invalid move number")
+        raise ValueError('invalid move number')
 
 
 def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, score: Tuple[int, int], event=None):
     """fix scores (direct call from admin)
 
-        Args:
-        game(Move): the game to fix
-        move_number: the move to fix(beginning with 1)
-        score(Tuple[int, int]): new score
-        event: event to inform webservice
+    Args:
+    game(Move): the game to fix
+    move_number: the move to fix(beginning with 1)
+    score(Tuple[int, int]): new score
+    event: event to inform webservice
     """
-    if waitfor is not None:                                                    # wait for previous moves
+    if waitfor is not None:  # wait for previous moves
         _, not_done = futures.wait({waitfor})
         assert len(not_done) == 0, 'error while waiting for future'
 
@@ -224,7 +246,7 @@ def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, 
         if delta[0] != 0 or delta[1] != 0:
             mov.modification_cache['score'] = mov.score
         logging.debug(f'set score for move {move_number} {mov.score} => {score} / delta {delta}')
-        for mov in game.moves[move_number - 1:]:
+        for mov in game.moves[move_number - 1 :]:
             mov.score = (int(mov.score[0] - delta[0]), int(mov.score[1] - delta[1]))
             logging.info(f'>> move {mov.move}: {mov.score}')
             _store(game, mov, with_image=False)
@@ -232,11 +254,12 @@ def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, 
             event.set()
     else:
         logging.warning(f'wrong move number for change score: {move_number}')
-        raise ValueError("invalid move number")
+        raise ValueError('invalid move number')
 
 
-def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool,
-                      word: str, event=None):
+def admin_change_move(
+    waitfor: Optional[Future], game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str, event=None
+):
     # pylint: disable=too-many-arguments, too-many-locals,too-many-branches,too-many-statements
     """fix move(direct call from admin)
 
@@ -251,7 +274,7 @@ def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, c
         word: the new word valid chars(A - Z._) crossing chars will replaced with '.'
         event: event to infom webservice
     """
-    if waitfor is not None:                                                    # wait for previous moves
+    if waitfor is not None:  # wait for previous moves
         _, not_done = futures.wait({waitfor})
         assert len(not_done) == 0, 'error while waiting for future'
 
@@ -266,11 +289,11 @@ def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, c
         logging.debug(f'try to fix move {move_number} at {coord} vertical={isvertical} with {word}')
         board = moves[index].board.copy()
 
-        tiles_to_remove = moves[index].new_tiles.copy()                        # tiles to delete
+        tiles_to_remove = moves[index].new_tiles.copy()  # tiles to delete
         for elem in tiles_to_remove:
-            del board[elem]                                                    # remove tiles on board from incorrect move
+            del board[elem]  # remove tiles on board from incorrect move
         logging.debug(f'tiles_to_remove {tiles_to_remove}')
-        tiles_to_add: dict = {}                                                # tiles to add
+        tiles_to_add: dict = {}  # tiles to add
         (col, row) = coord
         new_word = ''
         for i, char in enumerate(word):
@@ -291,9 +314,9 @@ def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, c
         previous_score = game.moves[index - 1].score if move_number > 1 else (0, 0)
 
         for i in range(index, len(moves)):
-            new_move = copy.deepcopy(moves[i])                                 # board, img, score
+            new_move = copy.deepcopy(moves[i])  # board, img, score
 
-            for elem in tiles_to_remove:                                       # repair board
+            for elem in tiles_to_remove:  # repair board
                 if elem in new_move.board.keys() and new_move.board[elem] == tiles_to_remove[elem]:
                     del new_move.board[elem]
             new_move.board |= tiles_to_add
@@ -310,25 +333,28 @@ def admin_change_move(waitfor: Optional[Future], game: Game, move_number: int, c
                     new_move.new_tiles = {}
             else:
                 save_cache = new_move.modification_cache
-                new_move = _move_processing(game, new_move.player, new_move.played_time, new_move.img,
-                                            new_move.board, previous_board, previous_score)
+                new_move = _move_processing(
+                    game, new_move.player, new_move.played_time, new_move.img, new_move.board, previous_board, previous_score
+                )
                 new_move.modification_cache = save_cache
             new_move.move = i + 1
             previous_board = new_move.board
             previous_score = new_move.score
             moves[i] = new_move
-            logging.info(f'recalculate move #{moves[i].move} ({moves[i].type}) '
-                         f'new points {moves[i].points} new score {moves[i].score}')
+            logging.info(
+                f'recalculate move #{moves[i].move} ({moves[i].type}) '
+                f'new points {moves[i].points} new score {moves[i].score}'
+            )
             logging.info(f'\n{game.board_str(i)}')
             _store(game, game.moves[i], with_image=False)
     else:
         logging.warning(f'wrong move number for change move: {move_number}')
-        raise ValueError("invalid move number")
+        raise ValueError('invalid move number')
     if event and not event.is_set():
         event.set()
 
 
-@ trace
+@trace
 def move(waitfor: Optional[Future], game: Game, img: TImage, player: int, played_time: Tuple[int, int], event=None):
     # pylint: disable=too-many-arguments
     """Process a move
@@ -343,12 +369,12 @@ def move(waitfor: Optional[Future], game: Game, img: TImage, player: int, played
     """
     warped, board = _image_processing(waitfor, game, img)
 
-    previous_board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}   # get previous board information
+    previous_board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # get previous board information
     previous_score = game.moves[-1].score if len(game.moves) > 0 else (0, 0)
 
     current_move = _move_processing(game, player, played_time, warped, board, previous_board, previous_score)
 
-    game.add_move(current_move)                                                # 9. add move
+    game.add_move(current_move)  # 9. add move
     if event and not event.is_set():
         event.set()
 
@@ -361,7 +387,7 @@ def move(waitfor: Optional[Future], game: Game, img: TImage, player: int, played
     _store(game, game.moves[-1])
 
 
-@ trace
+@trace
 def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int], event=None):
     """Process a valid challenge
 
@@ -386,7 +412,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         logging.info('no new move')
 
 
-@ trace
+@trace
 def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int], event=None):
     """Process an invalid challenge
 
@@ -400,7 +426,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
     while waitfor is not None and waitfor.running():
         time.sleep(0.01)
     try:
-        game.add_invalid_challenge(player, played_time)                            # 9. add move
+        game.add_invalid_challenge(player, played_time)  # 9. add move
         if event and not event.is_set():
             event.set()
 
@@ -411,15 +437,15 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         logging.info('no new move')
 
 
-@ trace
+@trace
 def store_status(game: Game):
     """store current status.json - does not update data - *.json !"""
     _store(game, None)
 
 
-@ trace
+@trace
 def start_of_game(game: Game):
-    """ start of game """
+    """start of game"""
     import glob
     import os
 
@@ -440,7 +466,7 @@ def start_of_game(game: Game):
     _store(game, None)
 
 
-@ trace
+@trace
 def end_of_game(waitfor: Optional[Future], game: Game, event=None):
     # pragma: no cover #pylint: disable=too-many-locals # no ftp upload on tests
     """Process end of game
@@ -492,29 +518,27 @@ def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
         mov = game.moves[j]
         mov_len = len(mov.new_tiles)
         from_bag = min(mov_len, bag_len)
-        rack[mov.player] -= (mov_len - from_bag)
+        rack[mov.player] -= mov_len - from_bag
         bag_len -= from_bag
         logging.info(f'player={mov.player} rack-size={rack[mov.player]} from-bag={from_bag}')
     if len(game.moves) > 0:
         bag = calculate_bag(game.moves[-1])
         points = sum(scores(elem) for elem in bag)
         if rack[0] == 0 and rack[1] > 0:
-            return (points, -points), "".join(bag)
+            return (points, -points), ''.join(bag)
         if rack[1] == 0 and rack[0] > 0:
-            return (-points, points), "".join(bag)
+            return (-points, points), ''.join(bag)
     return (0, 0), '?'
 
 
 def _changes(board: dict, previous_board: dict) -> Tuple[dict, dict, dict, dict]:
-
     for coord, (prev_value, prev_score) in previous_board.items():
         if coord in board and prev_score > board[coord][1]:
             logging.debug(f'use value from old board {coord}')
             board[coord] = (prev_value, prev_score)
     new_tiles = {i: board[i] for i in set(board.keys()).difference(previous_board)}
     removed_tiles = {i: previous_board[i] for i in set(previous_board.keys()).difference(board)}
-    changed_tiles = {i: board[i] for i in previous_board if
-                     i not in removed_tiles and previous_board[i][0] != board[i][0]}
+    changed_tiles = {i: board[i] for i in previous_board if i not in removed_tiles and previous_board[i][0] != board[i][0]}
     return board, new_tiles, removed_tiles, changed_tiles
 
 
@@ -555,19 +579,20 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
     return vertical, (min_col, min_row), word
 
 
-@ runtime_measure
+@runtime_measure
 def _image_processing(waitfor: Optional[Future], game: Game, img: TImage) -> Tuple[TImage, dict]:
     # pylint: disable=too-many-locals
-    if waitfor is not None:                                                    # wait for previous moves
+    if waitfor is not None:  # wait for previous moves
         done, not_done = futures.wait({waitfor})
         assert len(not_done) == 0, 'error while waiting for future'
-    warped, warped_gray = warp_image(img)                                      # 1. warp image if necessary
-    filtered_image, tiles_candidates = filter_image(warped)                    # 3. find potential tiles on board
+    warped, warped_gray = warp_image(img)  # 1. warp image if necessary
+    filtered_image, tiles_candidates = filter_image(warped)  # 3. find potential tiles on board
     _development_recording(game, filtered_image, suffix='~filter', is_next_move=True)
 
-    if len(game.moves) > 1:                                                    # 3a. check for wrong blank tiles
-        to_del = [i for i in game.moves[-1].new_tiles.keys() if (game.moves[-1].board[i][0] == '_')
-                  and i not in tiles_candidates]  # noqa: W503
+    if len(game.moves) > 1:  # 3a. check for wrong blank tiles
+        to_del = [
+            i for i in game.moves[-1].new_tiles.keys() if (game.moves[-1].board[i][0] == '_') and i not in tiles_candidates
+        ]  # noqa: W503
         if to_del:
             _move = game.moves[-1]
             for i in to_del:
@@ -592,44 +617,86 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: TImage) -> Tup
         # if opponents move has a valid challenge
         if game.moves[-1 * config.scrabble_verify_moves + 1].type in (MoveType.PASS_TURN, MoveType.EXCHANGE, MoveType.WITHDRAW):
             ignore_coords = set(
-                {i: i for i in game.moves[-1 * config.scrabble_verify_moves + 1].board.keys()
-                 if i in game.moves[-1].board.keys()})
+                {
+                    i: i
+                    for i in game.moves[-1 * config.scrabble_verify_moves + 1].board.keys()
+                    if i in game.moves[-1].board.keys()
+                }
+            )
         else:
             ignore_coords = set(
-                {i: i for i in game.moves[-1 * config.scrabble_verify_moves].board.keys() if i in game.moves[-1].board.keys()})
-    tiles_candidates = tiles_candidates | ignore_coords                        # tiles_candidates must contain ignored_coords
+                {i: i for i in game.moves[-1 * config.scrabble_verify_moves].board.keys() if i in game.moves[-1].board.keys()}
+            )
+    tiles_candidates = tiles_candidates | ignore_coords  # tiles_candidates must contain ignored_coords
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
     logging.debug(f'filtered_candidates {filtered_candidates}')
 
-    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}         # copy board for analyze
-    chunks = _chunkify(list(filtered_candidates), 3)                           # 5. picture analysis
-    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))           # 1. thread
-    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))           # 2. thread
-    analyze(warped_gray, board, set(chunks[2]))                                  # 3. (this) thread
-    done, _ = futures.wait({future1, future2})                                 # 6. blocking wait
+    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # copy board for analyze
+    chunks = _chunkify(list(filtered_candidates), 3)  # 5. picture analysis
+    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))  # 1. thread
+    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))  # 2. thread
+    analyze(warped_gray, board, set(chunks[2]))  # 3. (this) thread
+    done, _ = futures.wait({future1, future2})  # 6. blocking wait
     assert len(done) == 2, 'error on wait to futures'
     return warped, board
 
 
-def _move_processing(game: Game, player: int, played_time: Tuple[int, int], warped, board: dict, previous_board: dict,
-                     previous_score: Tuple[int, int]) -> Move:
+def _move_processing(
+    game: Game,
+    player: int,
+    played_time: Tuple[int, int],
+    warped,
+    board: dict,
+    previous_board: dict,
+    previous_score: Tuple[int, int],
+) -> Move:
     # pylint: disable=too-many-arguments
     current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
-    if len(changed_tiles) > 0:                                                 # 7. fix old moves
+    if len(changed_tiles) > 0:  # 7. fix old moves
         previous_score = _recalculate_score_on_tiles_change(game, board, changed_tiles)
-    try:                                                                       # 8. find word and create move
+    try:  # 8. find word and create move
         is_vertical, coord, word = _find_word(current_board, sorted(new_tiles))
-        current_move = Move(MoveType.REGULAR, player=player, coord=coord, is_vertical=is_vertical, word=word,
-                            new_tiles=new_tiles, removed_tiles=removed_tiles, board=current_board, played_time=played_time,
-                            previous_score=previous_score, img=warped)
+        current_move = Move(
+            MoveType.REGULAR,
+            player=player,
+            coord=coord,
+            is_vertical=is_vertical,
+            word=word,
+            new_tiles=new_tiles,
+            removed_tiles=removed_tiles,
+            board=current_board,
+            played_time=played_time,
+            previous_score=previous_score,
+            img=warped,
+        )
     except NoMoveException:
-        current_move = Move(MoveType.EXCHANGE, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
-                            removed_tiles=removed_tiles, board=current_board, played_time=played_time,
-                            previous_score=previous_score, img=warped)
+        current_move = Move(
+            MoveType.EXCHANGE,
+            player=player,
+            coord=(0, 0),
+            is_vertical=True,
+            word='',
+            new_tiles=new_tiles,
+            removed_tiles=removed_tiles,
+            board=current_board,
+            played_time=played_time,
+            previous_score=previous_score,
+            img=warped,
+        )
     except InvalidMoveExeption:
-        current_move = Move(MoveType.UNKNOWN, player=player, coord=(0, 0), is_vertical=True, word='', new_tiles=new_tiles,
-                            removed_tiles=removed_tiles, board=current_board, played_time=played_time,
-                            previous_score=previous_score, img=warped)
+        current_move = Move(
+            MoveType.UNKNOWN,
+            player=player,
+            coord=(0, 0),
+            is_vertical=True,
+            word='',
+            new_tiles=new_tiles,
+            removed_tiles=removed_tiles,
+            board=current_board,
+            played_time=played_time,
+            previous_score=previous_score,
+            img=warped,
+        )
 
     return current_move
 
@@ -653,22 +720,22 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
             mov.board.update({coord: changed[coord] for coord in changed.keys() if coord in mov.board.keys()})
             _word = ''
             (col, row) = mov.coord
-            for j, char in enumerate(mov.word):                                # fix mov.word
+            for j, char in enumerate(mov.word):  # fix mov.word
                 if mov.is_vertical:
                     _word += board[(col, row + j)][0] if char != '.' else '.'
                 else:
                     _word += board[(col + j, row)][0] if char != '.' else '.'
             mov.word = _word
             mov.points, prev_score, mov.is_scrabble = mov.calculate_score(prev_score)
-            mov.score = prev_score                                             # store previous score
+            mov.score = prev_score  # store previous score
             logging.info(f'move {mov.move} after recalculate {prev_score}')
         else:
-            prev_score = mov.score                                             # store previous score
+            prev_score = mov.score  # store previous score
     return prev_score
 
 
 def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = True):  # pragma: no cover
-    """ store and upload move
+    """store and upload move
 
     Args:
         game: current game
@@ -682,15 +749,16 @@ def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = 
 
     if game.moves and move_to_store:
         if with_image and move_to_store.img is not None:
-            if not cv2.imwrite(f'{config.web_dir}/image-{move_to_store.move}.jpg',
-                               move_to_store.img, [cv2.IMWRITE_JPEG_QUALITY, 99]):
+            if not cv2.imwrite(
+                f'{config.web_dir}/image-{move_to_store.move}.jpg', move_to_store.img, [cv2.IMWRITE_JPEG_QUALITY, 99]
+            ):
                 logging.error(f'error writing image-{move_to_store.move}.jpg')
         try:
-            with open(f'{config.web_dir}/data-{move_to_store.move}.json', "w", encoding='UTF-8') as handle:
+            with open(f'{config.web_dir}/data-{move_to_store.move}.json', 'w', encoding='UTF-8') as handle:
                 handle.write(game.json_str(move_to_store.move))
             if game.moves[-1].move == move_to_store.move:
                 logging.debug('write status.json')
-                with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
+                with open(f'{config.web_dir}/status.json', 'w', encoding='UTF-8') as handle:
                     handle.write(game.json_str(move_to_store.move))
         except IOError as error:
             logging.error(f'error writing game move {move_to_store.move}: {error}')
@@ -701,10 +769,10 @@ def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = 
     else:
         try:
             logging.debug('upload status.json')
-            with open(f'{config.web_dir}/status.json', "w", encoding='UTF-8') as handle:
+            with open(f'{config.web_dir}/status.json', 'w', encoding='UTF-8') as handle:
                 handle.write(game.json_str())
             if config.upload_server:
-                pool.submit(upload.upload_status)                    # upload empty status
+                pool.submit(upload.upload_status)  # upload empty status
         except IOError as error:
             logging.error(f'error writing status.json: {error}')
 
@@ -719,10 +787,10 @@ def store_zip_from_game(game: Game):  # pragma: no cover
     if config.is_testing:
         logging.info('skip store because flag is_testing is set')
         return
-    game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
+    game_id = game.gamestart.strftime('%y%j-%H%M%S')  # type: ignore
     zip_filename = f'{game_id}-{str(uuid.uuid4())}'
     with ZipFile(f'{config.web_dir}/{zip_filename}.zip', 'w') as _zip:
-        logging.info(f"create zip with {len(game.moves):d} files")
+        logging.info(f'create zip with {len(game.moves):d} files')
         for mov in game.moves:
             if os.path.exists(f'{config.web_dir}/image-{mov.move}.jpg'):
                 _zip.write(f'{config.web_dir}/image-{mov.move}.jpg', arcname=f'image-{mov.move}.jpg')
@@ -740,24 +808,22 @@ def store_zip_from_game(game: Game):  # pragma: no cover
         upload.upload_game(f'{zip_filename}')
 
 
-def _development_recording(game: Game, img: Optional[TImage], suffix: str = '', info: bool = False,
-                           is_next_move: bool = False):  # pragma: no cover
-
+def _development_recording(
+    game: Game, img: Optional[TImage], suffix: str = '', info: bool = False, is_next_move: bool = False
+):  # pragma: no cover
     if config.is_testing:
         logging.info('skip store because flag is_testing is set')
         return
     if config.development_recording:
         logging.debug(f'suffix "{suffix}" info {info}')
-        recording_logger = logging.getLogger("gameRecordingLogger")
-        game_id = game.gamestart.strftime("%y%j-%H%M%S")  # type: ignore
+        recording_logger = logging.getLogger('gameRecordingLogger')
+        game_id = game.gamestart.strftime('%y%j-%H%M%S')  # type: ignore
         if img is not None:
             move_number = len(game.moves) + 1 if is_next_move else len(game.moves)
-            cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}{suffix}.jpg',
-                        img, [cv2.IMWRITE_JPEG_QUALITY, 99])
+            cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}{suffix}.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 99])
         if info and len(game.moves) > 0:
             try:
-                warp_str = np.array2string(get_last_warp(), formatter={  # type: ignore
-                    'float_kind': lambda x: f'{x:.1f}'}, separator=',')
+                warp_str = np.array2string(get_last_warp(), formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=',')  # type: ignore # pylint: disable=C0301 # noqa: E501
             except AttributeError:
                 warp_str = None
             recording_logger.info(f'{game_id} move: {game.moves[-1].move}')

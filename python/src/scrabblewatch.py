@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 import os
 
@@ -32,6 +33,7 @@ except (FileNotFoundError, ImportError):
 
 class ScrabbleWatch(Static):
     """timer for played time"""
+
     play_time: int = 0
     time: tuple[int, int] = (0, 0)
     current: tuple[int, int] = (0, 0)
@@ -81,11 +83,11 @@ class ScrabbleWatch(Static):
 
     @classmethod
     def status(cls) -> tuple[int, tuple[int, int], tuple[int, int]]:
-        """ get current timer status
+        """get current timer status
 
-            Returns
-                player (int): current player
-                time (int, int): time player 1,2
-                current (int, int): time player 1,2 on current move
+        Returns
+            player (int): current player
+            time (int, int): time player 1,2
+            current (int, int): time player 1,2 on current move
         """
         return cls.player, cls.time, cls.current

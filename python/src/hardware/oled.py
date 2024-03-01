@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 from typing import Optional
 
@@ -29,9 +30,9 @@ from display import Display
 from scrabble import Game, MoveType
 
 IC2_PORT_PLAYER1 = 1
-IC2_ADDRESS_PLAYER1 = 0x3c
+IC2_ADDRESS_PLAYER1 = 0x3C
 IC2_PORT_PLAYER2 = 3
-IC2_ADDRESS_PLAYER2 = 0x3c
+IC2_ADDRESS_PLAYER2 = 0x3C
 BLACK = 'black'
 WHITE = 'white'
 MIDDLE = (64, 42)
@@ -44,9 +45,9 @@ FONT1 = ImageFont.truetype(FONT_FAMILY, 20)
 FONT2 = ImageFont.truetype(FONT_FAMILY, 12)
 SERIAL: tuple[i2c, i2c] = (
     i2c(port=IC2_PORT_PLAYER1, address=IC2_ADDRESS_PLAYER1),
-    i2c(port=IC2_PORT_PLAYER2, address=IC2_ADDRESS_PLAYER2))
-DEVICE: tuple[ssd1306, ssd1306] = (
-    ssd1306(SERIAL[0]), ssd1306(SERIAL[1]))
+    i2c(port=IC2_PORT_PLAYER2, address=IC2_ADDRESS_PLAYER2),
+)
+DEVICE: tuple[ssd1306, ssd1306] = (ssd1306(SERIAL[0]), ssd1306(SERIAL[1]))
 
 
 class PlayerDisplay(Display):
@@ -131,7 +132,7 @@ class PlayerDisplay(Display):
                     draw.text((2, 30), f'{minutes:02d}:{seconds:02d}  {score:3d}', font=FONT1, fill=WHITE)
 
     def show_pause(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in [0, 1], "invalid player number"
+        assert player in [0, 1], 'invalid player number'
         msg = 'Pause'
         logging.debug('Pause message')
         if config.show_score and self.game:
@@ -140,19 +141,19 @@ class PlayerDisplay(Display):
         self.render_display(player, played_time, current, msg)
 
     def add_malus(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in [0, 1], "invalid player number"
+        assert player in [0, 1], 'invalid player number'
         logging.debug(f'{player}: malus -10')
         self.render_display(player, played_time, current, '-10P')
 
     def add_remove_tiles(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in [0, 1], "invalid player number"
+        assert player in [0, 1], 'invalid player number'
         logging.debug(f'{player}: Entf. Zug')
-        self.render_display(player, played_time, current, '\u2717Zug\u270D')
+        self.render_display(player, played_time, current, '\u2717Zug\u270d')
 
     def add_doubt_timeout(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in [0, 1], "invalid player number"
+        assert player in [0, 1], 'invalid player number'
         logging.debug(f'{player}: doubt timeout')
-        self.render_display(player, played_time, current, '\u21AFZeit')
+        self.render_display(player, played_time, current, '\u21afZeit')
 
     def show_cam_err(self) -> None:
         logging.debug('Cam err message')
@@ -171,7 +172,7 @@ class PlayerDisplay(Display):
         self.last_score = (0, 0)
 
     def _refresh_points(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in [0, 1], "invalid player number"
+        assert player in [0, 1], 'invalid player number'
 
         minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
         text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
@@ -191,9 +192,10 @@ class PlayerDisplay(Display):
                 draw.text((90, 1), f'{current[player]:3d}', font=FONT1, fill=WHITE)
             draw.text((1, 22), text, font=FONT, fill=WHITE)
 
-    def render_display(self, player: int, played_time: tuple[int, int], current: tuple[int, int],
-                       info: Optional[str] = None) -> None:
-        assert player in [0, 1], "invalid player number"
+    def render_display(
+        self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: Optional[str] = None
+    ) -> None:
+        assert player in [0, 1], 'invalid player number'
 
         minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
         text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'

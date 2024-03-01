@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import configparser
 import json
 import logging
@@ -23,7 +24,7 @@ from typing import Optional
 
 
 class Config:  # pylint: disable=too-many-public-methods
-    """ access to application configuration """
+    """access to application configuration"""
 
     def __init__(self, ini_file=None) -> None:
         self.config = configparser.ConfigParser()
@@ -32,7 +33,7 @@ class Config:  # pylint: disable=too-many-public-methods
         self.is_testing: bool = False
 
     def reload(self, ini_file=None, clean=True) -> None:
-        """ reload configuration from file """
+        """reload configuration from file"""
         if clean:
             self.config.clear()
         try:
@@ -40,14 +41,14 @@ class Config:  # pylint: disable=too-many-public-methods
             self.config['path']['src_dir'] = os.path.dirname(__file__) or '.'
             self.ini_path = ini_file if ini_file else self.ini_path
             logging.info(f'reload {self.ini_path}')
-            with open(self.ini_path, 'r', encoding="UTF-8") as config_file:
+            with open(self.ini_path, 'r', encoding='UTF-8') as config_file:
                 self.config.read_file(config_file)
         except IOError as oops:
             logging.error(f'can not read INI-File: error({oops.errno}): {oops.strerror}')
 
     def save(self) -> None:
-        """ save configuration to file """
-        with open(self.ini_path, 'w', encoding="UTF-8") as config_file:
+        """save configuration to file"""
+        with open(self.ini_path, 'w', encoding='UTF-8') as config_file:
             val = self.config['path']['src_dir']
             if val == (os.path.dirname(__file__) or '.'):
                 self.config.remove_option('path', 'src_dir')
@@ -58,7 +59,7 @@ class Config:  # pylint: disable=too-many-public-methods
 
     @property
     def config_as_dict(self) -> dict:
-        """ get configuration as dict """
+        """get configuration as dict"""
         return {s: dict(self.config.items(s)) for s in self.config.sections()}
 
     @property
@@ -73,7 +74,7 @@ class Config:  # pylint: disable=too-many-public-methods
 
     @property
     def log_dir(self) -> str:
-        """"get logging dir"""
+        """ "get logging dir"""
         return os.path.abspath(self.config.get('path', 'log_dir', fallback=f'{self.src_dir}/../work/log'))
 
     @property
@@ -128,7 +129,7 @@ class Config:  # pylint: disable=too-many-public-methods
 
     @property
     def show_score(self) -> bool:
-        """should the display show current score """
+        """should the display show current score"""
         return self.config.getboolean('scrabble', 'show_score', fallback=False)
 
     @property
@@ -171,7 +172,7 @@ class Config:  # pylint: disable=too-many-public-methods
 
     @property
     def video_rotate(self) -> bool:
-        """should the images rotated by 180° """
+        """should the images rotated by 180°"""
         return self.config.getboolean('video', 'rotate', fallback=False)
 
     @property
@@ -200,22 +201,28 @@ class Config:  # pylint: disable=too-many-public-methods
     def tiles_bag(self) -> dict:
         """how many tiles are in the bag"""
         # use german tiles as default
-        bag_as_str = self.config.get(self.tiles_language, 'bag',
-                                     fallback='{"A": 5, "B": 2, "C": 2, "D": 4, "E": 15, "F": 2, "G": 3, "H": 4, "I": 6, '
-                                     '"J": 1, "K": 2, "L": 3, "M": 4, "N": 9, "O": 3, "P": 1, "Q": 1, "R": 6, "S": 7, '
-                                     '"T": 6, "U": 6, "V": 1, "W": 1, "X": 1, "Y": 1, "Z": 1, '
-                                     '"\u00c4": 1, "\u00d6": 1, "\u00dc": 1, "_": 2}')
+        bag_as_str = self.config.get(
+            self.tiles_language,
+            'bag',
+            fallback='{"A": 5, "B": 2, "C": 2, "D": 4, "E": 15, "F": 2, "G": 3, "H": 4, "I": 6, '
+            '"J": 1, "K": 2, "L": 3, "M": 4, "N": 9, "O": 3, "P": 1, "Q": 1, "R": 6, "S": 7, '
+            '"T": 6, "U": 6, "V": 1, "W": 1, "X": 1, "Y": 1, "Z": 1, '
+            '"\u00c4": 1, "\u00d6": 1, "\u00dc": 1, "_": 2}',
+        )
         return json.loads(bag_as_str)
 
     @property
     def tiles_scores(self) -> dict:
-        """"scores for the tiles"""
+        """ "scores for the tiles"""
         # use german tiles as default
-        bag_as_str = self.config.get(self.tiles_language, 'scores',
-                                     fallback='{"A": 1, "B": 3, "C": 4, "D": 1, "E": 1, "F": 4, "G": 2, "H": 2, "I": 1,'
-                                     '"J": 6, "K": 4, "L": 2, "M": 3, "N": 1, "O": 2, "P": 4, "Q": 10, "R": 1,'
-                                     '"S": 1, "T": 1, "U": 1, "V": 6, "W": 3, "X": 8, "Y": 10, "Z": 3,'
-                                     '"\u00c4": 6, "\u00d6": 8, "\u00dc": 6, "_": 0}')
+        bag_as_str = self.config.get(
+            self.tiles_language,
+            'scores',
+            fallback='{"A": 1, "B": 3, "C": 4, "D": 1, "E": 1, "F": 4, "G": 2, "H": 2, "I": 1,'
+            '"J": 6, "K": 4, "L": 2, "M": 3, "N": 1, "O": 2, "P": 4, "Q": 10, "R": 1,'
+            '"S": 1, "T": 1, "U": 1, "V": 6, "W": 3, "X": 8, "Y": 10, "Z": 3,'
+            '"\u00c4": 6, "\u00d6": 8, "\u00dc": 6, "_": 0}',
+        )
         return json.loads(bag_as_str)
 
     @property

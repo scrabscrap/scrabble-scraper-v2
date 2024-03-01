@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import atexit
 import importlib.util
 import logging
@@ -70,7 +71,7 @@ if importlib.util.find_spec('picamera'):
             sleep(2)
             while self.camera.analog_gain < 0:
                 sleep(0.1)
-            atexit.register(self._atexit)                                                       # cleanup on exit
+            atexit.register(self._atexit)  # cleanup on exit
 
         def _atexit(self) -> None:
             logging.error('close camera')
@@ -109,9 +110,9 @@ if importlib.util.find_spec('picamera'):
             sleep(2)  # warm up camera
             while self.camera.analog_gain < 0:
                 sleep(0.1)
-            self.stream = self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True)
+            self.stream = self.camera.capture_continuous(self.raw_capture, format='bgr', use_video_port=True)
             logging.debug(f'open camera: {self.camera.resolution} / {self.camera.framerate} / {self.camera.sensor_mode}')
-            atexit.register(self._atexit)                                                       # cleanup on exit
+            atexit.register(self._atexit)  # cleanup on exit
 
         def _camera_close(self) -> None:
             if self.stream:
@@ -175,9 +176,9 @@ elif importlib.util.find_spec('picamera2'):
             self.lastframe = np.array([])
             self.event: Optional[Event] = None
             self.camera = Picamera2()
-            cfg = self.camera.create_still_configuration(main={"format": 'XRGB8888', "size": resolution})
+            cfg = self.camera.create_still_configuration(main={'format': 'XRGB8888', 'size': resolution})
             if config.video_rotate:
-                cfg["transform"] = libcamera.Transform(hflip=1, vflip=1)  # self.camera.rotation = 180
+                cfg['transform'] = libcamera.Transform(hflip=1, vflip=1)  # self.camera.rotation = 180
             self.camera.configure(cfg)
             self.camera.start()
             self.wait = round(1 / framerate, 2)  # type: ignore
@@ -285,8 +286,8 @@ class CameraOpenCV(Camera):
             self.stream.set(cv2.CAP_PROP_FPS, self.framerate)
         self.frame = np.array([])
         self.event: Optional[Event] = None
-        sleep(1.5)                                                                          # warm up camera
-        atexit.register(self._atexit)                                                       # cleanup on exit
+        sleep(1.5)  # warm up camera
+        atexit.register(self._atexit)  # cleanup on exit
 
     def _atexit(self) -> None:
         self.stream.release()
@@ -316,10 +317,7 @@ class CameraOpenCV(Camera):
             self._atexit()
 
 
-camera_dict.update({
-    "file": CameraFile,
-    "opencv": CameraOpenCV
-})
+camera_dict.update({'file': CameraFile, 'opencv': CameraOpenCV})
 
 
 # default picamera - fallback file
@@ -353,26 +351,30 @@ def main() -> None:
 
     from threadpool import pool
 
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
-                        format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=logging.DEBUG,
+        force=True,
+        format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s',
+    )
 
     logging.info(f'>> config {camera_dict}')
     switch_camera('file')
     logging.info(f'cam type: {type(cam)}')
-    pool.submit(cam.update, event=Event())                                                  # start cam
+    pool.submit(cam.update, event=Event())  # start cam
     sleep(5)
     switch_camera('opencv')
     logging.info(f'cam type: {type(cam)}')
-    pool.submit(cam.update, event=Event())                                                  # start cam
+    pool.submit(cam.update, event=Event())  # start cam
     sleep(5)
     switch_camera('')
     logging.info(f'cam type: {type(cam)}')
-    pool.submit(cam.update, event=Event())                                                  # restart cam
+    pool.submit(cam.update, event=Event())  # restart cam
     sleep(5)
     try:
         switch_camera('picamera')
         logging.info(f'cam type: {type(cam)}')
-        pool.submit(cam.update, event=Event())                                              # start cam
+        pool.submit(cam.update, event=Event())  # start cam
         sleep(5)
     except ValueError as oops:
         logging.error(f'{oops}')

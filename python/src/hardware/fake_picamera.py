@@ -1,21 +1,23 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2023 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2023 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
+
 import numpy as np
 
 
@@ -37,6 +39,7 @@ class BGR:  # pylint: disable=too-few-public-methods
 #     """Fake class"""
 class PiCamera:
     """Fake class"""
+
     resolution = (0, 0)
 
     def __init__(self, resolution=None, framerate=None, sensor_mode=None):
@@ -169,8 +172,9 @@ class PiCamera:
         """
         pass
 
-    def capture_continuous(self, output, format=None, use_video_port=False, resize=None,
-                           splitter_port=0, burst=False, bayer=False, **options):
+    def capture_continuous(
+        self, output, format=None, use_video_port=False, resize=None, splitter_port=0, burst=False, bayer=False, **options
+    ):
         # pylint: disable=unused-argument too-many-arguments redefined-builtin
         """
         Fake: Capture images continuously from the camera as an infinite iterator.
