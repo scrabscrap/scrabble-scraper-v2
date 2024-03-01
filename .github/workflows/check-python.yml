@@ -38,7 +38,7 @@ jobs:
         id: flake8
         run: |
           cd python
-          flake8 . --max-line-length=128 --ignore=E402 --exclude="ignore/*" --count --show-source --statistics
+          flake8 src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py --config=.flake8 --exclude="ignore/*" --count --show-source --statistics
 
   mypy:
     runs-on: ubuntu-latest
