@@ -73,7 +73,7 @@ if importlib.util.find_spec('picamera'):
             sleep(2)
             while self.camera.analog_gain < 0:
                 sleep(0.1)
-            logging.info(f'config: {self.camera.image_denoise=} / {self.camera.meter_mode=} / {self.camera.video_rotade=}')
+            logging.info(f'config: {self.camera.image_denoise=} / {self.camera.meter_mode=} / {self.camera.rotation=}')
             logging.info(f'{self.camera.iso=} / {self.camera.exposure_compensation=} / {self.camera.exposure_mode=}')
             logging.info(f'{self.camera.contrast=} / {self.camera.brightness=} / {self.camera.saturation=}')
             logging.info(f'{self.camera.drc_strength=} / {self.camera.awb_mode=} / {self.camera.awb_gains=}')

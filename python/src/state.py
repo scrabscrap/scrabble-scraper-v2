@@ -287,6 +287,7 @@ class State(Static):
         alarm(1)  # raise alarm for reboot
         return current_state
 
+    # pylint: disable=duplicate-code
     @classmethod
     def do_accesspoint(cls) -> str:  # pragma: no cover
         """Switch to AP Mode"""

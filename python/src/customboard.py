@@ -179,3 +179,52 @@ class CustomBoard(GameBoard):
         else:
             result = None
         return result, candidates
+
+
+# test and debug
+# pylint: disable=
+def main():  # pylint: disable=too-many-locals
+    """main function for test and debug"""
+
+    import sys
+
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=logging.DEBUG,
+        force=True,
+        format='%(asctime)s [%(levelname)-1.1s] %(funcName)-15s: %(message)s',
+    )
+
+    files = [
+        'test/game01/image-21.jpg',
+        'test/game02/image-21.jpg',
+        'test/game03/image-21.jpg',
+        'test/game04/image-21.jpg',
+        'test/game05/image-21.jpg',
+        'test/game06/image-21.jpg',
+        'test/game12/board-19.png',
+        'test/game13/23113-180628-30.jpg',
+        'test/game14/image-30.jpg',
+        'test/game2023DM-01/image-24.jpg',
+        'ignore/bild.jpg',
+        'ignore/scrabble-gelb.jpg',
+        'ignore/scrabble-dunkel.jpg',
+        'ignore/dark.jpg',
+        'test/board2012/err-03.png',
+        'test/board2012/err-11.png',
+    ]
+
+    config.config.set('development', 'recording', 'True')
+    for fn in files:
+        image = cv2.imread(fn)
+        warped = CustomBoard.warp(image)
+
+        result, _ = CustomBoard.filter_image(_image=warped.copy())
+
+        cv2.imshow(f'{fn}', result)
+        cv2.waitKey()
+        cv2.destroyWindow(f'{fn}')
+
+
+if __name__ == '__main__':
+    main()
