@@ -30,7 +30,10 @@ import numpy as np
 from classicboard import ClassicBoard
 from config import config
 from custom2012board import Custom2012Board
+from custom2012kmeans import Custom2012kBoard
+from custom2012pil import Custom2012PILBoard
 from custom2020board import Custom2020Board
+from customboard import CustomBoard
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from game_board.tiles import tiles
 from scrabble import Game, InvalidMoveExeption, Move, MoveType, NoMoveException
@@ -39,25 +42,34 @@ from upload import upload
 from util import TImage, TWarp, runtime_measure, trace
 
 
-def get_last_warp() -> Optional[TWarp]:
+def get_last_warp() -> Optional[TWarp]:  # pylint: disable=too-many-return-statements
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if config.video_warp and config.board_layout == 'classic':
+    if config.board_layout == 'classic':
         return ClassicBoard.last_warp
-    if config.board_layout in ('custom', 'custom2012'):
+    if config.board_layout == 'custom2012':
         return Custom2012Board.last_warp
+    if config.board_layout == 'custom2012kmeans':
+        return Custom2012kBoard.last_warp
+    if config.board_layout == 'custom2012pil':
+        return Custom2012PILBoard.last_warp
     if config.board_layout == 'custom2020':
         return Custom2020Board.last_warp
-    return None
+    return CustomBoard.last_warp
 
 
 def clear_last_warp():
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if config.board_layout in ('custom', 'custom2012'):
+    if config.board_layout == 'classic':
+        ClassicBoard.last_warp = None
+    elif config.board_layout == 'custom2012':
         Custom2012Board.last_warp = None
+    elif config.board_layout == 'custom2012kmeans':
+        Custom2012kBoard.last_warp = None
+    elif config.board_layout == 'custom2012pil':
+        Custom2012PILBoard.last_warp = None
     elif config.board_layout == 'custom2020':
         Custom2020Board.last_warp = None
-    elif config.board_layout == 'classic':
-        ClassicBoard.last_warp = None
+    CustomBoard.last_warp = None
 
 
 @runtime_measure
@@ -65,27 +77,38 @@ def warp_image(img: TImage) -> tuple[TImage, TImage]:
     """Delegates the warp of the ``img`` according to the configured board style"""
     logging.debug(f'({config.board_layout})')
     warped = img
-    if config.video_warp and config.board_layout in ('custom', 'custom2012'):
-        warped = Custom2012Board.warp(img)
-    if config.video_warp and config.board_layout == 'custom2020':
-        warped = Custom2020Board.warp(img)
-    if config.video_warp and config.board_layout == 'classic':
-        warped = ClassicBoard.warp(img)
+    if config.video_warp:
+        if config.board_layout == 'classic':
+            warped = ClassicBoard.warp(img)
+        elif config.board_layout == 'custom2012':
+            warped = Custom2012Board.warp(img)
+        elif config.board_layout == 'custom2012kmeans':
+            warped = Custom2012kBoard.warp(img)
+        elif config.board_layout == 'custom2012pil':
+            warped = Custom2012PILBoard.warp(img)
+        elif config.board_layout == 'custom2020':
+            warped = Custom2020Board.warp(img)
+        else:
+            warped = CustomBoard.warp(img)
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
     return warped, warped_gray
 
 
 @runtime_measure
-def filter_image(img: TImage) -> tuple[Optional[TImage], set]:
+def filter_image(img: TImage) -> tuple[Optional[TImage], set]:  # pylint: disable=too-many-return-statements
     """Delegates the image filter of the ``img`` according to the configured board style"""
     logging.debug(f'({config.board_layout})')
-    if config.board_layout in ('custom', 'custom2012'):
-        return Custom2012Board.filter_image(img)
-    if config.board_layout == 'custom2020':
-        return Custom2020Board.filter_image(img)
     if config.board_layout == 'classic':
         return ClassicBoard.filter_image(img)
-    return None, set()
+    if config.board_layout == 'custom2012':
+        return Custom2012Board.filter_image(img)
+    if config.board_layout == 'custom2012kmeans':
+        return Custom2012kBoard.filter_image(img)
+    if config.board_layout == 'custom2012pil':
+        return Custom2012PILBoard.filter_image(img)
+    if config.board_layout == 'custom2020':
+        return Custom2020Board.filter_image(img)
+    return CustomBoard.filter_image(img)
 
 
 def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], ignore_set: set[tuple[int, int]]) -> set:
