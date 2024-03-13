@@ -65,12 +65,18 @@ if importlib.util.find_spec('picamera'):
             self.frame = np.empty((self.resolution[0] * self.resolution[1] * 3,), dtype=np.uint8)
             self.lastframe = np.array([])
             self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
-            logging.info(f'open camera: {self.camera.resolution} / {self.camera.framerate} / {self.camera.sensor_mode}')
+            self.camera.image_denoise = False
+            self.camera.meter_mode = 'matrix'
+            logging.info(f'open camera: {self.camera.resolution=} {self.camera.framerate=} {self.camera.sensor_mode=}')
             if config.video_rotate:
                 self.camera.rotation = 180
             sleep(2)
             while self.camera.analog_gain < 0:
                 sleep(0.1)
+            logging.info(f'config: {self.camera.image_denoise=} / {self.camera.meter_mode=} / {self.camera.video_rotade=}')
+            logging.info(f'{self.camera.iso=} / {self.camera.exposure_compensation=} / {self.camera.exposure_mode=}')
+            logging.info(f'{self.camera.contrast=} / {self.camera.brightness=} / {self.camera.saturation=}')
+            logging.info(f'{self.camera.drc_strength=} / {self.camera.awb_mode=} / {self.camera.awb_gains=}')
             atexit.register(self._atexit)  # cleanup on exit
 
         def _atexit(self) -> None:
