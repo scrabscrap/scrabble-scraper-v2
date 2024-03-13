@@ -26,6 +26,10 @@ if git merge-base --is-ancestor origin/$BRANCH HEAD; then
     sudo apt-get upgrade -yq
     sudo apt-get autoremove -yq
 
+    if command -v tailscale &> /dev/null; then
+       sudo tailscale update --yes
+    fi
+
     # End ScrabScrap
     pkill -SIGALRM python 2> /dev/null
     echo "####################################################################"
@@ -36,5 +40,10 @@ else
     git stash
     git checkout $BRANCH -f
     git pull --autostash
+
+    if command -v tailscale &> /dev/null; then
+       sudo tailscale update --yes
+    fi
+
     "$SCRIPTPATH/upgrade-system.sh"
 fi
