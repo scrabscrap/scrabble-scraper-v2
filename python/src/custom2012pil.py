@@ -48,7 +48,7 @@ class Custom2012PILBoard(CustomBoard):
     """Implementation custom 2012 scrabble board analysis with Pillow (uses PIL.quantize)"""
 
     # Pillow uses hsv_full colors
-    FIELD_COLOR = ([60, 80, 10], [130, 255, 255])
+    FIELD_COLOR = ([60, 85, 20], [125, 255, 255])
 
     TLETTER_COLOR = ([135, 60, 10], [185, 255, 255])
     DLETTER_COLOR = ([135, 60, 10], [185, 255, 255])
@@ -83,17 +83,20 @@ class Custom2012PILBoard(CustomBoard):
         def between(val: tuple[int, int, int], lower: list[int], upper: list[int]) -> bool:
             return all(lower[i] <= val[i] <= upper[i] for i in range(3))
 
-        def is_tile(coord: tuple[int, int], color: tuple[int, int, int]) -> bool:
+        def is_tile(coord: tuple[int, int], hsv: tuple[int, int, int], rgb: tuple[int, int, int]) -> bool:
+            r, g, b = rgb
+            if abs(r - g) < 10 and abs(g - b) < 10 and abs(r - b) < 10:
+                return True
             if coord in TRIPLE_WORDS:  # dark red
-                return not (between(color, *cls.TWORD_COLOR0) or between(color, *cls.TWORD_COLOR1))
+                return not (between(hsv, *cls.TWORD_COLOR0) or between(hsv, *cls.TWORD_COLOR1))
             if coord in DOUBLE_WORDS:  # light red
-                return not (between(color, *cls.TWORD_COLOR0) or between(color, *cls.TWORD_COLOR1))
+                return not (between(hsv, *cls.TWORD_COLOR0) or between(hsv, *cls.TWORD_COLOR1))
             if coord in TRIPLE_LETTER:  # dark blue
-                return not between(color, *cls.TLETTER_COLOR)
+                return not between(hsv, *cls.TLETTER_COLOR)
             if coord in DOUBLE_LETTER:  # light blue
-                return not between(color, *cls.DLETTER_COLOR)
+                return not between(hsv, *cls.DLETTER_COLOR)
             # green
-            return not between(color, *cls.FIELD_COLOR)
+            return not between(hsv, *cls.FIELD_COLOR)
 
         def distance(color1: tuple[int, int, int], color2: tuple[int, int, int]) -> int:
             h1, s1, v1 = color1
@@ -107,30 +110,34 @@ class Custom2012PILBoard(CustomBoard):
             erg = int((d1**2 + d2**2 + d3**2) ** 0.5)  # 3d distance
             return erg
 
-        def find_tiles(coord: tuple[int, int], color_table: dict, visited: set, candidates: set) -> None:
+        def find_tiles(coord: tuple[int, int], hsv_table: dict, rgb_table: dict, visited: set, candidates: set) -> None:
             col, row = coord
             if coord in visited:
                 return
             visited.add(coord)
             candidates.add(coord)
 
-            (h1, s1, v1) = color_table[coord]
+            to_search = set()
             if col < 14:
-                (h2, s2, v2) = color_table[(col + 1, row)]
-                if distance((h1, s1, v1), (h2, s2, v2)) < 30 or (abs(s1 - s2) < 10 and abs(v1 - v2) < 10):
-                    find_tiles(coord=(col + 1, row), color_table=color_table, visited=visited, candidates=candidates)
+                to_search.add((col + 1, row))
             if 0 < col:
-                (h2, s2, v2) = color_table[(col - 1, row)]
-                if distance((h1, s1, v1), (h2, s2, v2)) < 30 or (abs(s1 - s2) < 10 and abs(v1 - v2) < 10):
-                    find_tiles(coord=(col - 1, row), color_table=color_table, visited=visited, candidates=candidates)
+                to_search.add((col - 1, row))
             if row < 14:
-                (h2, s2, v2) = color_table[(col, row + 1)]
-                if distance((h1, s1, v1), (h2, s2, v2)) < 30 or (abs(s1 - s2) < 10 and abs(v1 - v2) < 10):
-                    find_tiles(coord=(col, row + 1), color_table=color_table, visited=visited, candidates=candidates)
+                to_search.add((col, row + 1))
             if 0 < row:
-                (h2, s2, v2) = color_table[(col, row - 1)]
-                if distance((h1, s1, v1), (h2, s2, v2)) < 30 or (abs(s1 - s2) < 10 and abs(v1 - v2) < 10):
-                    find_tiles(coord=(col, row - 1), color_table=color_table, visited=visited, candidates=candidates)
+                to_search.add((col, row - 1))
+
+            (h1, s1, v1) = hsv_table[coord]
+            for coord2 in to_search:
+                (h2, s2, v2) = hsv_table[coord2]
+                (r, g, b) = rgb_table[coord2]
+                logging.debug(f'dist: {coord} - {coord2} {distance((h1, s1, v1), (h2, s2, v2))}')
+                if distance((h1, s1, v1), (h2, s2, v2)) < 30 or (abs(h1 - h2) < 75 and abs(s1 - s2) < 15 and abs(v1 - v2) < 25):
+                    # small euclidic distance or minor diference in saturation / value
+                    find_tiles(coord2, hsv_table, rgb_table, visited, candidates)
+                elif abs(h1 - h2) < 15 and abs(r - g) < 30 and abs(g - b) < 30 and abs(r - b) < 30:
+                    # h1 ~= h2 and R ~= G ~= B (=> gray)
+                    find_tiles(coord2, hsv_table, rgb_table, visited, candidates)
 
         def adjust_gamma(image: TImage, gamma: float = 1.0):
             # build a lookup table mapping the pixel values [0, 255] to
@@ -152,7 +159,8 @@ class Custom2012PILBoard(CustomBoard):
             image = adjust_gamma(image=image, gamma=1.1)
 
         result = np.zeros(image.shape, dtype='uint8')
-        color_table: dict = {}
+        hsv_table: dict = {}
+        rgb_table: dict = {}
 
         for col in range(15):
             for row in range(15):
@@ -167,13 +175,14 @@ class Custom2012PILBoard(CustomBoard):
 
                 pil_rgb = pil_img.convert(mode='RGB')
                 color_rgb = sorted(pil_rgb.getcolors(), reverse=True)[0][1]
+                rgb_table[(col, row)] = color_rgb
 
                 pil_hsv = pil_img.convert(mode='HSV')
                 color_hsv_count, color_hsv = sorted(pil_hsv.getcolors(), reverse=True)[0]
-                color_table[(col, row)] = color_hsv
+                hsv_table[(col, row)] = color_hsv
 
                 # swap rgb to bgr
-                if is_tile((col, row), color_hsv):  # type: ignore
+                if is_tile((col, row), color_hsv, color_rgb):  # type: ignore
                     info[:, :, 2], info[:, :, 1], info[:, :, 0] = color_rgb  # type: ignore
                 else:
                     info[:, :, 2], info[:, :, 1], info[:, :, 0] = (0, 0, 0)
@@ -189,8 +198,8 @@ class Custom2012PILBoard(CustomBoard):
                 result[px_col + 1 : px_col + GRID_H - 1, px_row + 1 : px_row + GRID_W - 1] = info
 
         candidates: set = set()
-        find_tiles(coord=(7, 7), color_table=color_table, visited=set(), candidates=candidates)
-        logging.debug(f'\n{cls.log_color_table(color_table=color_table, candidates=candidates)}')
+        find_tiles(coord=(7, 7), hsv_table=hsv_table, rgb_table=rgb_table, visited=set(), candidates=candidates)
+        logging.debug(f'\n{cls.log_color_table(color_table=hsv_table, candidates=candidates)}')
 
         if any(x in candidates for x in [(6, 7), (7, 6), (8, 7), (7, 8)]):
             logging.debug(f'candidates:\n{cls.log_candidates(candidates=candidates)}')
@@ -221,6 +230,7 @@ def main():  # pylint: disable=too-many-locals
         'test/game04/image-21.jpg',
         'test/game05/image-21.jpg',
         'test/game06/image-21.jpg',
+        'test/game06/image-24.jpg',
         'test/game12/board-19.png',
         'test/game13/23113-180628-30.jpg',
         'test/game14/image-30.jpg',
