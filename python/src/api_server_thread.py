@@ -283,6 +283,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 coord = request.form.get('move.coord')
                 word = request.form.get('move.word')
                 word = word.upper().replace(' ', '_') if word else ''
+                logging.debug(f'edit move {move_number=} -{move_type=} - {coord=} - {word=}')
                 if 0 < move_number <= len(game.moves):
                     move = game.moves[move_number - 1]
                     if (move_type == 'EXCHANGE') and (move.type.name != move_type):
@@ -296,7 +297,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                             or (move.word != word)
                             or (move.is_vertical != vert)
                         ):
-                            if re.compile('[A-Z_\\.]+').match(word):
+                            if re.compile('[A-ZÜÄÖ_\\.]+').match(word):
                                 ApiServer.last_msg = f'try to correct move #{move_number} to {coord} {word}'
                                 State.do_edit_move(int(move_number), (col, row), vert, word)
                             else:
