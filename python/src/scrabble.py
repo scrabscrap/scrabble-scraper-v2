@@ -288,6 +288,7 @@ class Game:
             to_json = json.dumps(
                 {
                     'api': API_VERSION,
+                    'commit': config.git_commit,
                     'tournament': config.tournament,
                     'time': str(self.gamestart),
                     'move': 0,
@@ -320,6 +321,7 @@ class Game:
         to_json = json.dumps(
             {
                 'api': API_VERSION,
+                'commit': config.git_commit,
                 'tournament': config.tournament,
                 'time': self.moves[move_index].time,
                 'move': self.moves[move_index].move,

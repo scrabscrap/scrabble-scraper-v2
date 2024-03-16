@@ -20,6 +20,7 @@ import configparser
 import json
 import logging
 import os
+import subprocess
 from typing import Optional
 
 
@@ -50,12 +51,16 @@ class Config:  # pylint: disable=too-many-public-methods
         """save configuration to file"""
         with open(self.ini_path, 'w', encoding='UTF-8') as config_file:
             val = self.config['path']['src_dir']
+            commit = self.config['git']['commit']
+            self.config.remove_option('git', 'commit')
             if val == (os.path.dirname(__file__) or '.'):
                 self.config.remove_option('path', 'src_dir')
                 self.config.write(config_file)
                 self.config['path']['src_dir'] = val
+                self.config['git']['commit'] = commit
             else:
                 self.config.write(config_file)
+                self.config['git']['commit'] = commit
 
     @property
     def config_as_dict(self) -> dict:
@@ -234,6 +239,19 @@ class Config:  # pylint: disable=too-many-public-methods
     def system_gitbranch(self) -> str:
         """git tag or branch to use for updates"""
         return self.config.get('system', 'gitbranch', fallback='main').replace('"', '')
+
+    @property
+    def git_commit(self) -> str:
+        """git commit hash"""
+        commit = self.config.get('git', 'commit', fallback=None)
+        if commit is None or len(commit) <= 0:
+            self.config['git'] = {}
+            version_info = subprocess.run(
+                ['git', 'rev-parse', '--short', 'HEAD'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
+            commit = version_info.stdout.decode().replace('\n', '')
+            self.config['git']['commit'] = commit
+        return commit
 
 
 config = Config()
