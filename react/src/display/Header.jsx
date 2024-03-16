@@ -43,7 +43,7 @@ class Header extends Component {
                         <div className='col-auto'>
                             <span className='text-muted'>
                                 {(this.props.settings.websocket) ? ' (websocket)' : ''} {this.props.time}
-                                &nbsp;v{import.meta.env.PACKAGE_VERSION}</span>
+                                &nbsp;v{import.meta.env.PACKAGE_VERSION} ({import.meta.env.VITE_APP_VERSION})</span>
                         </div>
                         <div className='col'></div>
                     </div>
