@@ -61,8 +61,9 @@ if importlib.util.find_spec('picamera'):
 
         def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
             self.resolution = resolution if resolution else (config.video_width, config.video_height)
+            if (self.resolution[1] % 16) != 0:
+                self.resolution = (int(self.resolution[0]), int(((self.resolution[1] // 16) + 1) * 16))
             self.framerate = framerate if framerate else config.video_fps
-            self.frame = np.empty((self.resolution[0] * self.resolution[1] * 3,), dtype=np.uint8)
             self.lastframe = np.array([])
             self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
             self.camera.image_denoise = False
