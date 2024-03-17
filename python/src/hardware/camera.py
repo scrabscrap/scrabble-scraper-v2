@@ -82,6 +82,7 @@ if importlib.util.find_spec('picamera'):
 
         def _atexit(self) -> None:
             logging.error('close camera')
+            atexit.unregister(self._atexit)
             if self.camera:
                 self.camera.close()
             self.frame = np.array([])
@@ -129,6 +130,7 @@ if importlib.util.find_spec('picamera'):
 
         def _atexit(self) -> None:
             logging.error('close camera')
+            atexit.unregister(self._atexit)
             self._camera_close()
             self.frame = np.array([])
 
@@ -194,6 +196,7 @@ elif importlib.util.find_spec('picamera2'):
 
         def _atexit(self) -> None:
             logging.debug('rpi 64: camera close')
+            atexit.unregister(self._atexit)
             if self.camera is not None:
                 self.camera.close()
 
@@ -297,6 +300,7 @@ class CameraOpenCV(Camera):
         atexit.register(self._atexit)  # cleanup on exit
 
     def _atexit(self) -> None:
+        atexit.unregister(self._atexit)
         self.stream.release()
         self.frame = np.array([])
 
