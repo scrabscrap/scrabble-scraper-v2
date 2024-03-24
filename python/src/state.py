@@ -101,6 +101,7 @@ class State(Static):
         ScrabbleWatch.start(player)
         LED.switch_on(next_led)  # turn on LED red
         ScrabbleWatch.display.render_display(0, (0, 0), (0, 0))
+        ScrabbleWatch.display.render_display(1, (0, 0), (0, 0))
         return next_state
 
     @classmethod
