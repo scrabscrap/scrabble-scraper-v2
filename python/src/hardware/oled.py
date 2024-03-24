@@ -127,9 +127,10 @@ class PlayerDisplay(Display):
                 with canvas(DEVICE[i]) as draw:
                     nickname = self.game.nicknames[i][:10]
                     draw.text((2, 5), f'{nickname}', font=FONT1, fill=WHITE)
-                    minutes, seconds = divmod(abs(config.max_time - self.game.moves[-1].played_time[i]), 60)
-                    score = self.game.moves[-1].score[i]
-                    draw.text((2, 30), f'{minutes:02d}:{seconds:02d}  {score:3d}', font=FONT1, fill=WHITE)
+                    if self.game.moves:
+                        minutes, seconds = divmod(abs(config.max_time - self.game.moves[-1].played_time[i]), 60)
+                        score = self.game.moves[-1].score[i]
+                        draw.text((2, 30), f'{minutes:02d}:{seconds:02d}  {score:3d}', font=FONT1, fill=WHITE)
 
     def show_pause(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
         assert player in [0, 1], 'invalid player number'
