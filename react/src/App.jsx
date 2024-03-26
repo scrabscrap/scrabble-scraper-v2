@@ -30,7 +30,8 @@ class App extends Component {
         obs: this.getCookie('OBS', false),
         obsbank: this.getCookie('OBSBANK', false),
         websocket: true,
-        header_text: 'SCRABBLE SCRAPER'
+        header_text: 'SCRABBLE SCRAPER',
+        theme2020: this.getCookie('THEME2020', false)
       },
       unknown_move: false,
       ws: null,
@@ -61,6 +62,7 @@ class App extends Component {
       this.setState({ settings: val })
       this.setCookie('OBS', val.obs)
       this.setCookie('OBSBANK', val.obsbank)
+      this.setCookie('THEME2020', val.theme2020)
     }
   }
 
@@ -72,6 +74,7 @@ class App extends Component {
       this.setState({ settings: settings })
       this.setCookie('OBS', settings.obs)
       this.setCookie('OBSBANK', settings.obsbank)
+      this.setCookie('THEME2020', settings.theme2020)
     }
     this.connect();
     this.fileconnect();

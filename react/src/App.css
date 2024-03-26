@@ -1,12 +1,8 @@
 body {
-  /* background: #28a745; */
-  /* new: background: #2A6573; */
   background: #00607d;
 }
 
 .bg-body {
-  /* background: #28a745; */
-  /* new: background: #2A6573; */
   background: #00607d;
 }
 
@@ -44,44 +40,41 @@ body {
 }
 
 /* bag */
-.bag-body {
+.theme2012 .bag-body {
   padding: .5rem !important;
-  /* new: background-color: #207F8E; */
   max-width: 100%;
 }
 
-.tile {
+.theme2020 .bag-body {
+  padding: .5rem !important;
+  background-color: #207F8E;
+  max-width: 100%;
+}
+
+.theme2012 .tile {
   background-color: #FEF1BC;
-  /* new: background-color: #F5F5F5; */
   width: 25px;
   height: 25px;
   text-align: center;
   font-weight: bold;
   border-radius: 2px;
   border: 1px solid gray;
-  /* new: border: 1px solid #F5F5F5; */
-  /* box-shadow: 0px 0px 3px #888; */
+}
+
+.theme2020 .tile {
+  background-color: #F5F5F5;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 2px;
+  border: 1px solid #F5F5F5;
+  box-shadow: 0px 0px 3px #888;
 }
 
 span.tile {
   display: inline-block;
     margin: 2px 1px 1px;
-}
-
-/* bank */
-.bank {
-  height: 150px;
-  width: 400px;
-  border: thin solid black;
-}
-
-.bank-body {
-  display: block;
-  width: 217px;
-  height: 31px;
-  background-color: #00e673;
-  /* new: background-color: #43869B; */
-  box-shadow: 0 8px 6px -6px #888
 }
 
 /* moves */
@@ -121,17 +114,18 @@ span.tile {
   padding-right: 0;
 }
 
-.tableboard {
+/* layout 2012 */
+.theme2012 .tableboard {
   width: 496px;
   height: 502px;
   display: inline-block;
   padding: 2px;
   background-color: #239b56;
-  /* new: background-color: #43869B; */
   box-shadow: 0 8px 6px -6px #888;
 }
 
-.tableboard td {
+/* layout 2012 */
+.theme2012 .tableboard td {
   border: thin solid white;
   text-align: center;
   padding: 2px;
@@ -139,43 +133,73 @@ span.tile {
   height: 31px;
 }
 
-.tableborder {
-  border-width: thin;
-  border-style: hidden;
-  border-color: green;
+/* layout 2012 */
+.theme2012 .tableborder {
   background-color: green;
-  /* new: border: thin transparent #43869B; */
-  /* new: background-color: #2A6573; */
   color: white;
   font-size: 70%;
 }
 
-/* tripple word */
-.tabletw {
+/* tripple word (layout 2012) */
+.theme2012 .tabletw {
   background-color: #FE4444;
-  /* new: background-color: #CDC948; */
 }
 
-/* double word */
-.tabledw {
+/* double word (layout 2012) */
+.theme2012 .tabledw {
   background-color: #f5b041;
-  /* new original: background-color: #FFBD29; */
-  /* HSB => H S-- B++ */
-  /* new: background-color: #ffd47a; */
 }
 
-/* triple letter */
-.tabletl {
+/* triple letter (layout 2012) */
+.theme2012 .tabletl {
   background-color: #2471a3;
-  /* new original: background-color: #E3236FC8; */
-  /* HSB => H S-- B++ */
-  /* new: background-color: #d79eb5; */
 }
 
-/* double letter */
-.tabledl {
+/* double letter (layout 2012 */
+.theme2012 .tabledl {
   background-color: #0099cc;
-  /* new original: background-color: #232753C8; */
-  /* HSB => H S-- B++ */
-  /* new: background-color: #616685; */
+}
+
+/* layout 2020 */
+.theme2020 .tableboard {
+  width: 496px;
+  height: 502px;
+  display: inline-block;
+  padding: 2px;
+  background-color: #43869B;
+  box-shadow: 0 8px 6px -6px #888;
+}
+
+.theme2020 .tableboard td {
+  border: thin solid white;
+  text-align: center;
+  padding: 2px;
+  width: 31px;
+  height: 31px;
+}
+
+.theme2020 .tableborder {
+  background-color: #2A6573;
+  color: white;
+  font-size: 70%;
+}
+
+/* tripple word (layout 2020) */
+.theme2020 .tabletw {
+  background-color: #CDC948;
+}
+
+/* double word (layout 2020)*/
+.theme2020 .tabledw {
+  background-color: #ffd47a;
+}
+
+/* triple letter (layput 2020) */
+.theme2020 .tabletl {
+  background-color: #d79eb5;
+}
+
+/* double letter (layout 2020) */
+.theme2020 .tabledl {
+  background-color: #616685;
 }

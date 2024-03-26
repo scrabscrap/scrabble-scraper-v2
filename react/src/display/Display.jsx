@@ -18,9 +18,12 @@ class Display extends Component {
         if (data.op === 'S0') { player_on_move = (data.settings.websocket) ? '0' : '1' }
         if (data.op === 'S1') { player_on_move = (data.settings.websocket) ? '1' : '0' }
 
+        let root_css = 'container-fluid '
+        { root_css += (data.settings.theme2020) ? 'theme2020' : 'theme2012'}
+
         if (data.settings.obs) {
             return (
-                <div className='container-fluid'>
+                <div className={root_css}>
                     <div className='row py-1'>
                         <div className='col-4'>
                             <Player counter={(player_on_move === '0') && data.settings.websocket} obs={data.settings.obsbank}
@@ -60,7 +63,7 @@ class Display extends Component {
         } else {
             return (
                 <div>
-                    <div className='container-fluid'>
+                    <div className={root_css}>
                         <div className='row py-1'>
                             <div className='col-4'>
                                 <Player counter={(player_on_move === '0') && data.settings.websocket}

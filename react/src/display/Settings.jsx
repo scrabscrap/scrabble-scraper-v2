@@ -7,11 +7,13 @@ class Settings extends Component {
             show: false,
             obs: props.settings.obs,
             obsbank: this.props.settings.obsbank,
-            header_text: props.settings.header_text
+            header_text: props.settings.header_text,
+            theme2020: props.settings.theme2020
         };
         this.handleObs = this.handleObs.bind(this);
         this.handleObsBank = this.handleObsBank.bind(this);
         this.handleHeader = this.handleHeader.bind(this);
+        this.handleTheme = this.handleTheme.bind(this)
     }
 
     toggleShow = () => {
@@ -20,7 +22,8 @@ class Settings extends Component {
             this.setState({
                 obs: this.props.settings.obs,
                 obsbank: this.props.settings.obsbank,
-                header_text: this.props.settings.header_text
+                header_text: this.props.settings.header_text,
+                theme2020: this.props.settings.theme2020
             })
         }
         this.setState({ show: !this.state.show })
@@ -33,7 +36,8 @@ class Settings extends Component {
             obs: this.state.obs,
             obsbank: this.state.obsbank,
             websocket: this.props.settings.websocket,
-            header_text: this.props.settings.header_text
+            header_text: this.props.settings.header_text,
+            theme2020: this.state.theme2020
         }
         this.props.updateSettings(settings)
     };
@@ -43,7 +47,8 @@ class Settings extends Component {
             show: false,
             obs: this.props.settings.obs,
             obsbank: this.props.settings.obsbank,
-            header_text: this.props.settings.header_text
+            header_text: this.props.settings.header_text,
+            theme2020: this.props.settings.theme2020
         })
     }
 
@@ -60,6 +65,10 @@ class Settings extends Component {
 
     handleHeader(event) {
         this.setState({ header_text: event.target.value })
+    }
+
+    handleTheme(event) {
+        this.setState({ theme2020: !this.state.theme2020 })
     }
 
     render() {
@@ -90,6 +99,14 @@ class Settings extends Component {
                                     </input>
                                     <label className='form-check-label' htmlFor='obsbank'>
                                         OBS Bank Camera
+                                    </label>
+                                </div>
+                                <div className='form-check'>
+                                    <input className='form-check-input' type='checkbox' onChange={this.handleTheme}
+                                        checked={this.state.theme2020} id='theme'>
+                                    </input>
+                                    <label className='form-check-label' htmlFor='theme'>
+                                        2020 Theme
                                     </label>
                                 </div>
                             </div>
