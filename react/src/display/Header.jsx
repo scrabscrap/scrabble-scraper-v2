@@ -28,8 +28,8 @@ class Header extends Component {
                     <div className='row'>
                         <div className='justify-content-center text-center m-auto'>
                             <span className='text-muted'>
-                                {(this.props.settings.websocket) ? ' (websocket)' : ''} {this.props.time}&nbsp;
-                                v{import.meta.env.PACKAGE_VERSION} ({import.meta.env.VITE_APP_VERSION})&nbsp;
+                                {this.props.time}&nbsp;{(this.props.settings.websocket) ? 'ws' : '  '}&nbsp;
+                                v{import.meta.env.PACKAGE_VERSION}-{import.meta.env.VITE_APP_VERSION}
                             </span>
                             <span><a href="#" className={buttonclass} onClick={() => window.location.reload()} title='Reload'>&nbsp;&#x21BB;&nbsp;</a></span>
                             <Settings settings={this.props.settings} updateSettings={this.props.updateSettings} />
