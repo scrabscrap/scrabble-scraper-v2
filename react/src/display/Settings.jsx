@@ -65,12 +65,7 @@ class Settings extends Component {
     render() {
         return (
             <span>
-                <button type='button' data-toggle='tooltip' data-placement='top' title='Settings'
-                    className='btn btn-info btn-sm float-right bg-body'
-                    // new: className='btn btn-info btn-sm float-right bg-body' 
-                    onClick={this.toggleShow}>
-                    &#x2699;
-                </button>
+                <a href="#" onClick={this.toggleShow} title='Settings'>&nbsp;&#x2699;&nbsp;</a>
                 <div className={this.state.show ? '' : 'hidden'} tabIndex='-1'>
                     <div className='modal-dialog modal-dialog-centered' style={{ minWidth: '500px' }} >
                         <div className='modal-content'>
@@ -80,7 +75,7 @@ class Settings extends Component {
                                     <span aria-hidden='true'>&times;</span>
                                 </button>
                             </div>
-                            <div className='modal-body'>
+                            <div className='modal-body justify-content-left text-left m-auto'>
                                 <div className='form-check'>
                                     <input className='form-check-input' type='checkbox' onChange={this.handleObs}
                                         checked={this.state.obs} id='obs'>

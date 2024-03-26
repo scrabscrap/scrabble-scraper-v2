@@ -16,36 +16,24 @@ class Header extends Component {
             }
         }
 
-        const buttonclass = (this.props.highlight_reload) ?
-            'btn btn-danger btn-sm float-right' :
-            'btn btn-info btn-sm float-right bg-body'
-        // new: 'btn btn-info btn-sm float-right bg-body'
-
+        const buttonclass = (this.props.highlight_reload) ? 'text-danger' :'text-muted'
         return (
             <div className='header bg-body'>
                 <div className='card-body'>
                     <div className='row'>
-                        <div className='col'></div>
-                        <div className='col-auto'>
+                        <div className='justify-content-center text-center m-auto'>
                             {items}
-                        </div>
-                        <div className='col'>
-                            <button type='button' data-toggle='tooltip' data-placement='top' title='Refresh page'
-                                className={buttonclass}
-                                onClick={() => window.location.reload()}>
-                                &#x21BB;
-                            </button>
-                            <Settings settings={this.props.settings} updateSettings={this.props.updateSettings} />
                         </div>
                     </div>
                     <div className='row'>
-                        <div className='col'></div>
-                        <div className='col-auto'>
+                        <div className='justify-content-center text-center m-auto'>
                             <span className='text-muted'>
-                                {(this.props.settings.websocket) ? ' (websocket)' : ''} {this.props.time}
-                                &nbsp;v{import.meta.env.PACKAGE_VERSION} ({import.meta.env.VITE_APP_VERSION})</span>
+                                {(this.props.settings.websocket) ? ' (websocket)' : ''} {this.props.time}&nbsp;
+                                v{import.meta.env.PACKAGE_VERSION} ({import.meta.env.VITE_APP_VERSION})&nbsp;
+                            </span>
+                            <span><a href="#" className={buttonclass} onClick={() => window.location.reload()} title='Reload'>&nbsp;&#x21BB;&nbsp;</a></span>
+                            <Settings settings={this.props.settings} updateSettings={this.props.updateSettings} />
                         </div>
-                        <div className='col'></div>
                     </div>
                 </div>
             </div>
