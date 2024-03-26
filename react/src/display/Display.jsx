@@ -22,21 +22,23 @@ class Display extends Component {
             return (
                 <div className='container-fluid'>
                     <div className='row py-1'>
-                        <div className='col-3'>
+                        <div className='col-4'>
                             <Player counter={(player_on_move === '0') && data.settings.websocket} obs={data.settings.obsbank}
                                 unknown_move={data.unknown_move}
                                 color={player_on_move === '0' ? 'bg-info' : data.op === 'P0' ? 'bg-warning' : ''}
-                                name={data.name1} score={data.score1} time={data.clock1} />
+                                name={data.name1} score={data.score1} time={data.clock1}
+                                player_color='text-success' />
                         </div>
                         <div className='col'>
                             <Header time={this.props.state.time} highlight_reload={this.props.state.highlight_reload}
                                 settings={this.props.state.settings} updateSettings={this.props.updateSettings} />
                         </div>
-                        <div className='col-3'>
+                        <div className='col-4'>
                             <Player counter={(player_on_move === '1') && data.settings.websocket} obs={data.settings.obsbank}
                                 unknown_move={data.unknown_move}
                                 color={player_on_move === '1' ? 'bg-info' : data.op === 'P1' ? 'bg-warning' : ''}
-                                name={data.name2} score={data.score2} time={data.clock2} />
+                                name={data.name2} score={data.score2} time={data.clock2} 
+                                player_color='text-danger' />
                         </div>
                     </div>
                     <div className='row py-1'>
@@ -60,33 +62,34 @@ class Display extends Component {
                 <div>
                     <div className='container-fluid'>
                         <div className='row py-1'>
-                            <div className='col-md-12'>
+                            <div className='col-4'>
+                                <Player counter={(player_on_move === '0') && data.settings.websocket}
+                                    unknown_move={data.unknown_move}
+                                    color={player_on_move === '0' ? 'bg-info' : data.op === 'P0' ? 'bg-warning' : ''}
+                                    name={data.name1} score={data.score1} time={data.clock1}
+                                    player_color='text-success' />
+                            </div>
+                            <div className='col'>
                                 <Header time={this.props.state.time} highlight_reload={this.props.state.highlight_reload}
                                     settings={this.props.state.settings} updateSettings={this.props.updateSettings} />
                             </div>
+                            <div className='col-4'>
+                                <Player counter={(player_on_move === '1') && data.settings.websocket}
+                                    unknown_move={data.unknown_move}
+                                    color={player_on_move === '1' ? 'bg-info' : data.op === 'P1' ? 'bg-warning' : ''}
+                                    name={data.name2} score={data.score2} time={data.clock2} 
+                                    player_color='text-danger' />
+                            </div>
                         </div>
+
                         <div className='row'>
-                            <div className='col-sm-6 col-md-3'>
+
+                            <div className='col-sm-6 col-md-4'>
                                 <div className='row py-1'>
-                                    <div className='col-md-12 pr-1'>
-                                        <Player counter={(player_on_move === '0') && data.settings.websocket} obs={false}
-                                            unknown_move={data.unknown_move}
-                                            color={player_on_move === '0' ? 'bg-info' : data.op === 'P0' ? 'bg-warning' : ''}
-                                            name={data.name1} score={data.score1} time={data.clock1} />
-                                    </div>
-                                </div>
-                                <div className='row py-1'>
-                                    <div className='col-md-12 pr-1'>
-                                        <Player counter={(player_on_move === '1') && data.settings.websocket} obs={false}
-                                            unknown_move={data.unknown_move}
-                                            color={player_on_move === '1' ? 'bg-info' : data.op === 'P1' ? 'bg-warning' : ''}
-                                            name={data.name2} score={data.score2} time={data.clock2} />
-                                    </div>
-                                </div>
-                                <div className='row py-1'>
-                                    <div className='col pr-1'><Picture image={data.image} /></div>
+                                    <div className='col pr-3'><Picture image={data.image} /></div>
                                 </div>
                             </div>
+                        
                             <div className='col-auto'>
                                 <div className='row py-1 justify-content-center'>
                                     <div className='card'>
@@ -96,10 +99,12 @@ class Display extends Component {
                                     </div>
                                 </div>
                             </div>
+
                             <div className='col move-panel'>
                                 <Bag bag={data.bag} />
                                 <Moves moves={data.moves} />
                             </div>
+
                         </div>
                     </div>
                 </div >

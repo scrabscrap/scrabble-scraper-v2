@@ -64,6 +64,7 @@ class Player extends Component {
                 <div className={headerclass}>
                     <h2 className='card-title'>{this.props.name}</h2>
                     <p className='h4'>
+                        <span className={this.props.player_color}><b>&#x25C9;&nbsp;</b></span>
                         <span ><b>{this.props.score} {this.props.unknown_move ? ' ?' : ''}</b></span>
                         <span className='float-right monospace' >
                             <b>{this.formatSeconds(this.props.counter ? this.state.next : this.props.time)} &#x1F551;</b>
