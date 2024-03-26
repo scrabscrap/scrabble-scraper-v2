@@ -67,7 +67,7 @@ class Settings extends Component {
             <span>
                 <a href="#" onClick={this.toggleShow} title='Settings'>&nbsp;&#x2699;&nbsp;</a>
                 <div className={this.state.show ? '' : 'hidden'} tabIndex='-1'>
-                    <div className='modal-dialog modal-dialog-centered' style={{ minWidth: '500px' }} >
+                    <div className='modal-dialog modal-dialog-centered' style={{ minWidth: '300px' }} >
                         <div className='modal-content'>
                             <div className='modal-header'>
                                 <h5 className='modal-title'>Settings</h5>
