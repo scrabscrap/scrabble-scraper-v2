@@ -163,7 +163,7 @@ class Config:  # pylint: disable=too-many-public-methods
     @property
     def video_width(self) -> int:
         """used image width"""
-        return self.config.getint('video', 'width', fallback=912)
+        return self.config.getint('video', 'width', fallback=928)
 
     @property
     def video_height(self) -> int:
