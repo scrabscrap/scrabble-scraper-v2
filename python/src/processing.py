@@ -134,21 +134,30 @@ def analyze(warped_gray: TImage, board: dict, coord_list: set[tuple[int, int]]) 
         for _tile in tiles:
             res = cv2.matchTemplate(img, _tile.img, cv2.TM_CCOEFF_NORMED)  # type: ignore
             _, thresh, _, _ = cv2.minMaxLoc(res)
-            if thresh > (suggest_prop / 100):
+            thresh = int(thresh * 100)
+            if thresh > suggest_prop:
                 suggest_tile = _tile.name
-                suggest_prop = int(thresh * 100)
+                suggest_prop = thresh
         return suggest_tile, suggest_prop
 
     def find_tile():
         (tile, prop) = board[coord] if coord in board else ('_', 76)
-        if prop > 90:
-            logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {tile} ({prop}) tile on board prop > 90 ")
+        if prop >= 90:
+            logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {tile} ({prop}) tile on board prop >= 90 ")
             return board[coord]
         (tile, prop) = match(gray, tile, prop)
         if prop < 90:
             (tile, prop) = match(imutils.rotate(gray, -10), tile, prop)
         if prop < 90:
             (tile, prop) = match(imutils.rotate(gray, 10), tile, prop)
+        if prop < 90 and '_' != tile:
+            (tile, prop) = match(imutils.rotate(gray, -5), tile, prop)
+        if prop < 90 and '_' != tile:
+            (tile, prop) = match(imutils.rotate(gray, 5), tile, prop)
+        if prop < 90 and '_' != tile:
+            (tile, prop) = match(imutils.rotate(gray, -15), tile, prop)
+        if prop < 90 and '_' != tile:
+            (tile, prop) = match(imutils.rotate(gray, 15), tile, prop)
         board[coord] = (tile, prop) if tile is not None else ('_', 76)
         return board[coord]
 
