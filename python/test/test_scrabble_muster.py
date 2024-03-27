@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 import logging.config
 import os
@@ -28,8 +29,9 @@ from processing import analyze, filter_candidates, filter_image, warp_image
 
 TEST_DIR = os.path.dirname(__file__)
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
-                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+logging.basicConfig(
+    stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
+)
 
 
 class ScrabbleMusterTestCase(unittest.TestCase):
@@ -86,9 +88,19 @@ class ScrabbleMusterTestCase(unittest.TestCase):
     def test_names(self):
         """Test: Namess on board"""
         files = {
-            TEST_DIR + "/board2012/board-04.png": {(3, 7): 'A', (4, 7): 'N', (5, 7): 'K', (6, 7): 'E', (7, 7): '_',
-                                                   (8, 7): 'S', (9, 7): 'T', (10, 7): 'E', (11, 7): 'F', (12, 7): 'A',
-                                                   (13, 7): 'N'}
+            TEST_DIR + '/board2012/board-04.png': {
+                (3, 7): 'A',
+                (4, 7): 'N',
+                (5, 7): 'K',
+                (6, 7): 'E',
+                (7, 7): '_',
+                (8, 7): 'S',
+                (9, 7): 'T',
+                (10, 7): 'E',
+                (11, 7): 'F',
+                (12, 7): 'A',
+                (13, 7): 'N',
+            }
         }
 
         for file, expected in files.items():
@@ -107,35 +119,36 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
             keys = [(x, y) for (x, y) in new_board.keys()]
             values = [t for (t, p) in new_board.values()]
-            self.assertEqual(dict(zip(*[keys, values])), expected, "Test")
+            self.assertEqual(dict(zip(*[keys, values])), expected, 'Test')
 
     def test_board2012_err(self):
-        """Regression test: old error images """
-        files = [TEST_DIR + "/board2012/err-01.png",
-                 TEST_DIR + "/board2012/err-02.png",
-                 TEST_DIR + "/board2012/err-03.png",
-                 TEST_DIR + "/board2012/err-04.png",
-                 TEST_DIR + "/board2012/err-05.png",
-                 TEST_DIR + "/board2012/err-06.png",
-                 TEST_DIR + "/board2012/err-07.png",
-                 TEST_DIR + "/board2012/err-08.png",
-                 TEST_DIR + "/board2012/err-09.png",
-                 TEST_DIR + "/board2012/err-10.png",
-                 # TEST_DIR + "/board2012/err-11.png",
-                 TEST_DIR + "/board2012/err-12.png",
-                 TEST_DIR + "/board2012/err-13.png",
-                 TEST_DIR + "/board2012/err-14.png",
-                 TEST_DIR + "/board2012/err-15.png",
-                 TEST_DIR + "/board2012/err-16.png",
-                 TEST_DIR + "/board2012/err-17.png",
-                 TEST_DIR + "/board2012/err-18.png",
-                 TEST_DIR + "/board2012/err-19.png",
-                 TEST_DIR + "/board2012/err-20.png",
-                 TEST_DIR + "/board2012/err-21.png",
-                 TEST_DIR + "/board2012/err-22.png",
-                 TEST_DIR + "/board2012/err-23.png",
-                 TEST_DIR + "/board2012/err-24.png",
-                 ]
+        """Regression test: old error images"""
+        files = [
+            TEST_DIR + '/board2012/err-01.png',
+            TEST_DIR + '/board2012/err-02.png',
+            TEST_DIR + '/board2012/err-03.png',
+            TEST_DIR + '/board2012/err-04.png',
+            TEST_DIR + '/board2012/err-05.png',
+            TEST_DIR + '/board2012/err-06.png',
+            TEST_DIR + '/board2012/err-07.png',
+            TEST_DIR + '/board2012/err-08.png',
+            TEST_DIR + '/board2012/err-09.png',
+            TEST_DIR + '/board2012/err-10.png',
+            # TEST_DIR + "/board2012/err-11.png",
+            TEST_DIR + '/board2012/err-12.png',
+            TEST_DIR + '/board2012/err-13.png',
+            TEST_DIR + '/board2012/err-14.png',
+            TEST_DIR + '/board2012/err-15.png',
+            TEST_DIR + '/board2012/err-16.png',
+            TEST_DIR + '/board2012/err-17.png',
+            TEST_DIR + '/board2012/err-18.png',
+            TEST_DIR + '/board2012/err-19.png',
+            TEST_DIR + '/board2012/err-20.png',
+            TEST_DIR + '/board2012/err-21.png',
+            TEST_DIR + '/board2012/err-22.png',
+            TEST_DIR + '/board2012/err-23.png',
+            TEST_DIR + '/board2012/err-24.png',
+        ]
         # files = [
         # ]
 
@@ -152,9 +165,25 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             new_board = analyze(warped_gray, board, filtered_candidates)
             logging.debug(f'new board= \n{self.print_board(new_board)}')
             # last_board = ret  # falls der Test vorige Boards berücksichtigen soll
-            res = {(4, 11): 'G', (5, 7): 'Y', (5, 10): 'U', (5, 11): 'S', (6, 7): 'L', (6, 10): 'Ü',
-                   (7, 7): 'A', (7, 8): 'E', (7, 9): 'E', (7, 10): 'N', (8, 7): 'T', (9, 7): 'Z',
-                   (10, 5): 'W', (10, 6): 'Ö', (10, 7): 'I', (10, 8): 'U', (10, 9): 'Ä'}
+            res = {
+                (4, 11): 'G',
+                (5, 7): 'Y',
+                (5, 10): 'U',
+                (5, 11): 'S',
+                (6, 7): 'L',
+                (6, 10): 'Ü',
+                (7, 7): 'A',
+                (7, 8): 'E',
+                (7, 9): 'E',
+                (7, 10): 'N',
+                (8, 7): 'T',
+                (9, 7): 'Z',
+                (10, 5): 'W',
+                (10, 6): 'Ö',
+                (10, 7): 'I',
+                (10, 8): 'U',
+                (10, 9): 'Ä',
+            }
             keys = new_board.keys()
             values = new_board.values()
             keys1 = [(x, y) for (x, y) in keys]
@@ -164,18 +193,38 @@ class ScrabbleMusterTestCase(unittest.TestCase):
     def test_board2012(self):
         """Test some board 2012 images"""
         files = {
-            TEST_DIR + "/board2012/board-00.png": {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
-                                                   (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
-                                                   (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'},
+            TEST_DIR + '/board2012/board-00.png': {
+                (5, 7): 'V',
+                (6, 6): 'M',
+                (6, 7): 'Ä',
+                (6, 8): 'Y',
+                (6, 9): 'X',
+                (7, 7): 'L',
+                (7, 9): 'G',
+                (8, 7): 'S',
+                (8, 9): 'A',
+                (8, 10): 'Ü',
+                (8, 11): 'T',
+            },
             # TEST_DIR + "/board2012/board-01.png": {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
             #                                        (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
             #                                        (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'},
-            TEST_DIR + "/board2012/board-02.png": {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
-                                                   (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
-                                                   (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'},
-            TEST_DIR + "/board2012/board-03.png": {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
-                                                   (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
-                                                   (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'}
+            # TEST_DIR + "/board2012/board-02.png": {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
+            #                                        (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
+            #                                        (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'},
+            TEST_DIR + '/board2012/board-03.png': {
+                (5, 7): 'V',
+                (6, 6): 'M',
+                (6, 7): 'Ä',
+                (6, 8): 'Y',
+                (6, 9): 'X',
+                (7, 7): 'L',
+                (7, 9): 'G',
+                (8, 7): 'S',
+                (8, 9): 'A',
+                (8, 10): 'Ü',
+                (8, 11): 'T',
+            },
         }
 
         for file, expected in files.items():
@@ -198,22 +247,71 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         """Test some board 2020 images"""
         files = {
             # TEST_DIR + "/board2020/board-01.png": {},
-            TEST_DIR + "/board2020/board-02.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
-                                                   (8, 6): 'Ü', (8, 5): 'K'},
-            TEST_DIR + "/board2020/board-03.jpg": {(7, 7): 'E', (6, 7): 'W', (8, 7): 'R'},
-            TEST_DIR + "/board2020/board-04.jpg": {(7, 7): 'E', (6, 7): 'W', (8, 7): 'R', (8, 6): 'Ü', (8, 5): 'K'},
-            TEST_DIR + "/board2020/board-05.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
-                                                   (8, 6): 'Ü', (8, 5): 'K'},
-            TEST_DIR + "/board2020/board-06.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
-                                                   (8, 6): 'Ü', (8, 5): 'K'},
-            TEST_DIR + "/board2020/board-07.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
-                                                   (8, 6): 'Ü', (8, 5): 'K'},
-            TEST_DIR + "/board2020/board-08.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
-                                                   (8, 6): 'Ü', (8, 5): 'K'},
-            TEST_DIR + "/board2020/board-09.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
-                                                   (8, 6): 'Ü', (8, 5): 'K'},
-            TEST_DIR + "/board2020/board-10.jpg": {(7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
-                                                   (8, 6): 'Ü', (8, 5): 'K'}
+            TEST_DIR + '/board2020/board-02.jpg': {
+                (7, 7): 'E',
+                (6, 7): 'W',
+                (6, 8): 'I',
+                (6, 9): 'R',
+                (8, 7): 'R',
+                (8, 6): 'Ü',
+                (8, 5): 'K',
+            },
+            TEST_DIR + '/board2020/board-03.jpg': {(7, 7): 'E', (6, 7): 'W', (8, 7): 'R'},
+            TEST_DIR + '/board2020/board-04.jpg': {(7, 7): 'E', (6, 7): 'W', (8, 7): 'R', (8, 6): 'Ü', (8, 5): 'K'},
+            TEST_DIR + '/board2020/board-05.jpg': {
+                (7, 7): 'E',
+                (6, 7): 'W',
+                (6, 8): 'I',
+                (6, 9): 'R',
+                (8, 7): 'R',
+                (8, 6): 'Ü',
+                (8, 5): 'K',
+            },
+            TEST_DIR + '/board2020/board-06.jpg': {
+                (7, 7): 'E',
+                (6, 7): 'W',
+                (6, 8): 'I',
+                (6, 9): 'R',
+                (8, 7): 'R',
+                (8, 6): 'Ü',
+                (8, 5): 'K',
+            },
+            TEST_DIR + '/board2020/board-07.jpg': {
+                (7, 7): 'E',
+                (6, 7): 'W',
+                (6, 8): 'I',
+                (6, 9): 'R',
+                (8, 7): 'R',
+                (8, 6): 'Ü',
+                (8, 5): 'K',
+            },
+            TEST_DIR + '/board2020/board-08.jpg': {
+                (7, 7): 'E',
+                (6, 7): 'W',
+                (6, 8): 'I',
+                (6, 9): 'R',
+                (8, 7): 'R',
+                (8, 6): 'Ü',
+                (8, 5): 'K',
+            },
+            TEST_DIR + '/board2020/board-09.jpg': {
+                (7, 7): 'E',
+                (6, 7): 'W',
+                (6, 8): 'I',
+                (6, 9): 'R',
+                (8, 7): 'R',
+                (8, 6): 'Ü',
+                (8, 5): 'K',
+            },
+            TEST_DIR + '/board2020/board-10.jpg': {
+                (7, 7): 'E',
+                (6, 7): 'W',
+                (6, 8): 'I',
+                (6, 9): 'R',
+                (8, 7): 'R',
+                (8, 6): 'Ü',
+                (8, 5): 'K',
+            },
         }
 
         for file, expected in files.items():
