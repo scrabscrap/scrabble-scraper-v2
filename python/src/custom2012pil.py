@@ -56,7 +56,7 @@ class Custom2012PILBoard(CustomBoard):
     TWORD_COLOR0 = ([0, 80, 10], [10, 255, 255])  # H: 0-10 & 145-180
     DWORD_COLOR0 = ([0, 80, 10], [10, 255, 255])  # H: 0-10 & 145-180
     TWORD_COLOR1 = ([200, 80, 10], [255, 255, 255])  # H: 0-10 & 145-180
-    DWORD_COLOR1 = ([200, 80, 10], [155, 255, 255])  # H: 0-10 & 145-180
+    DWORD_COLOR1 = ([200, 80, 10], [255, 255, 255])  # H: 0-10 & 145-180
 
     @classmethod
     def log_color_table(cls, color_table: dict, candidates: set) -> str:
