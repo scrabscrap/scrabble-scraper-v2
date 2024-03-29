@@ -30,11 +30,16 @@ if git merge-base --is-ancestor origin/$BRANCH HEAD; then
        sudo tailscale update --yes
     fi
 
-    # End ScrabScrap
-    pkill -SIGALRM python 2> /dev/null
     echo "####################################################################"
     echo "## reboot                                                         ##"
+    echo "##                                                                ##"
+    echo "## please reload web page after reboot                            ##"
+    echo "##                                                                ##"
     echo "####################################################################"
+    # End ScrabScrap
+    pkill -SIGALRM python 2> /dev/null
+    sleep 2
+    pkill -9 python 2> /dev/null
     sudo reboot
 else
     git stash

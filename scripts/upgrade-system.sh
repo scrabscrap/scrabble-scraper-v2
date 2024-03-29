@@ -112,9 +112,14 @@ mkdir "$ROOT_PATH/python/src/static/webapp"
 cp -r "$ROOT_PATH/react/build/." "$ROOT_PATH/python/src/static/webapp/"
 ln -s "$ROOT_PATH/python/work/web" "$ROOT_PATH/python/src/static/webapp/web"
 
-# End ScrabScrap
-pkill -SIGALRM python 2> /dev/null
 echo "####################################################################"
 echo "## reboot                                                         ##"
+echo "##                                                                ##"
+echo "## please reload web page after reboot                            ##"
+echo "##                                                                ##"
 echo "####################################################################"
+# End ScrabScrap
+pkill -SIGALRM python 2> /dev/null
+sleep 2
+pkill -9 python 2> /dev/null
 sudo reboot
