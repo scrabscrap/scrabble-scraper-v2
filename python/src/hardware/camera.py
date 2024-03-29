@@ -82,7 +82,7 @@ if importlib.util.find_spec('picamera'):
             atexit.register(self._atexit)  # cleanup on exit
 
         def _atexit(self) -> None:
-            logging.error('close camera')
+            logging.info('close camera')
             atexit.unregister(self._atexit)
             if self.camera:
                 self.camera.close()
@@ -130,7 +130,7 @@ if importlib.util.find_spec('picamera'):
                 self.camera.close()
 
         def _atexit(self) -> None:
-            logging.error('close camera')
+            logging.info('close camera')
             atexit.unregister(self._atexit)
             self._camera_close()
             self.frame = np.array([])
