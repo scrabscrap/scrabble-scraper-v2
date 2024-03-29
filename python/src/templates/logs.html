@@ -29,6 +29,9 @@
 </div>
 <script>
     const log = (text) => {
+        if (text.includes('please reload web page after reboot', text.length - 600)) {
+            setTimeout(function () { location.reload(); }, 45 * 1000);
+        }
         let contents = document.getElementById('logentry').innerHTML;
         document.getElementById('logentry').innerHTML = contents + text;
     };
