@@ -114,9 +114,6 @@ ln -s "$ROOT_PATH/python/work/web" "$ROOT_PATH/python/src/static/webapp/web"
 
 echo "####################################################################"
 echo "## reboot                                                         ##"
-echo "##                                                                ##"
-echo "## please reload web page after reboot                            ##"
-echo "##                                                                ##"
 echo "####################################################################"
 # End ScrabScrap
 pkill -SIGALRM python 2> /dev/null

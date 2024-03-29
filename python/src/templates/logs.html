@@ -29,14 +29,18 @@
 </div>
 <script>
     const log = (text) => {
-        if (text.includes('please reload web page after reboot', text.length - 600)) {
-            setTimeout(function () { location.reload(); }, 45 * 1000);
-        }
         let contents = document.getElementById('logentry').innerHTML;
         document.getElementById('logentry').innerHTML = contents + text;
     };
 
     const socket = new WebSocket('ws://' + location.host + '/ws_log');
     socket.addEventListener('message', ev => { log(ev.data); });
+    socket.addEventListener("close", (event) => {
+        // reload on server reboot
+        setTimeout(function () { location.reload(); }, 45 * 1000);
+    });
+    socket.addEventListener("error", (event) => {
+        socket.close()
+    });
 </script>
 {% endblock %}

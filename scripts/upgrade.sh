@@ -32,9 +32,6 @@ if git merge-base --is-ancestor origin/$BRANCH HEAD; then
 
     echo "####################################################################"
     echo "## reboot                                                         ##"
-    echo "##                                                                ##"
-    echo "## please reload web page after reboot                            ##"
-    echo "##                                                                ##"
     echo "####################################################################"
     # End ScrabScrap
     pkill -SIGALRM python 2> /dev/null
