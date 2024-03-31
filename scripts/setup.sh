@@ -49,7 +49,7 @@ pip install -U pip setuptools wheel
 # install python requirements
 cd ~/scrabscrap2/python
 source .venv/bin/activate
-pip install --force-reinstall -r requirements.txt --only-binary=:all:
+pip install -U -r requirements.txt
 
 # run scrabscrap at reboot
 crontab -u pi $SCRIPTPATH/config/crontab.user

@@ -68,7 +68,7 @@ echo "####################################################################"
 source "$ROOT_PATH/python/.venv/bin/activate"
 pip freeze | grep -v -f requirements.txt - | grep -v '^#' | xargs pip uninstall -y
 pip install -U pip setuptools wheel
-pip install -U --upgrade-strategy eager -r requirements.txt --only-binary=:all:
+pip install -U -r requirements.txt
 
 # install nodejs npm
 echo "####################################################################"
