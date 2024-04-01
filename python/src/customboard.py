@@ -187,6 +187,7 @@ def main():  # pylint: disable=too-many-locals
     """main function for test and debug"""
 
     import sys
+    from numpy import hstack, vstack
 
     logging.basicConfig(
         stream=sys.stdout,
@@ -202,24 +203,39 @@ def main():  # pylint: disable=too-many-locals
         'test/game04/image-21.jpg',
         'test/game05/image-21.jpg',
         'test/game06/image-21.jpg',
+        'test/game06/image-24.jpg',
         'test/game12/board-19.png',
         'test/game13/23113-180628-30.jpg',
         'test/game14/image-30.jpg',
         'test/game2023DM-01/image-24.jpg',
-        'ignore/bild.jpg',
-        'ignore/scrabble-gelb.jpg',
-        'ignore/scrabble-dunkel.jpg',
-        'ignore/dark.jpg',
         'test/board2012/err-03.png',
         'test/board2012/err-11.png',
+        'test/board2012/err-dark-01.jpg',
+        'test/board2012/err-dark-02.jpg',
+        'test/board2012/err-dark-03.jpg',
+        'test/board2012/err-dark-04.jpg',
     ]
 
     config.config.set('development', 'recording', 'True')
+    logging.error('#####################################################')
+    logging.error('# err-11.jpg, err-dark-*.jpg recognised with errors #')
+    logging.error('#####################################################')
     for fn in files:
         image = cv2.imread(fn)
         warped = CustomBoard.warp(image)
 
-        result, _ = CustomBoard.filter_image(_image=warped.copy())
+        result, tiles_candidates = CustomBoard.filter_image(_image=warped.copy())
+        mask = np.zeros(warped.shape[:2], dtype='uint8')
+        for col, row in tiles_candidates:
+            px_col = int(OFFSET + (row * GRID_H))
+            px_row = int(OFFSET + (col * GRID_W))
+            mask[px_col : px_col + GRID_H, px_row : px_row + GRID_W] = 255
+
+        masked = cv2.bitwise_and(warped, warped, mask=mask)
+        blend = cv2.addWeighted(warped, 0.3, masked, 0.7, 0.0)
+        result1 = hstack([warped, blend, cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)])
+        result2 = cv2.cvtColor(cv2.resize(result, (2400, 340)), cv2.COLOR_GRAY2BGR)
+        result = vstack([result1, result2])
 
         cv2.imshow(f'{fn}', result)
         cv2.waitKey()
