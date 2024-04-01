@@ -822,8 +822,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def stop_server(self):
         """stop flask server"""
         logging.info(f'server shutdown blocked: {ApiServer.flask_shutdown_blocked} ... waiting')
-        while ApiServer.flask_shutdown_blocked:
-            sleep(0.01)
+        for _ in range(50):  # wait max 5s
+            if not ApiServer.flask_shutdown_blocked:
+                self.server.shutdown()
+                return
+            sleep(0.1)
+        logging.warning('flask_shutdown_blocked: shutdown timeout')
         self.server.shutdown()
 
 
