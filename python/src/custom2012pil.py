@@ -131,13 +131,24 @@ class Custom2012PILBoard(CustomBoard):
             for coord2 in to_search:
                 (h2, s2, v2) = hsv_table[coord2]
                 (r, g, b) = rgb_table[coord2]
-                logging.debug(f'dist: {coord} - {coord2} {distance((h1, s1, v1), (h2, s2, v2))}')
                 if distance((h1, s1, v1), (h2, s2, v2)) < 30 or (abs(h1 - h2) < 75 and abs(s1 - s2) < 15 and abs(v1 - v2) < 25):
                     # small euclidic distance or minor diference in saturation / value
                     find_tiles(coord2, hsv_table, rgb_table, visited, candidates)
                 elif abs(h1 - h2) < 15 and abs(r - g) < 30 and abs(g - b) < 30 and abs(r - b) < 30:
                     # h1 ~= h2 and R ~= G ~= B (=> gray)
                     find_tiles(coord2, hsv_table, rgb_table, visited, candidates)
+                else:
+                    logging.debug(
+                        f"{chr(ord('A') + coord[1])}{coord[0]+1} - remove {chr(ord('A') + coord2[1])}{coord2[0]+1}"
+                        f"dist={distance((h1, s1, v1), (h2, s2, v2))} {(r, g, b)=}"
+                    )
+
+        def autocontrast(image):
+            from PIL import Image, ImageOps
+
+            pil_img: Image.Image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            pil_img = ImageOps.autocontrast(pil_img)
+            return cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
 
         def adjust_gamma(image: TImage, gamma: float = 1.0):
             # build a lookup table mapping the pixel values [0, 255] to
@@ -149,14 +160,16 @@ class Custom2012PILBoard(CustomBoard):
 
         # check for gamma correction
         image = _image.copy()
-        warped_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
+        warped_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         (_, _, average_v) = cv2.mean(warped_hsv)[:3]
         if average_v < 65:
             logging.warning(f'>>> {average_v=} gamma correction 1.3')
             image = adjust_gamma(image=image, gamma=1.3)
+            image = autocontrast(image=image)
         elif average_v < 90:
             logging.warning(f'>>>  {average_v=} gamma correction 1.1')
             image = adjust_gamma(image=image, gamma=1.1)
+            image = autocontrast(image=image)
 
         result = np.zeros(image.shape, dtype='uint8')
         hsv_table: dict = {}
@@ -235,12 +248,12 @@ def main():  # pylint: disable=too-many-locals
         'test/game13/23113-180628-30.jpg',
         'test/game14/image-30.jpg',
         'test/game2023DM-01/image-24.jpg',
-        'ignore/bild.jpg',
-        'ignore/scrabble-gelb.jpg',
-        'ignore/scrabble-dunkel.jpg',
-        'ignore/dark.jpg',
         'test/board2012/err-03.png',
         'test/board2012/err-11.png',
+        'test/board2012/err-dark-01.jpg',
+        'test/board2012/err-dark-02.jpg',
+        'test/board2012/err-dark-03.jpg',
+        'test/board2012/err-dark-04.jpg',
     ]
 
     config.config.set('development', 'recording', 'True')
@@ -257,7 +270,8 @@ def main():  # pylint: disable=too-many-locals
             mask[px_col : px_col + GRID_H, px_row : px_row + GRID_W] = 255
 
         masked = cv2.bitwise_and(warped, warped, mask=mask)
-        result1 = hstack([warped, masked])
+        blend = cv2.addWeighted(warped, 0.3, masked, 0.7, 0.0)
+        result1 = hstack([warped, blend])
         result2 = hstack([result, cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)])
         result = vstack([result1, result2])
 
