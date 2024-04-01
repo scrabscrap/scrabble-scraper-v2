@@ -15,6 +15,7 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+# pylint: disable=duplicate-code
 
 import logging
 from typing import Optional
@@ -144,7 +145,7 @@ class Custom2012PILBoard(CustomBoard):
                     )
 
         def autocontrast(image):
-            from PIL import Image, ImageOps
+            from PIL import ImageOps
 
             pil_img: Image.Image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
             pil_img = ImageOps.autocontrast(pil_img)

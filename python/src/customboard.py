@@ -15,6 +15,7 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+# pylint: disable=duplicate-code
 
 import logging
 from typing import Optional
@@ -182,7 +183,6 @@ class CustomBoard(GameBoard):
 
 
 # test and debug
-# pylint: disable=
 def main():  # pylint: disable=too-many-locals
     """main function for test and debug"""
 
