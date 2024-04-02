@@ -5,10 +5,6 @@
 # pip uninstall $(pip freeze) -y && pip install -U -r requirements.txt
 
 --prefer-binary
-flask-sock==0.7.0
-# └── simple-websocket [required: >=0.5.1, installed: 1.0.0]
-#     └── wsproto [required: Any, installed: 1.2.0]
-#         └── h11 [required: >=0.9.0,<1, installed: 0.14.0]
 flask==3.0.2
 # ├── blinker [required: >=1.6.2, installed: 1.7.0]
 # ├── click [required: >=8.1.3, installed: 8.1.7]
@@ -19,6 +15,10 @@ flask==3.0.2
 # │   └── MarkupSafe [required: >=2.0, installed: 2.1.5]
 # └── werkzeug [required: >=3.0.0, installed: 3.0.1]
 #     └── MarkupSafe [required: >=2.1.1, installed: 2.1.5]
+flask-sock==0.7.0
+# └── simple-websocket [required: >=0.5.1, installed: 1.0.0]
+#     └── wsproto [required: Any, installed: 1.2.0]
+#         └── h11 [required: >=0.9.0,<1, installed: 0.14.0]
 gpiozero==2.0.1
 # ├── colorzero [required: Any, installed: 2.0]
 # │   └── setuptools [required: Any, installed: 69.2.0]
@@ -26,6 +26,7 @@ gpiozero==2.0.1
 # │   └── zipp [required: >=0.5, installed: 3.18.1]
 # └── importlib-resources [required: ~=5.0, installed: 5.13.0]
 #     └── zipp [required: >=3.1.0, installed: 3.18.1]
+imutils==0.5.4
 luma.oled==3.13.0
 # └── luma.core [required: >=2.4.0, installed: 2.4.2]
 #     ├── cbor2 [required: Any, installed: 5.6.2]
@@ -34,9 +35,10 @@ luma.oled==3.13.0
 #     │   ├── pyserial [required: >=3.0, installed: 3.5]
 #     │   └── pyusb [required: >=1.0.0,!=1.2.0, installed: 1.2.1]
 #     └── smbus2 [required: Any, installed: 0.4.3]
-imutils==0.5.4
 netifaces2==0.0.19
+# latest version for Apple Silicon
 picamera==1.13; platform_machine == "armv7l"
+# rpi bookworm uses 64bit and PiCamera2
 requests==2.31.0
 # ├── certifi [required: >=2017.4.17, installed: 2024.2.2]
 # ├── charset-normalizer [required: >=2,<4, installed: 3.3.2]
@@ -45,7 +47,11 @@ requests==2.31.0
 numpy==1.26.4
 
 --only-binary=:all:
-opencv-python-headless==4.6.0.66
-# --only-binary opencv-contrib-python-headless == 4.6.0.66
+opencv-python-headless==4.6.0.66; python_version < "3.10"
+# python 3.9.x indicates rpi bullseye 32bit 
+# opencv-contrib-python-headless==4.6.0.66; python_version <= "3.9.*" # not available
+opencv-python-headless==4.9.0.80; python_version >= "3.11"
+opencv-contrib-python-headless==4.9.0.80; python_version >= "3.11"
+# python 3.11.x indicates rpi bookworm 64bit
 --only-binary=:none:
 # ├── numpy [required: >=1.21.2, installed: 1.26.4]
