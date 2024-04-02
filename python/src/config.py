@@ -51,7 +51,7 @@ class Config:  # pylint: disable=too-many-public-methods
         """save configuration to file"""
         with open(self.ini_path, 'w', encoding='UTF-8') as config_file:
             val = self.config['path']['src_dir']
-            commit = self.config['git']['commit']
+            commit = self.git_commit
             self.config.remove_option('git', 'commit')
             if val == (os.path.dirname(__file__) or '.'):
                 self.config.remove_option('path', 'src_dir')
