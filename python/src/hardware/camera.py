@@ -115,29 +115,31 @@ if importlib.util.find_spec('picamera'):
             self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
             if config.video_rotate:
                 self.camera.rotation = 180
+            self.wait = round(1 / self.framerate, 2)  # type: ignore
             self.raw_capture = PiRGBArray(self.camera, size=self.camera.resolution)
             sleep(2)  # warm up camera
             while self.camera.analog_gain < 0:
                 sleep(0.1)
             self.stream = self.camera.capture_continuous(self.raw_capture, format='bgr', use_video_port=True)
-            logging.debug(f'open camera: {self.camera.resolution} / {self.camera.framerate} / {self.camera.sensor_mode}')
+            logging.info(f'config: {self.camera.image_denoise=} / {self.camera.meter_mode=} / {self.camera.rotation=}')
+            logging.info(f'{self.camera.iso=} / {self.camera.exposure_compensation=} / {self.camera.exposure_mode=}')
+            logging.info(f'{self.camera.contrast=} / {self.camera.brightness=} / {self.camera.saturation=}')
+            logging.info(f'{self.camera.drc_strength=} / {self.camera.awb_mode=} / {self.camera.awb_gains=}')
             atexit.register(self._atexit)  # cleanup on exit
-
-        def _camera_close(self) -> None:
-            if self.stream:
-                self.stream.close()
-            if self.camera:
-                self.camera.close()
 
         def _atexit(self) -> None:
             logging.info('close camera')
             atexit.unregister(self._atexit)
-            self._camera_close()
+            if self.stream:
+                self.stream.close()
+            if self.camera:
+                self.camera.close()
             self.frame = np.array([])
 
+        @runtime_measure
         def read(self, peek: bool = False) -> TImage:
-            if np.array_equal(self.lastframe, self.frame):
-                logging.warning('image is equal to previous image')
+            # if np.array_equal(self.lastframe, self.frame):
+            #     logging.warning('image is equal to previous image')
             self.lastframe = self.frame
             return self.frame
 
@@ -149,9 +151,9 @@ if importlib.util.find_spec('picamera'):
                 if event.is_set():
                     logging.info('event is set - exit update cam')
                     break
-                sleep(0.04)  # approx 25 fps
-            self._atexit()
+                sleep(self.wait)
             event.clear()
+            self._atexit()
 
         def cancel(self) -> None:
             if self.event:
@@ -178,7 +180,6 @@ elif importlib.util.find_spec('picamera2'):
 
         def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
             """init/config cam"""
-
             logging.info('### init PiCamera 64')
             self.resolution = resolution if resolution else (config.video_width, config.video_height)
             self.framerate = framerate if framerate else config.video_fps
@@ -186,13 +187,13 @@ elif importlib.util.find_spec('picamera2'):
             self.lastframe = np.array([])
             self.event: Optional[Event] = None
             self.camera = Picamera2()
-            cfg = self.camera.create_still_configuration(main={'format': 'XRGB8888', 'size': resolution})
+            cfg = self.camera.create_still_configuration(main={'format': 'XRGB8888', 'size': self.resolution})
             if config.video_rotate:
                 cfg['transform'] = libcamera.Transform(hflip=1, vflip=1)  # self.camera.rotation = 180
             self.camera.configure(cfg)
             self.camera.start()
-            self.wait = round(1 / framerate, 2)  # type: ignore
-            sleep(1.5)  # warmup camera
+            self.wait = round(1 / self.framerate, 2)  # type: ignore
+            sleep(2)  # warmup camera
             atexit.register(self._atexit)
 
         def _atexit(self) -> None:
@@ -201,6 +202,7 @@ elif importlib.util.find_spec('picamera2'):
             if self.camera is not None:
                 self.camera.close()
 
+        @runtime_measure
         def read(self, peek: bool = False) -> TImage:
             """read next picture"""
             return self.frame
@@ -214,14 +216,21 @@ elif importlib.util.find_spec('picamera2'):
                     break
                 sleep(self.wait)
             event.clear()
+            self._atexit()
 
-    process = subprocess.run(['vcgencmd', 'get_camera'], check=False, capture_output=True)
-    if 'detected=1' in process.stdout.decode():
+        def cancel(self) -> None:
+            if self.event:
+                self.event.set()
+            else:
+                self._atexit()
+
+    if os.path.exists('/dev/video0'):
         camera_dict.update({'picamera': CameraRPI64})
         camera_dict.update({'picamera2': CameraRPI64})
+        camera_dict.update({'picamera-still': CameraRPI64})
         logging.info('picamera2 added')
     else:
-        logging.error(f'picamera2 not detected {process.stdout.decode()}')
+        logging.error('picamera2 not detected')
 
 
 class CameraFile(Camera):
@@ -273,9 +282,7 @@ class CameraFile(Camera):
         return img
 
     def update(self, event: Event) -> None:
-        while event.wait(0.05):
-            pass
-        event.clear()
+        pass
 
     def cancel(self) -> None:
         self._counter = 1
@@ -287,6 +294,7 @@ class CameraOpenCV(Camera):
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
         self.resolution = resolution if resolution else (config.video_width, config.video_height)
         self.framerate = framerate if framerate else config.video_fps
+        self.wait = round(1 / self.framerate, 2)  # type: ignore
         # self.stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
         self.stream = cv2.VideoCapture(0)  # type: ignore # mypy: Too many arguments for "VideoCapture"
         if not self.stream.isOpened():
@@ -297,7 +305,7 @@ class CameraOpenCV(Camera):
             self.stream.set(cv2.CAP_PROP_FPS, self.framerate)
         self.frame = np.array([])
         self.event: Optional[Event] = None
-        sleep(1.5)  # warm up camera
+        sleep(2)  # warm up camera
         atexit.register(self._atexit)  # cleanup on exit
 
     def _atexit(self) -> None:
@@ -305,6 +313,7 @@ class CameraOpenCV(Camera):
         self.stream.release()
         self.frame = np.array([])
 
+    @runtime_measure
     def read(self, peek: bool = False) -> TImage:
         return self.frame
 
@@ -318,7 +327,7 @@ class CameraOpenCV(Camera):
                 self.frame = cv2.rotate(self.frame, cv2.ROTATE_180)
             if event.is_set():
                 break
-            sleep(0.04)  # approx 25 fps
+            sleep(self.wait)
         event.clear()
         self._atexit()
 
@@ -337,8 +346,9 @@ cam: Camera = camera_dict['picamera-still']() if 'picamera-still' in camera_dict
 
 
 def switch_camera(camera: str) -> Camera:
-    """switch camera - threadpool has to be restarted"""
+    """switch camera - restarts threadpool thread for camera"""
     global cam  # pylint: disable=global-statement
+    from threadpool import pool
 
     if camera == '':
         if cam:
@@ -347,21 +357,25 @@ def switch_camera(camera: str) -> Camera:
             sleep(1)
             logging.info('restart camera')
             cam = clazz()
+            sleep(1)
+            pool.submit(cam.update, event=Event())  # start cam
+
     elif camera.lower() in camera_dict:
         if cam:
             cam.cancel()
         logging.info(f'switch camera to {camera}')
         cam = camera_dict[camera]()
+        sleep(1)
+        pool.submit(cam.update, event=Event())  # start cam
     else:
         raise ValueError(f'invalid camera selected: {camera}')
     return cam
 
 
+# test and debug
 def main() -> None:
     """main function"""
     import sys
-
-    from threadpool import pool
 
     logging.basicConfig(
         stream=sys.stdout,
@@ -373,20 +387,16 @@ def main() -> None:
     logging.info(f'>> config {camera_dict}')
     switch_camera('file')
     logging.info(f'cam type: {type(cam)}')
-    pool.submit(cam.update, event=Event())  # start cam
     sleep(5)
     switch_camera('opencv')
     logging.info(f'cam type: {type(cam)}')
-    pool.submit(cam.update, event=Event())  # start cam
     sleep(5)
     switch_camera('')
     logging.info(f'cam type: {type(cam)}')
-    pool.submit(cam.update, event=Event())  # restart cam
     sleep(5)
     try:
         switch_camera('picamera')
         logging.info(f'cam type: {type(cam)}')
-        pool.submit(cam.update, event=Event())  # start cam
         sleep(5)
     except ValueError as oops:
         logging.error(f'{oops}')
