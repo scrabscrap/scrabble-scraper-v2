@@ -8,10 +8,11 @@ geometry: margin=2cm
 
 # Installation ScrabScrap v2
 
-## Basic installation of the RPI
+## Basic installation Raspberry OS (32-bit; Bullseye)
 
-The creation of the SD card using "Raspberry Pi Imager". Select the image "PI OS Lite (32bit) - Debian Bullseye".
-The 64Bit image does not yet fully support the PiCamera completely.
+**Warning: install Raspberry OS Lite Bullseye only in 32-bit!**
+
+The creation of the SD card using "Raspberry Pi Imager". Select the image "Raspberry OS (Legacy; 32-bit) Lite - Debian Bullseye".
 
 When creating the SD card, configure the following options if necessary
 
@@ -21,11 +22,19 @@ When creating the SD card, configure the following options if necessary
 - user / password = (old default: pi/raspberry)
 - Language settings
 
-After starting the RPI, connect to the computer via ssh.
+After starting the RPI, connect to the computer via ssh 
+and verify 32-bit installation.
+
+```bash
+uname -m
+```
+
+Expected output is "armv7l". Then update the system.
 
 ```bash
 sudo apt update
 sudo apt full-upgrade
+sudo apt-get autoremove
 ```
 
 After the update, make technical settings on the RPI
@@ -44,9 +53,7 @@ The next step is to install general tools
 ### Install Git and Python
 
 ```bash
-sudo apt-get install -y git python3-venv python3-dev
-#installation des Tools, um die ic2 Ports zu ermitteln (i2cdetect -y 1)
-sudo apt-get install -y i2c-tools
+sudo apt-get install -y git python3-venv python3-dev i2c-tools
 
 #Installation der Libs für OpenCV
 sudo apt-get install -yq libzvbi0 libgfortran5 libpango-1.0-0 libsoxr0 libxcb-render0 libx264-160 libvpx6 libpangoft2-1.0-0 libsrt1.4-gnutls libpixman-1-0 libpgm-5.3-0 libvorbis0a libpangocairo-1.0-0 libavformat58 libcairo-gobject2 libvdpau1 libtheora0 libxcb-shm0 libva-x11-2 libssh-gcrypt-4 libudfread0 libgsm1 libmpg123-0 libavutil56 libva-drm2 libdatrie1 libx265-192 libgraphite2-3 libavcodec58 libopus0 libogg0 librabbitmq4 libnorm1 libxrender1 libxfixes3 libopenjp2-7 libwavpack1 libswresample3 libdrm2 libsodium23 librsvg2-2 libcairo2 libshine3 libopenmpt0 libbluray2 libswscale5 libgdk-pixbuf-2.0-0 libwebpmux3 libspeex1 libaom0 libharfbuzz0b libdav1d4 libvorbisenc2 libatlas3-base libzmq5 libgme0 libvorbisfile3 libthai0 libmp3lame0 libva2 libsnappy1v5 libcodec2-0.9 libtwolame0 ocl-icd-libopencl1 libchromaprint1 libxvidcore4 --fix-missing
@@ -62,6 +69,9 @@ If the RPI is also to commit to the repository, the GitHub user ID must be set.
 ```bash
 git config --global user.name
 git config --global user.email
+git config --global credential.helper store
+git config --global pull.rebase true
+git config --global pull.autostash true
 ```
 
 After that the repository can be loaded
@@ -79,7 +89,95 @@ python3 -m venv .venv --prompt cv
 #update pip
 source .venv/bin/activate
 pip install -U pip setuptools wheel
-pip install --force-reinstall -r requirements.txt --only-binary=:all:
+pip install -U -r requirements.txt
+```
+
+
+## Basic installation Raspberry OS (64-bit; Bookworm)
+
+**Warning: install Raspberry OS Lite Bookworm only in 64-bit!**
+
+The creation of the SD card using "Raspberry Pi Imager". Select the image "Raspberry OS (64-bit) Lite - Debian Bookworm".
+
+When creating the SD card, configure the following options if necessary
+
+- hostname = scrabscrap
+- enable ssh = true
+- WiFi access = ID / password
+- user / password = (old default: pi/raspberry)
+- Language settings
+
+After starting the RPI, connect to the computer via ssh 
+and verify 64-bit installation.
+
+```bash
+uname -m
+```
+
+Expected output is "aarch64". Then update the system.
+
+```bash
+sudo apt update
+sudo apt full-upgrade
+sudo apt-get autoremove
+```
+
+After the update, make technical settings on the RPI
+
+```bash
+sudo raspi-config
+```
+
+The following must be activated
+
+- i2c
+
+The next step is to install general tools.
+
+### Install Git and Python
+
+```bash
+sudo apt-get install -y git python3-venv python3-dev i2c-tools
+#install picamera2 without gui
+sudo apt install -y python3-picamera2 --no-install-recommends
+```
+
+### Clone of the ScrabScrap repository
+
+If the RPI is also to commit to the repository, the GitHub user ID must be set.
+
+```bash
+git config --global user.name
+git config --global user.email
+git config --global credential.helper store
+git config --global pull.rebase true
+git config --global pull.autostash true
+```
+
+After that the repository can be loaded
+
+```bash
+cd
+git clone https://github.com/scrabscrap/scrabble-scraper-v2.git
+or
+git clone https://(user)@github.com/scrabscrap/scrabble-scraper-v2.git
+```
+
+
+
+### Create Python configuration
+
+In contrast to the 32-bit installation, the camera library is installed 
+globally here. This means that the "--system-site-packages" option must be 
+specified when creating the venv environment.
+
+```bash
+cd ~/scrabble-scraper-v2/python
+python3 -m venv .venv --system-site-packages --prompt cv
+#update pip
+source .venv/bin/activate
+pip install -U pip setuptools wheel
+pip install -U -r requirements.txt
 ```
 
 ## Testing the RPI installation
@@ -92,19 +190,20 @@ source ~/scrabble-scraper-v2/python/.venv/bin/activate
 python
 >> import cv2
 >> cv2.__version__
-'4.5.5'
+'4.6.0.66' or '4.9.0.80'
 >> quit()
 ```
 
 Checking access to the i2c bus
 
 ```bash
-sudo i2cdetect -y 1
+i2cdetect -y 1
 ```
+The port (3c) of the display should be shown here. If an RTC is installed, it will also be displayed here.
 
 ## Further configurations
 
-Create a file ``~/.alias``:
+Create a file ``~/.bash_aliases``:
 
 ```bash
 alias ll='ls -al'
@@ -117,19 +216,20 @@ alias workon='f(){ source ~/scrabble-scraper-v2/python/.venv/bin/activate; }; f'
 Add to `~/.bashrc` or `~/.zshrc`:
 
 ```text
-source ~/.alias
+source ~/scrabble-scraper-v2/python/.venv/bin/activate
+export PYTHONPATH=src:
 ```
 
-## Configuring the Autostart of ScrabScrap
+## Configure autostart of ScrabScrap
 
 In order to start ScrabScrap automatically, one must be logged in on the RPI and then, via `crontab -e`.
 to configure the user's crontab entries:
 
 ```bash
-@reboot /home/pi/scrabble-scraper-v2/scripts/scrabscrap.sh &
+crontab -u pi ~/scrabble-scraper-v2/scripts/config/crontab.user
 ```
 
-## set boot/config.txt
+## set boot/config.txt (bullseye) or boot/firmware/config.txt (bookworm)
 
 - i2c with baud rate 400000
 - spi=off
@@ -137,6 +237,7 @@ to configure the user's crontab entries:
 - Switch off power LED
 - Bluetooth off
 - Audio off
+- camera framebuffer and memory (only bookworm)
 
 ```text
 # Uncomment some or all of these to enable the optional hardware interfaces
@@ -165,6 +266,12 @@ dtoverlay=disable-bt
 
 # Enable audio (loads snd_bcm2835)
 dtparam=audio=off
+
+#### only bookworm ####
+# Enable DRM VC4 V3D driver
+# increase cma video ram
+dtoverlay=vc4-kms-v3d,cma-320 
+max_framebuffers=2
 ```
 
 ## Installation of a develepment computer
@@ -176,6 +283,7 @@ see FAQ
 see [GitHub project https://github.com/gitbls/autoAP](https://github.com/gitbls/autoAP)
 
 ```bash
+sudo apt install systemd-resolved
 sudo curl -L https://github.com/gitbls/autoAP/raw/master/autoAP.sh -o /usr/local/bin/autoAP.sh
 sudo curl -L https://github.com/gitbls/autoAP/raw/master/install-autoAP -o /usr/local/bin/install-autoAP
 sudo curl -L https://github.com/gitbls/autoAP/raw/master/rpi-networkconfig -o /usr/local/bin/rpi-networkconfig

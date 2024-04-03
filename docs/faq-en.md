@@ -264,6 +264,8 @@ brew install python@3.9
 brew install visual-studio-code --cask
 ```
 
+If python@3.11 is installed, the libraries for 64bit are used. To use Python 3.9 and 3.11 parallel, create different venv profiles.
+
 Now set up Git identifiers if necessary.
 
 ```bash
@@ -292,7 +294,7 @@ Now the Python libraries can be installed.
 cd scrabble-scraper-v2/python
 source .venv/bin/activate
 pip install -U pip setuptools wheel
-pip install --force-reinstall -r requirements.txt --only-binary=:all:
+pip install -U -r requirements.txt
 ```
 
 Libraries that do not run under MacOS are omitted from the "requirements.txt".
@@ -341,12 +343,12 @@ Host scrabscrap
 
 The following extensions should then be installed in VSCode.
 
-* GitLess
-* GitGraph
-* markdownlint (David Anson)
+* GitLens (GitKraken)
+* GitGraph (mhutchie)
+* Markdown Preview Enhanced (Yiyi Wang)
 * Python (Microsoft)
 * Pylance (Microsoft)
-* optional: vscode-pdf
+* Ruff (Astral Software)
 
 If remote development is to take place on the Raspberry PI, the following
 
@@ -536,7 +538,7 @@ npm start
 
 The web application can then be opened in the local browser under
 
-* `http://localhost:3000`
+* `http://localhost:5173`
 
 can be called.
 
