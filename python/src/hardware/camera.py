@@ -228,7 +228,7 @@ elif importlib.util.find_spec('picamera2'):
             else:
                 self._atexit()
 
-    if os.path.exists('/dev/video0'):
+    if Picamera2.global_camera_info():
         camera_dict.update({'picamera': CameraRPI64})
         camera_dict.update({'picamera2': CameraRPI64})
         camera_dict.update({'picamera-still': CameraRPI64})
