@@ -86,6 +86,7 @@ if importlib.util.find_spec('picamera'):
             atexit.unregister(self._atexit)
             if self.camera:
                 self.camera.close()
+            sleep(0.5)
             self.frame = np.array([])
 
         @runtime_measure
@@ -158,6 +159,7 @@ if importlib.util.find_spec('picamera'):
         def cancel(self) -> None:
             if self.event:
                 self.event.set()
+                sleep(2 * self.wait)
             else:
                 self._atexit()
 
@@ -194,6 +196,7 @@ elif importlib.util.find_spec('picamera2'):
             self.camera.start()
             self.wait = round(1 / self.framerate, 2)  # type: ignore
             sleep(2)  # warmup camera
+            self.frame = self.camera.capture_array()
             atexit.register(self._atexit)
 
         def _atexit(self) -> None:
@@ -221,6 +224,7 @@ elif importlib.util.find_spec('picamera2'):
         def cancel(self) -> None:
             if self.event:
                 self.event.set()
+                sleep(2 * self.wait)
             else:
                 self._atexit()
 
@@ -334,6 +338,7 @@ class CameraOpenCV(Camera):
     def cancel(self) -> None:
         if self.event:
             self.event.set()
+            sleep(2 * self.wait)
         else:
             self._atexit()
 
@@ -342,7 +347,9 @@ camera_dict.update({'file': CameraFile, 'opencv': CameraOpenCV})
 
 
 # default picamera - fallback file
-cam: Camera = camera_dict['picamera-still']() if 'picamera-still' in camera_dict else camera_dict['file']()
+cam: Camera = (
+    camera_dict['picamera-still']() if not config.is_testing and 'picamera-still' in camera_dict else camera_dict['file']()
+)
 
 
 def switch_camera(camera: str) -> Camera:
@@ -350,25 +357,24 @@ def switch_camera(camera: str) -> Camera:
     global cam  # pylint: disable=global-statement
     from threadpool import pool
 
-    if camera == '':
-        if cam:
-            clazz = cam.__class__
-            cam.cancel()
-            sleep(1)
-            logging.info('restart camera')
-            cam = clazz()
-            sleep(1)
-            pool.submit(cam.update, event=Event())  # start cam
-
+    if camera == '' and cam:
+        logging.info('restart camera')
+        clazz = cam.__class__
     elif camera.lower() in camera_dict:
-        if cam:
-            cam.cancel()
         logging.info(f'switch camera to {camera}')
-        cam = camera_dict[camera]()
+        clazz = camera_dict[camera]
+    else:
+        logging.error(f'invalid camera selected: {camera}')
+        raise ValueError(f'invalid camera selected: {camera}')
+
+    if cam:
+        cam.cancel()
+
+    if clazz.__name__ != 'CameraFile':
+        cam = clazz()
         sleep(1)
         pool.submit(cam.update, event=Event())  # start cam
-    else:
-        raise ValueError(f'invalid camera selected: {camera}')
+
     return cam
 
 
