@@ -551,29 +551,32 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def do_end():
         """end app"""
         ApiServer.last_msg = '**** Exit application ****'
+        logging.info(ApiServer.last_msg)
         config.config.set('system', 'quit', 'end')  # set temporary end app
         alarm(1)
-        return redirect(url_for('route_index'))
+        return redirect(url_for('route_logs'))
 
     @staticmethod
     @app.route('/reboot', methods=['POST', 'GET'])
     def do_reboot():
         """process reboot"""
         ApiServer.last_msg = '**** System reboot ****'
+        logging.info(ApiServer.last_msg)
         config.config.set('system', 'quit', 'reboot')  # set temporary reboot
         State.do_reboot()
         alarm(2)
-        return redirect(url_for('route_index'))
+        return redirect(url_for('route_logs'))
 
     @staticmethod
     @app.route('/shutdown', methods=['POST', 'GET'])
     def do_shutdown():
         """process reboot"""
         ApiServer.last_msg = '**** System shutdown ****'
+        logging.info(ApiServer.last_msg)
         config.config.set('system', 'quit', 'shutdown')  # set temporary shutdown
         State.do_reboot()
         alarm(2)
-        return redirect(url_for('route_index'))
+        return redirect(url_for('route_logs'))
 
     @staticmethod
     @app.route('/test_display')
