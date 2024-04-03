@@ -17,35 +17,38 @@ sudo apt-get autoremove -yq
 
 # ensure python environment and git
 echo "####################################################################"
-echo "## Upgrade/Install Python                                         ##"
+echo "## Upgrade/Install Python and tools                               ##"
 echo "####################################################################"
-sudo apt-get install -yq git python3-venv python3-dev
-# tool to detect i2c ports (i2cdetect -y 1)
-echo "####################################################################"
-echo "## Upgrade/Install i2c-tools                                      ##"
-echo "####################################################################"
-sudo apt-get install -yq i2c-tools
+sudo apt-get install -yq git python3-venv python3-dev i2c-tools
 
-# install libraries and tools
-# install libs for OpenCV
-echo "####################################################################"
-echo "## Upgrade/Install opencv libs                                    ##"
-echo "####################################################################"
 
-#opencv opencv-python-headless==4.6.0.66
-sudo apt-get install -yq ocl-icd-libopencl1 libchromaprint1 libmp3lame0 libx264-160 libva-drm2 libaom0 libharfbuzz0b \
-  libx265-192 libcodec2-0.9 libvorbis0a libpangoft2-1.0-0 libspeex1 libssh-gcrypt-4 libva2 libgraphite2-3 \
-  libogg0 libswresample3 libsoxr0 libxcb-render0 librsvg2-2 libavcodec58 libavformat58 libvorbisenc2 libsodium23 \
-  libdrm2 libsrt1.4-gnutls libpixman-1-0 libdatrie1 libwebpmux3 libthai0 libmpg123-0 libswscale5 libshine3 libzmq5 \
-  libwavpack1 libpangocairo-1.0-0 libopenmpt0 libtheora0 libcairo2 libxrender1 libpango-1.0-0 libvorbisfile3 \
-  libsnappy1v5 libgfortran5 libxcb-shm0 libcairo-gobject2 libxfixes3 libavutil56 libgsm1 libzvbi0 libbluray2 \
-  libatlas3-base libopus0 libopenjp2-7 libudfread0 libvdpau1 libvpx6 libpgm-5.3-0 libdav1d4 libgdk-pixbuf-2.0-0 \
-  libnorm1 libgme0 librabbitmq4 libva-x11-2 libtwolame0 libxvidcore4 --fix-missing
+if [ $(uname -m) == 'aarch64' ]; then
+    echo "####################################################################"
+    echo "## Upgrade/Install picamera2                                      ##"
+    echo "####################################################################"
+    sudo apt-get install -yq python3-picamera2 --no-install-recommends
+else
+    # (armv7l)
+    # install libraries and tools
+    # install libs for OpenCV
+    echo "####################################################################"
+    echo "## Upgrade/Install opencv 4.6. libs                               ##"
+    echo "####################################################################"
 
-# numpy numpy==1.26.2
-sudo apt-get install -yq libopenblas0-pthread libgfortran5 --fix-missing
-# pillow Pillow==10.1.0
-sudo apt-get install -yq libwebpdemux2 libwebpmux3 liblcms2-2 libopenjp2-7 --fix-missing
+    #opencv opencv-python-headless==4.6.0.66
+    sudo apt-get install -yq ocl-icd-libopencl1 libchromaprint1 libmp3lame0 libx264-160 libva-drm2 libaom0 libharfbuzz0b \
+    libx265-192 libcodec2-0.9 libvorbis0a libpangoft2-1.0-0 libspeex1 libssh-gcrypt-4 libva2 libgraphite2-3 \
+    libogg0 libswresample3 libsoxr0 libxcb-render0 librsvg2-2 libavcodec58 libavformat58 libvorbisenc2 libsodium23 \
+    libdrm2 libsrt1.4-gnutls libpixman-1-0 libdatrie1 libwebpmux3 libthai0 libmpg123-0 libswscale5 libshine3 libzmq5 \
+    libwavpack1 libpangocairo-1.0-0 libopenmpt0 libtheora0 libcairo2 libxrender1 libpango-1.0-0 libvorbisfile3 \
+    libsnappy1v5 libgfortran5 libxcb-shm0 libcairo-gobject2 libxfixes3 libavutil56 libgsm1 libzvbi0 libbluray2 \
+    libatlas3-base libopus0 libopenjp2-7 libudfread0 libvdpau1 libvpx6 libpgm-5.3-0 libdav1d4 libgdk-pixbuf-2.0-0 \
+    libnorm1 libgme0 librabbitmq4 libva-x11-2 libtwolame0 libxvidcore4 --fix-missing
+    # numpy numpy==1.26.2
+    sudo apt-get install -yq libopenblas0-pthread libgfortran5 --fix-missing
+    # pillow Pillow==10.1.0
+    sudo apt-get install -yq libwebpdemux2 libwebpmux3 liblcms2-2 libopenjp2-7 --fix-missing
+fi
 
 # cleanup
 sudo apt -yq autoremove
@@ -58,7 +61,12 @@ cd "$ROOT_PATH/python"
 if [ -d .venv ] ; then
     echo ".venv already configured, skipping..."
 else
-    python3 -m venv .venv --prompt cv
+    if [ $(uname -m) == 'aarch64' ]; then
+        python3 -m venv .venv  --system-site-packages --prompt cv
+    else
+        # (armv7l)
+        python3 -m venv .venv --prompt cv
+    fi
 fi
 
 # update pip
@@ -67,7 +75,6 @@ echo "## Upgrade pip libraries                                          ##"
 echo "####################################################################"
 source "$ROOT_PATH/python/.venv/bin/activate"
 pip uninstall $(pip freeze) -y
-# pip freeze | grep -v -f requirements.txt - | grep -v '^#' | xargs pip uninstall -y
 pip install -U pip setuptools wheel
 pip install -U -r requirements.txt
 

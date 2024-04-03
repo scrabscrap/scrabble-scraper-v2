@@ -26,10 +26,15 @@ cp -n "$PYTHONDIR/defaults/log.conf" "$WORKDIR/log.conf"
 export PYTHONPATH=src:
 if [ ! -d "$PYTHONDIR/.venv" ]; then
     cd "$PYTHONDIR"
-    python -m venv .venv --prompt cv
+    if [ $(uname -m) == 'aarch64' ]; then
+        python3 -m venv .venv  --system-site-packages --prompt cv
+    else
+        # (armv7l)
+        python3 -m venv .venv --prompt cv
+    fi
     source .venv/bin/activate
     pip install -U pip setuptools wheel
-    pip install --force-reinstall -r requirements.txt --only-binary=:all:
+    pip install -U -r requirements.txt
 fi
 source $PYTHONDIR/.venv/bin/activate
 if [ -d "/home/pi/.venv" ]; then
