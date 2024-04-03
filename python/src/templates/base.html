@@ -53,6 +53,7 @@
               <div class="dropdown-divider"></div>
               <li><a class="dropdown-item" href="/upgrade_scrabscrap">
                   <i class="bi-arrow-up-right-circle"></i> Upgrade ScrabScrap</a></li>
+              {% if apiserver.machine == 'armv7l' %}
               <div class="dropdown-divider"></div>
               <li><a class="dropdown-item" href="/awb/auto">
                   <i class="bi-circle-half"></i> Auto</a></li>
@@ -70,7 +71,7 @@
                   <i class="bi-brightness-low-fill"></i> Horizon</a></li>
               <li><a class="dropdown-item" href="/awb/flash">
                   <i class="bi-brightness-low-fill"></i> Flash</a></li>
-
+              {% endif %}
             </ul>
           </li>
 

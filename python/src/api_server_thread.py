@@ -22,6 +22,7 @@ import json
 import logging
 import logging.config
 import os
+import platform
 import re
 import subprocess
 import urllib.parse
@@ -59,6 +60,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     simulator = False
     tailscale = False
     local_webapp = False
+    machine = platform.machine()
 
     @staticmethod
     def _clear_message():
@@ -76,7 +78,10 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/awb/<path:awb>')
     def awb(awb):
         """set white balance for cam"""
-        if awb in ('auto', 'sunlight', 'cloudy', 'shade', 'tungsten', 'incandescent', 'horizon', 'flash'):
+        if ApiServer.machine in ('aarch64'):
+            ApiServer.last_msg = 'awb settings not supported with Picamera2'
+            logging.info(ApiServer.last_msg)
+        elif awb in ('auto', 'sunlight', 'cloudy', 'shade', 'tungsten', 'incandescent', 'horizon', 'flash'):
             camera.cam.camera.awb_mode = awb
             logging.info(f'awb: {awb}')
             sleep(2)  # camera warm up
@@ -130,7 +135,11 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 config.config.set('video', 'warp_coordinates', request.form.get('warp_coordinates'))
                 config.save()
             elif request.form.get('btnrestart'):
-                camera.switch_camera('')
+                if ApiServer.machine in ('aarch64'):
+                    ApiServer.last_msg = 'camera restart not supported with Picamera2'
+                    logging.info(ApiServer.last_msg)
+                else:
+                    camera.switch_camera('')
             return redirect('/cam')
         if len(request.args.keys()) > 0:
             coord = list(request.args.keys())[0]

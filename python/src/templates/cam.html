@@ -36,10 +36,13 @@
                                     <p>
                                     </p>
                                 </div>
+                                {% if apiserver.machine == 'armv7l' %}
                                 <div class="row py-2">
                                     <button type="submit" class="btn btn-danger" name="btnrestart" value="Restart">
                                         <i class="bi-bootstrap-reboot"></i> Restart Cam</button>
                                 </div>
+                                {% endif %}
+
                             </div>
                         </div>
                     </form>
