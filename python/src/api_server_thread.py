@@ -426,8 +426,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     check=False,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
+                    text=True,
                 )
-                ApiServer.last_msg = f'{process2.stdout.decode()}'
+                ApiServer.last_msg = f'{process2.stdout}'
             elif request.form.get('btndelete'):
                 for i in request.form.keys():
                     if request.form.get(i) == 'on':
@@ -441,8 +442,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             check=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
+            text=True,
         )
-        wifi_raw = process1.stdout.decode().split(sep='\n')[1:-1]
+        wifi_raw = process1.stdout.split(sep='\n')[1:-1]
         wifi_list = [element.split(sep='\t') for element in wifi_raw]
         return render_template('wifi.html', apiserver=ApiServer, wifi_list=wifi_list)
 
@@ -627,8 +629,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 check=False,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
+                text=True,
             )
-            log_out = process.stdout.decode()
+            log_out = process.stdout
             if (f := log_out.rfind(log_message)) > 0:
                 log_out = log_out[f + len(log_message) :]
             # create b64 image
@@ -699,18 +702,23 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/vpn/<path:op>')
     def do_vpn(op):
         """install vpn ops (start, stop, status, install, auth, uninstall)"""
-        if op == 'status':
-            os.system(f'{config.src_dir}/../../scripts/tailscale.sh STATUS | tee -a {config.log_dir}/messages.log &')
-        elif op == 'install':
-            os.system(f'{config.src_dir}/../../scripts/tailscale.sh INSTALL | tee -a {config.log_dir}/messages.log &')
-        elif op == 'start':
-            os.system(f'{config.src_dir}/../../scripts/tailscale.sh UP | tee -a {config.log_dir}/messages.log &')
-        elif op == 'stop':
-            os.system(f'{config.src_dir}/../../scripts/tailscale.sh DOWN | tee -a {config.log_dir}/messages.log &')
-        elif op == 'auth':
-            os.system(f'{config.src_dir}/../../scripts/tailscale.sh REAUTH | tee -a {config.log_dir}/messages.log &')
-        elif op == 'uninstall':
-            os.system(f'{config.src_dir}/../../scripts/tailscale.sh UNINSTALL | tee -a {config.log_dir}/messages.log &')
+        ops = {
+            'status': 'STATUS',
+            'install': 'INSTALL',
+            'start': 'UP',
+            'stop': 'DOWN',
+            'auth': 'REAUTH',
+            'uninstall': 'UNINSTALL',
+        }
+        if op in ops.keys():
+            process1 = subprocess.run(
+                [f'{config.src_dir}/../../scripts/tailscale.sh', ops[op]],
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            logging.info(f'\n{process1.stdout}')
         else:
             logging.warning('invalid operation for vpn')
         ApiServer.tailscale = os.path.isfile('/usr/bin/tailscale')
@@ -795,20 +803,26 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         log.setLevel(logging.ERROR)
         ApiServer.simulator = simulator
         ApiServer.tailscale = os.path.isfile('/usr/bin/tailscale')
-        version_dirty = subprocess.run(['git', 'diff', '--stat'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        version_dirty = subprocess.run(
+            ['git', 'diff', '--stat'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+        )
         version_flag: str = '\u2757' if len(version_dirty.stdout) > 0 else ''
         version_info = subprocess.run(
-            ['git', 'describe', '--tags'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            ['git', 'describe', '--tags'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
         )
         if version_info.returncode > 0:
             version_info = subprocess.run(
-                ['git', 'rev-parse', 'HEAD'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                ['git', 'rev-parse', 'HEAD'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
             )
         branch_info = subprocess.run(
-            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
         )
-        branch = '' if 'main' == branch_info.stdout.decode().strip() else f'({branch_info.stdout.decode().strip()})'
-        ApiServer.scrabscrap_version = f'{branch} {version_flag}{version_info.stdout.decode()[:14]}'
+        branch = '' if 'main' == branch_info.stdout.strip() else f'({branch_info.stdout.strip()})'
+        ApiServer.scrabscrap_version = f'{branch} {version_flag}{version_info.stdout[:14]}'
         logging.info(f'ScrabScrap Version: {ApiServer.scrabscrap_version}')
         if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
             ApiServer.local_webapp = True
