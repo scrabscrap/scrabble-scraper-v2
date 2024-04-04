@@ -9,17 +9,18 @@
                     <div class="card-header bg-info">
                         <div class="row">
                             <div class="col">
-                                log
+                                Log output
                             </div>
                             <div class="col-2">
-                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                <button type="button" class="btn btn-outline-primary btn-sm float-end"
                                     onclick="location.href='/logs'"><i class="bi-arrow-repeat"></i> Reload</button>
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
                         <div style="font-family: monospace; display: flex; flex-direction: column-reverse; 
-                            max-height: 500px; overflow: auto;font-size: 50%; white-space: pre-wrap;" id="logentry">
+                            max-height: calc(96vh - 130px); overflow: auto;font-size: 50%; white-space: pre-wrap;"
+                            id="logentry">
                         </div>
                     </div>
                 </div>

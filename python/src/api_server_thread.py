@@ -79,8 +79,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def awb(awb):
         """set white balance for cam"""
         if ApiServer.machine in ('aarch64'):
-            ApiServer.last_msg = 'awb settings not supported with Picamera2'
-            logging.info(ApiServer.last_msg)
+            logging.warning('awb settings not supported with Picamera2')
         elif awb in ('auto', 'sunlight', 'cloudy', 'shade', 'tungsten', 'incandescent', 'horizon', 'flash'):
             camera.cam.camera.awb_mode = awb
             logging.info(f'awb: {awb}')
@@ -102,19 +101,19 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     and (player2 := request.form.get('player2'))
                     and (player1.casefold() != player2.casefold())
                 ):
-                    ApiServer.last_msg = f'set player1={player1} / player2={player2}'
+                    logging.info(f'set {player1=} / {player2=}')
                     State.do_new_player_names(player1, player2)
                 else:
-                    ApiServer.last_msg = f'can not set: {request.form.get("player1")}/{request.form.get("player2")}'
+                    logging.warning(f'can not set: {request.form.get("player1")}/{request.form.get("player2")}')
             elif request.form.get('btntournament'):
                 if (tournament := request.form.get('tournament')) is not None and (tournament != config.tournament):
                     if 'scrabble' not in config.config.sections():
                         config.config.add_section('scrabble')
                     config.config.set('scrabble', 'tournament', str(tournament))
                     config.save()
-                    ApiServer.last_msg = f'set tournament={tournament}'
+                    logging.info(f'set {tournament=}')
                 else:
-                    ApiServer.last_msg = f'can not set: tournament={tournament}'
+                    logging.warning(f'can not set: {tournament=}')
             return redirect('/index')
         (player1, player2) = State.game.nicknames
         tournament = config.tournament
@@ -136,8 +135,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 config.save()
             elif request.form.get('btnrestart'):
                 if ApiServer.machine in ('aarch64'):
-                    ApiServer.last_msg = 'camera restart not supported with Picamera2'
-                    logging.info(ApiServer.last_msg)
+                    logging.warning('camera restart not supported with Picamera2')
                 else:
                     camera.switch_camera('')
             return redirect('/cam')
@@ -180,7 +178,6 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             png_output = ''
             png_overlay = ''
             warp_coord = ''
-        ApiServer.last_msg = ''
         return render_template(
             'cam.html',
             apiserver=ApiServer,
@@ -220,7 +217,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     config.config.set('development', 'recording', str(recording))
                     config.save()
             except IOError as oops:
-                ApiServer.last_msg = f'I/O error({oops.errno}): {oops.strerror}'
+                logging.error(f'I/O error({oops.errno}): {oops.strerror}')
                 return redirect('/index')
             return redirect('/loglevel')
         # fall through: request.method == 'GET':
@@ -233,70 +230,60 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/logs')
     def route_logs():
         """display message log"""
-        log_out = '## loading log ##'
-        return render_template('logs.html', apiserver=ApiServer, log=log_out)
+        return render_template('logs.html', apiserver=ApiServer)
 
     @staticmethod
     @app.route('/moves', methods=['GET', 'POST'])
     def route_moves():  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
         """edit moves form"""
 
-        def get_coord(_coord) -> str:
+        def get_coord(_coord, is_vertical=False) -> str:
             (_col, _row) = _coord
-            return chr(ord('A') + _row) + str(_col + 1)
+            return str(_col + 1) + chr(ord('A') + _row) if is_vertical else chr(ord('A') + _row) + str(_col + 1)
 
         ApiServer._clear_message()
         game = State.game
+        move_number = request.form.get('move.move', type=int)
         if request.method == 'POST':  # pylint: disable=too-many-nested-blocks
-            if request.form.get('btnplayer'):
-                if (
-                    (player1 := request.form.get('player1'))
-                    and (player2 := request.form.get('player2'))
-                    and (player1.casefold() != player2.casefold())
-                ):
-                    ApiServer.last_msg = f'set player1={player1} / player2={player2}'
-                    State.do_new_player_names(player1, player2)
-                else:
-                    ApiServer.last_msg = f'can not set: {request.form.get("player1")}/{request.form.get("player2")}'
-            elif request.form.get('btnblanko'):
+            if request.form.get('btnblanko'):
                 if (coord := request.form.get('coord')) and (char := request.form.get('char')) and char.isalpha():
                     char = char.lower()
                     ApiServer.last_msg = f'set blanko: {coord} = {char}'
+                    logging.info(ApiServer.last_msg)
                     State.do_set_blankos(coord, char)
                 else:
                     ApiServer.last_msg = 'invalid character for blanko'
-            elif request.form.get('btnscore'):
-                logging.debug('in btnscore')
-                if (
-                    (move_number := request.form.get('move.move', type=int)) is not None
-                    and (score0 := request.form.get('move.score0', type=int)) is not None
-                    and (score1 := request.form.get('move.score1', type=int)) is not None
-                ):
-                    logging.info(f'in values {move_number}: new score {(score0, score1)}')
-                    if 0 < move_number <= len(game.moves) and (game.moves[move_number - 1].score != (score0, score1)):
-                        ApiServer.last_msg = f'update move# {move_number}: new score {(score0, score1)}'
-                        State.do_change_score(move_number, (score0, score1))
-                    else:
-                        ApiServer.last_msg = f'invalid move {move_number} or no changes in score {(score0, score1)}'
+                    logging.warning(ApiServer.last_msg)
             elif request.form.get('btninsmoves'):
                 logging.debug('in btninsmove')
-                if (move_number := request.form.get('move.move', type=int)) is not None:
-                    if 0 < move_number <= len(game.moves):
-                        ApiServer.last_msg = f'insert two exchanges before move# {move_number}'
-                        State.do_insert_moves(move_number)
-                    else:
-                        ApiServer.last_msg = f'invalid move {move_number}'
+                if move_number and (0 < move_number <= len(game.moves)):
+                    ApiServer.last_msg = f'insert two exchanges before move# {move_number}'
+                    logging.info(ApiServer.last_msg)
+                    State.do_insert_moves(move_number)
+                else:
+                    ApiServer.last_msg = f'invalid move {move_number}'
+                    logging.warning(ApiServer.last_msg)
             elif request.form.get('btnmove'):
-                move_number = request.form.get('move.move', type=int) or 0
-                move_type = request.form.get('move.type')
-                coord = request.form.get('move.coord')
-                word = request.form.get('move.word')
-                word = word.upper().replace(' ', '_') if word else ''
-                logging.debug(f'edit move {move_number=} -{move_type=} - {coord=} - {word=}')
-                if 0 < move_number <= len(game.moves):
+                if move_number and (0 < move_number <= len(game.moves)):
+                    score0 = request.form.get('move.score0', type=int)
+                    score1 = request.form.get('move.score1', type=int)
+                    move_type = request.form.get('move.type')
+                    coord = request.form.get('move.coord')
+                    word = request.form.get('move.word')
+                    word = word.upper().replace(' ', '_') if word else ''
+                    logging.debug(f'{score0=} {score1=} {move_type=} {coord=} {word=}')
+
                     move = game.moves[move_number - 1]
+                    # changes on scores
+                    if move.score != (score0, score1):
+                        ApiServer.last_msg = f'update score move# {move_number}: {move.score} => {(score0, score1)}'
+                        logging.info(ApiServer.last_msg)
+                        State.do_change_score(move_number, (score0, score1))
+
+                    # changes on move
                     if (move_type == 'EXCHANGE') and (move.type.name != move_type):
-                        ApiServer.last_msg = f'try to correct move #{move_number} to exchange'
+                        ApiServer.last_msg = f'edit move #{move_number}: {move.type.name} => {move_type}'
+                        logging.info(ApiServer.last_msg)
                         State.do_edit_move(int(move_number), (0, 0), True, '')
                     else:
                         vert, col, row = move.calc_coord(coord)  # type: ignore
@@ -307,12 +294,17 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                             or (move.is_vertical != vert)
                         ):
                             if re.compile('[A-ZÜÄÖ_\\.]+').match(word):
-                                ApiServer.last_msg = f'try to correct move #{move_number} to {coord} {word}'
+                                ApiServer.last_msg = (
+                                    f'edit move #{move_number} {get_coord(move.coord, move.is_vertical)} '
+                                    f'{move.word} => {coord} {word}'
+                                )
+                                logging.info(ApiServer.last_msg)
                                 State.do_edit_move(int(move_number), (col, row), vert, word)
                             else:
                                 ApiServer.last_msg = f'invalid character in word {word}'
-                        else:
-                            ApiServer.last_msg = ' no changes detected'
+                                logging.info(ApiServer.last_msg)
+                else:
+                    logging.warning(f'invalid move number {move_number}')
             return redirect('/moves')
         # fall through: request.method == 'GET':
         (player1, player2) = game.nicknames
@@ -330,7 +322,6 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def do_end_game():
         """end current game"""
         State.do_end_of_game()
-        ApiServer.last_msg = 'end game'
         return redirect('/index')
 
     @staticmethod
@@ -340,7 +331,6 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         if State.current_state not in (EOG, START):
             State.do_end_of_game()
         State.do_new_game()
-        ApiServer.last_msg = 'start new game'
         return redirect('/index')
 
     @staticmethod
@@ -362,9 +352,11 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                             config.config.add_section(section)
                         config.config.set(section, option, str(value))
                         ApiServer.last_msg = f'set option {section}.{option}={value}'
+                        logging.info(ApiServer.last_msg)
                     else:
                         config.config.remove_option(section, option)
                         ApiServer.last_msg = f'delete {section}.{option}'
+                        logging.info(ApiServer.last_msg)
                     config.save()
                     if option in ('upload_modus'):  # reload upload configuratio
                         upload.update_upload_mode()
@@ -381,7 +373,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 if password is not None:
                     upload_config.password = password
                 upload_config.store()
-                ApiServer.last_msg = 'upload config saved'
+                ApiServer.last_msg = f'upload config saved {server=} {user=}'
+                logging.info(ApiServer.last_msg)
         # fall through: request.method == 'GET':
         out = StringIO()
         config.config.write(out)
@@ -463,12 +456,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         file_list = glob.glob(f'{config.log_dir}/*')
         file_list = [f for f in file_list if f not in ignore_list]
         # Iterate over the list of filepaths & remove each file.
-        ApiServer.last_msg = 'delete logs'
+        logging.info('delete logs')
         for file_path in file_list:
             try:
                 os.remove(file_path)
             except OSError:
-                ApiServer.last_msg += f'\nerror: {file_path}'
+                logging.error(f'error: {file_path}')
         for filename in ignore_list:
             with open(filename, 'w', encoding='UTF-8'):
                 pass  # empty log file
@@ -485,12 +478,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         file_list = glob.glob(f'{config.work_dir}/recording/*')
         file_list = [f for f in file_list if f not in ignore_list]
         # Iterate over the list of filepaths & remove each file.
-        ApiServer.last_msg = 'delete recording'
+        logging.info('delete recording')
         for file_path in file_list:
             try:
                 os.remove(file_path)
             except OSError:
-                ApiServer.last_msg += f'\nerror: {file_path}'
+                logging.error(f'error: {file_path}')
         with open(f'{config.work_dir}/recording/gameRecording.log', 'w', encoding='UTF-8'):
             pass  # empty log file
         return redirect(url_for('route_index'))
@@ -527,7 +520,6 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             for filename in files:
                 if os.path.exists(f'{config.log_dir}/{filename}'):
                     _zip.write(f'{config.log_dir}/{filename}')
-        ApiServer.last_msg = ''
         return send_from_directory(f'{config.log_dir}', 'log.zip', as_attachment=True)
 
     @staticmethod
@@ -543,40 +535,36 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             file_list = [f for f in file_list if f not in ignore_list]
             for filename in file_list:
                 _zip.write(f'{filename}')
-        ApiServer.last_msg = ''
         return send_from_directory(f'{config.work_dir}/recording', 'recording.zip', as_attachment=True)
 
     @staticmethod
     @app.route('/end', methods=['POST', 'GET'])
     def do_end():
         """end app"""
-        ApiServer.last_msg = '**** Exit application ****'
-        logging.info(ApiServer.last_msg)
+        logging.info('**** Exit application ****')
         config.config.set('system', 'quit', 'end')  # set temporary end app
         alarm(1)
-        return redirect(url_for('route_logs'))
+        return redirect(url_for('route_index'))
 
     @staticmethod
     @app.route('/reboot', methods=['POST', 'GET'])
     def do_reboot():
         """process reboot"""
-        ApiServer.last_msg = '**** System reboot ****'
-        logging.info(ApiServer.last_msg)
+        logging.info('**** System reboot ****')
         config.config.set('system', 'quit', 'reboot')  # set temporary reboot
         State.do_reboot()
         alarm(2)
-        return redirect(url_for('route_logs'))
+        return redirect(url_for('route_index'))
 
     @staticmethod
     @app.route('/shutdown', methods=['POST', 'GET'])
     def do_shutdown():
         """process reboot"""
-        ApiServer.last_msg = '**** System shutdown ****'
-        logging.info(ApiServer.last_msg)
+        logging.info('**** System shutdown ****')
         config.config.set('system', 'quit', 'shutdown')  # set temporary shutdown
         State.do_reboot()
         alarm(2)
-        return redirect(url_for('route_logs'))
+        return redirect(url_for('route_index'))
 
     @staticmethod
     @app.route('/test_display')
@@ -595,9 +583,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             ScrabbleWatch.display.show_ready()
             sleep(0.5)
             ApiServer.flask_shutdown_blocked = False
-            ApiServer.last_msg = 'display_test ended'
+            logging.info('>>> display_test ended')
         else:
-            ApiServer.last_msg = 'not in State START'
+            logging.warning('>>> not in State START')
         return redirect(url_for('route_index'))
 
     @staticmethod
@@ -635,7 +623,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             logging.info(f'\n{board_to_string(board)}')
             # find log
             process = subprocess.run(
-                ['tail', '-200', f'{config.log_dir}/messages.log'],
+                ['tail', '-300', f'{config.log_dir}/messages.log'],
                 check=False,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -648,9 +636,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             png_overlay = base64.b64encode(bytes(im_buf_arr))
 
             ApiServer.flask_shutdown_blocked = False
-            ApiServer.last_msg = log_out
             return render_template('analyze.html', apiserver=ApiServer, log=log_out, img_data=urllib.parse.quote(png_overlay))
-        ApiServer.last_msg = 'not in State START, EOG, P0, P1'
+        logging.warning('not in State START, EOG, P0, P1')
         return redirect(url_for('route_index'))
 
     @staticmethod
@@ -658,20 +645,21 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def do_test_upload():
         """is ftp accessible"""
 
-        ApiServer.last_msg = 'test upload config entries\n'
+        logging.info('test upload config entries')
         if upload_config.server is None:
-            ApiServer.last_msg += 'no server entry found\n'
+            logging.info('  no server entry found')
         if upload_config.user in (None, ''):
-            ApiServer.last_msg += 'no user entry found\n'
+            logging.info('  no user entry found')
         if upload_config.password in (None, ''):
-            ApiServer.last_msg += 'no password entry found\n'
+            logging.info('  no password entry found')
 
         try:
-            result = upload.upload.upload_status()
-            ApiServer.last_msg += 'upload success' if result else 'upload = False'
+            if upload.upload.upload_status():
+                logging.info('upload success')
+            else:
+                logging.warning('upload = False')
         except IOError as oops:
             logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
-            ApiServer.last_msg += f'http: I/O error({oops.errno}): {oops.strerror}'
         return redirect(url_for('route_index'))
 
     @staticmethod
@@ -701,9 +689,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             sleep(1)
             LED.switch_on({})  # type: ignore
             ApiServer.flask_shutdown_blocked = False
-            ApiServer.last_msg = 'led_test ended'
+            logging.info('led_test ended')
         else:
-            ApiServer.last_msg = 'not in State START'
+            logging.info('not in State START')
         return redirect(url_for('route_index'))
 
     @staticmethod
@@ -726,7 +714,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         else:
             logging.warning('invalid operation for vpn')
         ApiServer.tailscale = os.path.isfile('/usr/bin/tailscale')
-        return redirect(url_for('route_logs'))
+        return redirect(url_for('route_index'))
 
     @staticmethod
     @app.route('/upgrade_scrabscrap')
@@ -741,8 +729,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} |'
                 f' tee -a {config.log_dir}/messages.log &'
             )
-            return redirect(url_for('route_logs'))
-        ApiServer.last_msg = 'not in State START'
+            return redirect(url_for('route_index'))
+        logging.warning('not in State START')
         return redirect(url_for('route_index'))
 
     @sock.route('/ws_log')
@@ -750,7 +738,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """websocket for logging"""
         f = open(f'{config.log_dir}/messages.log', 'r', encoding='utf-8')  # pylint: disable=consider-using-with
         # with will close at eof
-        tmp = '\n' + ''.join(f.readlines()[-200:])  # first read last 200 lines
+        tmp = '\n' + ''.join(f.readlines()[-300:])  # first read last 300 lines
         sock.send(tmp)  # type: ignore  # pylint: disable=no-member
         while True:
             tmp = f.readline()

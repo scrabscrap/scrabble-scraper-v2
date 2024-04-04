@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
 
-    <div class="row">
+    <div class="row py-2">
 
         <div class="col-6">
             <div class="card">
@@ -44,29 +44,42 @@
                                     <i class="bi-save"></i>
                                 </button>
                             </div>
-                            <div class="col-12">
-                                <p>
-                                <ul>
-                                    <li>Hint: On the OLED display, the names could be shortened to 5 characters
-                                    </li>
-                                </ul>
-                                </p>
-                            </div>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
         <div class="col-12">
-            <div class="py-2">
-                <div class="card">
-                    <div class="card-header bg-info">Messages</div>
-                    <div class="card-body">
-                        <div style="font-family: monospace;white-space: pre-wrap;">{{apiserver.last_msg}}</div>
+            <div class="card">
+                <div class="card-header bg-info">Log output</div>
+                <div class="card-body">
+                    <div style="font-family: monospace; display: flex; flex-direction: column-reverse; 
+                            max-height: calc(96vh - 235px); overflow: auto;font-size: 50%; white-space: pre-wrap;"
+                        id="logentry">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    const log = (text) => {
+        let contents = document.getElementById('logentry').innerHTML;
+        document.getElementById('logentry').innerHTML = contents + text;
+    };
+
+    const socket = new WebSocket('ws://' + location.host + '/ws_log');
+    socket.addEventListener('message', ev => { log(ev.data); });
+    socket.addEventListener("close", (event) => {
+        // reload on server reboot
+        setTimeout(function () { location.reload(); }, 45 * 1000);
+    });
+    socket.addEventListener("error", (event) => {
+        socket.close()
+    });
+</script>
+
 {% endblock %}

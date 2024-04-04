@@ -32,13 +32,17 @@
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li><a class="dropdown-item" href="/moves"><i class="bi-pencil"></i> Edit Moves</a></li>
               <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/end_game"><i class="bi-stop-circle"></i> End Game</a></li>
-              <li><a class="dropdown-item" href="/new_game"><i class="bi-play-circle"></i> Start new Game</a></li>
+              <li><a class="dropdown-item" href="/end_game"><i class="bi-sign-stop"></i> End Game</a></li>
+              <li><a class="dropdown-item" href="/new_game"><i class="bi-play-btn"></i> Start new Game</a></li>
             </ul>
           </li>
 
-          <li class="nav-item">
-            <a class="nav-link" href="/cam"><i class="bi-webcam"></i> Camera</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false"><i class="bi-webcam"></i> Camera</a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="/cam"><i class="bi-aspect-ratio"></i> Configure warp</a></li>
+            </ul>
           </li>
 
           <li class="nav-item dropdown">
@@ -47,7 +51,7 @@
               <i class="bi-gear-fill"></i> Settings
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/settings"><i class="bi-gear-fill"></i> Settings</a></li>
+              <li><a class="dropdown-item" href="/settings"><i class="bi-gear"></i> Settings</a></li>
               <div class="dropdown-divider"></div>
               <li><a class="dropdown-item" href="/wifi"><i class="bi-wifi"></i> Wifi</a></li>
               <div class="dropdown-divider"></div>
@@ -81,9 +85,9 @@
               <i class="bi-file-earmark-text"></i> Logs
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/logs"><i class="bi-eyeglasses"></i> Show Logs</a></li>
+              <li><a class="dropdown-item" href="/logs"><i class="bi-search"></i> Log output</a></li>
               <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/loglevel"><i class="bi-gear-fill"></i> Settings</a></li>
+              <li><a class="dropdown-item" href="/loglevel"><i class="bi-gear"></i> Settings</a></li>
               <div class="dropdown-divider"></div>
               <li><a class="dropdown-item" href="/download_logs"><i class="bi-download"></i> Download Logs</a></li>
               <li><a class="dropdown-item" href="/download_recording"><i class="bi-download"></i> Download
