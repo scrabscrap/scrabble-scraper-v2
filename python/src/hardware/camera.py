@@ -197,6 +197,7 @@ elif importlib.util.find_spec('picamera2'):
             self.wait = round(1 / self.framerate, 2)  # type: ignore
             sleep(2)  # warmup camera
             self.frame = self.camera.capture_array()
+            logging.info(f'config: {self.camera.camera_configuration()}')
             atexit.register(self._atexit)
 
         def _atexit(self) -> None:
