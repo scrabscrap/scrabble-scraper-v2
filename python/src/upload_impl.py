@@ -43,7 +43,7 @@ class Upload(Protocol):
         """cleanup uploaded files"""
 
 
-class UploadHttp(Upload):
+class UploadHttp(Upload):  # pragma: no cover
     """http implementation"""
 
     def upload(self, data: dict, files: Optional[dict] = None) -> bool:
@@ -99,7 +99,7 @@ class UploadHttp(Upload):
         return self.upload(data={'delete': 'true'})
 
 
-class UploadFtp(Upload):
+class UploadFtp(Upload):  # pragma: no cover
     """ftp implementation"""
 
     def upload(self, files: dict) -> bool:

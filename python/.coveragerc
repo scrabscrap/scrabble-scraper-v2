@@ -4,30 +4,24 @@ source =
 	src
 
 omit =
-	# display info at app loading
-	*/boot.py
 	# requiresm special hardware
 	*/hardware/oled.py
-	# requires special hardware
-	*/hardware/camera_rpi.py
+	*/hardware/fake_picamera.py
+	*/hardware/camera.py
 	# dispatcher for flask web app
 	*/api_server_thread.py
 	# starter of main application
 	*/scrabscrap.py
-	# currently not used
-	*/hardware/camera_opencv.py
-	# only online
-	*/ftp.py
-	*/upload_config.py
-	*/upload_ftp.py
-	*/upload_http.py
-	*/upload.py
 
 [report]
 exclude_lines =
     pragma: no cover
     if __name__ == .__main__.:
     @(abc\.)?abstractmethod
-    # logging.debug
+    @(abc\.)?main
+    logging.debug
+    logging.info
+    logging.warning
+    logging.error
     assert
     pass

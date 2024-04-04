@@ -72,7 +72,7 @@ def trace(func: Callable[..., Any]) -> Callable[..., Any]:
     return do_trace
 
 
-def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type: ignore
+def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type: ignore # pragma: no cover
     """Rotate logs.
 
     Args:
