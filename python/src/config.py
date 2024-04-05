@@ -27,6 +27,29 @@ from typing import Optional
 class Config:  # pylint: disable=too-many-public-methods
     """access to application configuration"""
 
+    defaults = {
+        'development.recording': False,
+        'scrabble.tournament': 'SCRABBLE SCRAPER',
+        'scrabble.malus_doubt': 10,
+        'scrabble.max_time': 1800,
+        'scrabble.min_time': -300,
+        'scrabble.doubt_timeout': 20,
+        'scrabble.verify_moves': 3,
+        'scrabble.show_score': False,
+        'output.upload_server': False,
+        'output.upload_modus': 'http',
+        'video.warp': True,
+        'video.width': 928,
+        'video.height': 912,
+        'video.fps': 30,
+        'video.rotate': False,
+        'board.layout': 'custom2012',
+        'board.tiles_threshold': 1000,
+        'system.quit': 'shutdown',
+        'system.gitbranch': 'main',
+        'tiles.language': 'de',
+    }
+
     def __init__(self, ini_file=None) -> None:
         self.config = configparser.ConfigParser()
         self.ini_path: str = ini_file if ini_file is not None else f'{self.work_dir}/scrabble.ini'

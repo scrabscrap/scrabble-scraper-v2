@@ -26,7 +26,6 @@ import platform
 import re
 import subprocess
 import urllib.parse
-from io import StringIO
 from signal import alarm
 from time import perf_counter, sleep
 
@@ -337,51 +336,63 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/settings', methods=['GET', 'POST'])
     def route_settings():
         """display settings on web page"""
-        ApiServer._clear_message()
-        if request.method == 'POST' and request.form.get('btnset'):
-            try:
-                if path := request.form.get('setting'):
-                    value = request.form.get('value')
-                    section, option = str(path).split('.', maxsplit=2)
-                    if value is not None and value != '':
-                        if value.lower() == 'true':
-                            value = 'True'
-                        if value.lower() == 'false':
-                            value = 'False'
-                        if section not in config.config.sections():
-                            config.config.add_section(section)
-                        config.config.set(section, option, str(value))
-                        ApiServer.last_msg = f'set option {section}.{option}={value}'
-                        logging.info(ApiServer.last_msg)
-                    else:
-                        config.config.remove_option(section, option)
-                        ApiServer.last_msg = f'delete {section}.{option}'
-                        logging.info(ApiServer.last_msg)
-                    config.save()
-                    if option in ('upload_modus'):  # reload upload configuratio
-                        upload.update_upload_mode()
-                        upload_config.reload()
-            except ValueError:
-                logging.error(f'Error on settings: {request.form.items()}')
-                ApiServer.last_msg = 'error: Value error in Parameter'
-            return redirect('/settings')
-        if request.method == 'POST' and request.form.get('btnupload'):
-            password = request.form.get('password')
-            if (server := request.form.get('server')) and (user := request.form.get('user')):
-                upload_config.server = server
-                upload_config.user = user
-                if password is not None:
-                    upload_config.password = password
+
+        def config_dict() -> dict:
+            result = {}
+            for each_key, each_val in config.defaults.items():
+                result[each_key] = str(each_val)
+            for each_section in config.config.sections():
+                for each_key, each_val in config.config.items(each_section):
+                    if each_key not in ('defaults') and each_section not in ('path', 'de', 'en', 'fr'):
+                        result[f'{each_section}.{each_key}'] = str(each_val)
+            return result
+
+        save_message = ''
+        current_config = config_dict()
+        if request.method == 'POST' and request.form.get('btnsave'):
+            dirty = False
+            for key, cval in current_config.items():
+                section, option = key.split('.')
+                if cval in ('True', 'False'):
+                    nval = str(key in request.form.keys())
+                else:
+                    nval = request.form.get(key) if key in request.form.keys() else ''
+                if nval and cval != nval:
+                    dirty = True
+                    config.config.set(section, option, str(nval))
+                    logging.debug(f'>>> set {key}: {cval} => {nval}')
+            if dirty:
+                config.save()
+                current_config = config_dict()
+                save_message = 'settings saved'
+
+            dirty = False
+            nval = request.form.get('server') if 'server' in request.form.keys() else ''
+            if nval and nval != upload_config.server:
+                dirty = True
+                upload_config.server = nval
+                logging.debug(f'server = {nval}')
+            nval = request.form.get('user') if 'user' in request.form.keys() else ''
+            if nval and nval != upload_config.user:
+                dirty = True
+                upload_config.user = nval
+                logging.debug(f'user = {nval}')
+            nval = request.form.get('password') if 'password' in request.form.keys() else ''
+            if nval and nval != upload_config.password:
+                dirty = True
+                upload_config.password = nval
+                logging.debug('password changed')
+            if dirty:
                 upload_config.store()
-                ApiServer.last_msg = f'upload config saved {server=} {user=}'
-                logging.info(ApiServer.last_msg)
-        # fall through: request.method == 'GET':
-        out = StringIO()
-        config.config.write(out)
+                save_message = 'settings saved'
+            if save_message:
+                logging.debug('saved settings')
+
         return render_template(
             'settings.html',
             apiserver=ApiServer,
-            settingsinfo=out.getvalue(),
+            save_message=save_message,
+            cfg=current_config,
             server=upload_config.server,
             user=upload_config.user,
         )
@@ -710,7 +721,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             'auth': 'REAUTH',
             'uninstall': 'UNINSTALL',
         }
-        if op in ops.keys():
+        if op in ops.keys():  # pylint: disable=consider-iterating-dictionary
             process1 = subprocess.run(
                 [f'{config.src_dir}/../../scripts/tailscale.sh', ops[op]],
                 check=False,
