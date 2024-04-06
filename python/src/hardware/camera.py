@@ -64,11 +64,10 @@ if importlib.util.find_spec('picamera'):
             if (self.resolution[1] % 16) != 0:
                 self.resolution = (int(self.resolution[0]), int(((self.resolution[1] // 16) + 1) * 16))
             self.framerate = framerate if framerate else config.video_fps
-            self.frame = np.empty((self.resolution[0] * self.resolution[1] * 3,), dtype=np.uint8)
-            self.lastframe = np.array([])
+            self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
             self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
-            self.camera.image_denoise = False
-            self.camera.meter_mode = 'matrix'
+            self.wait = round(1 / self.framerate, 2)  # type: ignore
+            self.event: Optional[Event] = None
             logging.info(f'open camera: {self.camera.resolution=} {self.camera.framerate=} {self.camera.sensor_mode=}')
             if config.video_rotate:
                 self.camera.rotation = 180
@@ -79,6 +78,8 @@ if importlib.util.find_spec('picamera'):
             logging.info(f'{self.camera.iso=} / {self.camera.exposure_compensation=} / {self.camera.exposure_mode=}')
             logging.info(f'{self.camera.contrast=} / {self.camera.brightness=} / {self.camera.saturation=}')
             logging.info(f'{self.camera.drc_strength=} / {self.camera.awb_mode=} / {self.camera.awb_gains=}')
+            self.camera.capture(self.frame, 'bgr')  # capture first image
+            self.frame = self.frame.reshape((self.resolution[1], self.resolution[0], 3))
             atexit.register(self._atexit)  # cleanup on exit
 
         def _atexit(self) -> None:
@@ -86,23 +87,29 @@ if importlib.util.find_spec('picamera'):
             atexit.unregister(self._atexit)
             if self.camera:
                 self.camera.close()
-            sleep(0.5)
-            self.frame = np.array([])
+            self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
 
         @runtime_measure
         def read(self, peek: bool = False) -> TImage:
-            if np.array_equal(self.lastframe, self.frame):
-                logging.warning('image is equal to previous image')
-            self.lastframe = self.frame.copy()
-            self.camera.capture(self.frame, 'bgr')
-            self.frame = self.frame.reshape((self.resolution[1], self.resolution[0], 3))
             return self.frame
 
         def update(self, event: Event) -> None:
-            pass
+            self.event = event
+            while True:
+                self.camera.capture(self.frame, 'bgr')
+                self.frame = self.frame.reshape((self.resolution[1], self.resolution[0], 3))
+                if event.is_set():
+                    break
+                sleep(self.wait)
+            event.clear()
+            self._atexit()
 
         def cancel(self) -> None:
-            self._atexit()
+            if self.event:
+                self.event.set()
+                sleep(2 * self.wait)
+            else:
+                self._atexit()
 
     class CameraRPI(Camera):  # pylint: disable=too-many-instance-attributes
         """uses RPI camera with continuous_capture"""
@@ -110,8 +117,7 @@ if importlib.util.find_spec('picamera'):
         def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
             self.resolution = resolution if resolution else (config.video_width, config.video_height)
             self.framerate = framerate if framerate else config.video_fps
-            self.frame = np.array([])
-            self.lastframe = np.array([])
+            self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
             self.event: Optional[Event] = None
             self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
             if config.video_rotate:
@@ -135,13 +141,10 @@ if importlib.util.find_spec('picamera'):
                 self.stream.close()
             if self.camera:
                 self.camera.close()
-            self.frame = np.array([])
+            self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
 
         @runtime_measure
         def read(self, peek: bool = False) -> TImage:
-            # if np.array_equal(self.lastframe, self.frame):
-            #     logging.warning('image is equal to previous image')
-            self.lastframe = self.frame
             return self.frame
 
         def update(self, event: Event) -> None:
@@ -185,8 +188,7 @@ elif importlib.util.find_spec('picamera2'):
             logging.info('### init PiCamera 64')
             self.resolution = resolution if resolution else (config.video_width, config.video_height)
             self.framerate = framerate if framerate else config.video_fps
-            self.frame = np.array([])
-            self.lastframe = np.array([])
+            self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
             self.event: Optional[Event] = None
             self.camera = Picamera2()
             cfg = self.camera.create_still_configuration(main={'format': 'XRGB8888', 'size': self.resolution})
@@ -247,7 +249,7 @@ class CameraFile(Camera):
         self._counter = 1
         self._formatter = config.simulate_path
         self._resize = True
-        self.last_img = np.array([])
+        self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
 
     @property
     def resize(self) -> bool:
@@ -372,8 +374,8 @@ def switch_camera(camera: str) -> Camera:
         cam.cancel()
 
     if clazz.__name__ != 'CameraFile':
-        cam = clazz()
         sleep(1)
+        cam = clazz()
         pool.submit(cam.update, event=Event())  # start cam
 
     return cam
