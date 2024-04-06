@@ -49,6 +49,9 @@ class Camera(Protocol):
     def cancel(self) -> None:
         """end of video thread"""
 
+    def log_camera_info(self) -> None:
+        """log camera infos with level=info"""
+
 
 if importlib.util.find_spec('picamera'):
     import subprocess
@@ -60,6 +63,7 @@ if importlib.util.find_spec('picamera'):
         """uses RPI camera no continuous_capture"""
 
         def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
+            logging.info('### init CameraRPIStill')
             self.resolution = resolution if resolution else (config.video_width, config.video_height)
             if (self.resolution[1] % 16) != 0:
                 self.resolution = (int(self.resolution[0]), int(((self.resolution[1] // 16) + 1) * 16))
@@ -68,19 +72,23 @@ if importlib.util.find_spec('picamera'):
             self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
             self.wait = round(1 / self.framerate, 2)  # type: ignore
             self.event: Optional[Event] = None
-            logging.info(f'open camera: {self.camera.resolution=} {self.camera.framerate=} {self.camera.sensor_mode=}')
+            logging.info(f'open CameraRPIStill: {self.camera.resolution=} {self.camera.framerate=} {self.camera.sensor_mode=}')
             if config.video_rotate:
                 self.camera.rotation = 180
             sleep(2)
             while self.camera.analog_gain < 0:
                 sleep(0.1)
-            logging.info(f'config: {self.camera.image_denoise=} / {self.camera.meter_mode=} / {self.camera.rotation=}')
-            logging.info(f'{self.camera.iso=} / {self.camera.exposure_compensation=} / {self.camera.exposure_mode=}')
-            logging.info(f'{self.camera.contrast=} / {self.camera.brightness=} / {self.camera.saturation=}')
-            logging.info(f'{self.camera.drc_strength=} / {self.camera.awb_mode=} / {self.camera.awb_gains=}')
             self.camera.capture(self.frame, 'bgr')  # capture first image
             self.frame = self.frame.reshape((self.resolution[1], self.resolution[0], 3))
             atexit.register(self._atexit)  # cleanup on exit
+
+        def log_camera_info(self) -> None:
+            logging.info('using camera CameraRPIStill')
+            logging.info(f'{self.camera.resolution=} {self.camera.framerate=} {self.camera.sensor_mode=}')
+            logging.info(f'{self.camera.image_denoise=} {self.camera.meter_mode=} {self.camera.rotation=}')
+            logging.info(f'{self.camera.iso=} {self.camera.exposure_compensation=} {self.camera.exposure_mode=}')
+            logging.info(f'{self.camera.contrast=} {self.camera.brightness=} {self.camera.saturation=}')
+            logging.info(f'{self.camera.drc_strength=} {self.camera.awb_mode=} {self.camera.awb_gains=}')
 
         def _atexit(self) -> None:
             logging.info('close camera')
@@ -115,11 +123,13 @@ if importlib.util.find_spec('picamera'):
         """uses RPI camera with continuous_capture"""
 
         def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
+            logging.info('### init CameraRPI')
             self.resolution = resolution if resolution else (config.video_width, config.video_height)
             self.framerate = framerate if framerate else config.video_fps
             self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
             self.event: Optional[Event] = None
             self.camera = PiCamera(sensor_mode=4, resolution=self.resolution, framerate=self.framerate)
+            logging.info(f'open CameraRPI: {self.camera.resolution=} {self.camera.framerate=} {self.camera.sensor_mode=}')
             if config.video_rotate:
                 self.camera.rotation = 180
             self.wait = round(1 / self.framerate, 2)  # type: ignore
@@ -128,11 +138,15 @@ if importlib.util.find_spec('picamera'):
             while self.camera.analog_gain < 0:
                 sleep(0.1)
             self.stream = self.camera.capture_continuous(self.raw_capture, format='bgr', use_video_port=True)
-            logging.info(f'config: {self.camera.image_denoise=} / {self.camera.meter_mode=} / {self.camera.rotation=}')
-            logging.info(f'{self.camera.iso=} / {self.camera.exposure_compensation=} / {self.camera.exposure_mode=}')
-            logging.info(f'{self.camera.contrast=} / {self.camera.brightness=} / {self.camera.saturation=}')
-            logging.info(f'{self.camera.drc_strength=} / {self.camera.awb_mode=} / {self.camera.awb_gains=}')
             atexit.register(self._atexit)  # cleanup on exit
+
+        def log_camera_info(self) -> None:
+            logging.info('using camera CameraRPI')
+            logging.info(f'o{self.camera.resolution=} {self.camera.framerate=} {self.camera.sensor_mode=}')
+            logging.info(f'{self.camera.image_denoise=} {self.camera.meter_mode=} {self.camera.rotation=}')
+            logging.info(f'{self.camera.iso=} {self.camera.exposure_compensation=} {self.camera.exposure_mode=}')
+            logging.info(f'{self.camera.contrast=} {self.camera.brightness=} {self.camera.saturation=}')
+            logging.info(f'{self.camera.drc_strength=} {self.camera.awb_mode=} {self.camera.awb_gains=}')
 
         def _atexit(self) -> None:
             logging.info('close camera')
@@ -185,12 +199,13 @@ elif importlib.util.find_spec('picamera2'):
 
         def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
             """init/config cam"""
-            logging.info('### init PiCamera 64')
+            logging.info('### init CameraRPI64')
             self.resolution = resolution if resolution else (config.video_width, config.video_height)
             self.framerate = framerate if framerate else config.video_fps
             self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
             self.event: Optional[Event] = None
             self.camera = Picamera2()
+            logging.info(f'open CameraRPI64: {self.camera.resolution=} {self.camera.framerate=}')
             cfg = self.camera.create_still_configuration(main={'format': 'XRGB8888', 'size': self.resolution})
             if config.video_rotate:
                 cfg['transform'] = libcamera.Transform(hflip=1, vflip=1)  # self.camera.rotation = 180
@@ -199,8 +214,12 @@ elif importlib.util.find_spec('picamera2'):
             self.wait = round(1 / self.framerate, 2)  # type: ignore
             sleep(2)  # warmup camera
             self.frame = self.camera.capture_array()
-            logging.info(f'config: {self.camera.camera_configuration()}')
             atexit.register(self._atexit)
+
+        def log_camera_info(self) -> None:
+            logging.info('using camera CameraRPI64')
+            logging.info(f'{self.resolution=} {self.framerate=}')
+            logging.info(f'{self.camera.camera_configuration()}')
 
         def _atexit(self) -> None:
             logging.debug('rpi 64: camera close')
@@ -244,12 +263,18 @@ class CameraFile(Camera):
     """Implementation for file access"""
 
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
+        logging.info('### init CameraFile')
         self.resolution = resolution if resolution else (config.video_width, config.video_height)
         self.framerate = framerate if framerate else config.video_fps
         self._counter = 1
         self._formatter = config.simulate_path
         self._resize = True
         self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
+
+    def log_camera_info(self) -> None:
+        logging.info('using camera CameraFile')
+        logging.info(f'{self.resolution=} {self.framerate=}')
+        logging.info(f'{self._counter=} {self._formatter=}')
 
     @property
     def resize(self) -> bool:
@@ -299,6 +324,7 @@ class CameraOpenCV(Camera):
     """camera implementation for OpenCV"""
 
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
+        logging.info('### init CameraOpenCV')
         self.resolution = resolution if resolution else (config.video_width, config.video_height)
         self.framerate = framerate if framerate else config.video_fps
         self.wait = round(1 / self.framerate, 2)  # type: ignore
@@ -314,6 +340,10 @@ class CameraOpenCV(Camera):
         self.event: Optional[Event] = None
         sleep(2)  # warm up camera
         atexit.register(self._atexit)  # cleanup on exit
+
+    def log_camera_info(self) -> None:
+        logging.info('using camera CameraOpenCV')
+        logging.info(f'{self.resolution=} {self.framerate=}')
 
     def _atexit(self) -> None:
         atexit.unregister(self._atexit)
@@ -377,7 +407,7 @@ def switch_camera(camera: str) -> Camera:
         sleep(1)
         cam = clazz()
         pool.submit(cam.update, event=Event())  # start cam
-
+    cam.log_camera_info()
     return cam
 
 
@@ -396,16 +426,23 @@ def main() -> None:
     logging.info(f'>> config {camera_dict}')
     switch_camera('file')
     logging.info(f'cam type: {type(cam)}')
+    cam.log_camera_info()
     sleep(5)
+
     switch_camera('opencv')
     logging.info(f'cam type: {type(cam)}')
+    cam.log_camera_info()
     sleep(5)
+
     switch_camera('')
     logging.info(f'cam type: {type(cam)}')
     sleep(5)
+    cam.log_camera_info()
+
     try:
         switch_camera('picamera')
         logging.info(f'cam type: {type(cam)}')
+        cam.log_camera_info()
         sleep(5)
     except ValueError as oops:
         logging.error(f'{oops}')

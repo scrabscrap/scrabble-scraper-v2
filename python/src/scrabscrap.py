@@ -79,6 +79,7 @@ def main() -> None:
 
     # start camera
     _ = pool.submit(camera.cam.update, Event())
+    camera.cam.log_camera_info()
 
     # create Timer
     ScrabbleWatch.display.show_boot()  # Boot Message
