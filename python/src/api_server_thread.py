@@ -814,27 +814,11 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         log.setLevel(logging.ERROR)
         ApiServer.simulator = simulator
         ApiServer.tailscale = os.path.isfile('/usr/bin/tailscale')
-        version_dirty = subprocess.run(
-            ['git', 'diff', '--stat'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
-        )
-        version_flag: str = '\u2757' if len(version_dirty.stdout) > 0 else ''
-        version_info = subprocess.run(
-            ['git', 'describe', '--tags'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
-        )
-        if version_info.returncode > 0:
-            version_info = subprocess.run(
-                ['git', 'rev-parse', 'HEAD'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
-            )
-        branch_info = subprocess.run(
-            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-        )
-        branch = '' if 'main' == branch_info.stdout.strip() else f'({branch_info.stdout.strip()})'
-        ApiServer.scrabscrap_version = f'{branch} {version_flag}{version_info.stdout[:14]}'
-        logging.info(f'ScrabScrap Version: {ApiServer.scrabscrap_version}')
+
+        version_flag: str = '\u2757' if config.git_dirty else ''
+        branch = '' if 'main' == config.git_branch else config.git_branch
+        ApiServer.scrabscrap_version = f'{branch} {version_flag}{config.git_version}'
+
         if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
             ApiServer.local_webapp = True
         self.app.config['DEBUG'] = False

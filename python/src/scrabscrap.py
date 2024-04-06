@@ -70,6 +70,10 @@ def main() -> None:
     logging.info('## ScrabScrap loading ...                                         ##')
     logging.info('####################################################################')
 
+    logging.info(f'Version: {config.git_version}')
+    logging.info(f'Git branch: {config.git_branch}')
+    logging.info(f'Git commit: {config.git_commit}')
+
     signal.signal(signal.SIGALRM, signal_alarm)
     atexit.register(_cleanup)
 

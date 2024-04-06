@@ -55,6 +55,26 @@ class Config:  # pylint: disable=too-many-public-methods
         self.ini_path: str = ini_file if ini_file is not None else f'{self.work_dir}/scrabble.ini'
         self.reload(ini_file=ini_file, clean=False)
         self.is_testing: bool = False
+        version_info = subprocess.run(
+            ['git', 'rev-parse', '--short', 'HEAD'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+        )
+        self._git_commit = version_info.stdout.strip() if version_info.returncode == 0 else 'n/a'
+        branch_info = subprocess.run(
+            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        self._git_branch = branch_info.stdout.strip() if branch_info.returncode == 0 else 'n/a'
+        version_info = subprocess.run(
+            ['git', 'describe', '--tags', '--dirty', '--abbrev=4', '--always'],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        self._git_version = version_info.stdout.strip() if version_info.returncode == 0 else 'n/a'
 
     def reload(self, ini_file=None, clean=True) -> None:
         """reload configuration from file"""
@@ -74,16 +94,16 @@ class Config:  # pylint: disable=too-many-public-methods
         """save configuration to file"""
         with open(self.ini_path, 'w', encoding='UTF-8') as config_file:
             val = self.config['path']['src_dir']
-            commit = self.git_commit
-            self.config.remove_option('git', 'commit')
+            if self.config.has_section('git'):  # cleanup old configs
+                if self.config.has_option('git', 'commit'):
+                    self.config.remove_option('git', 'commit')
+                self.config.remove_section('git')
             if val == (os.path.dirname(__file__) or '.'):
                 self.config.remove_option('path', 'src_dir')
                 self.config.write(config_file)
                 self.config['path']['src_dir'] = val
-                self.config['git']['commit'] = commit
             else:
                 self.config.write(config_file)
-                self.config['git']['commit'] = commit
 
     @property
     def config_as_dict(self) -> dict:
@@ -266,15 +286,22 @@ class Config:  # pylint: disable=too-many-public-methods
     @property
     def git_commit(self) -> str:
         """git commit hash"""
-        commit = self.config.get('git', 'commit', fallback=None)
-        if commit is None or len(commit) <= 0:
-            self.config['git'] = {}
-            version_info = subprocess.run(
-                ['git', 'rev-parse', '--short', 'HEAD'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-            )
-            commit = version_info.stdout.decode().replace('\n', '')
-            self.config['git']['commit'] = commit
-        return commit
+        return self._git_commit
+
+    @property
+    def git_branch(self) -> str:
+        """git branch"""
+        return self._git_branch
+
+    @property
+    def git_version(self) -> str:
+        """git branch"""
+        return self._git_version
+
+    @property
+    def git_dirty(self) -> bool:
+        """git branch"""
+        return self._git_version.endswith('dirty')
 
 
 config = Config()
