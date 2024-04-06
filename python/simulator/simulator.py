@@ -181,6 +181,7 @@ def simulator() -> str:
     )
 
 
+# pylint: disable=duplicate-code
 def main():
     """used to start the simulator"""
 
@@ -197,6 +198,14 @@ def main():
     # flask log only error
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
+
+    logging.info('####################################################################')
+    logging.info('## Simulator loading ...                                          ##')
+    logging.info('####################################################################')
+
+    logging.info(f'Version: {config.git_version}')
+    logging.info(f'Git branch: {config.git_branch}')
+    logging.info(f'Git commit: {config.git_commit}')
 
     # set Mock-Camera
     camera.switch_camera('file')
@@ -227,6 +236,8 @@ def main():
     # start State-Machine
     State.do_ready()
     logging.debug(f'#### workdir {config.work_dir}')
+    logging.info('####################################################################')
+
     api.start_server(port=5050, simulator=True)
 
     api.stop_server()
