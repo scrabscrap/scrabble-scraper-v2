@@ -1,7 +1,7 @@
 # https://docs.astral.sh/ruff/settings/
 
 line-length = 128
-src = ["src", "test"]
+src = ["src", "test", "simulator", "ignore"]
 # namespace-packages = ["airflow/providers"]
 
 [format]
