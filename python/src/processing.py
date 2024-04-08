@@ -782,7 +782,7 @@ def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = 
     if game.moves and move_to_store:
         if with_image and move_to_store.img is not None:
             if not cv2.imwrite(
-                f'{config.web_dir}/image-{move_to_store.move}.jpg', move_to_store.img, [cv2.IMWRITE_JPEG_QUALITY, 99]
+                f'{config.web_dir}/image-{move_to_store.move}.jpg', move_to_store.img, [cv2.IMWRITE_JPEG_QUALITY, 100]
             ):
                 logging.error(f'error writing image-{move_to_store.move}.jpg')
         try:
@@ -852,7 +852,9 @@ def _development_recording(
         game_id = game.gamestart.strftime('%y%j-%H%M%S')  # type: ignore
         if img is not None:
             move_number = len(game.moves) + 1 if is_next_move else len(game.moves)
-            cv2.imwrite(f'{config.work_dir}/recording/{game_id}-{move_number}{suffix}.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 99])
+            cv2.imwrite(
+                f'{config.work_dir}/recording/{game_id}-{move_number}{suffix}.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 100]
+            )
         if info and len(game.moves) > 0:
             try:
                 warp_str = np.array2string(get_last_warp(), formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=',')  # type: ignore # pylint: disable=C0301 # noqa: E501
