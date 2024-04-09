@@ -205,7 +205,7 @@ elif importlib.util.find_spec('picamera2'):
             self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
             self.event: Optional[Event] = None
             self.camera = Picamera2()
-            logging.info(f'open CameraRPI64: {self.camera.resolution=} {self.camera.framerate=}')
+            logging.info(f'open CameraRPI64: {self.resolution=} {self.framerate=}')
             cfg = self.camera.create_still_configuration(main={'format': 'XRGB8888', 'size': self.resolution})
             if config.video_rotate:
                 cfg['transform'] = libcamera.Transform(hflip=1, vflip=1)  # self.camera.rotation = 180
