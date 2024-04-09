@@ -755,14 +755,18 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @sock.route('/ws_log')
     def ws_log(sock):  # pylint: disable=no-self-argument
         """websocket for logging"""
+        import html
+
         f = open(f'{config.log_dir}/messages.log', 'r', encoding='utf-8')  # pylint: disable=consider-using-with
         # with will close at eof
         tmp = '\n' + ''.join(f.readlines()[-300:])  # first read last 300 lines
+        tmp = html.escape(tmp)
         sock.send(tmp)  # type: ignore  # pylint: disable=no-member
         while True:
             tmp = f.readline()
             if tmp and tmp != '':  # new data available
                 try:
+                    tmp = html.escape(tmp)
                     sock.send(tmp)  # type: ignore  # pylint: disable=no-member
                 except ConnectionClosed:
                     f.close()
