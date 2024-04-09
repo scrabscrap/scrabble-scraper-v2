@@ -572,24 +572,26 @@ class Game:
 
         move = copy.deepcopy(last_move)
         move.type = MoveType.LAST_RACK_BONUS if points[0] > 0 else MoveType.LAST_RACK_MALUS
+        move.time = str(datetime.datetime.now())
         move.player = 0
         move.word = rack_str
         move.removed_tiles = {}
         move.new_tiles = {}
         move.points = points[0]
         move.score = (move.score[0] + points[0], move.score[1] + points[1])
+        move.move = len(self.moves) + 1  # set move number
         self.moves.append(move)
-        move.move = len(self.moves)  # set move number
 
         move = copy.deepcopy(last_move)
         move.type = MoveType.LAST_RACK_MALUS if points[0] > 0 else MoveType.LAST_RACK_BONUS
+        move.time = str(datetime.datetime.now())
         move.player = 1
         move.word = rack_str
         move.removed_tiles = {}
         move.new_tiles = {}
         move.points = points[1]
         move.score = (move.score[0] + points[0], move.score[1] + points[1])
+        move.move = len(self.moves) + 1  # set move number
         self.moves.append(move)
-        move.move = len(self.moves)  # set move number
 
         return self
