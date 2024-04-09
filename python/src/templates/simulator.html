@@ -8,10 +8,10 @@
             <div class="row">
                 <div class="py-2">
                     <div class="card">
-                        <div class="card-header bg-info">
+                        <div class="card-header">
                             ScrabScrap
                         </div>
-                        <div class="card-body bg-light">
+                        <div class="card-body">
                             <div class="row py-2">
                                 <div class="col-2 text-center">
                                     <button type="submit" class="btn btn-success btn-circle btn-sm"
@@ -59,80 +59,103 @@
                                 </div>
                             </div>
                             <div class="row py-2 px-2">
-                                <div class="col py-2 border text-center bg-white">{{ left }}</div>
+                                <div class="col py-2 border border-secondary text-center">{{ left }}</div>
                                 <div class="col-2"> </div>
-                                <div class="col py-2 border text-center bg-white">{{ right }}</div>
+                                <div class="col py-2 border border-secondary text-center">{{ right }}</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="row">
-                <div class="py-2">
-                    <div class="card-body bg-light">
-                        <div style="font-family: monospace; overflow: auto;font-size: 50%; white-space: pre-wrap;">{{board}}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="py-2">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        current
-                    </div>
-                    <div class="card-body">
-                        {% if img_current %}
-                        <img src="data:image/jpg;base64,{{img_current}}" style="max-height: 300px;" class="img-fluid" />
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="py-2">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        <div class="row">
-                            <div class="col">
-                                next
+                <div class="col-6">
+                    <div class="py-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col">
+                                        next
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="/simulator/first"><i class="bi-skip-start-circle"></i></a>
+                                        <a href="/simulator/prev"><i class="bi-skip-backward-circle"></i></a>
+                                        <a href="/simulator/next"><i class="bi-skip-forward-circle"></i></a>
+                                        <a href="/simulator/last"><i class="bi-skip-end-circle"></i></a>
+                                    </div>
+                                    <div class="col-2">
+                                        <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false"><i
+                                                class="bi-folder2-open"></i></a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                            {%for i in folder%}
+                                            <li><a class="dropdown-item" href="/simulator/open?folder={{i}}">{{i}}</a>
+                                            </li>
+                                            {%endfor%}
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-6">
-                                <a href="/simulator/first"><i class="bi-skip-start-circle"></i></a>
-                                <a href="/simulator/prev"><i class="bi-skip-backward-circle"></i></a>
-                                <a href="/simulator/next"><i class="bi-skip-forward-circle"></i></a>
-                                <a href="/simulator/last"><i class="bi-skip-end-circle"></i></a>
-                            </div>
-                            <div class="col-2">
-                                <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-folder2-open"></i></a>
-                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    {%for i in folder%}
-                                    <li><a class="dropdown-item" href="/simulator/open?folder={{i}}">{{i}}</a></li>
-                                    {%endfor%}
-                                </ul>
+                            <div class={% if green==1 %}"card-body bg-success" {% elif red==1 %}"card-body bg-danger" {%
+                                else %}"card-body" {% endif %}>
+                                <img src="data:image/jpg;base64,{{img_next}}" style="max-height: 300px;"
+                                    class="img-fluid" />
                             </div>
                         </div>
                     </div>
-                    <div class={% if green == 1 %}"card-body bg-success"
-                               {% elif red == 1 %}"card-body bg-danger"
-                               {% else %}"card-body"
-                               {% endif %}>
-                        <img src="data:image/jpg;base64,{{img_next}}" style="max-height: 300px;" class="img-fluid" />
+                </div>
+                <div class="col-6">
+                    <div class="py-2">
+                        <div class="card">
+                            <div class="card-header">
+                                {{ current_file }}
+                            </div>
+                            <div class="card-body">
+                                {% if img_current %}
+                                <img src="data:image/jpg;base64,{{img_current}}" style="max-height: 300px;"
+                                    class="img-fluid" />
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="py-2">
-            <div class="card">
-                <div class="card-body">
-                    <div
-                        style="font-family: monospace; display: flex; flex-direction: column-reverse; max-height: 350px; overflow: auto;font-size: 50%; white-space: pre-wrap;">{{log}}</div>
+        <div class="col-6">
+            <div class="py-2">
+                <div class="card">
+                    <div class="card-header">
+                        Log output
+                    </div>
+
+                    <div class="card-body">
+                        <div style="font-family: monospace; display: flex; flex-direction: column-reverse; 
+                            max-height: calc(96vh - 130px); overflow: auto;font-size: 50%; white-space: pre-wrap;"
+                            id="logentry">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    const log = (text) => {
+        let contents = document.getElementById('logentry').innerHTML;
+        document.getElementById('logentry').innerHTML = contents + text;
+    };
+
+    const socket = new WebSocket('ws://' + location.host + '/ws_log');
+    socket.addEventListener('message', ev => { log(ev.data); });
+    socket.addEventListener("close", (event) => {
+        // reload on server reboot
+        setTimeout(function () { location.reload(); }, 45 * 1000);
+    });
+    socket.addEventListener("error", (event) => {
+        socket.close()
+    });
+</script>
+
 {% endblock %}

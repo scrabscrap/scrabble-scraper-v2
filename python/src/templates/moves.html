@@ -5,7 +5,7 @@
     <div class="row py-2">
         <div class="col-6">
             <div class="card">
-                <div class="card-header bg-info">
+                <div class="card-header">
                     Edit Blanko
                 </div>
                 <div class="card-body">
@@ -42,12 +42,10 @@
 
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-info">
+                <div class="card-header">
                     <div class="row">
-                        <div class="col-2">
-                            Edit move
-                        </div>
                         <div class="col">
+                            Edit move&nbsp;&nbsp;
                             <i class="bi-circle-fill text-success"></i> {{player1}}
                             &nbsp;<i class="bi-arrow-left-right"></i>&nbsp;
                             <i class="bi-circle-fill text-danger"></i> {{player2}}
@@ -78,12 +76,20 @@
                             {% for move in move_list %}
                             <tr>
                                 <form action="/moves" method="post">
-                                    <th scope="row"> {{ move.move }} <input hidden name="move.move" value={{ move.move
-                                            }}>
+                                    <th scope="row">
+                                        <div class="py-2">{{ move.move }}</div> <input hidden name="move.move" value={{
+                                            move.move }}>
                                     </th>
-                                    <td> {{ move.player }} <input hidden name="move.player" value={{ move.player }}>
+                                    <td>
+                                        <div class="py-2">{% if move.player == 0 %}
+                                            <i class="bi-circle-fill text-success"></i> {% else %}
+                                            <i class="bi-circle-fill text-danger"></i> {% endif %}
+                                        </div>
+
+                                        <input hidden name="move.player" value={{ move.player }}>
                                     </td>
-                                    <td style="text-align: right;"> {{ move.points }}
+                                    <td style="text-align: right;">
+                                        <div class="py-2">{{ move.points }}</div>
                                     </td>
                                     <td><input type="text" class="form-control" name="move.score0" size="3"
                                             value="{{ move.score[0] }}">
@@ -124,17 +130,21 @@
                                     </td>
                                     <td> <input type="text" class="form-control" name="move.word" value={{ move.word }}>
                                     </td>
-                                    <td><button type="submit" class="form-control btn btn-outline-primary"
-                                            name="btnmove" value="Update" data-bs-toggle="tooltip"
-                                            data-bs-placement="bottom" title="Update move" {% if
-                                            move.type.name=='WITHDRAW' or move.type.name=='CHALLENGE_BONUS' %}disabled{%
-                                            endif %}><i class="bi-save"></i>&nbsp;</button>
+                                    <td>
+                                        <div class="py-1"><button type="submit"
+                                                class="form-control btn btn-outline-primary btn-sm " name="btnmove"
+                                                value="Update" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                title="Update move" {% if move.type.name=='WITHDRAW' or
+                                                move.type.name=='CHALLENGE_BONUS' %}disabled{% endif %}><i
+                                                    class="bi-check2-square"></i>&nbsp;</button></div>
                                     </td>
-                                    <td> <button type="submit" class="form-control btn btn-outline-danger"
-                                            name="btninsmoves" value="Insert" data-bs-toggle="tooltip"
-                                            data-bs-placement="bottom" title="Insert">
-                                            <i class="bi-box-arrow-in-right"></i>&nbsp;
-                                        </button>
+                                    <td>
+                                        <div class="py-1"><button type="submit"
+                                                class="form-control btn btn-outline-warning btn-sm" name="btninsmoves"
+                                                value="Insert" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                title="Insert">
+                                                <i class="bi-box-arrow-in-left"></i>&nbsp;
+                                            </button></div>
                                     </td>
                                 </form>
                             </tr>
@@ -142,7 +152,7 @@
                         </tbody>
                     </table>
                     <div class="py-2">
-                        <i>Hint: only a change of one move at a time is accepted</i>
+                        <i>Only one move can be changed</i>
                     </div>
                 </div>
             </div>

@@ -5,7 +5,7 @@
     <div class="row">
         <div class="py-2">
             <div class="card">
-                <div class="card-header bg-info">
+                <div class="card-header">
                     video.warp_coordinates = {{warp_coord_cnf}} <br />
                     {% if warp_coord_cnf == 'None' %}
                     calculated {{warp_coord_raw}} (lt, rt, rb, lb)
@@ -24,13 +24,13 @@
                                         <i class="bi-arrow-repeat"></i> Reload</button>
                                 </div>
                                 <div class="row py-2">
-                                    <button type="submit" class="btn btn-warning" name="btndelete" value="Delete">
+                                    <button type="submit" class="btn btn-secondary" name="btndelete" value="Delete">
                                         <i class="bi-eraser"></i> Clear Warp</button>
                                 </div>
                                 <div class="row py-2">
                                     <input type="text" name="warp_coordinates" value="{{warp_coord_raw}}" hidden>
                                     <button type="submit" class="btn btn-success" name="btnstore" value="Store">
-                                        <i class="bi-save"></i> Store Warp</button>
+                                        <i class="bi-save"></i> Save Warp</button>
                                 </div>
                                 <div class="row py-2">
                                     <p>
@@ -54,7 +54,7 @@
     <div class="row">
         <div class="py-2">
             <div class="card">
-                <div class="card-header bg-info">Original</div>
+                <div class="card-header">Original</div>
                 <div class="card-body">
                     <a href="/cam"><img src="data:image/jpg;base64,{{img_data}}" ismap /></a>
                 </div>
