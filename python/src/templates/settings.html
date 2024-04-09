@@ -9,7 +9,7 @@
                 <div class="row">
                     <div class="py-2"><!-- start scrabble -->
                         <div class="card">
-                            <div class="card-header bg-info">
+                            <div class="card-header">
                                 <i class="bi-grid-3x3-gap"></i> Scrabble
                             </div>
                             <div class="card-body">
@@ -78,7 +78,7 @@
                 <div class="row">
                     <div class="py-2"> <!-- start system -->
                         <div class="card">
-                            <div class="card-header bg-info">
+                            <div class="card-header">
                                 <i class="bi-motherboard"></i> System
                             </div>
                             <div class="card-body">
@@ -126,7 +126,7 @@
                 <div class="row">
                     <div class="py-2"> <!-- start video -->
                         <div class="card">
-                            <div class="card-header bg-info">
+                            <div class="card-header">
                                 <i class="bi-webcam"></i> Video
                             </div>
                             <div class="card-body">
@@ -189,7 +189,7 @@
                 <div class="row">
                     <div class="py-2"> <!-- start board -->
                         <div class="card">
-                            <div class="card-header bg-info">
+                            <div class="card-header">
                                 <i class="bi-border-all"></i> Board
                             </div>
                             <div class="card-body">
@@ -252,7 +252,7 @@
                 <div class="row">
                     <div class="py-2"> <!-- start output -->
                         <div class="card">
-                            <div class="card-header bg-info">
+                            <div class="card-header">
                                 <i class="bi-upload"></i> Output
                             </div>
                             <div class="card-body">
@@ -293,7 +293,7 @@
                 <div class="row">
                     <div class="py-2"> <!-- start ftp -->
                         <div class="card">
-                            <div class="card-header bg-info">
+                            <div class="card-header">
                                 <i class="bi-cloud"></i> FTP/HTTP Upload
                             </div>
                             <div class="card-body">
@@ -326,7 +326,7 @@
                 <div class="row">
                     <div class="py-2"> <!-- start development -->
                         <div class="card">
-                            <div class="card-header bg-info">
+                            <div class="card-header">
                                 <i class="bi-bug"></i> Development
                             </div>
                             <div class="card-body">
@@ -349,15 +349,13 @@
         </div> <!-- row -->
 
         <!-- Buttons-->
-        <div class="row">
-            <div class="col"></div>
-            <div class="col-sm-4">
-                <div class="float-end">
-                    {{ save_message }}
-                    <button type="button" class="btn btn-warning" onclick="location.href='/'">Cancel</button>
-                    <button type="submit" class="btn btn-primary" name="btnsave" value="Submit"><i class="bi-save"></i>
-                        Save</button>
-                </div>
+        <div class="row float-end">
+            <div>
+                {{ save_message }}
+                <button type="button" class="btn btn-secondary" onclick="location.href='/'"><i class="bi-x-square"></i>
+                    Cancel</button>
+                <button type="submit" class="btn btn-primary" name="btnsave" value="Submit"><i class="bi-save"></i>
+                    Save</button>
             </div>
         </div> <!-- row -->
     </form>

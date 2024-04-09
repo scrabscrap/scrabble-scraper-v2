@@ -6,7 +6,7 @@
         <div class="col-6">
             <div class="py-2">
                 <div class="card">
-                    <div class="card-header bg-info">
+                    <div class="card-header">
                         Select configured WiFi
                     </div>
                     <div class="card-body">
@@ -23,9 +23,10 @@
                                 {% endfor %}
                             </div>
                             <div class="row float-end">
-                                <input type="submit" class="form-control btn-primary" name="btnselect" value="Select"
+                                <button type="submit" class="form-control btn-primary" name="btnselect" value="Select"
                                     data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                    title="Please reconnect after change">
+                                    title="Please reconnect after change"><i class="bi-clipboard-check"></i>
+                                    Select</button>
                             </div>
                         </form>
                     </div>
@@ -35,7 +36,7 @@
         <div class="col-6">
             <div class="py-2">
                 <div class="card">
-                    <div class="card-header bg-info">
+                    <div class="card-header">
                         Delete configured WiFi
                     </div>
                     <div class="card-body">
@@ -53,7 +54,8 @@
                                 {% endfor %}
                             </div>
                             <div class="row float-end">
-                                <input type="submit" class="form-control btn-primary" name="btndelete" value="Delete">
+                                <button type="submit" class="form-control btn-primary" name="btndelete"
+                                    value="Delete"><i class="bi-clipboard-minus"></i> Delete</button>
                             </div>
                         </form>
                     </div>
@@ -66,7 +68,7 @@
             <div class="py-2">
 
                 <div class="card">
-                    <div class="card-header bg-info">
+                    <div class="card-header">
                         Add WiFi
                     </div>
                     <div class="card-body">
@@ -80,14 +82,13 @@
                                         placeholder="psk" required>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col float-start">
-                                    <button type="submit" class="btn btn-warning float-start" name="btnscan"
-                                        value="Scan" formnovalidate="formnovalidate"><i class="bi-search"></i>
+                            <div class="row float-end">
+                                <div>
+                                    <button type="submit" class="btn btn-secondary" name="btnscan" value="Scan"
+                                        formnovalidate="formnovalidate"><i class="bi-clipboard-data"></i>
                                         Scan</button>
-                                </div>
-                                <div class="col float-end">
-                                    <input type="submit" class="btn btn-primary float-end" name="btnadd" value="Add">
+                                    <button type="submit" class="btn btn-primary" name="btnadd" value="Add">
+                                        <i class="bi-clipboard-plus"></i> Add</button>
                                 </div>
                             </div>
                         </form>
@@ -100,7 +101,7 @@
         <div class="col-12">
             <div class="py-2">
                 <div class="card">
-                    <div class="card-header bg-info">Messages</div>
+                    <div class="card-header">Messages</div>
                     <div class="card-body">
                         <div style="font-family: monospace; white-space: pre-wrap;">{{apiserver.last_msg}}</div>
                     </div>

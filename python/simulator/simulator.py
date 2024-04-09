@@ -20,7 +20,6 @@ import base64
 import logging
 import logging.config
 import os
-import subprocess
 import urllib.parse
 from time import sleep
 
@@ -83,7 +82,7 @@ def yellow():
 def reset():
     """simulate press reset"""
     State.press_button('RESET')
-    camera.cam.conter = 1  # type: ignore
+    camera.cam.counter = 1  # type: ignore
     return redirect(url_for('simulator'))
 
 
@@ -138,6 +137,7 @@ def simulator() -> str:
         for f in os.listdir(f'{config.src_dir}/../test')
         if os.path.isdir(f'{config.src_dir}/../test/{f}') and f.startswith('game')
     ]
+    list_of_dir.sort()
     # display time
     _, (time0, time1), _ = ScrabbleWatch.status()
     minutes, seconds = divmod(abs(1800 - time0), 60)
@@ -146,38 +146,32 @@ def simulator() -> str:
     right = f'-{minutes:1d}:{seconds:02d}' if 1800 - time1 < 0 else f'{minutes:02d}:{seconds:02d}'
     # get current picture
     png_current = None
-    board = ''
     game = State.game
     if (len(game.moves) > 0) and (game.moves[-1].img is not None):
         _, pic_buf_arr = cv2.imencode('.jpg', game.moves[-1].img)
         png_current = urllib.parse.quote(base64.b64encode(bytes(pic_buf_arr)))
-        board = f'Score: {game.moves[-1].score} / {game.moves[-1].points}\n{game.board_str()}'
+    else:
+        png_current = None
     # get next picture
     img = camera.cam.read(peek=True)  # type: ignore
     _, pic_buf_arr = cv2.imencode('.jpg', img)
     png_next = urllib.parse.quote(base64.b64encode(bytes(pic_buf_arr)))
-    # show log
-    if os.path.exists(f'{config.log_dir}/messages.log'):
-        process = subprocess.run(
-            ['tail', '-75', f'{config.log_dir}/messages.log'], check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-        )
-        log_out = process.stdout.decode()
-    else:
-        log_out = '## empty ##'
+
+    current_file = camera.cam.formatter.format(camera.cam.counter - 1).split('/')  # type: ignore # using CameraFile
+    current_file_str = '/'.join([current_file[-2], current_file[-1]]) if current_file else ''  # type: ignore # using CameraFile
 
     return render_template(
         'simulator.html',
         apiserver=ApiServer,
         img_next=png_next,
         img_current=png_current,
-        log=log_out,
         green=LEDEnum.green.value,
         yellow=LEDEnum.yellow.value,
         red=LEDEnum.red.value,
         left=left,
         right=right,
         folder=list_of_dir,
-        board=board,
+        current_file=current_file_str,
     )
 
 

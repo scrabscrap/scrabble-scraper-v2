@@ -6,7 +6,7 @@
         <div class="col-6">
             <div class="py-2">
                 <div class="card">
-                    <div class="card-header bg-info">
+                    <div class="card-header">
                         Set Log-Level
                     </div>
                     <div class="card-body">
@@ -57,15 +57,12 @@
                                 </div>
                             </div>
                             <div class="row float-end">
-                                <div class="col float-start">
-                                    <button type="button" class="btn btn-warning float-start"
-                                        onclick="location.href='/'">Cancel</button>
-                                </div>
-                                <div class="col float-end">
-                                    <button type="submit" class="form-control btn btn-primary" value="Store"
-                                        data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                        title="Store current selection">
-                                        <i class="bi-save"></i></button>
+                                <div>
+                                    <button type="button" class="btn btn-secondary" onclick="location.href='/'"><i
+                                            class="bi-x-square"></i> Cancel</button>
+                                    <button type="submit" class="btn btn-primary" value="Store" data-bs-toggle="tooltip"
+                                        data-bs-placement="bottom" title="Store current selection">
+                                        <i class="bi-save"></i> Save</button>
                                 </div>
                             </div>
                         </form>
