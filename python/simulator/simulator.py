@@ -38,6 +38,8 @@ from threadpool import pool
 from timer_thread import RepeatedTimer
 
 Device.pin_factory = MockFactory()
+current_counter: int = 0
+list_of_dir: list[str] = []
 
 # TEMPLATE_FOLDER = os.path.abspath(f'{os.path.dirname(__file__) or "."}/../src/templates')
 # STATIC_FOLDER = os.path.abspath(f'{os.path.dirname(__file__) or "."}/../src/static')
@@ -57,6 +59,9 @@ def doubt1():
 
 def green():
     """simulate press green button"""
+    global current_counter  # pylint: disable=global-statement
+
+    current_counter = camera.cam.counter  # type: ignore
     State.press_button('GREEN')
     if State.last_submit is not None:
         while not State.last_submit.done():  # type: ignore
@@ -66,6 +71,9 @@ def green():
 
 def red():
     """simulate press red button"""
+    global current_counter  # pylint: disable=global-statement
+
+    current_counter = camera.cam.counter  # type: ignore
     State.press_button('RED')
     if State.last_submit is not None:
         while not State.last_submit.done():  # type: ignore
@@ -131,13 +139,6 @@ def open_folder():
 
 def simulator() -> str:
     """ "render simulator on web page"""
-    # get simulate folders
-    list_of_dir = [
-        f
-        for f in os.listdir(f'{config.src_dir}/../test')
-        if os.path.isdir(f'{config.src_dir}/../test/{f}') and f.startswith('game')
-    ]
-    list_of_dir.sort()
     # display time
     _, (time0, time1), _ = ScrabbleWatch.status()
     minutes, seconds = divmod(abs(1800 - time0), 60)
@@ -150,15 +151,15 @@ def simulator() -> str:
     if (len(game.moves) > 0) and (game.moves[-1].img is not None):
         _, pic_buf_arr = cv2.imencode('.jpg', game.moves[-1].img)
         png_current = urllib.parse.quote(base64.b64encode(bytes(pic_buf_arr)))
+        current_file = camera.cam.formatter.format(current_counter).split('/')  # type: ignore # using CameraFile
+        current_file_str = '/'.join([current_file[-2], current_file[-1]]) if current_file else ''  # type: ignore
     else:
+        current_file_str = ''
         png_current = None
     # get next picture
     img = camera.cam.read(peek=True)  # type: ignore
     _, pic_buf_arr = cv2.imencode('.jpg', img)
     png_next = urllib.parse.quote(base64.b64encode(bytes(pic_buf_arr)))
-
-    current_file = camera.cam.formatter.format(camera.cam.counter - 1).split('/')  # type: ignore # using CameraFile
-    current_file_str = '/'.join([current_file[-2], current_file[-1]]) if current_file else ''  # type: ignore # using CameraFile
 
     return render_template(
         'simulator.html',
@@ -178,6 +179,7 @@ def simulator() -> str:
 # pylint: disable=duplicate-code
 def main():
     """used to start the simulator"""
+    global list_of_dir  # pylint: disable=global-statement
 
     from threading import Event
 
@@ -200,6 +202,14 @@ def main():
     logging.info(f'Version: {config.git_version}')
     logging.info(f'Git branch: {config.git_branch}')
     logging.info(f'Git commit: {config.git_commit}')
+
+    # get simulate folders
+    list_of_dir = [
+        f
+        for f in os.listdir(f'{config.src_dir}/../test')
+        if os.path.isdir(f'{config.src_dir}/../test/{f}') and f.startswith('game')
+    ]
+    list_of_dir.sort()
 
     # set Mock-Camera
     camera.switch_camera('file')
