@@ -140,7 +140,7 @@ class Custom2012PILBoard(CustomBoard):
                     find_tiles(coord2, hsv_table, rgb_table, visited, candidates)
                 else:
                     logging.debug(
-                        f"{chr(ord('A') + coord[1])}{coord[0]+1} - remove {chr(ord('A') + coord2[1])}{coord2[0]+1}"
+                        f"{chr(ord('A') + coord[1])}{coord[0]+1} - remove {chr(ord('A') + coord2[1])}{coord2[0]+1} "
                         f"dist={distance((h1, s1, v1), (h2, s2, v2))} {(r, g, b)=}"
                     )
 
