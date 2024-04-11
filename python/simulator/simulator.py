@@ -181,9 +181,16 @@ def main():
     """used to start the simulator"""
     global list_of_dir  # pylint: disable=global-statement
 
+    import sys
     from threading import Event
 
     from display import DisplayMock
+
+    def log_exception_handler(exctype, value, tb):
+        import traceback
+
+        logging.exception(''.join(traceback.format_exception(exctype, value, tb)))
+        sys.__excepthook__(exctype, value, tb)  # calls default excepthook
 
     logging.config.fileConfig(
         fname=config.work_dir + '/log.conf',
@@ -195,6 +202,7 @@ def main():
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
 
+    sys.excepthook = log_exception_handler
     logging.info('####################################################################')
     logging.info('## Simulator loading ...                                          ##')
     logging.info('####################################################################')
