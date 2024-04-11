@@ -46,6 +46,12 @@ logging.config.fileConfig(
 def main() -> None:
     """entry point for scrabscrap"""
 
+    def log_exception_handler(exctype, value, tb):
+        import traceback
+
+        logging.exception(''.join(traceback.format_exception(exctype, value, tb)))
+        sys.__excepthook__(exctype, value, tb)  # calls default excepthook
+
     def _cleanup():
         atexit.unregister(_cleanup)
         logging.debug('main-_atexit')
@@ -66,6 +72,7 @@ def main() -> None:
             os.system('sudo shutdown now')
         sys.exit(0)
 
+    sys.excepthook = log_exception_handler
     logging.info('####################################################################')
     logging.info('## ScrabScrap loading ...                                         ##')
     logging.info('####################################################################')
