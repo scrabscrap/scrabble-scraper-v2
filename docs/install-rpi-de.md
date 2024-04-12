@@ -281,7 +281,8 @@ siehe FAQ
 siehe [GitHub Projekt https://github.com/gitbls/autoAP](https://github.com/gitbls/autoAP)
 
 ```bash
-sudo apt install systemd-resolved
+sudo apt-get -y install systemd-resolved
+sudo reboot
 sudo curl -L https://github.com/gitbls/autoAP/raw/master/autoAP.sh -o /usr/local/bin/autoAP.sh
 sudo curl -L https://github.com/gitbls/autoAP/raw/master/install-autoAP -o /usr/local/bin/install-autoAP
 sudo curl -L https://github.com/gitbls/autoAP/raw/master/rpi-networkconfig -o /usr/local/bin/rpi-networkconfig
