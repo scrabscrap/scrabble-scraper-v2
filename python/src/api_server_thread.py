@@ -722,14 +722,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             'uninstall': 'UNINSTALL',
         }
         if op in ops.keys():  # pylint: disable=consider-iterating-dictionary
-            process1 = subprocess.run(
-                [f'{config.src_dir}/../../scripts/tailscale.sh', ops[op]],
-                check=False,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-            )
-            logging.info(f'\n{process1.stdout}')
+            cmd = f'{config.src_dir}/../../scripts/tailscale.sh {ops[op]} | tee -a {config.log_dir}/messages.log &'
+            _ = subprocess.run(['bash', '-c', cmd], check=False)
         else:
             logging.warning('invalid operation for vpn')
         ApiServer.tailscale = os.path.isfile('/usr/bin/tailscale')
