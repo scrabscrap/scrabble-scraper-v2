@@ -74,9 +74,8 @@ echo "####################################################################"
 echo "## Upgrade pip libraries                                          ##"
 echo "####################################################################"
 source "$ROOT_PATH/python/.venv/bin/activate"
-pip uninstall $(pip freeze -l) -y
-pip install -U pip setuptools wheel
-pip install -U -r requirements.txt
+../scripts/pip-req-check.py
+pip install -U pip setuptools wheel -r requirements.txt
 
 # install nodejs npm
 echo "####################################################################"
