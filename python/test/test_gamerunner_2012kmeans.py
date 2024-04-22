@@ -71,40 +71,40 @@ class GameRunner2012pilTestCase(unittest.TestCase):
         return super().tearDown()
 
     def test_game01(self):
-        self.run_game(file='test/game01/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game01/game.ini')
 
     # def test_game02(self):
-    #     self.run_game(file='test/game02/game.ini')
+    #     self.run_game(file=f'{TEST_DIR}/game02/game.ini')
 
     # def test_game03(self):
-    #     self.run_game(file='test/game03/game.ini')
+    #     self.run_game(file=f'{TEST_DIR}/game03/game.ini')
 
     # def test_game04(self):
-    #     self.run_game(file='test/game04/game.ini')
+    #     self.run_game(file=f'{TEST_DIR}/game04/game.ini')
 
     # def test_game05(self):
-    #     self.run_game(file='test/game05/game.ini')
+    #     self.run_game(file=f'{TEST_DIR}/game05/game.ini')
 
     # def test_game06(self):
-    #     self.run_game(file='test/game06/game.ini')
+    #     self.run_game(file=f'{TEST_DIR}/game06/game.ini')
 
     # def test_game07(self):
-    #     self.run_game(file='test/game07/game.ini')
+    #     self.run_game(file=f'{TEST_DIR}/game07/game.ini')
 
     # def test_game08(self):
-    #     self.run_game(file='test/game08/game.ini')
+    #     self.run_game(file=f'{TEST_DIR}/game08/game.ini')
 
     # def test_game12(self):
-    #     self.run_game(file='test/game12/game.ini')
+    #     self.run_game(file=f'{TEST_DIR}/game12/game.ini')
 
     # def test_game13(self):
-    #     self.run_game(file='test/game13/game.ini')
+    #     self.run_game(file=f'{TEST_DIR}/game13/game.ini')
 
     # def test_game14(self):
-    #     self.run_game(file='test/game14/game.ini')
+    #     self.run_game(file=f'{TEST_DIR}/game14/game.ini')
 
     # def test_game2023dm01(self):
-    #     self.run_game(file='test/game2023DM-01/game.ini')
+    #     self.run_game(file=f'{TEST_DIR}/game2023DM-01/game.ini')
 
     def display_top(self, snapshot, key_type='lineno', limit=10):
         snapshot = snapshot.filter_traces(
