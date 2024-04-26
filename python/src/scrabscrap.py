@@ -70,6 +70,8 @@ def main() -> None:
             os.system('sudo shutdown -r now')
         elif config.system_quit in ('shutdown'):
             os.system('sudo shutdown now')
+        elif config.system_quit in ('restart'):
+            sys.exit(4)
         sys.exit(0)
 
     sys.excepthook = log_exception_handler
