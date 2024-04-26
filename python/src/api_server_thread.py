@@ -551,6 +551,15 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         return send_from_directory(f'{config.work_dir}/recording', 'recording.zip', as_attachment=True)
 
     @staticmethod
+    @app.route('/restart', methods=['POST', 'GET'])
+    def do_restart():
+        """restart app"""
+        logging.info('**** Restart application ****')
+        config.config.set('system', 'quit', 'restart')  # set temporary restart app
+        alarm(1)
+        return redirect(url_for('route_index'))
+
+    @staticmethod
     @app.route('/end', methods=['POST', 'GET'])
     def do_end():
         """end app"""

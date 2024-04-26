@@ -43,4 +43,12 @@ if [ -d "/home/pi/.venv" ]; then
 fi
 
 cd "$PYTHONDIR"
-python -m scrabscrap >> "$WORKDIR/log/game.log"
+
+while : ; do
+    python -m scrabscrap >> "$WORKDIR/log/game.log"
+    if [ $? -eq 4 ]; then
+        echo "restart scrabscrap"
+    else
+        break
+    fi
+done
