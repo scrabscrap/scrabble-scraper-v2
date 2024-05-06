@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import configparser
 import cProfile
 import csv
@@ -32,8 +33,7 @@ from hardware import camera
 
 PROFILE = False
 TEST_DIR = os.path.dirname(__file__)
-logging.config.fileConfig(fname=f'{os.path.dirname(os.path.abspath(__file__))}/test_log.conf',
-                          disable_existing_loggers=False)
+logging.config.fileConfig(fname=f'{os.path.dirname(os.path.abspath(__file__))}/test_log.conf', disable_existing_loggers=False)
 
 
 class GameRunnerTestCase(unittest.TestCase):
@@ -71,53 +71,51 @@ class GameRunnerTestCase(unittest.TestCase):
         return super().tearDown()
 
     def test_game01(self):
-        self.run_game(file='test/game01/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game01/game.ini')
 
     def test_game02(self):
-        self.run_game(file='test/game02/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game02/game.ini')
 
     def test_game03(self):
-        self.run_game(file='test/game03/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game03/game.ini')
 
     def test_game04(self):
-        self.run_game(file='test/game04/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game04/game.ini')
 
     def test_game05(self):
-        self.run_game(file='test/game05/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game05/game.ini')
 
     def test_game06(self):
-        self.run_game(file='test/game06/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game06/game.ini')
 
     def test_game07(self):
-        self.run_game(file='test/game07/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game07/game.ini')
 
     def test_game08(self):
-        self.run_game(file='test/game08/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game08/game.ini')
 
     def test_game12(self):
-        self.run_game(file='test/game12/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game12/game.ini')
 
     def test_game13(self):
-        self.run_game(file='test/game13/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game13/game.ini')
 
     def test_game14(self):
-        self.run_game(file='test/game14/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game14/game.ini')
 
     def test_game2023dm01(self):
-        self.run_game(file='test/game2023DM-01/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game2023DM-01/game.ini')
 
     def display_top(self, snapshot, key_type='lineno', limit=10):
-        snapshot = snapshot.filter_traces((
-            tracemalloc.Filter(False, "<frozen importlib._bootstrap_external>"),
-            tracemalloc.Filter(False, "xx<unknown>"),
-        ))
+        snapshot = snapshot.filter_traces(
+            (tracemalloc.Filter(False, '<frozen importlib._bootstrap_external>'), tracemalloc.Filter(False, 'xx<unknown>'))
+        )
         top_stats = snapshot.statistics(key_type)
 
-        print("Top %s lines" % limit)
+        print('Top %s lines' % limit)
         for index, stat in enumerate(top_stats[:limit], 1):
             frame = stat.traceback[0]
-            print("#%s: %s:%s: %.1f KiB"
-                  % (index, frame.filename, frame.lineno, stat.size / 1024))
+            print('#%s: %s:%s: %.1f KiB' % (index, frame.filename, frame.lineno, stat.size / 1024))
             line = linecache.getline(frame.filename, frame.lineno).strip()
             if line:
                 print('    %s' % line)
@@ -125,9 +123,9 @@ class GameRunnerTestCase(unittest.TestCase):
         other = top_stats[limit:]
         if other:
             size = sum(stat.size for stat in other)
-            print("%s other: %.1f KiB" % (len(other), size / 1024))
+            print('%s other: %.1f KiB' % (len(other), size / 1024))
         total = sum(stat.size for stat in top_stats)
-        print("Total allocated size: %.1f KiB" % (total / 1024))
+        print('Total allocated size: %.1f KiB' % (total / 1024))
 
     def run_game(self, file: str):
         """Test csv games"""
@@ -147,7 +145,7 @@ class GameRunnerTestCase(unittest.TestCase):
         # read *.ini
         test_config = configparser.ConfigParser()
         try:
-            with open(f'{file}', 'r', encoding="UTF-8") as config_file:
+            with open(f'{file}', 'r', encoding='UTF-8') as config_file:
                 test_config.read_file(config_file)
         except IOError as oops:
             logging.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
@@ -180,23 +178,36 @@ class GameRunnerTestCase(unittest.TestCase):
             csv_reader = csv.DictReader(csv_file, skipinitialspace=True)
             for row in csv_reader:
                 logging.info(f'TEST: {row}')
-                camera.cam.counter = int(row["Move"])  # type: ignore
-                State.press_button(row["Button"].upper())
+                camera.cam.counter = int(row['Move'])  # type: ignore
+                State.press_button(row['Button'].upper())
                 if State.last_submit is not None:
                     while not State.last_submit.done():  # type: ignore
                         sleep(0.01)
 
-                self.assertEqual(row["State"].upper(), State.current_state,
-                                 f'invalid state {State.current_state} at move {int(row["Move"])}')
+                self.assertEqual(
+                    row['State'].upper(), State.current_state, f'invalid state {State.current_state} at move {int(row["Move"])}'
+                )
                 if State.current_state not in ('P0', 'P1'):
-                    self.assertEqual(int(row["Points"]), State.game.moves[-1].points,
-                                     f'invalid points {State.game.moves[-1].points} at move {int(row["Move"])}')
-                    self.assertEqual(int(row["Score1"]), State.game.moves[-1].score[0],
-                                     f'invalid score 1 {State.game.moves[-1].score[0]} at move {int(row["Move"])}')
-                    self.assertEqual(int(row["Score2"]), State.game.moves[-1].score[1],
-                                     f'invalid score 2 {State.game.moves[-1].score[1]} at move {int(row["Move"])}')
-                    self.assertEqual(row["Word"], State.game.moves[-1].word,
-                                     f'invalid word {State.game.moves[-1].word} at move {int(row["Move"])}')
+                    self.assertEqual(
+                        int(row['Points']),
+                        State.game.moves[-1].points,
+                        f'invalid points {State.game.moves[-1].points} at move {int(row["Move"])}',
+                    )
+                    self.assertEqual(
+                        int(row['Score1']),
+                        State.game.moves[-1].score[0],
+                        f'invalid score 1 {State.game.moves[-1].score[0]} at move {int(row["Move"])}',
+                    )
+                    self.assertEqual(
+                        int(row['Score2']),
+                        State.game.moves[-1].score[1],
+                        f'invalid score 2 {State.game.moves[-1].score[1]} at move {int(row["Move"])}',
+                    )
+                    self.assertEqual(
+                        row['Word'],
+                        State.game.moves[-1].word,
+                        f'invalid word {State.game.moves[-1].word} at move {int(row["Move"])}',
+                    )
             if State.current_state not in ('EOG'):
                 State.do_end_of_game()
         logging.info(f'### end of tests {file} ###')
@@ -204,11 +215,11 @@ class GameRunnerTestCase(unittest.TestCase):
             snapshot = tracemalloc.take_snapshot()
             self.display_top(snapshot, limit=10)
             second_size, second_peak = tracemalloc.get_traced_memory()
-            print(f"{second_size=}, {second_peak=}")
+            print(f'{second_size=}, {second_peak=}')
 
             top_stats = snapshot.statistics('traceback')
             stat = top_stats[0]
-            print("%s memory blocks: %.1f KiB" % (stat.count, stat.size / 1024))
+            print('%s memory blocks: %.1f KiB' % (stat.count, stat.size / 1024))
             for line in stat.traceback.format():
                 print(line)
 

@@ -551,6 +551,15 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         return send_from_directory(f'{config.work_dir}/recording', 'recording.zip', as_attachment=True)
 
     @staticmethod
+    @app.route('/restart', methods=['POST', 'GET'])
+    def do_restart():
+        """restart app"""
+        logging.info('**** Restart application ****')
+        config.config.set('system', 'quit', 'restart')  # set temporary restart app
+        alarm(1)
+        return redirect(url_for('route_index'))
+
+    @staticmethod
     @app.route('/end', methods=['POST', 'GET'])
     def do_end():
         """end app"""
@@ -753,7 +762,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
         f = open(f'{config.log_dir}/messages.log', 'r', encoding='utf-8')  # pylint: disable=consider-using-with
         # with will close at eof
-        tmp = '\n' + ''.join(f.readlines()[-300:])  # first read last 300 lines
+        tmp = '\n' + ''.join(f.readlines()[-600:])  # first read last 600 lines
         tmp = html.escape(tmp)
         sock.send(tmp)  # type: ignore  # pylint: disable=no-member
         while True:

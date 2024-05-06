@@ -33,6 +33,7 @@ from custom2012board import Custom2012Board
 from custom2012kmeans import Custom2012kBoard
 from custom2012pil import Custom2012PILBoard
 from custom2020board import Custom2020Board
+from custom2020pil import Custom2020PILBoard
 from customboard import CustomBoard
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from game_board.tiles import tiles
@@ -54,6 +55,8 @@ def get_last_warp() -> Optional[TWarp]:  # pylint: disable=too-many-return-state
         return Custom2012PILBoard.last_warp
     if config.board_layout == 'custom2020':
         return Custom2020Board.last_warp
+    if config.board_layout == 'custom2020pil':
+        return Custom2020PILBoard.last_warp
     return CustomBoard.last_warp
 
 
@@ -69,6 +72,8 @@ def clear_last_warp():
         Custom2012PILBoard.last_warp = None
     elif config.board_layout == 'custom2020':
         Custom2020Board.last_warp = None
+    elif config.board_layout == 'custom2020pil':
+        Custom2020PILBoard.last_warp = None
     CustomBoard.last_warp = None
 
 
@@ -88,6 +93,8 @@ def warp_image(img: TImage) -> tuple[TImage, TImage]:
             warped = Custom2012PILBoard.warp(img)
         elif config.board_layout == 'custom2020':
             warped = Custom2020Board.warp(img)
+        elif config.board_layout == 'custom2020pil':
+            warped = Custom2020PILBoard.warp(img)
         else:
             warped = CustomBoard.warp(img)
     warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
@@ -108,6 +115,8 @@ def filter_image(img: TImage) -> tuple[Optional[TImage], set]:  # pylint: disabl
         return Custom2012PILBoard.filter_image(img)
     if config.board_layout == 'custom2020':
         return Custom2020Board.filter_image(img)
+    if config.board_layout == 'custom2020pil':
+        return Custom2020PILBoard.filter_image(img)
     return CustomBoard.filter_image(img)
 
 

@@ -309,7 +309,7 @@ class CameraFile(Camera):
         img = cv2.imread(self._formatter.format(self._counter))
         if not peek:
             self._counter += 1 if os.path.isfile(self._formatter.format(self._counter + 1)) else 0
-        if self._resize:
+        if img is not None and self._resize:
             img = cv2.resize(img, self.resolution)
         return img
 
