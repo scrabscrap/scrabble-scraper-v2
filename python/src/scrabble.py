@@ -166,9 +166,9 @@ class Move:  # pylint: disable=too-many-instance-attributes
         elif self.type == MoveType.WITHDRAW:
             result += '-- '
         elif self.type == MoveType.LAST_RACK_BONUS:
-            result += f'(bank) {self.word} '
+            result += f'(bank={self.word}) '
         elif self.type == MoveType.LAST_RACK_MALUS:
-            result += f'(bank) {self.word} '
+            result += f'(bank={self.word}) '
         elif self.type == MoveType.CHALLENGE_BONUS:
             result += '(challenge) '
         elif self.type == MoveType.TIME_MALUS:
