@@ -59,6 +59,10 @@ class Player extends Component {
             this.timeoutID = setTimeout(this.counter.bind(this), 1000);
         }
         const headerclass = 'card-header ' + this.props.color
+        let symbol_clock = String.fromCodePoint(0x23F1); // ⏱
+        if (this.props.on_move) {
+            symbol_clock = String.fromCodePoint(0x23F3); // ⏳
+        }
         return (
             <div className='card player'>
                 <div className={headerclass}>
@@ -67,7 +71,7 @@ class Player extends Component {
                         <span className={this.props.player_color}><b>&#x25C9;&nbsp;</b></span>
                         <span ><b>{this.props.score} {this.props.unknown_move ? ' ?' : ''}</b></span>
                         <span className='float-right monospace' >
-                            <b>{this.formatSeconds(this.props.counter ? this.state.next : this.props.time)} &#x1F551;</b>
+                            <b>{this.formatSeconds(this.props.counter ? this.state.next : this.props.time)} {symbol_clock}</b>
                         </span>
                     </p>
 
