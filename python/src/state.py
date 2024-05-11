@@ -269,6 +269,7 @@ class State(Static):
         with suppress(Exception):
             store_zip_from_game(cls.game)
         LED.blink_on({LEDEnum.yellow})
+        cls.current_state = EOG
         return EOG
 
     @classmethod
