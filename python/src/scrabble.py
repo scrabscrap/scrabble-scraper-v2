@@ -506,6 +506,7 @@ class Game:
         move.word = ''
         move.removed_tiles = {}
         move.new_tiles = {}
+        move.modification_cache = {}
         move.played_time = played_time
         move.score = (
             (move.score[0] - config.malus_doubt, move.score[1])
@@ -549,6 +550,8 @@ class Game:
         move.word = last_move.word
         move.removed_tiles = last_move.new_tiles
         move.new_tiles = {}
+        move.modification_cache = {}
+
         self.moves.append(move)
         move.move = len(self.moves)  # set move number
         logging.info(f'valid challenge: player {move.player} points {move.points}')
@@ -577,6 +580,7 @@ class Game:
         move.word = rack_str
         move.removed_tiles = {}
         move.new_tiles = {}
+        move.modification_cache = {}
         move.points = points[0]
         move.score = (move.score[0] + points[0], move.score[1] + points[1])
         move.move = len(self.moves) + 1  # set move number
@@ -589,6 +593,7 @@ class Game:
         move.word = rack_str
         move.removed_tiles = {}
         move.new_tiles = {}
+        move.modification_cache = {}
         move.points = points[1]
         move.score = (move.score[0] + points[0], move.score[1] + points[1])
         move.move = len(self.moves) + 1  # set move number
