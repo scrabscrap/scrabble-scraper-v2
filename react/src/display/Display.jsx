@@ -46,11 +46,7 @@ class Display extends Component {
                     </div>
                     <div className='row py-1'>
                         <div className='col move-panel px-1'>
-                            <div className='card card-body my-1'>
-                                <div className='embed-responsive embed-responsive-16by9 obs-main-camera'>
-                                    <center><h2>&#x1F4F9;</h2></center>
-                                </div>
-                            </div>
+                            <div className='embed-responsive embed-responsive-16by9 obs-main-camera bg-transparent'></div>
                         </div>
 
                         <div className='col-3 move-panel px-1'>
