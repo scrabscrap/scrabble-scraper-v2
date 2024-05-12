@@ -116,7 +116,7 @@ class State(Static):
         _, (time0, time1), _ = ScrabbleWatch.status()
         ScrabbleWatch.start(next_player)
         LED.switch_on(next_led)  # turn on next player LED
-        cls.picture = camera.cam.read()  # type: ignore
+        cls.picture = camera.cam.read().copy()  # type: ignore
         cls.last_submit = pool.submit(move, cls.last_submit, cls.game, cls.picture, player, (time0, time1), cls.op_event)
         return next_state
 
