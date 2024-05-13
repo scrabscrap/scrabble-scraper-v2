@@ -1,46 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<style>
+    .move-panel {
+        max-height: -moz-calc(96vh - 130px);
+        max-height: -webkit-calc(96vh - 130px);
+        max-height: calc(96vh - 130px);
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+
 <div class="container">
     <div class="row py-2">
-        <div class="col-6">
-            <div class="card">
-                <div class="card-header">
-                    Edit Blanko
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <tbody>
-                            {% for val in blanko_list %}
-                            <tr>
-                                <form action="/moves" method="post">
-                                    <td> <input type="text" class="form-control" name="coord" readonly size="3" value={{
-                                            val[0] }}>
-                                    </td>
-                                    <td> <input type="text" class="form-control" name="char" size="1"
-                                            value="{{ val[1] }}">
-                                    </td>
-                                    <td><button type="submit" class="form-control btn btn-outline-primary"
-                                            name="btnblanko" value="Update" data-bs-toggle="tooltip"
-                                            data-bs-placement="bottom" title="Update">
-                                            <i class="bi-save"></i>&nbsp;
-                                        </button>
-                                    </td>
-                                </form>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col-6">
-            <div style="font-family: monospace; white-space: pre-wrap;">{{apiserver.last_msg}}</div>
-        </div>
-    </div>
-    <div class="row py-2">
 
-        <div class="col-12">
+        <div class="col-9">
             <div class="card">
                 <div class="card-header">
                     <div class="row">
@@ -51,99 +26,135 @@
                             <i class="bi-circle-fill text-danger"></i> {{player2}}
                         </div>
                         <div class="col">
-                            <button type="button" class="btn btn-outline-primary btn-sm float-end"
-                                onclick="location.href='/moves'"><i class="bi-arrow-repeat"></i> Reload</button>
+                            <a class="link-underline link-underline-opacity-0 float-end" href="#"
+                                onclick="location.href='/moves'"><i class="bi-arrow-repeat"></i> Reload</a>
                         </div>
                     </div>
                 </div>
+                <div class="card-body move-panel">
+                    <div class='d-flex flex-column-reverse overflow-auto'>
+
+                        <table class="table table-striped">
+                            <tbody>
+                                {% for move in move_list %}
+                                <form action="/moves" method="post">
+                                    <tr>
+                                        <th scope="row">
+                                            <div class="py-2">{{ move.move }}</div> <input hidden name="move.move"
+                                                value={{ move.move }}>
+                                        </th>
+                                        <td>
+                                            <div class="py-2">{% if move.player == 0 %}
+                                                <i class="bi-circle-fill text-success"></i> {% else %}
+                                                <i class="bi-circle-fill text-danger"></i> {% endif %}
+                                            </div>
+
+                                            <input hidden name="move.player" value={{ move.player }}>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <div class="py-2">{{ move.points }}</div>
+                                        </td>
+                                        <td><input type="text" class="form-control" name="move.score0" size="3"
+                                                value="{{ move.score[0] }}">
+                                        </td>
+                                        <td><input type="text" class="form-control" name="move.score1" size="3"
+                                                value="{{ move.score[1] }}">
+                                        </td>
+                                        <td>
+                                            <select class="form-select" aria-label="Type of move" name="move.type">
+                                                <option {% if move.type.name=="REGULAR" %}selected{% endif %}
+                                                    value="REGULAR">Normal</option>
+                                                <option {% if move.type.name=="EXCHANGE" %}selected{% endif %}
+                                                    value="EXCHANGE">Exchange</option>
+                                                <option {% if move.type.name=="PASS_TURN" %}selected{% endif %} disabled
+                                                    value="PASS_TURN">Pass turn</option>
+                                                <option {% if move.type.name=="WITHDRAW" %}selected{% endif %} disabled
+                                                    value="WITHDRAW">Remove Tiles</option>
+                                                <option {% if move.type.name=="CHALLENGE_BONUS" %}selected{% endif %}
+                                                    disabled value="CHALLENGE_BONUS">Doubt Malus</option>
+                                                <option {% if move.type.name=="LAST_RACK_BONUS" %}selected{% endif %}
+                                                    disabled value="LAST_RACK_BONUS">Last Rack Bonus</option>
+                                                <option {% if move.type.name=="LAST_RACK_MALUS" %}selected{% endif %}
+                                                    disabled value="LAST_RACK_MALUS">Last Rack Malus</option>
+                                                <option {% if move.type.name=="UNKNOWN" %}selected{% endif %} disabled
+                                                    value="UNKNOWN">Unknown</option>
+                                            </select>
+                                        </td>
+                                        <td> {% if move.type.name=="EXCHANGE" %}
+                                            <input type="text" class="form-control" name="move.coord" size="3"
+                                                value="-">
+                                            {% elif move.type.name=="CHALLENGE_BONUS" %}
+                                            <input type="text" class="form-control" name="move.coord" size="3"
+                                                value="(c)">
+                                            {% elif move.type.name=="WITHDRAW" %}
+                                            <input type="text" class="form-control" name="move.coord" size="3"
+                                                value="--">
+                                            {% else %}
+                                            <input type="text" class="form-control" name="move.coord" size="3" value={{
+                                                move.get_coord() }}>
+                                            {% endif %}
+                                        </td>
+                                        <td> <input type="text" class="form-control" name="move.word" value={{ move.word
+                                                }}>
+                                        </td>
+                                        <td>
+                                            <div class="py-1"><button type="submit"
+                                                    class="form-control btn btn-outline-primary btn-sm " name="btnmove"
+                                                    value="Update" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                    title="Update move" {% if move.type.name=='WITHDRAW' or
+                                                    move.type.name=='CHALLENGE_BONUS' %}disabled{% endif %}><i
+                                                        class="bi-check2-square"></i>&nbsp;</button></div>
+                                        </td>
+                                        <td>
+                                            <div class="py-1"><button type="submit"
+                                                    class="form-control btn btn-outline-warning btn-sm"
+                                                    name="btninsmoves" value="Insert" data-bs-toggle="tooltip"
+                                                    data-bs-placement="bottom"
+                                                    title="Insert two exchange moves before this one">
+                                                    <i class="bi-box-arrow-up-left"></i>&nbsp;
+                                                </button></div>
+                                        </td>
+                                    </tr>
+                                </form>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-3">
+            <div class="card">
+                <div class="card-header">
+                    Edit Blanko
+                </div>
                 <div class="card-body">
                     <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#&nbsp;</th>
-                                <th scope="col">P&nbsp;</th>
-                                <th scope="col">Pts</th>
-                                <th scope="col">Sc Green</th>
-                                <th scope="col">Sc Red</th>
-                                <th scope="col">Type</th>
-                                <th scope="col">Coord</th>
-                                <th scope="col">Word</th>
-                                <th scope="col">&nbsp;</th>
-                                <th scope="col">&nbsp;</th>
-                            </tr>
-                        </thead>
                         <tbody>
-                            {% for move in move_list %}
+                            {% for val in blanko_list %}
                             <tr>
                                 <form action="/moves" method="post">
-                                    <th scope="row">
-                                        <div class="py-2">{{ move.move }}</div> <input hidden name="move.move" value={{
-                                            move.move }}>
-                                    </th>
-                                    <td>
-                                        <div class="py-2">{% if move.player == 0 %}
-                                            <i class="bi-circle-fill text-success"></i> {% else %}
-                                            <i class="bi-circle-fill text-danger"></i> {% endif %}
-                                        </div>
-
-                                        <input hidden name="move.player" value={{ move.player }}>
+                                    <td> <input type="text" class="form-control" name="coord" readonly size="3" value={{
+                                            val[0] }}>
                                     </td>
-                                    <td style="text-align: right;">
-                                        <div class="py-2">{{ move.points }}</div>
-                                    </td>
-                                    <td><input type="text" class="form-control" name="move.score0" size="3"
-                                            value="{{ move.score[0] }}">
-                                    </td>
-                                    <td><input type="text" class="form-control" name="move.score1" size="3"
-                                            value="{{ move.score[1] }}">
-                                    </td>
-                                    <td>
-                                        <select class="form-select" aria-label="Type of move" name="move.type">
-                                            <option {% if move.type.name=="REGULAR" %}selected{% endif %}
-                                                value="REGULAR">Normal</option>
-                                            <option {% if move.type.name=="EXCHANGE" %}selected{% endif %}
-                                                value="EXCHANGE">Exchange</option>
-                                            <option {% if move.type.name=="PASS_TURN" %}selected{% endif %} disabled
-                                                value="PASS_TURN">Pass turn</option>
-                                            <option {% if move.type.name=="WITHDRAW" %}selected{% endif %} disabled
-                                                value="WITHDRAW">Remove Tiles</option>
-                                            <option {% if move.type.name=="CHALLENGE_BONUS" %}selected{% endif %}
-                                                disabled value="CHALLENGE_BONUS">Doubt Malus</option>
-                                            <option {% if move.type.name=="LAST_RACK_BONUS" %}selected{% endif %}
-                                                disabled value="LAST_RACK_BONUS">Last Rack Bonus</option>
-                                            <option {% if move.type.name=="LAST_RACK_MALUS" %}selected{% endif %}
-                                                disabled value="LAST_RACK_MALUS">Last Rack Malus</option>
-                                            <option {% if move.type.name=="UNKNOWN" %}selected{% endif %} disabled
-                                                value="UNKNOWN">Unknown</option>
-                                        </select>
-                                    </td>
-                                    <td> {% if move.type.name=="EXCHANGE" %}
-                                        <input type="text" class="form-control" name="move.coord" size="3" value="-">
-                                        {% elif move.type.name=="CHALLENGE_BONUS" %}
-                                        <input type="text" class="form-control" name="move.coord" size="3" value="(c)">
-                                        {% elif move.type.name=="WITHDRAW" %}
-                                        <input type="text" class="form-control" name="move.coord" size="3" value="--">
-                                        {% else %}
-                                        <input type="text" class="form-control" name="move.coord" size="3" value={{
-                                            move.get_coord() }}>
-                                        {% endif %}
-                                    </td>
-                                    <td> <input type="text" class="form-control" name="move.word" value={{ move.word }}>
+                                    <td> <input type="text" class="form-control" name="char" size="1"
+                                            value="{{ val[1] }}">
                                     </td>
                                     <td>
                                         <div class="py-1"><button type="submit"
-                                                class="form-control btn btn-outline-primary btn-sm " name="btnmove"
+                                                class="form-control btn btn-outline-primary btn-sm" name="btnblanko"
                                                 value="Update" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                title="Update move" {% if move.type.name=='WITHDRAW' or
-                                                move.type.name=='CHALLENGE_BONUS' %}disabled{% endif %}><i
-                                                    class="bi-check2-square"></i>&nbsp;</button></div>
+                                                title="Update">
+                                                <i class="bi-save"></i>&nbsp;
+                                            </button></div>
                                     </td>
                                     <td>
                                         <div class="py-1"><button type="submit"
-                                                class="form-control btn btn-outline-warning btn-sm" name="btninsmoves"
-                                                value="Insert" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                title="Insert two exchange moves before this one">
-                                                <i class="bi-box-arrow-in-left"></i>&nbsp;
+                                                class="form-control btn btn-outline-danger btn-sm"
+                                                name="btnblankodelete" value="Delete" data-bs-toggle="tooltip"
+                                                data-bs-placement="bottom" title="Delete">
+                                                <i class="bi-trash"></i>&nbsp;
                                             </button></div>
                                     </td>
                                 </form>
@@ -151,12 +162,22 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    <div class="py-2">
-                        <i>Only one move can be changed</i>
-                    </div>
                 </div>
             </div>
         </div>
+
     </div>
+    <div class="row">
+        <div class="col">
+            <div style="font-family: monospace; white-space: pre-wrap;">{{apiserver.last_msg}}</div>
+        </div>
+    </div>
+
+    <script>
+        var blurred = false;
+        window.onblur = function () { blurred = true; };
+        window.onfocus = function () { blurred && (location.reload()); };
+        // window.scrollTo(0, document.body.scrollHeight);
+    </script>
 </div>
 {% endblock %}
