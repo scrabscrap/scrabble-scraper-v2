@@ -180,6 +180,40 @@ def analyze(warped_gray: TImage, board: dict, coord_list: set[tuple[int, int]]) 
     return board
 
 
+def remove_blanko(waitfor: Optional[Future], game: Game, coord: str, event=None):
+    """remove blank
+
+    Args:
+    game(Move): the game to fix
+    coord: coord of blank
+    event: event to inform webservice
+    """
+    if waitfor is not None:  # wait for previous moves
+        _, not_done = futures.wait({waitfor})
+        assert len(not_done) == 0, 'error while waiting for future'
+
+    dirty: bool = False
+    logging.info(f'remove blanko {coord}')
+    for mov in game.moves:
+        board = mov.board
+        _, col, row = mov.calc_coord(coord)
+        if (col, row) in board.keys() and (board[(col, row)][0] == '_' or board[(col, row)][0].islower()):
+            if (col, row) in mov.new_tiles:
+                dirty = True
+                del mov.new_tiles[(col, row)]
+            if dirty:
+                del mov.board[(col, row)]
+                mov.is_vertical, mov.coord, mov.word = _find_word(mov.board, sorted(mov.new_tiles))
+                mov.type = MoveType.REGULAR
+                prev_score = game.moves[mov.move - 2].score if mov.move > 2 else (0, 0)
+                mov.points, mov.score, mov.is_scrabble = mov.calculate_score(prev_score)
+                # store move
+                _store(game, mov)
+
+    if event and not event.is_set():
+        event.set()
+
+
 def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, event=None):
     """set char for blanko
 
