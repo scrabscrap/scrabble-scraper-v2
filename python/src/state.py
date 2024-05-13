@@ -206,6 +206,15 @@ class State(Static):
         assert len(not_done) == 0, 'error while waiting for future'
 
     @classmethod
+    def do_remove_blanko(cls, coord: str):
+        """remove blanko"""
+        from processing import remove_blanko
+
+        cls.last_submit = pool.submit(remove_blanko, cls.last_submit, cls.game, coord, cls.op_event)
+        _, not_done = futures.wait({cls.last_submit})
+        assert len(not_done) == 0, 'error while waiting for future'
+
+    @classmethod
     def do_insert_moves(cls, move_number: int):
         """insert two exchange move before move number via api"""
         from processing import admin_insert_moves

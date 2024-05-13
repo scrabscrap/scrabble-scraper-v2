@@ -253,6 +253,11 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 else:
                     ApiServer.last_msg = 'invalid character for blanko'
                     logging.warning(ApiServer.last_msg)
+            elif request.form.get('btnblankodelete'):
+                if coord := request.form.get('coord'):
+                    ApiServer.last_msg = f'delete blanko: {coord}'
+                    logging.info(ApiServer.last_msg)
+                    State.do_remove_blanko(coord)
             elif request.form.get('btninsmoves'):
                 logging.debug('in btninsmove')
                 if move_number and (0 < move_number <= len(game.moves)):
