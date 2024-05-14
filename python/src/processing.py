@@ -725,8 +725,56 @@ def _move_processing(
     previous_board: dict,
     previous_score: Tuple[int, int],
 ) -> Move:
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-locals, too-many-branches, too-many-arguments
+
+    def strip_invalid_blanks(current_board, new_tiles):
+        blanks = {(col, row) for col, row in new_tiles if new_tiles[(col, row)][0] == '_'}
+        if not blanks:  # no blanks; skip
+            return current_board, new_tiles
+
+        previous_tiles = new_tiles.copy()
+        set_of_cols = {col for col, row in new_tiles if new_tiles[(col, row)][0] != '_'}  # cols tiles with character
+        set_of_rows = {row for col, row in new_tiles if new_tiles[(col, row)][0] != '_'}  # rows tiles with character
+
+        (min_col, max_col) = (min(set_of_cols), max(set_of_cols))
+        (min_row, max_row) = (min(set_of_rows), max(set_of_rows))
+        if len(set_of_rows) == 1 or len(set_of_cols) == 1:
+            # either columns or rows
+            logging.debug(f'{set_of_cols=} {set_of_rows=} {blanks=} {min_row=} {max_row=} {min_col=} {max_col=}')
+            if len(set_of_cols) == 1 and len(set_of_rows) == 1:  # only one tile: remove all blanks not in the column/row
+                new_tiles = {k: v for k, v in new_tiles.items() if k[0] in set_of_cols or k[1] in set_of_rows}
+            elif len(set_of_cols) == 1:  # vertical: remove all blanks next to the column
+                new_tiles = {k: v for k, v in new_tiles.items() if k[0] in set_of_cols}
+            elif len(set_of_rows) == 1:  # horizontal: remove all blanks next to the row
+                new_tiles = {k: v for k, v in new_tiles.items() if k[1] in set_of_rows}
+
+            if len(set_of_cols) == 1:  # vertical: find path to min/max character
+                for blank in (x for x in blanks if x[0] == min_col):
+                    if any((blank[0], row) not in current_board for row in range(min_row, blank[1])):
+                        del new_tiles[blank]
+                    if any((blank[0], row) not in current_board for row in range(blank[1], max_row)):
+                        del new_tiles[blank]
+
+            if len(set_of_rows) == 1:  # horizontal: find path to min/max character
+                for blank in (x for x in blanks if x[1] == min_row):
+                    if any((col, blank[1]) not in current_board for col in range(min_col, blank[0])):
+                        del new_tiles[blank]
+                    if any((col, blank[1]) not in current_board for col in range(blank[0], max_col)):
+                        del new_tiles[blank]
+
+        else:  # tiles with characters in different cols and rows; hmm how to fix?
+            pass
+
+        removed_tiles = previous_tiles.keys() - new_tiles
+        for k in removed_tiles:
+            del current_board[k]
+        if removed_tiles:
+            logging.debug(f'new_tiles={previous_tiles} remaining {new_tiles=}')
+        return current_board, new_tiles
+
     current_board, new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
+    current_board, new_tiles = strip_invalid_blanks(current_board=current_board, new_tiles=new_tiles)
+
     if len(changed_tiles) > 0:  # 7. fix old moves
         previous_score = _recalculate_score_on_tiles_change(game, board, changed_tiles)
     try:  # 8. find word and create move
