@@ -41,7 +41,7 @@ netifaces2==0.0.22 ; sys_platform != "darwin"
 # latest version for Apple Silicon
 picamera==1.13; platform_machine == "armv7l"
 # rpi bookworm uses 64bit and PiCamera2
-requests==2.31.0
+requests==2.32.0
 # ├── certifi [required: >=2017.4.17, installed: 2024.2.2]
 # ├── charset-normalizer [required: >=2,<4, installed: 3.3.2]
 # ├── idna [required: >=2.5,<4, installed: 3.6]
