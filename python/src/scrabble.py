@@ -140,7 +140,9 @@ class Move:  # pylint: disable=too-many-instance-attributes
     def gcg_str(self, nicknames: Optional[Tuple[str, str]] = None) -> str:  # pylint: disable=too-many-branches
         """move as gcg string"""
 
-        mod = ' \u270e' if self.modification_cache else ''
+        mod = ''
+        if self.modification_cache:
+            mod = ' ' + chr(0x270F)  # ✏
         if nicknames:
             result = f'> {nicknames[self.player]}{mod}: '
         else:

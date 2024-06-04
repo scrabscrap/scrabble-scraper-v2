@@ -2,6 +2,20 @@ import React, { Component } from 'react';
 
 class Moves extends Component {
 
+    is_scrabble(word) {
+        let skip = false
+        let chars = 0
+        for (let i = 0; i < word.length; i++) {
+            switch(word[i]) {
+                case '(': skip = true; break;
+                case ')': skip = false; break;
+                case '.': break;
+                default: if (! skip) { chars++ }
+            }
+        }
+        return (chars >= 7)
+    }
+
     render() {
         let items = []
 
@@ -21,7 +35,9 @@ class Moves extends Component {
                         <td className='td-fill'></td>
                     </tr>)
                 } else { // move, name, coord, word, points, score
-                    items.push(<tr key={key + 1}>
+                    let marker = ''
+                    if (this.is_scrabble(sp[1])) { marker = 'table-warning' }
+                    items.push(<tr className={marker} key={key + 1}>
                         <td><a href={img_link} target='_scrabscrap_board'>{key + 1}</a></td>
                         <td className='td-truncate text-nowrap overflow-hidden'>{name}</td>
                         <td className='pr-1 monospace'>{sp[0]}</td>
