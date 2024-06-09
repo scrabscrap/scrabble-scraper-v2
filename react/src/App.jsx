@@ -15,6 +15,7 @@ class App extends Component {
     this.state = {
       op: 'START',
       tournament: 'SCRABBLE SCRAPER',
+      layout: null,
       clock1: 1800, clock2: 1800,
       time: Date(),
       move: null,
@@ -115,7 +116,7 @@ class App extends Component {
       console.debug('ws: setState (websocket) ' + data?.op)
       this.ws_firsttry = (new Date()).getTime()
       let img_str
-        if (data.image != null) {
+      if (data.image != null) {
         if (data.op === 'START') {
           img_str = null
         } else if (data.image.startsWith('b\'')) {
@@ -133,12 +134,13 @@ class App extends Component {
           if (value.includes('(unknown)')) { unknown_move = true }
         }
       }
-        let header_text;
-        if (data.status && data.status.tournament) {
-        header_text = data.status.tournament
-      } else {
-        header_text = this.state.settings.header_text
+      if (data.status?.tournament) {
+        this.state.settings.header_text = data.status.tournament
+      } 
+      if (data.status?.layout) {
+        this.state.settings.theme2020 = data.status.layout.includes('2020')
       }
+
       this.setState({
         op: data.op, clock1: data.clock1, clock2: data.clock2,
         ...data.status,
@@ -146,7 +148,6 @@ class App extends Component {
         unknown_move: unknown_move,
         settings: {
           ...this.state.settings,
-          header_text: header_text,
           websocket: true,
         }
       })
@@ -227,12 +228,13 @@ class App extends Component {
               if (value.includes('(unknown)')) { unknown_move = true }
             }
           }
-            let header_text;
-            if (data && data.tournament) {
-            header_text = data.tournament
-          } else {
-            header_text = this.state.settings.header_text
+          if (data?.tournament) {
+              this.state.settings.header_text = data.tournament
           }
+          if (data?.layout) {
+            this.state.settings.theme2020 = data.layout.includes('2020')
+          } 
+    
           this.setState({                        // use image-url, op ist calculated, clock1/2 is not available
             op: op, clock1: data.time1, clock2: data.time2,
             ...data,
@@ -240,7 +242,6 @@ class App extends Component {
             unknown_move: unknown_move,
             settings: {
               ...this.state.settings,
-              header_text: header_text,
               websocket: false,
             }
           });
