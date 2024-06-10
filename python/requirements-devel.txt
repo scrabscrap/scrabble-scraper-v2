@@ -31,4 +31,4 @@ snakeviz
 types-requests
 types-pillow
 # └── urllib3 [required: >=2, installed: 2.2.1]
-opencv-stubs==0.0.8
+opencv-stubs==0.0.9
