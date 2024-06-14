@@ -837,7 +837,7 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     to_inspect = min(config.scrabble_verify_moves, len(game.moves)) * -1
     prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
     must_recalculate = False
-    for mov in reversed(game.moves[to_inspect:]):
+    for mov in game.moves[to_inspect:]:
         must_recalculate = must_recalculate or any(coord in mov.board.keys() for coord in changed.keys())
         if must_recalculate:
             mov.board.update({coord: changed[coord] for coord in changed.keys() if coord in mov.board.keys()})
@@ -849,8 +849,8 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
                 else:
                     _word += board[(col + j, row)][0] if char != '.' else '.'
             mov.word = _word
-            mov.points, prev_score, mov.is_scrabble = mov.calculate_score(prev_score)
-            mov.score = prev_score  # store previous score
+            mov.points, mov.score, mov.is_scrabble = mov.calculate_score(prev_score)
+            prev_score = mov.score  # store previous score
             logging.info(f'move {mov.move} after recalculate {prev_score}')
         else:
             prev_score = mov.score  # store previous score
