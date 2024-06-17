@@ -144,6 +144,9 @@ def analyze(warped_gray: TImage, board: dict, coord_list: set[tuple[int, int]]) 
             res = cv2.matchTemplate(img, _tile.img, cv2.TM_CCOEFF_NORMED)  # type: ignore
             _, thresh, _, _ = cv2.minMaxLoc(res)
             thresh = int(thresh * 100)
+            if _tile.name in ('Ä', 'Ü', 'Ö') and thresh >= suggest_prop - 1:
+                logging.debug(f"{chr(ord('A') + row)}{col + 1:2} => ({_tile.name},{thresh}) increase prop to {thresh+2}")
+                thresh += 2  # 2% Bonus for umlauts
             if thresh > suggest_prop:
                 suggest_tile = _tile.name
                 suggest_prop = thresh
