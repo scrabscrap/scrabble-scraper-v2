@@ -49,7 +49,7 @@ requests==2.32.3
 packaging==24.1
 
 --only-binary=:all:
-opencv-python-headless==4.6.0.66; platform_machine == "armv7l"
+opencv-python-headless==4.10.0.84; platform_machine == "armv7l"
 # indicates rpi bullseye 32bit 
 # opencv-contrib-python-headless==4.6.0.66; platform_machine == "armv7l" # not available
 opencv-python-headless==4.10.0.84; platform_machine != "armv7l"
