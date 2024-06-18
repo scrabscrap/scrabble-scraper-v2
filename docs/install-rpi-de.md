@@ -8,90 +8,7 @@ geometry: margin=2cm
 
 # Installation ScrabScrap v2
 
-## Basis-Installation Raspberry OS (32-bit; Bullseye)
-
-**Warnung: Raspberry OS Lite Bullseye nur im 32-bit Modus installieren!**
-
-Die Erzeugung der SD Karte mittels "Raspberry Pi Imager". Hier das Image "Raspberry OS (Legacy; 32-bit) Lite - Debian Bullseye" auswählen.
-
-Bei dem Erzeugen der SD Karte ggf. folgende Optionen konfigurieren
-
-- hostname = scrabscrap
-- ssh aktivieren = true
-- WiFi Zugriff = ID / Passwort
-- User / Passwort = (alter default: pi/raspberry)
-- Spracheinstellungen
-
-Nachdem der RPI gestartet wurde, per ssh eine Verbindung zum Rechner aufbauen und auf 32-bit Installation prüfen.
-
-```bash
-uname -m
-```
-
-Hier wird als Ausgaben "armv7l" erwartet. Im Anschluss das System aktualisieren.
-
-```bash
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get autoremove
-```
-
-Nach dem Update technische Einstellungen auf dem RPI vornehmen
-
-```bash
-sudo raspi-config
-```
-
-Es müssen aktiviert werden
-
-- Kamera
-- i2c
-
-Im nächsten Schritt werden allgemeine Hilfsmittel installiert
-
-### Git und Python installieren
-
-```bash
-sudo apt-get install -y git python3-venv python3-dev i2c-tools
-
-#Installation der Libs für OpenCV
-sudo apt-get install -yq libzvbi0 libgfortran5 libpango-1.0-0 libsoxr0 libxcb-render0 libx264-160 libvpx6 libpangoft2-1.0-0 libsrt1.4-gnutls libpixman-1-0 libpgm-5.3-0 libvorbis0a libpangocairo-1.0-0 libavformat58 libcairo-gobject2 libvdpau1 libtheora0 libxcb-shm0 libva-x11-2 libssh-gcrypt-4 libudfread0 libgsm1 libmpg123-0 libavutil56 libva-drm2 libdatrie1 libx265-192 libgraphite2-3 libavcodec58 libopus0 libogg0 librabbitmq4 libnorm1 libxrender1 libxfixes3 libopenjp2-7 libwavpack1 libswresample3 libdrm2 libsodium23 librsvg2-2 libcairo2 libshine3 libopenmpt0 libbluray2 libswscale5 libgdk-pixbuf-2.0-0 libwebpmux3 libspeex1 libaom0 libharfbuzz0b libdav1d4 libvorbisenc2 libatlas3-base libzmq5 libgme0 libvorbisfile3 libthai0 libmp3lame0 libva2 libsnappy1v5 libcodec2-0.9 libtwolame0 ocl-icd-libopencl1 libchromaprint1 libxvidcore4 --fix-missing
-
-#numpy lib
-sudo apt-get install -yq libopenblas-dev
-```
-
-### Clone des ScrabScrap Repositories
-
-Falls von dem RPI auch Commits an das Repository vorgenommen werden sollen, muss
-die GitHub Userkennung gesetzt werden.
-
-```bash
-git config --global user.name
-git config --global user.email
-git config --global credential.helper store
-git config --global pull.rebase true
-git config --global pull.autostash true
-```
-
-Danach kann das Repository geladen werden
-
-```bash
-cd
-git clone https://github.com/scrabscrap/scrabble-scraper-v2.git
-```
-
-### Python Konfiguration erzeugen
-
-```bash
-cd ~/scrabble-scraper-v2/python
-python3 -m venv .venv --prompt cv
-#update pip
-source .venv/bin/activate
-pip install -U pip setuptools wheel
-pip install -U -r requirements.txt
-```
-
+Die Installation von ScrabScrap unter 32-Bit Betriebssystem und Python < 3.11 wird nicht mehr unterstützt.
 
 ## Basis-Installation des Raspberry OS (64-bit; Bookworm)
 
@@ -166,7 +83,7 @@ git clone https://(user)@github.com/scrabscrap/scrabble-scraper-v2.git
 
 ### Python Konfiguration erzeugen
 
-Im Gegensatz zur 32-bit Installation, wird hier die Kamera-Bibliothek global installiert. Damit muss bei dem Erzeugen der venv Umgebung die Option "--system-site-packages" angegeben werden.
+Die Kamera-Bibliothek ist unter 64-Bit PI OS global installiert. Damit muss bei dem Erzeugen der venv Umgebung die Option "--system-site-packages" angegeben werden.
 
 ```bash
 cd ~/scrabble-scraper-v2/python
@@ -188,7 +105,7 @@ source ~/scrabble-scraper-v2/python/.venv/bin/activate
 python
 >> import cv2
 >> cv2.__version__
-'4.6.0.66' bzw. '4.9.0.80' 
+'4.10.0' 
 >> quit()
 ```
 
