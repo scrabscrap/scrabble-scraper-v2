@@ -28,9 +28,8 @@ luma.oled==3.13.0
 #     ├── pyftdi [required: Any, installed: 0.55.4]
 #     │   ├── pyserial [required: >=3.0, installed: 3.5]
 #     │   └── pyusb [required: >=1.0.0,!=1.2.0, installed: 1.2.1]
-#180    └── smbus2 [required: Any, installed: 0.4.3]
-netifaces2==0.0.19 ; sys_platform == "darwin"
-netifaces2==0.0.22 ; sys_platform != "darwin"
+#     └── smbus2 [required: Any, installed: 0.4.3]
+ifaddr==0.2.0
 
 requests==2.32.3
 # ├── certifi [required: >=2017.4.17, installed: 2024.6.2]

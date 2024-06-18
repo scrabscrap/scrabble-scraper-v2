@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import logging
 from typing import Optional
 
-import netifaces  # type: ignore
+import ifaddr
 from luma.core.interface.serial import i2c  # type: ignore
 from luma.core.render import canvas  # type: ignore
 from luma.oled.device import ssd1306  # type: ignore
@@ -50,6 +50,11 @@ SERIAL: tuple[i2c, i2c] = (
 DEVICE: tuple[ssd1306, ssd1306] = (ssd1306(SERIAL[0]), ssd1306(SERIAL[1]))
 
 
+def get_ipv4_address() -> dict:
+    """Get IPv4 addresses for all adapters."""
+    return {adapter.name: ip.ip for adapter in ifaddr.get_adapters() for ip in adapter.ips if ip.is_IPv4}
+
+
 class PlayerDisplay(Display):
     """Implementation of class Display with OLED"""
 
@@ -64,14 +69,9 @@ class PlayerDisplay(Display):
 
     def show_boot(self) -> None:
         logging.debug('Loading message')
-        try:
-            wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
-        except KeyError:
-            wip = 'n/a'
-        try:
-            eip: str = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
-        except KeyError:
-            eip = 'n/a'
+        ips = get_ipv4_address()
+        wip: str = ips.get('wlan0', 'n/a')
+        eip: str = ips.get('eth0', 'n/a')
         current_ip = (wip, eip)
         msg = 'Loading ...'
         for i in range(2):
@@ -88,14 +88,9 @@ class PlayerDisplay(Display):
 
     def show_accesspoint(self) -> None:
         logging.debug('AP Mode message')
-        try:
-            wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
-        except KeyError:
-            wip = 'n/a'
-        try:
-            eip: str = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
-        except KeyError:
-            eip = 'n/a'
+        ips = get_ipv4_address()
+        wip: str = ips.get('wlan0', 'n/a')
+        eip: str = ips.get('eth0', 'n/a')
         current_ip = (wip, eip)
 
         msg = 'AP Mode'
@@ -106,14 +101,9 @@ class PlayerDisplay(Display):
 
     def show_ready(self, msg=('Ready', 'Ready')) -> None:
         logging.debug('Ready message')
-        try:
-            wip: str = netifaces.ifaddresses('wlan0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
-        except KeyError:
-            wip = 'n/a'
-        try:
-            eip: str = netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr']  # pylint: disable=c-extension-no-member
-        except KeyError:
-            eip = 'n/a'
+        ips = get_ipv4_address()
+        wip: str = ips.get('wlan0', 'n/a')
+        eip: str = ips.get('eth0', 'n/a')
         current_ip = (wip, eip)
         for i in range(2):
             with canvas(DEVICE[i]) as draw:
