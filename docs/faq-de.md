@@ -263,11 +263,9 @@ Installation der notwendigen Tools per [Homebrew](https://brew.sh/index_de).
 ```bash
 brew install git
 brew install node
-brew install python@3.9
+brew install python@3.11
 brew install visual-studio-code --cask
 ```
-
-Wird python@3.11 installiert, so werden die Bibliotheken für 64bit genutzt. Soll unter Python 3.9 und 3.11 parallel entwickelt werden, so bieten sich unterschiedlichen venv-Profile an.
 
 Jetzt ggf. Git-Kennungen einrichten.
 
