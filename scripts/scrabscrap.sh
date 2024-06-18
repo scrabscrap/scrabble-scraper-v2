@@ -12,6 +12,11 @@ SCRIPTPATH=$(dirname "$0")
 PYTHONDIR="$(cd "$SCRIPTPATH/../python" && pwd)"
 WORKDIR=$PYTHONDIR/work
 
+if [ $(uname -m) != 'aarch64' ]; then
+  echo 'armv7l no longer supported'
+  exit 1
+fi
+
 # create directories
 mkdir -p "$WORKDIR/log"
 mkdir -p "$WORKDIR/web"
@@ -26,12 +31,7 @@ cp -n "$PYTHONDIR/defaults/log.conf" "$WORKDIR/log.conf"
 export PYTHONPATH=src:
 if [ ! -d "$PYTHONDIR/.venv" ]; then
     cd "$PYTHONDIR"
-    if [ $(uname -m) == 'aarch64' ]; then
-        python3 -m venv .venv  --system-site-packages --prompt cv
-    else
-        # (armv7l)
-        python3 -m venv .venv --prompt cv
-    fi
+    python3 -m venv .venv  --system-site-packages --prompt cv
     source .venv/bin/activate
     pip install -U pip setuptools wheel
     pip install -U -r requirements.txt
