@@ -74,20 +74,6 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         return ApiServer.app.send_static_file(f'webapp/{path}')
 
     @staticmethod
-    @app.route('/awb/<path:awb>')
-    def awb(awb):
-        """set white balance for cam"""
-        if ApiServer.machine in ('aarch64'):
-            logging.warning('awb settings not supported with Picamera2')
-        elif awb in ('auto', 'sunlight', 'cloudy', 'shade', 'tungsten', 'incandescent', 'horizon', 'flash'):
-            camera.cam.camera.awb_mode = awb
-            logging.info(f'awb: {awb}')
-            sleep(2)  # camera warm up
-        else:
-            logging.error(f'invalid awb mode {awb}')
-        return redirect('/cam')
-
-    @staticmethod
     @app.route('/', methods=['GET', 'POST'])
     @app.route('/index', methods=['GET', 'POST'])
     def route_index():
@@ -132,11 +118,6 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     config.config.add_section('video')
                 config.config.set('video', 'warp_coordinates', request.form.get('warp_coordinates'))
                 config.save()
-            elif request.form.get('btnrestart'):
-                if ApiServer.machine in ('aarch64'):
-                    logging.warning('camera restart not supported with Picamera2')
-                else:
-                    camera.switch_camera('')
             return redirect('/cam')
         if len(request.args.keys()) > 0:
             coord = list(request.args.keys())[0]
