@@ -22,12 +22,12 @@ from typing import Optional
 
 import cv2
 import numpy as np
+from cv2.typing import MatLike
 from PIL import Image
 
 from config import config
 from customboard import CustomBoard
 from game_board.board import DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W, OFFSET, TRIPLE_LETTER, TRIPLE_WORDS
-from util import TImage
 
 # dimension board custom
 # ----------------------
@@ -74,7 +74,7 @@ class Custom2020PILBoard(CustomBoard):
         return tmp
 
     @classmethod
-    def filter_image(cls, _image: TImage) -> tuple[Optional[TImage], set]:
+    def filter_image(cls, _image: MatLike) -> tuple[Optional[MatLike], set]:
         # pylint: disable=too-many-locals,too-many-statements
         """implement filter for custom board"""
 
@@ -148,7 +148,7 @@ class Custom2020PILBoard(CustomBoard):
             pil_img = ImageOps.autocontrast(pil_img)
             return cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
 
-        def adjust_gamma(image: TImage, gamma: float = 1.0):
+        def adjust_gamma(image: MatLike, gamma: float = 1.0):
             # build a lookup table mapping the pixel values [0, 255] to
             # their adjusted gamma values
             inv_gamma = 1.0 / gamma

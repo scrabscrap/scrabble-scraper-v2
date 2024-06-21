@@ -21,9 +21,10 @@ from typing import Optional
 import cv2
 import imutils
 import numpy as np
+from cv2.typing import MatLike
 
 from config import config
-from util import TImage, TWarp
+from util import TWarp
 
 
 class GameBoard:
@@ -35,7 +36,7 @@ class GameBoard:
         pass
 
     @classmethod
-    def filter_image(cls, _img: TImage) -> tuple[Optional[TImage], set]:
+    def filter_image(cls, _img: MatLike) -> tuple[Optional[MatLike], set]:
         """implement filter for game board"""
         return _img, set()
 
@@ -60,8 +61,8 @@ class GameBoard:
             cnts = sorted(cnts, key=cv2.contourArea, reverse=True)  # type: ignore
             pts = None
             for contour in cnts:
-                peri = cv2.arcLength(contour, True)
-                approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
+                peri = cv2.arcLength(contour, True)  # type: ignore[arg-type]
+                approx = cv2.approxPolyDP(contour, 0.02 * peri, True)  # type: ignore[arg-type]
                 if len(approx) == 4:
                     pts = approx.reshape(4, 2)
                     break

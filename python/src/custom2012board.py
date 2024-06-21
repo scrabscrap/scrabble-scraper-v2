@@ -22,9 +22,9 @@ from typing import Optional
 
 import cv2
 import numpy as np
+from cv2.typing import MatLike
 
 from customboard import CustomBoard
-from util import TImage
 
 
 class Custom2012Board(CustomBoard):
@@ -38,8 +38,8 @@ class Custom2012Board(CustomBoard):
     # FIELD = [[30, 85, 20], [90, 255, 255]]                                   # 140 => 70  (-40, + 20)
 
     @classmethod
-    def filter_image(cls, _image: TImage) -> tuple[Optional[TImage], set]:  # pylint: disable=too-many-locals
-        def autocontrast(image: TImage) -> TImage:
+    def filter_image(cls, _image: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disable=too-many-locals
+        def autocontrast(image: MatLike) -> MatLike:
             from PIL import Image, ImageOps
 
             pil_img: Image.Image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))

@@ -26,6 +26,7 @@ from typing import List, Optional, Tuple
 import cv2
 import imutils
 import numpy as np
+from cv2.typing import MatLike
 
 from classicboard import ClassicBoard
 from config import config
@@ -40,7 +41,7 @@ from game_board.tiles import tiles
 from scrabble import Game, InvalidMoveExeption, Move, MoveType, NoMoveException
 from threadpool import pool
 from upload import upload
-from util import TImage, TWarp, runtime_measure, trace
+from util import TWarp, runtime_measure, trace
 
 
 def get_last_warp() -> Optional[TWarp]:  # pylint: disable=too-many-return-statements
@@ -78,7 +79,7 @@ def clear_last_warp():
 
 
 @runtime_measure
-def warp_image(img: TImage) -> tuple[TImage, TImage]:
+def warp_image(img: MatLike) -> tuple[MatLike, MatLike]:
     """Delegates the warp of the ``img`` according to the configured board style"""
     logging.debug(f'({config.board_layout})')
     warped = img
@@ -102,7 +103,7 @@ def warp_image(img: TImage) -> tuple[TImage, TImage]:
 
 
 @runtime_measure
-def filter_image(img: TImage) -> tuple[Optional[TImage], set]:  # pylint: disable=too-many-return-statements
+def filter_image(img: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disable=too-many-return-statements
     """Delegates the image filter of the ``img`` according to the configured board style"""
     logging.debug(f'({config.board_layout})')
     if config.board_layout == 'classic':
@@ -136,10 +137,10 @@ def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], 
     return result
 
 
-def analyze(warped_gray: TImage, board: dict, coord_list: set[tuple[int, int]]) -> dict:
+def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]]) -> dict:
     """find tiles on board"""
 
-    def match(img: TImage, suggest_tile: str, suggest_prop: int) -> tuple[str, int]:
+    def match(img: MatLike, suggest_tile: str, suggest_prop: int) -> tuple[str, int]:
         for _tile in tiles:
             res = cv2.matchTemplate(img, _tile.img, cv2.TM_CCOEFF_NORMED)  # type: ignore
             _, thresh, _, _ = cv2.minMaxLoc(res)
@@ -433,7 +434,7 @@ def admin_change_move(
 
 
 @trace
-def move(waitfor: Optional[Future], game: Game, img: TImage, player: int, played_time: Tuple[int, int], event=None):
+def move(waitfor: Optional[Future], game: Game, img: MatLike, player: int, played_time: Tuple[int, int], event=None):
     # pylint: disable=too-many-arguments
     """Process a move
 
@@ -663,7 +664,7 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
 
 
 @runtime_measure
-def _image_processing(waitfor: Optional[Future], game: Game, img: TImage) -> Tuple[TImage, dict]:
+def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tuple[MatLike, dict]:
     # pylint: disable=too-many-locals
     if waitfor is not None:  # wait for previous moves
         done, not_done = futures.wait({waitfor})
@@ -940,7 +941,7 @@ def store_zip_from_game(game: Game):  # pragma: no cover
 
 
 def _development_recording(
-    game: Game, img: Optional[TImage], suffix: str = '', info: bool = False, is_next_move: bool = False
+    game: Game, img: Optional[MatLike], suffix: str = '', info: bool = False, is_next_move: bool = False
 ):  # pragma: no cover
     if config.is_testing:
         logging.info('skip store because flag is_testing is set')
