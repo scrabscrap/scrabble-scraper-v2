@@ -42,6 +42,5 @@ packaging==24.1
 opencv-python-headless==4.10.0.84
 --only-binary=:none:
 
-# numpy<3  # incompatible with mypy
 numpy<2
-# ├── numpy [required: >=1.21.2, installed: 1.26.4]
+# ├── numpy [required: >=1.21.2, installed: 2.0.0]
