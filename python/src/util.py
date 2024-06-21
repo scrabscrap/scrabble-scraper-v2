@@ -23,9 +23,7 @@ from logging.handlers import BaseRotatingHandler
 from typing import Any, Callable, Union
 
 import numpy as np
-from numpy.typing import NDArray
 
-TImage = NDArray[np.uint8]
 TWarp = np.ndarray[float, np.dtype[np.float32]]
 
 # def onexit(f):

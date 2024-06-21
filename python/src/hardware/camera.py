@@ -26,9 +26,10 @@ from typing import Optional, Protocol
 
 import cv2
 import numpy as np
+from cv2.typing import MatLike
 
 from config import config
-from util import TImage, runtime_measure
+from util import runtime_measure
 
 camera_dict: dict = {}
 logging.basicConfig(level=logging.INFO, force=True)
@@ -40,7 +41,7 @@ class Camera(Protocol):
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
         """constructor"""
 
-    def read(self, peek: bool = False) -> TImage:
+    def read(self, peek: bool = False) -> MatLike:
         """read next picture"""
 
     def update(self, event: Event) -> None:
@@ -91,7 +92,7 @@ if importlib.util.find_spec('picamera2'):
                 self.camera.close()
 
         @runtime_measure
-        def read(self, peek: bool = False) -> TImage:
+        def read(self, peek: bool = False) -> MatLike:
             """read next picture"""
             return self.frame
 
@@ -167,7 +168,7 @@ class CameraFile(Camera):
         self._counter = value
 
     @runtime_measure
-    def read(self, peek: bool = False) -> TImage:
+    def read(self, peek: bool = False) -> MatLike:
         logging.debug(f'CameraFile read: {self._formatter.format(self._counter)}')
         img = cv2.imread(self._formatter.format(self._counter))
         if not peek:
@@ -214,7 +215,7 @@ class CameraOpenCV(Camera):
         self.frame = np.array([])
 
     @runtime_measure
-    def read(self, peek: bool = False) -> TImage:
+    def read(self, peek: bool = False) -> MatLike:
         return self.frame
 
     def update(self, event: Event) -> None:
