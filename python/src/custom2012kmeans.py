@@ -23,15 +23,12 @@ from typing import Optional
 
 import cv2
 import numpy as np
+from cv2.typing import MatLike
 
 from config import config
 from customboard import CustomBoard
 from game_board.board import DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W, OFFSET, TRIPLE_LETTER, TRIPLE_WORDS
 from threadpool import pool
-from util import TImage
-
-Mat = np.ndarray[int, np.dtype[np.generic]]
-
 
 # dimension board custom
 # ----------------------
@@ -83,7 +80,7 @@ class Custom2012kBoard(CustomBoard):
         return tmp
 
     @classmethod
-    def filter_image(cls, _image: TImage) -> tuple[Optional[TImage], set]:
+    def filter_image(cls, _image: MatLike) -> tuple[Optional[MatLike], set]:
         # pylint: disable=too-many-statements,too-many-locals
         """implement filter for custom board"""
 
@@ -109,7 +106,7 @@ class Custom2012kBoard(CustomBoard):
             # green
             return not between(color, *cls.FIELD_COLOR)
 
-        def filter_set_of_positions(coord: set, img: Mat, result: Mat, color_table: dict, set_of_tiles: set) -> dict:
+        def filter_set_of_positions(coord: set, img: MatLike, result: MatLike, color_table: dict, set_of_tiles: set) -> dict:
             # pylint: disable=too-many-locals, disable=too-many-arguments
             offset = int(OFFSET / 2)  # use 400x400 instead of 800x800
             grid_h = int(GRID_H / 2)
@@ -125,7 +122,7 @@ class Custom2012kBoard(CustomBoard):
 
                 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 1.0)
                 k = 3
-                _, label, center = cv2.kmeans(data, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+                _, label, center = cv2.kmeans(data, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)  # type: ignore[call-overload] # noqa: E501 # pylint: disable=line-too-long
                 reduced = np.uint8(center)[label.flatten()]  # type: ignore # pylint: disable=unsubscriptable-object
                 unique, counts = np.unique(reduced.reshape(-1, 3), axis=0, return_counts=True)
                 color = unique[np.argmax(counts)]

@@ -20,10 +20,10 @@ import logging
 
 import cv2
 import numpy as np
+from cv2.typing import MatLike
 
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from gameboard import GameBoard
-from util import TImage
 
 # dimensions board classic
 # ------------------------
@@ -48,7 +48,7 @@ class ClassicBoard(GameBoard):
         pass
 
     @classmethod
-    def warp(cls, __image: TImage) -> TImage:  # pylint: disable=too-many-locals
+    def warp(cls, __image: MatLike) -> MatLike:  # pylint: disable=too-many-locals
         """ " implement warp of a classic board"""
 
         rect = ClassicBoard.find_board(__image)
@@ -90,19 +90,19 @@ class ClassicBoard(GameBoard):
         return resized
 
     @classmethod
-    def filter_image(cls, _img: TImage) -> tuple[TImage, set]:
+    def filter_image(cls, _img: MatLike) -> tuple[MatLike, set]:
         """implement filter for classic board"""
         _gray = cv2.cvtColor(_img, cv2.COLOR_BGR2GRAY)
         _, thresh = cv2.threshold(_gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         blank_grid = 255 - thresh.astype('uint8')
-        blank_grid = cv2.erode(blank_grid, None, iterations=4)
-        blank_grid = cv2.dilate(blank_grid, None, iterations=2)
-        blank_grid = cv2.erode(blank_grid, None, iterations=4)
-        blank_grid = cv2.dilate(blank_grid, None, iterations=2)
+        blank_grid = cv2.erode(blank_grid, None, iterations=4)  # type: ignore[call-overload]
+        blank_grid = cv2.dilate(blank_grid, None, iterations=2)  # type: ignore[call-overload]
+        blank_grid = cv2.erode(blank_grid, None, iterations=4)  # type: ignore[call-overload]
+        blank_grid = cv2.dilate(blank_grid, None, iterations=2)  # type: ignore[call-overload]
 
         mark_grid = cv2.GaussianBlur(thresh, (5, 5), 0)
-        mark_grid = cv2.erode(mark_grid, None, iterations=4)
-        mark_grid = cv2.dilate(mark_grid, None, iterations=4)
+        mark_grid = cv2.erode(mark_grid, None, iterations=4)  # type: ignore[call-overload]
+        mark_grid = cv2.dilate(mark_grid, None, iterations=4)  # type: ignore[call-overload]
         _, mark_grid = cv2.threshold(mark_grid, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         _tiles_candidates: set = set()
         _blank_candidates: dict = {}

@@ -22,11 +22,12 @@ from typing import Optional
 
 import cv2
 import numpy as np
+from cv2.typing import MatLike
 
 from config import config
 from game_board.board import DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W, OFFSET, TRIPLE_LETTER, TRIPLE_WORDS
 from gameboard import GameBoard
-from util import TImage, TWarp
+from util import TWarp
 
 # dimension board custom
 # ----------------------
@@ -42,7 +43,7 @@ from util import TImage, TWarp
 # 19mm x 19mm
 
 
-def _create_masks() -> tuple[TImage, TImage, TImage, TImage, TImage]:
+def _create_masks() -> tuple[MatLike, MatLike, MatLike, MatLike, MatLike]:
     tword = np.zeros((800, 800), dtype='uint8')
     dword = np.zeros((800, 800), dtype='uint8')
     tletter = np.zeros((800, 800), dtype='uint8')
@@ -87,7 +88,7 @@ class CustomBoard(GameBoard):
     last_warp: Optional[TWarp] = None
 
     @classmethod
-    def warp(cls, __image: TImage) -> TImage:  # pylint: disable=too-many-locals
+    def warp(cls, __image: MatLike) -> MatLike:  # pylint: disable=too-many-locals
         """ " implement warp of a custom board"""
 
         rect = cls.find_board(__image)
@@ -130,7 +131,7 @@ class CustomBoard(GameBoard):
         return tmp
 
     @classmethod
-    def filter_image(cls, _image: TImage) -> tuple[Optional[TImage], set]:  # pylint: disable=too-many-locals
+    def filter_image(cls, _image: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disable=too-many-locals
         img = cv2.blur(_image, (3, 3))
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         mask_saturation = cv2.inRange(hsv, np.array(cls.SATURATION[0]), np.array(cls.SATURATION[1]))
@@ -187,6 +188,7 @@ def main():  # pylint: disable=too-many-locals
     """main function for test and debug"""
 
     import sys
+
     from numpy import hstack, vstack
 
     logging.basicConfig(
