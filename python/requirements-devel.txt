@@ -2,13 +2,7 @@
 # pip install -U -r requirements-devel.txt
 
 --prefer-binary
-autopep8
-# └── pycodestyle [required: >=2.12.0, installed: 2.12.0]
 coverage
-flake8
-# ├── mccabe [required: >=0.7.0,<0.8.0, installed: 0.7.0]
-# ├── pycodestyle [required: >=2.12.0,<2.13.0, installed: 2.12.0]
-# └── pyflakes [required: >=3.2.0,<3.3.0, installed: 3.2.0]
 mypy
 # ├── mypy-extensions [required: >=1.0.0, installed: 1.0.0]
 # └── typing_extensions [required: >=4.1.0, installed: 4.12.2]
@@ -27,3 +21,4 @@ snakeviz
 types-Pillow
 types-requests
 # └── urllib3 [required: >=2, installed: 2.2.2]
+ruff

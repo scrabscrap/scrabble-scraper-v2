@@ -7,7 +7,7 @@ do
     case "${flag}" in
         h)
           echo "usage qa.sh"
-          echo "always run flake8, mypy, pylint"
+          echo "always run ruff, mypy, pylint"
           echo "-h help"
           echo "-c run coverage"
           exit 0
@@ -20,11 +20,11 @@ do
     esac
 done
 
-  echo "*** run flake8"
-  flake8 src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py --config=.flake8 --exclude="ignore/*" --count --show-source --statistics
+  echo "*** run ruff"
+  ruff check src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
   retVal=$?
   if [ $retVal -ne 0 ]; then
-    echo "### flake8 returns $retVal"
+    echo "### ruff returns $retVal"
   fi
 
   echo "*** run mypy"
