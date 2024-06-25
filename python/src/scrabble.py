@@ -17,10 +17,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import copy
-import datetime
 import json
 import logging
 import re
+from datetime import datetime
 from enum import Enum
 from typing import List, Optional, Tuple
 
@@ -114,7 +114,7 @@ class Move:  # pylint: disable=too-many-instance-attributes
         rack=None,
     ):  # pylint: disable=too-many-arguments
         self.type: MoveType = move_type
-        self.time: str = str(datetime.datetime.now())
+        self.time: str = str(datetime.now())
         self.move = 0  # set on append of move in class Game
         self.player: int = player
         self.coord: Tuple[int, int] = coord if coord is not None else (-1, -1)
@@ -277,7 +277,7 @@ class Game:
 
     def __init__(self, nicknames: Optional[Tuple[str, str]]):
         self._nicknames: Tuple[str, str] = ('Name1', 'Name2') if nicknames is None else nicknames
-        self.gamestart: Optional[datetime.datetime] = datetime.datetime.now()
+        self.gamestart: Optional[datetime] = datetime.now()
         self.moves: List[Move] = []
 
     def __str__(self) -> str:
@@ -465,7 +465,7 @@ class Game:
         """Reset to a new game (nicknames, moves)"""
         # with python > 3.11 return type: -> Self
         self.nicknames = ('Name1', 'Name2')
-        self.gamestart = datetime.datetime.now()
+        self.gamestart = datetime.now()
         self.moves.clear()
         return self
 
@@ -504,13 +504,10 @@ class Game:
 
         logging.debug('scrabble: create move invalid challenge')
         move = copy.deepcopy(last_move)
-        move.type = MoveType.CHALLENGE_BONUS
+        move.type, move.move, move.player = MoveType.CHALLENGE_BONUS, len(self.moves) + 1, player
         move.points = config.malus_doubt * -1
-        move.player = player
         move.word = ''
-        move.removed_tiles = {}
-        move.new_tiles = {}
-        move.modification_cache = {}
+        move.removed_tiles, move.new_tiles, move.modification_cache = {}, {}, {}
         move.played_time = played_time
         move.score = (
             (move.score[0] - config.malus_doubt, move.score[1])
@@ -518,7 +515,6 @@ class Game:
             else (move.score[0], move.score[1] - config.malus_doubt)
         )
         self.moves.append(move)
-        move.move = len(self.moves)  # set move number
         logging.info(f'invalid challenge: player {move.player} points {move.points} score {move.score}')
         return self
 
@@ -549,15 +545,13 @@ class Game:
             move = copy.deepcopy(self.moves[-2])  # board, img, score
             move.type = MoveType.WITHDRAW
             move.played_time = played_time
-        move.player = 1 if player == 0 else 0
+        move.move, move.player = len(self.moves) + 1, 1 if player == 0 else 0
         move.points = -last_move.points
         move.word = last_move.word
         move.removed_tiles = last_move.new_tiles
-        move.new_tiles = {}
-        move.modification_cache = {}
+        move.new_tiles, move.modification_cache = {}, {}
 
         self.moves.append(move)
-        move.move = len(self.moves)  # set move number
         logging.info(f'valid challenge: player {move.player} points {move.points}')
         return self
 
@@ -571,36 +565,28 @@ class Game:
         Returns:
             self(Game): current game
         """
-        if len(self.moves) > 0:
-            last_move = self.moves[-1]
-        else:
-            last_move = Move(MoveType.UNKNOWN, 0, None, False, '', {}, {}, {}, (0, 0), (0, 0))
+
+        def create_last_rack_move(last_move, move_type, player, point):
+            move = copy.deepcopy(last_move)
+            move.type, move.move, move.time, move.player = move_type, len(self.moves) + 1, str(datetime.now()), player
+            move.word = rack_str
+            move.removed_tiles, move.new_tiles, move.modification_cache = {}, {}, {}
+            move.points, move.score = point, (move.score[0] + points[0], move.score[1] + points[1])
+            return move
+
+        last_move = (
+            self.moves[-1] if len(self.moves) > 0 else Move(MoveType.UNKNOWN, 0, None, False, '', {}, {}, {}, (0, 0), (0, 0))
+        )
         logging.debug('scrabble: create move last rack bonus/malus')
 
-        move = copy.deepcopy(last_move)
-        move.type = MoveType.LAST_RACK_BONUS if points[0] > 0 else MoveType.LAST_RACK_MALUS
-        move.time = str(datetime.datetime.now())
-        move.player = 0
-        move.word = rack_str
-        move.removed_tiles = {}
-        move.new_tiles = {}
-        move.modification_cache = {}
-        move.points = points[0]
-        move.score = (move.score[0] + points[0], move.score[1] + points[1])
-        move.move = len(self.moves) + 1  # set move number
-        self.moves.append(move)
+        move_0 = create_last_rack_move(
+            last_move, MoveType.LAST_RACK_BONUS if points[0] > 0 else MoveType.LAST_RACK_MALUS, 0, points[0]
+        )
+        self.moves.append(move_0)
 
-        move = copy.deepcopy(last_move)
-        move.type = MoveType.LAST_RACK_MALUS if points[0] > 0 else MoveType.LAST_RACK_BONUS
-        move.time = str(datetime.datetime.now())
-        move.player = 1
-        move.word = rack_str
-        move.removed_tiles = {}
-        move.new_tiles = {}
-        move.modification_cache = {}
-        move.points = points[1]
-        move.score = (move.score[0] + points[0], move.score[1] + points[1])
-        move.move = len(self.moves) + 1  # set move number
-        self.moves.append(move)
+        move_1 = create_last_rack_move(
+            last_move, MoveType.LAST_RACK_MALUS if points[0] > 0 else MoveType.LAST_RACK_BONUS, 1, points[1]
+        )
+        self.moves.append(move_1)
 
         return self
