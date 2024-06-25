@@ -39,13 +39,10 @@ def board_to_string(board: dict) -> str:
         right = '| '
         for col in range(15):
             cell_key = (col, row)
-            if cell_key in board:
-                key, value = board[cell_key]
-                left += f' {key} '
-                right += f' {value}'
-            else:
-                left += ' . '
-                right += ' . '
+            cell_value = board.get(cell_key, ('.', '. '))
+
+            left += f' {cell_value[0]} '
+            right += f' {cell_value[1]}'
         result += left + right + ' | \n'
     return result
 
@@ -140,9 +137,7 @@ class Move:  # pylint: disable=too-many-instance-attributes
     def gcg_str(self, nicknames: Optional[Tuple[str, str]] = None) -> str:  # pylint: disable=too-many-branches
         """move as gcg string"""
 
-        mod = ''
-        if self.modification_cache:
-            mod = ' ' + chr(0x270F)  # ✏
+        mod = f' {chr(0x270F)}' if self.modification_cache else ''  # ✏
         if nicknames:
             result = f'> {nicknames[self.player]}{mod}: '
         else:
@@ -161,15 +156,11 @@ class Move:  # pylint: disable=too-many-instance-attributes
                     gcg_word += char
             gcg_word = gcg_word.replace(')(', '')
             result += f' {gcg_word} '
-        elif self.type == MoveType.PASS_TURN:
+        elif self.type in (MoveType.PASS_TURN, MoveType.EXCHANGE):
             result += '- '
-        elif self.type == MoveType.EXCHANGE:
-            result += '- '  # f'- {self.exchange} '
         elif self.type == MoveType.WITHDRAW:
             result += '-- '
-        elif self.type == MoveType.LAST_RACK_BONUS:
-            result += f'(bank={self.word}) '
-        elif self.type == MoveType.LAST_RACK_MALUS:
+        elif self.type in (MoveType.LAST_RACK_BONUS, MoveType.LAST_RACK_MALUS):
             result += f'(bank={self.word}) '
         elif self.type == MoveType.CHALLENGE_BONUS:
             result += '(challenge) '
@@ -183,8 +174,7 @@ class Move:  # pylint: disable=too-many-instance-attributes
     def get_coord(self) -> str:
         """get coord as gcg string"""
         (col, row) = self.coord
-        result = str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(ord('A') + row) + str(col + 1)
-        return result
+        return str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(ord('A') + row) + str(col + 1)
 
     def calc_coord(self, coord: str) -> tuple[bool, int, int]:
         """calc coord from gcg string"""
@@ -193,15 +183,13 @@ class Move:  # pylint: disable=too-many-instance-attributes
 
         col, row = (0, 0)
         vert = False
-        gcg_match = gcg_coord_v.match(coord)
-        if gcg_match:
-            col = int(gcg_match.group(1)) - 1
-            row = int(ord(gcg_match.group(2).capitalize()) - ord('A'))
+        if gcg_match := gcg_coord_v.match(coord):
+            col = int(gcg_match[1]) - 1
+            row = int(ord(gcg_match[2].capitalize()) - ord('A'))
             vert = True
-        gcg_match = gcg_coord_h.match(coord)
-        if gcg_match:
-            col = int(gcg_match.group(2)) - 1
-            row = int(ord(gcg_match.group(1).capitalize()) - ord('A'))
+        if gcg_match := gcg_coord_h.match(coord):
+            col = int(gcg_match[2]) - 1
+            row = int(ord(gcg_match[1].capitalize()) - ord('A'))
             vert = False
         return vert, col, row
 
@@ -287,7 +275,7 @@ class Game:
         """Return the json represention of the board"""
         (name1, name2) = self.nicknames
         if len(self.moves) < 1:
-            to_json = json.dumps(
+            return json.dumps(
                 {
                     'api': API_VERSION,
                     'commit': config.git_commit,
@@ -307,7 +295,6 @@ class Game:
                     'bag': bag_as_list.copy(),
                 }
             )
-            return to_json
         move_index = len(self.moves) - 1 if move_number == -1 else move_number - 1
         keys = self.moves[move_index].board.keys()
         values = self.moves[move_index].board.values()
@@ -318,10 +305,8 @@ class Game:
             toremove = '_' if i.isalpha() and i.islower() else i
             if toremove in bag:
                 bag.remove(toremove)
-        gcg_moves = []
-        for i in range(0, move_index + 1):
-            gcg_moves.append(self.moves[i].gcg_str(self.nicknames))
-        to_json = json.dumps(
+        gcg_moves = [self.moves[i].gcg_str(self.nicknames) for i in range(move_index + 1)]
+        return json.dumps(
             {
                 'api': API_VERSION,
                 'commit': config.git_commit,
@@ -341,7 +326,6 @@ class Game:
                 'bag': bag,
             }
         )
-        return to_json
 
     def dev_str(self) -> str:  # pragma: no cover # pylint: disable=too-many-branches
         """Return devleompemt represention of the game for using in tests"""
@@ -356,84 +340,49 @@ class Game:
             'layout = custom\n'
         )
         if self.moves:
-            if self.moves[0].player == 0:
-                out_str += 'start = Red\n'  # first move: green
-            else:
-                out_str += 'start = Green\n'
+            out_str += ('start = Red\n', 'start = Green\n')[self.moves[0].player]
         if config.video_warp_coordinates:
             out_str += f'warp-coord = {config.video_warp_coordinates}\n'
 
         out_str += '\ngame.csv\n'
         out_str += 'Move, Button, State, Coord, Word, Points, Score1, Score2\n'
         for move in self.moves:
-            if move.player == 0:
-                if move.type == MoveType.WITHDRAW:
-                    out_str += (
-                        f'{move.move}, "Yellow", "P1", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points*-1}, {move.score[0]-move.points}, {move.score[1]}\n'
-                    )
-                    out_str += (
-                        f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
-                    out_str += (
-                        f'{move.move}, "Red", "S0", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
-                elif move.type == MoveType.CHALLENGE_BONUS:
-                    out_str += (
-                        f'{move.move}, "Yellow", "P0", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
-                    out_str += (
-                        f'{move.move}, "DOUBT1", "P0", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
-                    out_str += (
-                        f'{move.move}, "Yellow", "S0", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
-                elif move.type == MoveType.EXCHANGE:
-                    out_str += f'{move.move}, "Green", "S1", "-", ' f', {move.points}, {move.score[0]}, {move.score[1]}\n'
-                else:
-                    out_str += (
-                        f'{move.move}, "Green", "S1", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
+            if move.type == MoveType.WITHDRAW:
+                out_str += (
+                    f'{move.move}, "Yellow", "{("P1", "P0")[move.player]}", "{move.get_coord()}", '
+                    f'"{move.word}", {move.points*-1}, {move.score[0]-move.points}, {move.score[1]}\n'
+                )
+                out_str += (
+                    f'{move.move}, "{("DOUBT0", "DOUBT1")[move.player]}", "{("P1", "P0")[move.player]}", "{move.get_coord()}", '
+                    f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                )
+                out_str += (
+                    f'{move.move}, "{("Red", "Green")[move.player]}", "{("S0", "S1")[move.player]}", "{move.get_coord()}", '
+                    f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                )
+            elif move.type == MoveType.CHALLENGE_BONUS:
+                out_str += (
+                    f'{move.move}, "Yellow", "{("P0", "P1")[move.player]}", "{move.get_coord()}", '
+                    f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                )
+                out_str += (
+                    f'{move.move}, "{("DOUBT1", "DOUBT0")[move.player]}", "{("P0", "P1")[move.player]}", "{move.get_coord()}", '
+                    f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                )
+                out_str += (
+                    f'{move.move}, "Yellow", "{("S0", "S1")[move.player]}", "{move.get_coord()}", '
+                    f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                )
+            elif move.type == MoveType.EXCHANGE:
+                out_str += (
+                    f'{move.move}, "{("Green", "Red")[move.player]}", "{("S1", "S0")[move.player]}", "-", '
+                    f', {move.points}, {move.score[0]}, {move.score[1]}\n'
+                )
             else:
-                if move.type == MoveType.WITHDRAW:
-                    out_str += (
-                        f'{move.move}, "Yellow", "P0", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points*-1}, {move.score[0]}, {move.score[1]-move.points}\n'
-                    )
-                    out_str += (
-                        f'{move.move}, "DOUBT0", "P0", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
-                    out_str += (
-                        f'{move.move}, "Red", "S0", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
-                elif move.type == MoveType.CHALLENGE_BONUS:
-                    out_str += (
-                        f'{move.move}, "Yellow", "P1", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
-                    out_str += (
-                        f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
-                    out_str += (
-                        f'{move.move}, "Yellow", "S1", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
-                elif move.type == MoveType.EXCHANGE:
-                    out_str += f'{move.move}, "Red", "S0", "-", ' f', {move.points}, {move.score[0]}, {move.score[1]}\n'
-                else:
-                    out_str += (
-                        f'{move.move}, "Red", "S0", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
-                    )
+                out_str += (
+                    f'{move.move}, "{("Green", "Red")[move.player]}", "{("S1", "S0")[move.player]}", "{move.get_coord()}", '
+                    f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
+                )
         return out_str
 
     def board_str(self, move_index: int = -1) -> str:
@@ -496,7 +445,7 @@ class Game:
         """
         # with python > 3.11 return type: -> Self
         if len(self.moves) < 1:
-            raise Exception('challenge: no previous move available')  # pylint: disable=broad-exception-raised
+            raise ValueError('challenge: no previous move available')  # pylint: disable=broad-exception-raised
         last_move = self.moves[-1]
         if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):
             logging.warning(f'(last move {last_move.type.name}): invalid challenge not allowed')
@@ -530,7 +479,7 @@ class Game:
         """
         # with python > 3.11 return type: -> Self
         if len(self.moves) < 1:
-            raise Exception('challenge: no previous move available')  # pylint: disable=broad-exception-raised
+            raise ValueError('challenge: no previous move available')  # pylint: disable=broad-exception-raised
         last_move = self.moves[-1]
         if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):
             logging.warning(f'(last move {last_move.type.name}): valid challenge not allowed')

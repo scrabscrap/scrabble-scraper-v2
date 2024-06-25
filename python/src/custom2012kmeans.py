@@ -158,9 +158,9 @@ class Custom2012kBoard(CustomBoard):
 
         color_table: dict = {}
         partitions = [
-            set(product(range(0, 5), range(0, 15))),
-            set(product(range(5, 10), range(0, 15))),
-            set(product(range(10, 15), range(0, 15))),
+            set(product(range(5), range(15))),
+            set(product(range(5, 10), range(15))),
+            set(product(range(10, 15), range(15))),
         ]
         tiles1: set = set()
         tiles2: set = set()

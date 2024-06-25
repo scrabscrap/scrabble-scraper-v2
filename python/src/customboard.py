@@ -101,8 +101,7 @@ class CustomBoard(GameBoard):
         # the perspective to grab the screen
         cls.last_warp = rect
         matrix = cv2.getPerspectiveTransform(rect, dst)
-        result = cv2.warpPerspective(__image, matrix, (800, 800))
-        return result
+        return cv2.warpPerspective(__image, matrix, (800, 800))
 
     @classmethod
     def log_pixels(cls, filtered_pixels) -> str:
@@ -171,7 +170,7 @@ class CustomBoard(GameBoard):
                 px_row = int(OFFSET + (col * GRID_W))
                 segment = mask_result[px_col + 2 : px_col + GRID_H - 2, px_row + 2 : px_row + GRID_W - 2]
                 number_of_not_black_pix: int = np.sum(segment != 0)
-                filtered_pixels.update({(col, row): number_of_not_black_pix})
+                filtered_pixels[(col, row)] = number_of_not_black_pix
                 if number_of_not_black_pix > cls.TILES_THRESHOLD:
                     candidates.add((col, row))
         if logging.getLogger().isEnabledFor(logging.DEBUG):

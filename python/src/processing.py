@@ -383,7 +383,7 @@ def admin_change_move(
                 new_word += char
                 tiles_to_add[(xcol, xrow)] = (char, 99)
         word = new_word
-        logging.debug(f'tiles_to_add {tiles_to_add} / word {new_word}')
+        logging.debug(f'tiles_to_add {tiles_to_add} / word {word}')
         if tiles_to_remove or tiles_to_add:
             game.moves[index].modification_cache['coord'] = coord
             game.moves[index].modification_cache['isvertical'] = isvertical
@@ -538,7 +538,7 @@ def start_of_game(game: Game):
         file_list = glob.glob(f'{config.web_dir}/data-*.json')
         for file_path in file_list:
             os.remove(file_path)
-        if len(file_list) > 0:
+        if file_list:
             util.rotate_logs()
     except OSError:
         logging.error('OS Error on delete web data/image files')
@@ -637,7 +637,7 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
     if len(changed) == 1:  # only 1 tile
         col, row = changed[-1]
         horizontal = ((col - 1, row) in board) or ((col + 1, row) in board)
-        vertical = ((col, row - 1) in board) or ((col, row + 1) in board) if not horizontal else False
+        vertical = False if horizontal else ((col, row - 1) in board) or ((col, row + 1) in board)
     col, row = changed[0]
     min_col, min_row = col, row
     word = ''
@@ -669,10 +669,9 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tu
     _development_recording(game, filtered_image, suffix='~filter', is_next_move=True)
 
     if len(game.moves) > 1:  # 3a. check for wrong blank tiles
-        to_del = [
+        if to_del := [
             i for i in game.moves[-1].new_tiles.keys() if (game.moves[-1].board[i][0] == '_') and i not in tiles_candidates
-        ]  # noqa: W503
-        if to_del:
+        ]:
             _move = game.moves[-1]
             for i in to_del:
                 logging.warning(f'remove blank tiles from the last move because they are no longer recognized {i}')
@@ -766,9 +765,6 @@ def _move_processing(
                     if any((col, blank[1]) not in current_board for col in range(blank[0], max_col)):
                         del new_tiles[blank]
 
-        else:  # tiles with characters in different cols and rows; hmm how to fix?
-            pass
-
         removed_tiles = previous_tiles.keys() - new_tiles
         for k in removed_tiles:
             del current_board[k]
@@ -842,9 +838,9 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
     must_recalculate = False
     for mov in game.moves[to_inspect:]:
-        must_recalculate = must_recalculate or any(coord in mov.board.keys() for coord in changed.keys())
+        must_recalculate = must_recalculate or any(coord in mov.board.keys() for coord in changed)
         if must_recalculate:
-            mov.board.update({coord: changed[coord] for coord in changed.keys() if coord in mov.board.keys()})
+            mov.board.update({coord: changed[coord] for coord in changed if coord in mov.board.keys()})
             _word = ''
             (col, row) = mov.coord
             for j, char in enumerate(mov.word):  # fix mov.word
@@ -875,11 +871,14 @@ def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = 
         return
 
     if game.moves and move_to_store:
-        if with_image and move_to_store.img is not None:
-            if not cv2.imwrite(
+        if (
+            with_image
+            and move_to_store.img
+            and not cv2.imwrite(
                 f'{config.web_dir}/image-{move_to_store.move}.jpg', move_to_store.img, [cv2.IMWRITE_JPEG_QUALITY, 100]
-            ):
-                logging.error(f'error writing image-{move_to_store.move}.jpg')
+            )
+        ):
+            logging.error(f'error writing image-{move_to_store.move}.jpg')
         try:
             with open(f'{config.web_dir}/data-{move_to_store.move}.json', 'w', encoding='UTF-8') as handle:
                 handle.write(game.json_str(move_to_store.move))

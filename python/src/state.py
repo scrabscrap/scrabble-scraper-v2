@@ -93,7 +93,7 @@ class State(Static):
     @classmethod
     def do_start(cls, player: int) -> str:
         """Start playing with player 0/1"""
-        assert player in [0, 1], 'invalid player number'
+        assert player in {0, 1}, 'invalid player number'
 
         next_state = (S0, S1)[player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
@@ -107,7 +107,7 @@ class State(Static):
     @classmethod
     def do_move(cls, player: int) -> str:
         """analyze players 0/1 move"""
-        assert player in [0, 1], 'invalid player number'
+        assert player in {0, 1}, 'invalid player number'
 
         next_player = abs(player - 1)
         next_state = (S0, S1)[next_player]
@@ -123,7 +123,7 @@ class State(Static):
     @classmethod
     def do_pause(cls, player: int) -> str:
         """pause pressed while player 0 is active"""
-        assert player in [0, 1], 'invalid player number'
+        assert player in {0, 1}, 'invalid player number'
 
         next_state = (P0, P1)[player]
         next_led = ({LEDEnum.green, LEDEnum.yellow}, {LEDEnum.red, LEDEnum.yellow})[player]
@@ -135,7 +135,7 @@ class State(Static):
     @classmethod
     def do_resume(cls, player: int) -> str:
         """resume from pause while player 0 is active"""
-        assert player in [0, 1], 'invalid player number'
+        assert player in {0, 1}, 'invalid player number'
 
         next_state = (S0, S1)[player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
@@ -147,7 +147,7 @@ class State(Static):
     @classmethod
     def do_valid_challenge(cls, player: int) -> str:
         """player 0/1 has a valid challenge for the last move from player 1/0"""
-        assert player in [0, 1], 'invalid player number'
+        assert player in {0, 1}, 'invalid player number'
 
         next_state = (P0, P1)[player]
         logging.info(f'{cls.current_state} - (valid challenge) -> {next_state}')
@@ -168,7 +168,7 @@ class State(Static):
     @classmethod
     def do_invalid_challenge(cls, player: int) -> str:
         """player 0/1 has an invalid challenge for the last move from player 1/0"""
-        assert player in [0, 1], 'invalid player number'
+        assert player in {0, 1}, 'invalid player number'
 
         next_state = (P0, P1)[player]
         logging.info(f'{cls.current_state} - (invalid challenge) -> {next_state} (-{config.malus_doubt:2d})')  # -10
@@ -259,8 +259,7 @@ class State(Static):
         start_of_game(cls.game)
         if not cls.op_event.is_set():
             cls.op_event.set()
-        next_state = cls.do_ready()
-        return next_state
+        return cls.do_ready()
 
     @classmethod
     def do_end_of_game(cls) -> str:

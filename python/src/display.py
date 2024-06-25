@@ -136,19 +136,19 @@ class DisplayMock(Display):
         logging.debug('end of game message')
 
     def show_pause(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in [0, 1], 'invalid player number'
+        assert player in {0, 1}, 'invalid player number'
         logging.debug(f'Pause message: {player}/{played_time}/{current}')
 
     def add_malus(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in [0, 1], 'invalid player number'
+        assert player in {0, 1}, 'invalid player number'
         logging.debug(f'{player}: malus -10: {played_time}/{current}')
 
     def add_remove_tiles(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in [0, 1], 'invalid player number'
+        assert player in {0, 1}, 'invalid player number'
         logging.debug(f'{player}: Entf. Zug: {played_time}/{current}')
 
     def add_doubt_timeout(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in [0, 1], 'invalid player number'
+        assert player in {0, 1}, 'invalid player number'
         logging.debug(f'{player}: doubt timeout: {played_time}/{current}')
 
     def show_cam_err(self) -> None:
@@ -163,7 +163,7 @@ class DisplayMock(Display):
     def render_display(
         self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: Optional[str] = None
     ) -> None:
-        assert player in [0, 1], 'invalid player number'
+        assert player in {0, 1}, 'invalid player number'
 
         minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
         text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
