@@ -21,6 +21,7 @@ from scrabblewatch import ScrabbleWatch  # pylint: disable=wrong-import-order
 # display fast boot message on display
 ScrabbleWatch.display.show_boot()  # Boot Message
 
+# ruff: noqa: E402
 import atexit
 import logging
 import logging.config
