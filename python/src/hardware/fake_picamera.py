@@ -45,7 +45,6 @@ class PiCamera:
     def __init__(self, resolution=None, framerate=None, sensor_mode=None):
         # empty constructor
         logging.warning(f'using fake raspberry pi camera resolution={resolution} / framerate {framerate} /  mode {sensor_mode}')
-        pass
 
     def __enter__(self):
         return self

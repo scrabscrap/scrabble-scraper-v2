@@ -86,8 +86,7 @@ class ClassicBoard(GameBoard):
         crop_width = int((max_width / 360) * 15)
         crop_bottom = int((max_height / 360) * 23)
         crop = result[crop_top : max_height - crop_bottom, crop_width : max_width - crop_width]
-        resized = cv2.resize(crop, (800, 800))
-        return resized
+        return cv2.resize(crop, (800, 800))
 
     @classmethod
     def filter_image(cls, _img: MatLike) -> tuple[MatLike, set]:
@@ -113,9 +112,9 @@ class ClassicBoard(GameBoard):
     @classmethod
     def _mark_grid(cls, coord: tuple[int, int], _grid, _blank_grid, _board: set, _blank_candidates: dict):
         (col, row) = coord
-        if col not in range(0, 15):
+        if col not in range(15):
             return
-        if row not in range(0, 15):
+        if row not in range(15):
             return
         if coord in _board:
             return

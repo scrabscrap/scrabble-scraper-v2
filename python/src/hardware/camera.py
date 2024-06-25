@@ -64,8 +64,8 @@ if importlib.util.find_spec('picamera2'):
         def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
             """init/config cam"""
             logging.info('### init CameraRPI64')
-            self.resolution = resolution if resolution else (config.video_width, config.video_height)
-            self.framerate = framerate if framerate else config.video_fps
+            self.resolution = resolution or (config.video_width, config.video_height)
+            self.framerate = framerate or config.video_fps
             self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
             self.event: Optional[Event] = None
             self.camera = Picamera2()
@@ -128,8 +128,8 @@ class CameraFile(Camera):
 
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
         logging.info('### init CameraFile')
-        self.resolution = resolution if resolution else (config.video_width, config.video_height)
-        self.framerate = framerate if framerate else config.video_fps
+        self.resolution = resolution or (config.video_width, config.video_height)
+        self.framerate = framerate or config.video_fps
         self._counter = 1
         self._formatter = config.simulate_path
         self._resize = True
@@ -189,8 +189,8 @@ class CameraOpenCV(Camera):
 
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
         logging.info('### init CameraOpenCV')
-        self.resolution = resolution if resolution else (config.video_width, config.video_height)
-        self.framerate = framerate if framerate else config.video_fps
+        self.resolution = resolution or (config.video_width, config.video_height)
+        self.framerate = framerate or config.video_fps
         self.wait = round(1 / self.framerate, 2)  # type: ignore
         # self.stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
         self.stream = cv2.VideoCapture(0)  # type: ignore # mypy: Too many arguments for "VideoCapture"
@@ -254,7 +254,7 @@ def switch_camera(camera: str) -> Camera:
     global cam  # pylint: disable=global-statement
     from threadpool import pool
 
-    if camera == '' and cam:
+    if not camera and cam:
         logging.info('restart camera')
         clazz = cam.__class__
     elif camera.lower() in camera_dict:

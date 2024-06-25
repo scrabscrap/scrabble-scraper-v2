@@ -81,9 +81,8 @@ class Config:  # pylint: disable=too-many-public-methods
         if clean:
             self.config.clear()
         try:
-            self.config['path'] = {}
-            self.config['path']['src_dir'] = os.path.dirname(__file__) or '.'
-            self.ini_path = ini_file if ini_file else self.ini_path
+            self.config['path'] = {'src_dir': os.path.dirname(__file__) or '.'}
+            self.ini_path = ini_file or self.ini_path
             logging.info(f'reload {self.ini_path}')
             with open(self.ini_path, 'r', encoding='UTF-8') as config_file:
                 self.config.read_file(config_file)

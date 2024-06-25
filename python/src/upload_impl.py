@@ -50,7 +50,7 @@ class UploadHttp(Upload):  # pragma: no cover
         """do upload/delete operation"""
         if (url := upload_config.server) is not None:
             try:
-                url = url if url.startswith(('http://', 'https://')) else 'https://' + url
+                url = url if url.startswith(('http://', 'https://')) else f'https://{url}'
                 url += '' if url.endswith('/bin/scrabscrap.php') else '/bin/scrabscrap.php'
                 ret = requests.post(
                     url, data=data, files=files, timeout=50, auth=HTTPBasicAuth(upload_config.user, upload_config.password)

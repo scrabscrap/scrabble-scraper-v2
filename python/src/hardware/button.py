@@ -55,9 +55,8 @@ class Button(Static):
     def button_pressed(cls, button: GpioButton) -> None:  # callback
         """perform button press"""
         press = time.time()
-        if press > cls.bounce[ButtonEnum(button.pin.number).name] + 0.1:  # type: ignore
-            if cls.func_pressed:
-                cls.func_pressed(ButtonEnum(button.pin.number).name)  # type: ignore # pylint: disable=not-callable
+        if press > cls.bounce[ButtonEnum(button.pin.number).name] + 0.1 and cls.func_pressed:
+            cls.func_pressed(ButtonEnum(button.pin.number).name)  # type: ignore # pylint: disable=not-callable
 
     @classmethod
     def button_released(cls, button: GpioButton) -> None:  # pragma: no cover  # currently not used callback
@@ -77,12 +76,11 @@ class Button(Static):
                 logging.debug(f'Button {button.name}')
                 input_button = GpioButton(button.value)
                 input_button.when_pressed = cls.button_pressed
-                input_button.when_released = cls.button_released
-                cls.bounce[button.name] = 0.0
             else:
                 logging.debug(f'Button {button.name} when held')
                 input_button = GpioButton(button.value)
                 input_button.hold_time = 3
                 input_button.when_held = cls.button_pressed
-                input_button.when_released = cls.button_released
-                cls.bounce[button.name] = 0.0
+
+            cls.bounce[button.name] = 0.0
+            input_button.when_released = cls.button_released
