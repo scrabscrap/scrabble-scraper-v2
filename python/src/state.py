@@ -342,7 +342,6 @@ class State(Static):
 
         sets the release time to self.bounce
         """
-        pass
 
     # START, pause => not supported
     # pylint: disable=unnecessary-lambda

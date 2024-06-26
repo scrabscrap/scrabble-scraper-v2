@@ -20,7 +20,7 @@ import functools
 import logging
 import time
 from logging.handlers import BaseRotatingHandler
-from typing import Any, Callable, Union
+from typing import Any, Callable, Optional, Union
 
 import numpy as np
 
@@ -70,7 +70,7 @@ def trace(func: Callable[..., Any]) -> Callable[..., Any]:
     return do_trace
 
 
-def rotate_logs(loggers: Union[str, list] = None, delimiter: str = ','):  # type: ignore # pragma: no cover
+def rotate_logs(loggers: Optional[Union[str, list]] = None, delimiter: str = ','):  # type: ignore # pragma: no cover
     """Rotate logs.
 
     Args:

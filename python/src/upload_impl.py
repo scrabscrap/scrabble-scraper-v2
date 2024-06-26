@@ -66,31 +66,31 @@ class UploadHttp(Upload):  # pragma: no cover
     def upload_move(self, move: int) -> bool:
         try:
             files = {
-                f'image-{move}.jpg': open(f'{config.web_dir}/image-{move}.jpg', 'rb'),  # pylint: disable=R1732
-                f'data-{move}.json': open(f'{config.web_dir}/data-{move}.json', 'rb'),  # pylint: disable=R1732
-                'status.json': open(f'{config.web_dir}/status.json', 'rb'),  # pylint: disable=R1732
+                f'image-{move}.jpg': open(f'{config.web_dir}/image-{move}.jpg', 'rb'),  # pylint: disable=R1732 # noqa: SIM115
+                f'data-{move}.json': open(f'{config.web_dir}/data-{move}.json', 'rb'),  # pylint: disable=R1732 # noqa: SIM115
+                'status.json': open(f'{config.web_dir}/status.json', 'rb'),  # pylint: disable=R1732 # noqa: SIM115
             }
             logging.debug(f'http: start transfer move files {files}')
             return self.upload(data={'upload': 'true'}, files=files)
-        except IOError as oops:
+        except OSError as oops:
             logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
         return False
 
     def upload_status(self) -> bool:
         logging.debug('http: start transfer status file status.json')
         try:
-            files = {'status.json': open(f'{config.web_dir}/status.json', 'rb')}  # pylint: disable=consider-using-with
+            files = {'status.json': open(f'{config.web_dir}/status.json', 'rb')}  # pylint: disable=consider-using-with  # noqa: SIM115
             return self.upload(data={'upload': 'true'}, files=files)
-        except IOError as oops:
+        except OSError as oops:
             logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
         return False
 
     def upload_game(self, filename: str) -> bool:
         logging.debug(f'http: start transfer game {filename}.zip')
         try:
-            files = {f'{filename}.zip': open(f'{config.web_dir}/{filename}.zip', 'rb')}  # pylint: disable=R1732
+            files = {f'{filename}.zip': open(f'{config.web_dir}/{filename}.zip', 'rb')}  # pylint: disable=R1732  # noqa: SIM115
             return self.upload(data={'upload': 'true'}, files=files)
-        except IOError as oops:
+        except OSError as oops:
             logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
         return False
 
@@ -112,7 +112,7 @@ class UploadFtp(Upload):  # pragma: no cover
                             session.storbinary(f'STOR {key}', file)  # send the file
                 logging.info(f'ftp: end of transfer {files}')
                 return True
-            except IOError as oops:
+            except OSError as oops:
                 logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False
 
@@ -147,7 +147,7 @@ class UploadFtp(Upload):  # pragma: no cover
                                 session.delete(filename)
                 logging.info('ftp: end of delete')
                 return True
-            except IOError as oops:
+            except OSError as oops:
                 logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False
 
@@ -168,9 +168,9 @@ class UploadConfig:
         if clean:
             self.parser = configparser.ConfigParser()
         try:
-            with open(self.INIFILE, 'r', encoding='UTF-8') as config_file:
+            with open(self.INIFILE, encoding='UTF-8') as config_file:
                 self.parser.read_file(config_file)
-        except IOError as oops:
+        except OSError as oops:
             logging.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
         if self.SECTION not in self.parser.sections():
             self.parser.add_section(self.SECTION)

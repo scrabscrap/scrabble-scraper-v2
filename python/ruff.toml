@@ -15,6 +15,21 @@ skip-magic-trailing-comma = true
 [lint]
 # Skip unused variable rules (`F841`).
 # extend-ignore = ["F841"]
+select = [
+  "E",   # pycodestyle (error)
+  "F",   # pyflakes
+  "B",   # bugbear
+  "B9",
+  "C4",  # flake8-comprehensions
+  "SIM", # flake8-simplify
+  "I",   # isort
+  "UP",  # pyupgrade
+  "PIE", # flake8-pie
+  # "PGH", # pygrep-hooks
+  "PYI", # flake8-pyi
+  "RUF",
+]
+ignore = ["RUF012"]
 
 [lint.flake8-annotations]
 suppress-dummy-args = true
