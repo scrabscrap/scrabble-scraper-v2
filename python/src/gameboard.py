@@ -33,7 +33,6 @@ class GameBoard:
     @classmethod
     def warp(cls, __image):
         """ " implement warp of a game board"""
-        pass
 
     @classmethod
     def filter_image(cls, _img: MatLike) -> tuple[Optional[MatLike], set]:

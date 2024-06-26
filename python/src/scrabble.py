@@ -64,13 +64,11 @@ class MoveType(Enum):
 class InvalidMoveExeption(Exception):
     """Excpetion for invalid moves"""
 
-    pass
 
 
 class NoMoveException(Exception):
     """Exception for no move"""
 
-    pass
 
 
 class Move:  # pylint: disable=too-many-instance-attributes
@@ -138,10 +136,7 @@ class Move:  # pylint: disable=too-many-instance-attributes
         """move as gcg string"""
 
         mod = f' {chr(0x270F)}' if self.modification_cache else ''  # ✏
-        if nicknames:
-            result = f'> {nicknames[self.player]}{mod}: '
-        else:
-            result = f'> Name{self.player}{mod}: '
+        result = f'> {nicknames[self.player]}{mod}: ' if nicknames else f'> Name{self.player}{mod}: '
         if self.type == MoveType.REGULAR:
             (col, row) = self.coord
             result += str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(ord('A') + row) + str(col + 1)

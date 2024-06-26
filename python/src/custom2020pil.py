@@ -118,11 +118,11 @@ class Custom2020PILBoard(CustomBoard):
             to_search = set()
             if col < 14:
                 to_search.add((col + 1, row))
-            if 0 < col:
+            if col > 0:
                 to_search.add((col - 1, row))
             if row < 14:
                 to_search.add((col, row + 1))
-            if 0 < row:
+            if row > 0:
                 to_search.add((col, row - 1))
 
             (h1, s1, v1) = hsv_table[coord]
