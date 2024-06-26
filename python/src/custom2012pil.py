@@ -91,7 +91,7 @@ class Custom2012PILBoard(CustomBoard):
             if coord in TRIPLE_WORDS:  # dark red
                 return not (between(hsv, *cls.TWORD_COLOR0) or between(hsv, *cls.TWORD_COLOR1))
             if coord in DOUBLE_WORDS:  # light red
-                return not (between(hsv, *cls.TWORD_COLOR0) or between(hsv, *cls.TWORD_COLOR1))
+                return not (between(hsv, *cls.DWORD_COLOR0) or between(hsv, *cls.DWORD_COLOR1))
             if coord in TRIPLE_LETTER:  # dark blue
                 return not between(hsv, *cls.TLETTER_COLOR)
             if coord in DOUBLE_LETTER:  # light blue

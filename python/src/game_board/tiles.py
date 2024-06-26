@@ -30,8 +30,6 @@ class OneTile:  # pylint: disable=too-few-public-methods
     def __init__(self):
         self.name = 'Placeholder'
         self.img = np.array([], dtype=np.uint8)
-        self.w = 0
-        self.h = 0
 
 
 bag = config.tiles_bag
@@ -58,7 +56,6 @@ def load_tiles() -> List[OneTile]:
         new_tile = OneTile()
         new_tile.name = tile_name
         new_tile.img = gray
-        new_tile.w, new_tile.h = new_tile.img.shape[::-1]
         tiles.append(new_tile)
     return tiles
 

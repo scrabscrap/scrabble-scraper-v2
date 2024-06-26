@@ -336,13 +336,6 @@ class State(Static):
         except KeyError:
             logging.warning('Key Error - ignore')
 
-    @classmethod
-    def release_button(cls, button: str) -> None:
-        """process button release
-
-        sets the release time to self.bounce
-        """
-
     # START, pause => not supported
     # pylint: disable=unnecessary-lambda
     state: dict[tuple[str, str], Callable] = {
