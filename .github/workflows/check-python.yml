@@ -23,9 +23,9 @@ jobs:
         id: ruff
         run: |
           cd python
-          ruff check src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
-          echo "Ruff exits with $?" >> $GITHUB_STEP_SUMMARY
-
+          OUTPUT=$(ruff check src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py)
+          echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
+          exit ${PIPESTATUS[0]}
   mypy:
     runs-on: ubuntu-latest
     env:
@@ -46,9 +46,9 @@ jobs:
         id: mypy
         run: |
           cd python
-          mypy src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
-          echo "mypy exits with $?" >> $GITHUB_STEP_SUMMARY
-
+          OUTPUT=$(mypy src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py)
+          echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
+          exit ${PIPESTATUS[0]}
   pylint:
     runs-on: ubuntu-latest
     env:
@@ -69,9 +69,9 @@ jobs:
         id: pylint
         run: |
           cd python
-          pylint src/*.py src/hardware/*.py simulator/*.py --exit-zero
-          echo "pylint exits with $?" >> $GITHUB_STEP_SUMMARY
-
+          OUTPUT=$(pylint src/*.py src/hardware/*.py simulator/*.py --exit-zero)
+          echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
+          exit ${PIPESTATUS[0]}
   test:
     runs-on: ubuntu-latest
     env:
@@ -120,4 +120,7 @@ jobs:
         id: report
         run: |
           cd python
-          coverage report
+          OUTPUT=$(coverage report --format=markdown)
+          echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
+          exit ${PIPESTATUS[0]}
+          
