@@ -50,8 +50,6 @@ class Custom2012kBoard(CustomBoard):
     """Implementation custom scrabble board analysis"""
 
     # defaults: custom board 2012
-    LOWER = 0
-    UPPER = 1
     FIELD_COLOR = ([30, 85, 10], [90, 255, 255])
 
     TLETTER_COLOR = ([95, 60, 10], [130, 255, 255])
@@ -98,7 +96,7 @@ class Custom2012kBoard(CustomBoard):
             if coord in TRIPLE_WORDS:  # dark red
                 return not between(color, *cls.TWORD_COLOR)
             if coord in DOUBLE_WORDS:  # light red
-                return not between(color, *cls.TWORD_COLOR)
+                return not between(color, *cls.DWORD_COLOR)
             if coord in TRIPLE_LETTER:  # dark blue
                 return not between(color, *cls.TLETTER_COLOR)
             if coord in DOUBLE_LETTER:  # light blue

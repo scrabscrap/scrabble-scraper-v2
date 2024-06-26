@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 import logging.config
 import sys
@@ -33,8 +34,9 @@ from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
-                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+logging.basicConfig(
+    stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
+)
 
 
 class ButtonTestCase(unittest.TestCase):
@@ -62,8 +64,8 @@ class ButtonTestCase(unittest.TestCase):
         self.pin_yellow = Device.pin_factory.pin(ButtonEnum.YELLOW.value)
         self.pin_red = Device.pin_factory.pin(ButtonEnum.RED.value)
         self.pin_doubt1 = Device.pin_factory.pin(ButtonEnum.DOUBT1.value)
-        self.pin_reset = Device.pin_factory.pin(ButtonEnum.RESET.value)
-        self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
+        # self.pin_reset = Device.pin_factory.pin(ButtonEnum.RESET.value)
+        # self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
         # self.pin_config = Device.pin_factory.pin(ButtonEnum.config.value)
         ScrabbleWatch.display = DisplayMock()
         camera.switch_camera('file')
@@ -84,8 +86,8 @@ class ButtonTestCase(unittest.TestCase):
     def _press_button(self, pin, wait=0.1):
         """press button on MockFactory Button
 
-            pin: button pin to press
-            wait: wait between press and release - should be greater than bounce time in state.press_button()
+        pin: button pin to press
+        wait: wait between press and release - should be greater than bounce time in state.press_button()
         """
         logging.info(f'press button {pin}')
         pin.drive_high()
@@ -95,8 +97,10 @@ class ButtonTestCase(unittest.TestCase):
         if State.last_submit is not None:
             while not State.last_submit.done():  # type: ignore
                 sleep(0.01)
-        logging.info(f'leds: green {LEDEnum.green.value} yellow {LEDEnum.yellow.value} '
-                     f'red {LEDEnum.red.value} state nw {State.current_state}')
+        logging.info(
+            f'leds: green {LEDEnum.green.value} yellow {LEDEnum.yellow.value} '
+            f'red {LEDEnum.red.value} state nw {State.current_state}'
+        )
 
     def test_doubt01(self):
         """Test doubt01"""
