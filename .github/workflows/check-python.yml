@@ -46,7 +46,7 @@ jobs:
         id: mypy
         run: |
           cd python
-          mypy --config-file mypy.ini src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
+          mypy src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
           echo "mypy exits with $?" >> $GITHUB_STEP_SUMMARY
 
   pylint:
@@ -86,7 +86,6 @@ jobs:
         run: |
           cd python
           python -m pip install --upgrade pip
-          pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Test with unittest
         id: unittest
@@ -109,7 +108,7 @@ jobs:
         run: |
           cd python
           python -m pip install --upgrade pip
-          pip install flake8 pytest coverage
+          pip install coverage
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Run test coverage
         id: unittest
