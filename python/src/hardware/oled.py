@@ -40,7 +40,7 @@ MIDDLE = (64, 42)
 # docu https://luma-oled.readthedocs.io/en/latest/index.html
 
 FONT_FAMILY = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
-FONT = ImageFont.truetype(FONT_FAMILY, 44)
+FONT = ImageFont.truetype(FONT_FAMILY, 42)
 FONT1 = ImageFont.truetype(FONT_FAMILY, 20)
 FONT2 = ImageFont.truetype(FONT_FAMILY, 12)
 SERIAL: tuple[i2c, i2c] = (
