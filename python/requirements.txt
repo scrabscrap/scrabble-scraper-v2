@@ -35,8 +35,7 @@ luma.oled==3.13.0
 #     │   ├── pyserial [required: >=3.0, installed: 3.5]
 #     │   └── pyusb [required: >=1.0.0,!=1.2.0, installed: 1.2.1]
 #     └── smbus2 [required: Any, installed: 0.4.3]
-netifaces2==0.0.19 ; sys_platform == "darwin"
-netifaces2==0.0.22 ; sys_platform != "darwin"
+ifaddr==0.2.0
 
 # latest version for Apple Silicon
 picamera==1.13; platform_machine == "armv7l"
