@@ -1,0 +1,102 @@
+## ruff
+[tool.ruff]
+line-length = 128
+src = ["src", "test", "simulator", "ignore"]
+
+[tool.ruff.format]
+quote-style = "single"
+skip-magic-trailing-comma = true
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle (error)
+  "F",   # pyflakes
+  "B",   # bugbear
+  "B9",
+  "C4",  # flake8-comprehensions
+  # "SIM", # flake8-simplify
+  # "I",   # isort
+  # "UP",  # pyupgrade
+  # "PIE", # flake8-pie
+  # "PGH", # pygrep-hooks
+  "PYI", # flake8-pyi
+  # "RUF",
+]
+ignore = ["RUF012"]
+
+[tool.ruff.lint.flake8-annotations]
+suppress-dummy-args = true
+# suppress-none-returning = true
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+# force-sort-within-sections = true
+split-on-trailing-comma = false
+
+## mypy
+[tool.mypy]
+# install mypy: pip install mypy
+# in ./python use: 
+# mypy src/*.py src/hardware/*.py src/simulate/*.py simulator/*.py
+ignore_missing_imports = true
+disable_error_code = ["annotation-unchecked", "import-untyped"]
+
+[tool.mypy-cv2]
+ignore_missing_imports = true
+
+[tool.mypy-imutils]
+ignore_missing_imports = true
+
+[tool.mypy-gpiozero]
+ignore_missing_imports = true
+
+[tool.mypy-PIL]
+ignore_missing_imports = true
+
+[tool.mypy-picamera]
+ignore_missing_imports = true
+
+## pylint
+[tool.pylint.MASTER]
+disable=["W0107", "W1203", "C0415", "C0413"]
+
+[tool.pylint.TYPECHECK]
+generated-members="cv2"
+ignored-modules=["adafruit_ssd1306", "board", "smbus", "picamera", "picamera.array"]
+
+[tool.pylint.FORMAT]
+max-line-length=128
+
+[tool.pylint.BASIC]
+# Good variable names which should always be accepted, separated by a comma
+good-names=["h","i","j","k","w","x","y","h1","h2","w1","w2","x1","x2","y1","y2","_"]
+
+## pyright
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+## coverage
+[tool.coverage.run]
+source = ["src"]
+
+omit = [
+	"*/hardware/oled.py", 	# requires special hardware
+	"*/hardware/camera.py",
+	"*/api_server_thread.py", 	# dispatcher for flask web app
+	"*/scrabscrap.py" 	# starter of main application
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    # "@(abc\.)?abstractmethod",
+    # "@(abc\.)?main",
+    "logging.debug",
+    "logging.info",
+    "logging.warning",
+    "logging.error",
+    "assert",
+    "pass"
+]
