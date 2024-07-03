@@ -17,7 +17,7 @@ SCRIPTPATH=$(dirname "$0")
 
 # update os
 sudo apt-get -y update
-sudo apt-get -y upgrade
+sudo apt-get -y --with-new-pkgs upgrade
 
 # ensure python environment and git
 sudo apt-get install -yq git python3-venv python3-dev i2c-tools

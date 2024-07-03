@@ -23,7 +23,7 @@ if git merge-base --is-ancestor origin/$BRANCH HEAD; then
     echo "## Upgrade Linux                                                  ##"
     echo "####################################################################"
     sudo apt-get update -yq
-    sudo apt-get upgrade -yq
+    sudo apt-get upgrade --with-new-pkgs -yq
     sudo apt-get autoremove -yq
 
     if command -v tailscale &> /dev/null; then

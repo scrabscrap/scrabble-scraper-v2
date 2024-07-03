@@ -12,7 +12,7 @@ echo "####################################################################"
 echo "## Upgrade Linux                                                  ##"
 echo "####################################################################"
 sudo apt-get update -yq
-sudo apt-get upgrade -yq
+sudo apt-get upgrade --with-new-pkgs -yq
 sudo apt-get autoremove -yq
 
 # ensure python environment and git
