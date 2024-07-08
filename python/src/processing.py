@@ -584,20 +584,26 @@ def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
 
     bag_len = 0
     i = -1
-    for i in range(-1, len(game.moves) * -1, -1):
-        mov = game.moves[i]
+    for i, mov in enumerate(reversed(game.moves)):
         bag = calculate_bag(mov)
-        if len(bag) >= 14:  # now find changed tiles
+        if len(bag) >= 14:
             bag_len = len(bag) - 14
+            i = len(game.moves) - i - 1  # revert Index
             break
-    rack = [7, 7]
-    for j in range(i + 1, 0):  # type: ignore
-        mov = game.moves[j]
-        mov_len = len(mov.new_tiles)
-        from_bag = min(mov_len, bag_len)
-        rack[mov.player] -= mov_len - from_bag
-        bag_len -= from_bag
-        logging.info(f'player={mov.player} rack-size={rack[mov.player]} from-bag={from_bag}')
+    else:
+        i = -1  # if no moves found
+    rack, prev_rack = [7, 7], [7, 7]
+    prev_bag_len = bag_len
+    for mov in game.moves[i + 1 :]:  # type: ignore
+        if mov.type == MoveType.WITHDRAW:
+            rack[mov.player], bag_len = prev_rack[mov.player], prev_bag_len
+        else:
+            prev_rack[mov.player], prev_bag_len = rack[mov.player], bag_len
+            mov_len = len(mov.new_tiles)
+            from_bag = min(mov_len, bag_len)
+            rack[mov.player] -= mov_len - from_bag
+            bag_len -= from_bag
+        logging.info(f'move={mov.move} {mov.type} {mov.player=} rack-size={rack[mov.player]} {from_bag=} {bag_len=}')
     if len(game.moves) > 0:
         bag = calculate_bag(game.moves[-1])
         points = sum(scores(elem) for elem in bag)
