@@ -353,7 +353,7 @@ class Game:
             f'name1 = {self.nicknames[0]}\n'
             f'name2 = {self.nicknames[1]}\n'
             f'formatter = {game_id}-{{:d}}.jpg\n'
-            'layout = custom\n'
+            f'layout = {config.board_layout}\n'
         )
         if self.moves:
             if self.moves[0].player == 0:
@@ -429,6 +429,11 @@ class Game:
                     )
                 elif move.type == MoveType.EXCHANGE:
                     out_str += f'{move.move}, "Red", "S0", "-", ' f', {move.points}, {move.score[0]}, {move.score[1]}\n'
+                elif move.type in (MoveType.LAST_RACK_BONUS, MoveType.LAST_RACK_MALUS):
+                    out_str += (
+                        f'{move.move}, "EOG", "{("P0", "P1")[move.player]}", "{move.word}", '
+                        f', {move.points}, {move.score[0]}, {move.score[1]}\n'
+                    )
                 else:
                     out_str += (
                         f'{move.move}, "Red", "S0", "{move.get_coord()}", '
