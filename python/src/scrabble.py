@@ -503,7 +503,7 @@ class Game:
         if len(self.moves) < 1:
             raise Exception('challenge: no previous move available')  # pylint: disable=broad-exception-raised
         last_move = self.moves[-1]
-        if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):
+        if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS, MoveType.UNKNOWN):
             logging.warning(f'(last move {last_move.type.name}): invalid challenge not allowed')
             return self
 
@@ -541,7 +541,7 @@ class Game:
         if len(self.moves) < 1:
             raise Exception('challenge: no previous move available')  # pylint: disable=broad-exception-raised
         last_move = self.moves[-1]
-        if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS):
+        if last_move.type not in (MoveType.REGULAR, MoveType.CHALLENGE_BONUS, MoveType.UNKNOWN):
             logging.warning(f'(last move {last_move.type.name}): valid challenge not allowed')
             return self
 
