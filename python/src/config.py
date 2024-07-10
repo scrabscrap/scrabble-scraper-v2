@@ -87,7 +87,7 @@ class Config:  # pylint: disable=too-many-public-methods
             logging.info(f'reload {self.ini_path}')
             with open(self.ini_path, 'r', encoding='UTF-8') as config_file:
                 self.config.read_file(config_file)
-        except IOError as oops:
+        except OSError as oops:
             logging.error(f'can not read INI-File: error({oops.errno}): {oops.strerror}')
 
     def save(self) -> None:
