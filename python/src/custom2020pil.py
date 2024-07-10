@@ -88,7 +88,7 @@ class Custom2020PILBoard(CustomBoard):
             if coord in TRIPLE_WORDS:  # dark red
                 return not between(hsv, *cls.TWORD_COLOR)
             if coord in DOUBLE_WORDS:  # light red
-                return not between(hsv, *cls.TWORD_COLOR)
+                return not between(hsv, *cls.DWORD_COLOR)
             if coord in TRIPLE_LETTER:  # dark blue
                 return not (between(hsv, *cls.TLETTER_COLOR0) or between(hsv, *cls.TLETTER_COLOR1))
             if coord in DOUBLE_LETTER:  # light blue
@@ -118,11 +118,11 @@ class Custom2020PILBoard(CustomBoard):
             to_search = set()
             if col < 14:
                 to_search.add((col + 1, row))
-            if 0 < col:
+            if col > 0:
                 to_search.add((col - 1, row))
             if row < 14:
                 to_search.add((col, row + 1))
-            if 0 < row:
+            if row > 0:
                 to_search.add((col, row - 1))
 
             (h1, s1, v1) = hsv_table[coord]
