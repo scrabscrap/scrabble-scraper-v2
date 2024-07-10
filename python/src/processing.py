@@ -154,7 +154,7 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
         return suggest_tile, suggest_prop
 
     def find_tile():
-        (tile, prop) = board[coord] if coord in board else ('_', 76)
+        (tile, prop) = board.get(coord, ('_', 76))
         if prop >= 90:
             logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {tile} ({prop}) tile on board prop >= 90 ")
             return board[coord]
@@ -163,13 +163,13 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
             (tile, prop) = match(imutils.rotate(gray, -10), tile, prop)
         if prop < 90:
             (tile, prop) = match(imutils.rotate(gray, 10), tile, prop)
-        if prop < 90 and '_' != tile:
+        if prop < 90 and tile != '_':
             (tile, prop) = match(imutils.rotate(gray, -5), tile, prop)
-        if prop < 90 and '_' != tile:
+        if prop < 90 and tile != '_':
             (tile, prop) = match(imutils.rotate(gray, 5), tile, prop)
-        if prop < 90 and '_' != tile:
+        if prop < 90 and tile != '_':
             (tile, prop) = match(imutils.rotate(gray, -15), tile, prop)
-        if prop < 90 and '_' != tile:
+        if prop < 90 and tile != '_':
             (tile, prop) = match(imutils.rotate(gray, 15), tile, prop)
         board[coord] = (tile, prop) if tile is not None else ('_', 76)
         return board[coord]
@@ -201,7 +201,7 @@ def remove_blanko(waitfor: Optional[Future], game: Game, coord: str, event=None)
     for mov in game.moves:
         board = mov.board
         _, col, row = mov.calc_coord(coord)
-        if (col, row) in board.keys() and (board[(col, row)][0] == '_' or board[(col, row)][0].islower()):
+        if (col, row) in board and (board[(col, row)][0] == '_' or board[(col, row)][0].islower()):
             if (col, row) in mov.new_tiles:
                 dirty = True
                 del mov.new_tiles[(col, row)]
@@ -235,7 +235,7 @@ def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, e
     for mov in game.moves:
         board = mov.board
         _, col, row = mov.calc_coord(coord)
-        if (col, row) in board.keys() and (board[(col, row)][0] == '_' or board[(col, row)][0].islower()):
+        if (col, row) in board and (board[(col, row)][0] == '_' or board[(col, row)][0].islower()):
             board[(col, row)] = (value, board[(col, row)][1])
             if (col, row) in mov.new_tiles:
                 mov.new_tiles[(col, row)] = value
@@ -377,7 +377,7 @@ def admin_change_move(
         new_word = ''
         for i, char in enumerate(word):
             (xcol, xrow) = (col, row + i) if isvertical else (col + i, row)
-            if (xcol, xrow) in board.keys():
+            if (xcol, xrow) in board:
                 new_word += '.'
             else:
                 new_word += char
@@ -396,7 +396,7 @@ def admin_change_move(
             new_move = copy.deepcopy(moves[i])  # board, img, score
 
             for elem in tiles_to_remove:  # repair board
-                if elem in new_move.board.keys() and new_move.board[elem] == tiles_to_remove[elem]:
+                if elem in new_move.board and new_move.board[elem] == tiles_to_remove[elem]:
                     del new_move.board[elem]
             new_move.board |= tiles_to_add
 
@@ -674,9 +674,7 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tu
     _development_recording(game, filtered_image, suffix='~filter', is_next_move=True)
 
     if len(game.moves) > 1:  # 3a. check for wrong blank tiles
-        to_del = [
-            i for i in game.moves[-1].new_tiles.keys() if (game.moves[-1].board[i][0] == '_') and i not in tiles_candidates
-        ]  # noqa: W503
+        to_del = [i for i in game.moves[-1].new_tiles if (game.moves[-1].board[i][0] == '_') and i not in tiles_candidates]  # noqa: W503
         if to_del:
             _move = game.moves[-1]
             for i in to_del:
@@ -701,15 +699,11 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tu
         # if opponents move has a valid challenge
         if game.moves[-1 * config.scrabble_verify_moves + 1].type in (MoveType.PASS_TURN, MoveType.EXCHANGE, MoveType.WITHDRAW):
             ignore_coords = set(
-                {
-                    i: i
-                    for i in game.moves[-1 * config.scrabble_verify_moves + 1].board.keys()
-                    if i in game.moves[-1].board.keys()
-                }
+                {i: i for i in game.moves[-1 * config.scrabble_verify_moves + 1].board if i in game.moves[-1].board}
             )
         else:
             ignore_coords = set(
-                {i: i for i in game.moves[-1 * config.scrabble_verify_moves].board.keys() if i in game.moves[-1].board.keys()}
+                {i: i for i in game.moves[-1 * config.scrabble_verify_moves].board if i in game.moves[-1].board}
             )
     tiles_candidates = tiles_candidates | ignore_coords  # tiles_candidates must contain ignored_coords
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
@@ -847,9 +841,9 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
     must_recalculate = False
     for mov in game.moves[to_inspect:]:
-        must_recalculate = must_recalculate or any(coord in mov.board.keys() for coord in changed.keys())
+        must_recalculate = must_recalculate or any(coord in mov.board for coord in changed)
         if must_recalculate:
-            mov.board.update({coord: changed[coord] for coord in changed.keys() if coord in mov.board.keys()})
+            mov.board.update({coord: changed[coord] for coord in changed if coord in mov.board})
             _word = ''
             (col, row) = mov.coord
             for j, char in enumerate(mov.word):  # fix mov.word
@@ -892,7 +886,7 @@ def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = 
                 logging.debug('write status.json')
                 with open(f'{config.web_dir}/status.json', 'w', encoding='UTF-8') as handle:
                     handle.write(game.json_str(move_to_store.move))
-        except IOError as error:
+        except OSError as error:
             logging.error(f'error writing game move {move_to_store.move}: {error}')
         _development_recording(game, None, info=True)
 
@@ -905,7 +899,7 @@ def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = 
                 handle.write(game.json_str())
             if config.upload_server:
                 pool.submit(upload.upload_status)  # upload empty status
-        except IOError as error:
+        except OSError as error:
             logging.error(f'error writing status.json: {error}')
 
 
