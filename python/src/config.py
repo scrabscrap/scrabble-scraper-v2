@@ -105,10 +105,11 @@ class Config:  # pylint: disable=too-many-public-methods
             else:
                 self.config.write(config_file)
 
-    @property
-    def config_as_dict(self) -> dict:
-        """get configuration as dict"""
-        return {s: dict(self.config.items(s)) for s in self.config.sections()}
+    # unused:
+    # @property
+    # def config_as_dict(self) -> dict:
+    #     """get configuration as dict"""
+    #     return {s: dict(self.config.items(s)) for s in self.config.sections()}
 
     @property
     def src_dir(self) -> str:
