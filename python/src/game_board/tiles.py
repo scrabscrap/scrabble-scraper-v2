@@ -35,7 +35,7 @@ class OneTile:  # pylint: disable=too-few-public-methods
 
 
 bag = config.tiles_bag
-bag_as_list: List = sum([[k] * bag[k] for k in bag], [])
+bag_as_list = [k for k, count in bag.items() for _ in range(count)]
 tiles: List[OneTile] = []
 
 
