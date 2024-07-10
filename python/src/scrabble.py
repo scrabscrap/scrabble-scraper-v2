@@ -17,10 +17,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import copy
-import datetime
 import json
 import logging
 import re
+from datetime import datetime
 from enum import Enum
 from typing import List, Optional, Tuple
 
@@ -114,7 +114,7 @@ class Move:  # pylint: disable=too-many-instance-attributes
         rack=None,
     ):  # pylint: disable=too-many-arguments
         self.type: MoveType = move_type
-        self.time: str = str(datetime.datetime.now())
+        self.time: str = str(datetime.now())
         self.move = 0  # set on append of move in class Game
         self.player: int = player
         self.coord: Tuple[int, int] = coord if coord is not None else (-1, -1)
@@ -274,7 +274,7 @@ class Game:
 
     def __init__(self, nicknames: Optional[Tuple[str, str]]):
         self._nicknames: Tuple[str, str] = ('Name1', 'Name2') if nicknames is None else nicknames
-        self.gamestart: Optional[datetime.datetime] = datetime.datetime.now()
+        self.gamestart: Optional[datetime] = datetime.now()
         self.moves: List[Move] = []
 
     def __str__(self) -> str:
@@ -467,7 +467,7 @@ class Game:
         """Reset to a new game (nicknames, moves)"""
         # with python > 3.11 return type: -> Self
         self.nicknames = ('Name1', 'Name2')
-        self.gamestart = datetime.datetime.now()
+        self.gamestart = datetime.now()
         self.moves.clear()
         return self
 
@@ -581,7 +581,7 @@ class Game:
 
         move = copy.deepcopy(last_move)
         move.type = MoveType.LAST_RACK_BONUS if points[0] > 0 else MoveType.LAST_RACK_MALUS
-        move.time = str(datetime.datetime.now())
+        move.time = str(datetime.now())
         move.player = 0
         move.word = rack_str
         move.removed_tiles = {}
@@ -594,7 +594,7 @@ class Game:
 
         move = copy.deepcopy(last_move)
         move.type = MoveType.LAST_RACK_MALUS if points[0] > 0 else MoveType.LAST_RACK_BONUS
-        move.time = str(datetime.datetime.now())
+        move.time = str(datetime.now())
         move.player = 1
         move.word = rack_str
         move.removed_tiles = {}
