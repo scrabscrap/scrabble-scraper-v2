@@ -143,10 +143,7 @@ class Move:  # pylint: disable=too-many-instance-attributes
         mod = ''
         if self.modification_cache:
             mod = ' ' + chr(0x270F)  # ✏
-        if nicknames:
-            result = f'> {nicknames[self.player]}{mod}: '
-        else:
-            result = f'> Name{self.player}{mod}: '
+        result = f'> {nicknames[self.player]}{mod}: ' if nicknames else f'> Name{self.player}{mod}: '
         if self.type == MoveType.REGULAR:
             (col, row) = self.coord
             result += str(col + 1) + chr(ord('A') + row) if self.is_vertical else chr(ord('A') + row) + str(col + 1)
