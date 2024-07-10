@@ -98,26 +98,22 @@ OFFSET = 25
 
 def calc_x_position(x: int) -> int:
     """return 0..14"""
-    pos = int((x - OFFSET) // GRID_W)
-    return pos
+    return int((x - OFFSET) // GRID_W)
 
 
 def calc_y_position(y: int) -> int:
     """return 0..14"""
-    pos = int((y - OFFSET) // GRID_H)
-    return pos
+    return int((y - OFFSET) // GRID_H)
 
 
 def get_x_position(pos: int) -> int:
     """return col 25..750"""
-    col = int(OFFSET + (pos * GRID_W))
-    return col
+    return int(OFFSET + (pos * GRID_W))
 
 
 def get_y_position(pos: int) -> int:
     """return row 25..750"""
-    row = int(OFFSET + (pos * GRID_H))
-    return row
+    return int(OFFSET + (pos * GRID_H))
 
 
 def overlay_grid(image: ndarray) -> ndarray:  # pragma: no cover
@@ -127,10 +123,10 @@ def overlay_grid(image: ndarray) -> ndarray:  # pragma: no cover
     y1 = get_y_position(0)
     x2 = get_x_position(15)
     y2 = get_y_position(15)
-    for x in range(0, 16):
+    for x in range(16):
         pos = get_x_position(x)
         cv2.line(img, (pos, y1), (pos, y2), (0, 255, 0), 1)
-    for y in range(0, 16):
+    for y in range(16):
         pos = get_y_position(y)
         cv2.line(img, (x1, pos), (x2, pos), (0, 255, 0), 1)
     return img
