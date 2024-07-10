@@ -189,14 +189,14 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         with open(f'{config.work_dir}/log.conf', 'w', encoding='UTF-8') as config_file:
                             log_config.write(config_file)
 
-                recording = 'recording' in request.form.keys()
+                recording = 'recording' in request.form
                 if config.development_recording != recording:
                     logging.info(f'development.recording changed to {recording}')
                     if 'development' not in config.config.sections():
                         config.config.add_section('development')
                     config.config.set('development', 'recording', str(recording))
                     config.save()
-            except IOError as oops:
+            except OSError as oops:
                 logging.error(f'I/O error({oops.errno}): {oops.strerror}')
                 return redirect('/index')
             return redirect('/loglevel')
@@ -340,9 +340,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             for key, cval in current_config.items():
                 section, option = key.split('.')
                 if cval in ('True', 'False'):
-                    nval = str(key in request.form.keys())
+                    nval = str(key in request.form)
                 else:
-                    nval = request.form.get(key) if key in request.form.keys() else ''
+                    nval = request.form.get(key, default='')
                 if nval and cval != nval:
                     dirty = True
                     config.config.set(section, option, str(nval))
@@ -353,17 +353,17 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 save_message = 'settings saved'
 
             dirty = False
-            nval = request.form.get('server') if 'server' in request.form.keys() else ''
+            nval = request.form.get('server', default='')
             if nval and nval != upload_config.server:
                 dirty = True
                 upload_config.server = nval
                 logging.debug(f'server = {nval}')
-            nval = request.form.get('user') if 'user' in request.form.keys() else ''
+            nval = request.form.get('user', default='')
             if nval and nval != upload_config.user:
                 dirty = True
                 upload_config.user = nval
                 logging.debug(f'user = {nval}')
-            nval = request.form.get('password') if 'password' in request.form.keys() else ''
+            nval = request.form.get('password', default='')
             if nval and nval != upload_config.password:
                 dirty = True
                 upload_config.password = nval
@@ -403,7 +403,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     State.do_new_game()
             elif request.form.get('btnselect'):
                 process = -1
-                for i in request.form.keys():
+                for i in request.form:
                     logging.info(f'wpa network select {i}')
                     process = subprocess.call(f'sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0', shell=True)
                 sleep(5)
@@ -427,7 +427,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 )
                 ApiServer.last_msg = f'{process2.stdout}'
             elif request.form.get('btndelete'):
-                for i in request.form.keys():
+                for i in request.form:
                     if request.form.get(i) == 'on':
                         logging.info(f'wpa network delete {i}')
                         _ = subprocess.call(f'sudo -n /usr/sbin/wpa_cli remove_network {i} -i wlan0', shell=True)
@@ -667,7 +667,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 logging.info('upload success')
             else:
                 logging.warning('upload = False')
-        except IOError as oops:
+        except OSError as oops:
             logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
         return redirect(url_for('route_index'))
 
