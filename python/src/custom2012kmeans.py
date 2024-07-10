@@ -50,8 +50,6 @@ class Custom2012kBoard(CustomBoard):
     """Implementation custom scrabble board analysis"""
 
     # defaults: custom board 2012
-    LOWER = 0
-    UPPER = 1
     FIELD_COLOR = ([30, 85, 10], [90, 255, 255])
 
     TLETTER_COLOR = ([95, 60, 10], [130, 255, 255])
