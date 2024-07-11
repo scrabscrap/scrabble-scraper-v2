@@ -716,7 +716,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             'auth': 'REAUTH',
             'uninstall': 'UNINSTALL',
         }
-        if op in ops.keys():  # pylint: disable=consider-iterating-dictionary
+        if op in ops:  # pylint: disable=consider-iterating-dictionary
             cmd = f'{config.src_dir}/../../scripts/tailscale.sh {ops[op]} | tee -a {config.log_dir}/messages.log &'
             _ = subprocess.run(['bash', '-c', cmd], check=False)
         else:
@@ -809,7 +809,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         ApiServer.tailscale = os.path.isfile('/usr/bin/tailscale')
 
         version_flag: str = '\u2757' if config.git_dirty else ''
-        branch = '' if 'main' == config.git_branch else config.git_branch
+        branch = '' if config.git_branch == 'main' else config.git_branch
         ApiServer.scrabscrap_version = f'{branch} {version_flag}{config.git_version}'
 
         if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
