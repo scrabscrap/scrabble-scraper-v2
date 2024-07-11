@@ -383,7 +383,7 @@ def admin_change_move(
                 new_word += char
                 tiles_to_add[(xcol, xrow)] = (char, 99)
         word = new_word
-        logging.debug(f'tiles_to_add {tiles_to_add} / word {new_word}')
+        logging.debug(f'tiles_to_add {tiles_to_add} / word {word}')
         if tiles_to_remove or tiles_to_add:
             game.moves[index].modification_cache['coord'] = coord
             game.moves[index].modification_cache['isvertical'] = isvertical
@@ -538,7 +538,7 @@ def start_of_game(game: Game):
         file_list = glob.glob(f'{config.web_dir}/data-*.json')
         for file_path in file_list:
             os.remove(file_path)
-        if len(file_list) > 0:
+        if file_list:
             util.rotate_logs()
     except OSError:
         logging.error('OS Error on delete web data/image files')
@@ -642,7 +642,7 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
     if len(changed) == 1:  # only 1 tile
         col, row = changed[-1]
         horizontal = ((col - 1, row) in board) or ((col + 1, row) in board)
-        vertical = ((col, row - 1) in board) or ((col, row + 1) in board) if not horizontal else False
+        vertical = False if horizontal else ((col, row - 1) in board) or ((col, row + 1) in board)
     col, row = changed[0]
     min_col, min_row = col, row
     word = ''
@@ -764,9 +764,6 @@ def _move_processing(
                         del new_tiles[blank]
                     if any((col, blank[1]) not in current_board for col in range(blank[0], max_col)):
                         del new_tiles[blank]
-
-        else:  # tiles with characters in different cols and rows; hmm how to fix?
-            pass
 
         removed_tiles = previous_tiles.keys() - new_tiles
         for k in removed_tiles:
