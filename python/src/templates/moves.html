@@ -55,17 +55,21 @@
                                             <div class="py-2">{{ move.points }}</div>
                                         </td>
                                         <td><input type="text" class="form-control" name="move.score0" size="3"
-                                                value="{{ move.score[0] }}">
+                                                value="{{ move.score[0] }}" {% if move.type.name=='WITHDRAW' or
+                                                move.type.name=='CHALLENGE_BONUS' %}readonly{% endif %}>
                                         </td>
                                         <td><input type="text" class="form-control" name="move.score1" size="3"
-                                                value="{{ move.score[1] }}">
+                                                value="{{ move.score[1] }}" {% if move.type.name=='WITHDRAW' or
+                                                move.type.name=='CHALLENGE_BONUS' %}readonly{% endif %}>
                                         </td>
                                         <td>
                                             <select class="form-select" aria-label="Type of move" name="move.type">
-                                                <option {% if move.type.name=="REGULAR" %}selected{% endif %}
-                                                    value="REGULAR">Normal</option>
-                                                <option {% if move.type.name=="EXCHANGE" %}selected{% endif %}
-                                                    value="EXCHANGE">Exchange</option>
+                                                <option {% if move.type.name=="REGULAR" %}selected{% endif %} {% if
+                                                    move.type.name=="WITHDRAW" or move.type.name=="CHALLENGE_BONUS"
+                                                    %}disabled{% endif %} value="REGULAR">Normal</option>
+                                                <option {% if move.type.name=="EXCHANGE" %}selected{% endif %} {% if
+                                                    move.type.name=="WITHDRAW" or move.type.name=="CHALLENGE_BONUS"
+                                                    %}disabled{% endif %} value="EXCHANGE">Exchange</option>
                                                 <option {% if move.type.name=="PASS_TURN" %}selected{% endif %} disabled
                                                     value="PASS_TURN">Pass turn</option>
                                                 <option {% if move.type.name=="WITHDRAW" %}selected{% endif %} disabled
@@ -85,27 +89,72 @@
                                                 value="-">
                                             {% elif move.type.name=="CHALLENGE_BONUS" %}
                                             <input type="text" class="form-control" name="move.coord" size="3"
-                                                value="(c)">
+                                                value="(c)" readonly>
                                             {% elif move.type.name=="WITHDRAW" %}
                                             <input type="text" class="form-control" name="move.coord" size="3"
-                                                value="--">
+                                                value="--" readonly>
                                             {% else %}
-                                            <input type="text" class="form-control" name="move.coord" size="3" value={{
-                                                move.get_coord() }}>
+                                            <input type="text" class="form-control" name="move.coord" size="3"
+                                                value="{{ move.get_coord() }}">
                                             {% endif %}
                                         </td>
-                                        <td> <input type="text" class="form-control" name="move.word" value={{ move.word
-                                                }}>
+                                        <td> <input type="text" class="form-control" name="move.word"
+                                                value="{{ move.word }}" {% if move.type.name=='WITHDRAW' or
+                                                move.type.name=='CHALLENGE_BONUS' %}readonly{% endif %}>
                                         </td>
                                         <td>
-                                            <div class="py-1"><button type="submit"
+                                            <div class="py-1">
+                                                {% if move.type.name=='WITHDRAW' or
+                                                move.type.name=='CHALLENGE_BONUS' %}
+                                                <button type="submit"
+                                                    class="form-control btn btn-outline-primary btn-sm "
+                                                    name="btntogglechallenge" value="Update" data-bs-toggle="tooltip"
+                                                    data-bs-placement="bottom" title="Toggle challenge type">
+                                                    <i class="bi-arrow-left-right"></i>&nbsp;</button>
+                                                {% else %}
+                                                <button type="submit"
                                                     class="form-control btn btn-outline-primary btn-sm " name="btnmove"
                                                     value="Update" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                    title="Update move" {% if move.type.name=='WITHDRAW' or
-                                                    move.type.name=='CHALLENGE_BONUS' %}disabled{% endif %}><i
-                                                        class="bi-check2-square"></i>&nbsp;</button></div>
+                                                    title="Update move">
+                                                    <i class="bi-check2-square"></i>&nbsp;</button>
+                                                {% endif %}
+                                            </div>
                                         </td>
                                         <td>
+                                            {% if move.type.name=='WITHDRAW' or move.type.name=='CHALLENGE_BONUS' %}
+                                            <div class="py-1"><button type="button"
+                                                    class="form-control btn btn-outline-danger btn-sm "
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteChallenge{{ move.move }}">
+                                                    <i class="bi-trash"></i>&nbsp;
+                                                </button>
+                                            </div>
+                                            <!-- Modal confirm dialog -->
+                                            <div class="modal fade" id="deleteChallenge{{ move.move }}" tabindex="-1"
+                                                aria-labelledby="deleteChallengeLabel{{ move.move }}"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5"
+                                                                id="deleteChallengeLabel{{ move.move }}">
+                                                                Delete challenge</h1>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            delete challenge move #{{ move.move }}
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" name="btndelchallenge" value="Delete"
+                                                                class="btn btn-primary">Delete</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% else %}
                                             <div class="py-1"><button type="submit"
                                                     class="form-control btn btn-outline-warning btn-sm"
                                                     name="btninsmoves" value="Insert" data-bs-toggle="tooltip"
@@ -113,6 +162,7 @@
                                                     title="Insert two exchange moves before this one">
                                                     <i class="bi-box-arrow-up-left"></i>&nbsp;
                                                 </button></div>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 </form>

@@ -15,6 +15,7 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+# pylint: disable=too-many-lines
 
 import copy
 import logging
@@ -358,77 +359,151 @@ def admin_change_move(
         assert len(not_done) == 0, 'error while waiting for future'
 
     moves = game.moves
-    if 0 < move_number <= len(moves):
-        assert moves[move_number - 1].move == move_number
-        assert 0 <= coord[0] < 15
-        assert 0 <= coord[1] < 15
+    if move_number < 1 or move_number > len(game.moves):
+        raise ValueError('invalid move number ({move_number=})')
 
-        index = move_number - 1
+    assert moves[move_number - 1].move == move_number
+    assert 0 <= coord[0] < 15
+    assert 0 <= coord[1] < 15
 
-        logging.debug(f'try to fix move {move_number} at {coord} vertical={isvertical} with {word}')
-        board = moves[index].board.copy()
+    index = move_number - 1
 
-        tiles_to_remove = moves[index].new_tiles.copy()  # tiles to delete
-        for elem in tiles_to_remove:
-            del board[elem]  # remove tiles on board from incorrect move
-        logging.debug(f'tiles_to_remove {tiles_to_remove}')
-        tiles_to_add: dict = {}  # tiles to add
-        (col, row) = coord
-        new_word = ''
-        for i, char in enumerate(word):
-            (xcol, xrow) = (col, row + i) if isvertical else (col + i, row)
-            if (xcol, xrow) in board:
-                new_word += '.'
-            else:
-                new_word += char
-                tiles_to_add[(xcol, xrow)] = (char, 99)
-        word = new_word
-        logging.debug(f'tiles_to_add {tiles_to_add} / word {word}')
-        if tiles_to_remove or tiles_to_add:
-            game.moves[index].modification_cache['coord'] = coord
-            game.moves[index].modification_cache['isvertical'] = isvertical
-            game.moves[index].modification_cache['word'] = word
+    logging.debug(f'try to fix move {move_number} at {coord} vertical={isvertical} with {word}')
+    board = moves[index].board.copy()
 
-        previous_board = game.moves[index - 1].board if move_number > 1 else {}
-        previous_score = game.moves[index - 1].score if move_number > 1 else (0, 0)
+    tiles_to_remove = moves[index].new_tiles.copy()  # tiles to delete
+    for elem in tiles_to_remove:
+        del board[elem]  # remove tiles on board from incorrect move
+    logging.debug(f'tiles_to_remove {tiles_to_remove}')
+    tiles_to_add: dict = {}  # tiles to add
+    (col, row) = coord
+    new_word = ''
+    for i, char in enumerate(word):
+        (xcol, xrow) = (col, row + i) if isvertical else (col + i, row)
+        if (xcol, xrow) in board:
+            new_word += '.'
+        else:
+            new_word += char
+            tiles_to_add[(xcol, xrow)] = (char, 99)
+    word = new_word
+    logging.debug(f'tiles_to_add {tiles_to_add} / word {word}')
+    if tiles_to_remove or tiles_to_add:
+        game.moves[index].modification_cache['coord'] = coord
+        game.moves[index].modification_cache['isvertical'] = isvertical
+        game.moves[index].modification_cache['word'] = word
 
-        for i in range(index, len(moves)):
-            new_move = copy.deepcopy(moves[i])  # board, img, score
+    previous_board = game.moves[index - 1].board if move_number > 1 else {}
+    previous_score = game.moves[index - 1].score if move_number > 1 else (0, 0)
 
-            for elem in tiles_to_remove:  # repair board
-                if elem in new_move.board and new_move.board[elem] == tiles_to_remove[elem]:
-                    del new_move.board[elem]
-            new_move.board |= tiles_to_add
+    admin_recalc_moves(game, index, tiles_to_remove, tiles_to_add, previous_board, previous_score)
+    if event and not event.is_set():
+        event.set()
 
-            if new_move.type == MoveType.CHALLENGE_BONUS and new_move.player == 0:
-                new_move.score = (previous_score[0] - config.malus_doubt, previous_score[1])
-            elif new_move.type == MoveType.CHALLENGE_BONUS and new_move.player == 1:
-                new_move.score = (previous_score[0], previous_score[1] - config.malus_doubt)
-            elif new_move.type == MoveType.WITHDRAW:
-                if len(moves) > 1:
-                    new_move.points = -moves[i - 1].points
-                    new_move.word = moves[i - 1].word
-                    new_move.removed_tiles = moves[i - 1].new_tiles
-                    new_move.new_tiles = {}
-            else:
-                save_cache = new_move.modification_cache
-                new_move = _move_processing(
-                    game, new_move.player, new_move.played_time, new_move.img, new_move.board, previous_board, previous_score
-                )
-                new_move.modification_cache = save_cache
-            new_move.move = i + 1
-            previous_board = new_move.board
-            previous_score = new_move.score
-            moves[i] = new_move
-            logging.info(
-                f'recalculate move #{moves[i].move} ({moves[i].type}) '
-                f'new points {moves[i].points} new score {moves[i].score}'
+
+def admin_recalc_moves(
+    game: Game, index: int, tiles_to_remove: dict, tiles_to_add: dict, previous_board: dict, previous_score: Tuple[int, int]
+):  # pylint: disable=too-many-arguments
+    """recalculate move scores and points after admin changes"""
+    moves = game.moves
+    for i in range(index, len(moves)):
+        new_move = copy.deepcopy(moves[i])  # board, img, score
+
+        for elem in tiles_to_remove:  # repair board
+            if elem in new_move.board and new_move.board[elem] == tiles_to_remove[elem]:
+                del new_move.board[elem]
+        new_move.board |= tiles_to_add
+
+        if new_move.type == MoveType.CHALLENGE_BONUS and new_move.player == 0:
+            new_move.score = (previous_score[0] - config.malus_doubt, previous_score[1])
+        elif new_move.type == MoveType.CHALLENGE_BONUS and new_move.player == 1:
+            new_move.score = (previous_score[0], previous_score[1] - config.malus_doubt)
+        elif new_move.type == MoveType.WITHDRAW:
+            if len(moves) > 1:
+                new_move.points = -moves[i - 1].points
+                new_move.word = moves[i - 1].word
+                new_move.removed_tiles = moves[i - 1].new_tiles
+                new_move.new_tiles = {}
+        else:
+            save_cache = new_move.modification_cache
+            new_move = _move_processing(
+                game, new_move.player, new_move.played_time, new_move.img, new_move.board, previous_board, previous_score
             )
-            logging.info(f'\n{game.board_str(i)}')
-            _store(game, game.moves[i], with_image=False)
-    else:
-        logging.warning(f'wrong move number for change move: {move_number}')
-        raise ValueError('invalid move number')
+            new_move.modification_cache = save_cache
+        new_move.move = i + 1
+        previous_board = new_move.board
+        previous_score = new_move.score
+        moves[i] = new_move
+        logging.info(
+            f'recalculate move #{moves[i].move} ({moves[i].type}) new points {moves[i].points} new score {moves[i].score}'
+        )
+        logging.info(f'\n{game.board_str(i)}')
+        _store(game, game.moves[i], with_image=False)
+
+
+def admin_del_challenge(waitfor: Optional[Future], game: Game, move_number: int, event=None):
+    """delete challenge move number"""
+    if waitfor is not None:  # wait for running actions
+        _, not_done = futures.wait({waitfor})
+        assert len(not_done) == 0, 'error while waiting for future'
+    if move_number < 1 or move_number > len(game.moves):
+        raise ValueError(f'invalid move number for delete challenge {move_number=}')
+
+    index = move_number - 1
+    assert game.moves[index].move == move_number, 'Invalid move_number'
+
+    if game.moves[index].type not in (MoveType.WITHDRAW, MoveType.CHALLENGE_BONUS):
+        raise ValueError(f'invalid move type (type={game.moves[index].type})')
+
+    logging.debug(f'delete {move_number=} ({index=})')
+    to_delete = game.moves.pop(index)  ## move number anpassen !
+    for i in range(index, len(game.moves)):
+        game.moves[i].move -= 1
+    previous_board = game.moves[index - 1].board if move_number > 1 else {}
+    previous_score = game.moves[index - 1].score if move_number > 1 else (0, 0)
+    tiles_to_add = {}
+    if to_delete.type == MoveType.WITHDRAW:
+        tiles_to_add = game.moves[index - 1].new_tiles
+    admin_recalc_moves(game, index, {}, tiles_to_add, previous_board, previous_score)
+    if event and not event.is_set():
+        event.set()
+
+
+def admin_toggle_challenge_type(waitfor: Optional[Future], game: Game, move_number: int, event=None):
+    """toggle challenge type on move number"""
+    if waitfor is not None:  # wait for running actions
+        _, not_done = futures.wait({waitfor})
+        assert len(not_done) == 0, 'error while waiting for future'
+    if move_number < 1 or move_number > len(game.moves):
+        raise ValueError(f'invalid move number ({move_number=})')
+
+    index = move_number - 1
+    assert game.moves[index].move == move_number, 'Invalid move_number'
+
+    to_change = game.moves[index]
+    if to_change.type not in (MoveType.WITHDRAW, MoveType.CHALLENGE_BONUS):
+        raise ValueError(f'invalid move type (type={to_change.type})')
+
+    previous_board = game.moves[index - 1].board if move_number > 1 else {}
+    previous_score = game.moves[index - 1].score if move_number > 1 else (0, 0)
+    if to_change.type == MoveType.WITHDRAW:  # new type=MoveType.CHALLENGE_BONUS
+        to_change.type = MoveType.CHALLENGE_BONUS
+        to_change.points = config.malus_doubt * -1
+        to_change.word = ''
+        to_change.removed_tiles = {}
+    else:  # new type=MoveType.WITHDRAW
+        to_change.type = MoveType.WITHDRAW
+        to_change.points = -game.moves[index - 1].points
+        to_change.word = game.moves[index - 1].word
+        to_change.removed_tiles = game.moves[index - 1].new_tiles
+    to_change.player = 0 if to_change.player == 1 else 1
+    to_change.new_tiles = {}
+    to_change.modification_cache = {}
+    to_change.score = (
+        (previous_score[0] + to_change.points, previous_score[1])
+        if to_change.player == 0
+        else (previous_score[0], previous_score[1] + to_change.points)
+    )
+    admin_recalc_moves(game, index, to_change.removed_tiles, {}, previous_board, previous_score)
     if event and not event.is_set():
         event.set()
 
