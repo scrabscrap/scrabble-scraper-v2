@@ -31,7 +31,7 @@ from hardware import camera
 from hardware.button import Button
 from hardware.led import LED, LEDEnum
 from processing import end_of_game, invalid_challenge, move, start_of_game, store_status, store_zip_from_game, valid_challenge
-from scrabble import Game
+from scrabble import Game, MoveType
 from scrabblewatch import ScrabbleWatch
 from threadpool import pool
 from util import Static
@@ -259,6 +259,28 @@ class State(Static):
         from processing import admin_toggle_challenge_type
 
         cls.last_submit = pool.submit(admin_toggle_challenge_type, cls.last_submit, cls.game, move_number, cls.op_event)
+        _, not_done = futures.wait({cls.last_submit})
+        assert len(not_done) == 0, 'error while waiting for future'
+
+    @classmethod
+    def do_ins_challenge(cls, move_number: int):
+        """insert invalid challenge for move_number via api"""
+        from processing import admin_ins_challenge
+
+        cls.last_submit = pool.submit(
+            admin_ins_challenge, cls.last_submit, cls.game, move_number, MoveType.CHALLENGE_BONUS, cls.op_event
+        )
+        _, not_done = futures.wait({cls.last_submit})
+        assert len(not_done) == 0, 'error while waiting for future'
+
+    @classmethod
+    def do_ins_withdraw(cls, move_number: int):
+        """insert withdraw for move_number via api"""
+        from processing import admin_ins_challenge
+
+        cls.last_submit = pool.submit(
+            admin_ins_challenge, cls.last_submit, cls.game, move_number, MoveType.WITHDRAW, cls.op_event
+        )
         _, not_done = futures.wait({cls.last_submit})
         assert len(not_done) == 0, 'error while waiting for future'
 

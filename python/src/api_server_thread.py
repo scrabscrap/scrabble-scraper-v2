@@ -256,6 +256,14 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 ApiServer.last_msg = f'toggle challenge type on move {move_number}'
                 logging.info(ApiServer.last_msg)
                 State.do_toggle_challenge_type(move_number=move_number)
+            elif request.form.get('btninswithdraw'):
+                ApiServer.last_msg = f'insert withdraw for move {move_number}'
+                logging.info(ApiServer.last_msg)
+                State.do_ins_withdraw(move_number=move_number)
+            elif request.form.get('btninschallenge'):
+                ApiServer.last_msg = f'insert invalid challenge for move {move_number}'
+                logging.info(ApiServer.last_msg)
+                State.do_ins_challenge(move_number=move_number)
             elif request.form.get('btnmove'):
                 if move_number and (0 < move_number <= len(game.moves)):
                     score0 = request.form.get('move.score0', type=int)

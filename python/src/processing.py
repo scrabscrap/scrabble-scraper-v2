@@ -508,6 +508,51 @@ def admin_toggle_challenge_type(waitfor: Optional[Future], game: Game, move_numb
         event.set()
 
 
+def admin_ins_challenge(waitfor: Optional[Future], game: Game, move_number: int, move_type: MoveType, event=None):
+    """insert invalid challenge or withdraw for move number"""
+    if waitfor is not None:  # wait for running actions
+        _, not_done = futures.wait({waitfor})
+        assert len(not_done) == 0, 'error while waiting for future'
+    if move_number < 1 or move_number > len(game.moves):
+        raise ValueError(f'invalid move number ({move_number=})')
+
+    index = move_number - 1
+    assert game.moves[index].move == move_number, 'Invalid move_number'
+
+    logging.debug(f'insert challenge {move_type} for {move_number=}')
+    to_insert = copy.deepcopy(game.moves[index])
+    to_insert.move += 1
+    to_insert.removed_tiles = {}
+    if move_type == MoveType.CHALLENGE_BONUS:
+        to_insert.type = MoveType.CHALLENGE_BONUS
+        to_insert.points = config.malus_doubt * -1
+        to_insert.word = ''
+        to_insert.player = 0 if to_insert.player == 1 else 1
+    else:
+        to_insert.type = MoveType.WITHDRAW
+        to_insert.points = to_insert.points * -1
+        to_insert.removed_tiles = to_insert.new_tiles
+    to_insert.new_tiles = {}
+    to_insert.modification_cache = {}
+    to_insert.score = (
+        (to_insert.score[0] + to_insert.points, to_insert.score[1])
+        if to_insert.player == 0
+        else (to_insert.score[0], to_insert.score[1] + to_insert.points)
+    )
+    if index < len(game.moves):
+        game.moves.insert(index + 1, to_insert)
+    else:
+        game.moves.append(to_insert)
+
+    previous_board = game.moves[index - 1].board if index > 0 else {}
+    previous_score = game.moves[index - 1].score if index > 0 else (0, 0)
+    for i in range(index + 1, len(game.moves)):
+        game.moves[i].move += 1
+    admin_recalc_moves(game, index + 1, to_insert.removed_tiles, {}, previous_board, previous_score)
+    if event and not event.is_set():
+        event.set()
+
+
 @trace
 def move(waitfor: Optional[Future], game: Game, img: MatLike, player: int, played_time: Tuple[int, int], event=None):
     # pylint: disable=too-many-arguments

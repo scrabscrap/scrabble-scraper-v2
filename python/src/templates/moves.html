@@ -106,28 +106,26 @@
                                             <div class="py-1">
                                                 {% if move.type.name=='WITHDRAW' or
                                                 move.type.name=='CHALLENGE_BONUS' %}
-                                                <button type="submit"
-                                                    class="form-control btn btn-outline-primary btn-sm "
+                                                <button type="submit" class="form-control btn btn-outline-info btn-sm "
                                                     name="btntogglechallenge" value="Update" data-bs-toggle="tooltip"
                                                     data-bs-placement="bottom" title="Toggle challenge type">
-                                                    <i class="bi-arrow-left-right"></i>&nbsp;</button>
+                                                    <i class="bi-arrow-left-right"></i></button>
                                                 {% else %}
                                                 <button type="submit"
                                                     class="form-control btn btn-outline-primary btn-sm " name="btnmove"
                                                     value="Update" data-bs-toggle="tooltip" data-bs-placement="bottom"
                                                     title="Update move">
-                                                    <i class="bi-check2-square"></i>&nbsp;</button>
+                                                    <i class="bi-check2-square"></i></button>
                                                 {% endif %}
                                             </div>
                                         </td>
                                         <td>
                                             {% if move.type.name=='WITHDRAW' or move.type.name=='CHALLENGE_BONUS' %}
-                                            <div class="py-1"><button type="button"
+                                            <div class="py-1"><button type="button" title="Delete challenge"
                                                     class="form-control btn btn-outline-danger btn-sm "
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#deleteChallenge{{ move.move }}">
-                                                    <i class="bi-trash"></i>&nbsp;
-                                                </button>
+                                                    <i class="bi-trash"></i></button>
                                             </div>
                                             <!-- Modal confirm dialog -->
                                             <div class="modal fade" id="deleteChallenge{{ move.move }}" tabindex="-1"
@@ -160,9 +158,52 @@
                                                     name="btninsmoves" value="Insert" data-bs-toggle="tooltip"
                                                     data-bs-placement="bottom"
                                                     title="Insert two exchange moves before this one">
-                                                    <i class="bi-box-arrow-up-left"></i>&nbsp;
-                                                </button></div>
+                                                    <i class="bi-box-arrow-up-left"></i></button>
+                                            </div>
                                             {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="py-1"><button type="button"
+                                                    title="Insert challenge for this move"
+                                                    class="form-control btn btn-outline-info btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#insChallenge{{ move.move }}"
+                                                    {% if move.type.name=='WITHDRAW' or
+                                                    move.type.name=='CHALLENGE_BONUS' %}disabled{%endif%}>
+                                                    <i class="bi-question-diamond"></i></button>
+                                            </div>
+                                            <!-- Modal confirm dialog -->
+                                            <div class="modal fade" id="insChallenge{{ move.move }}" tabindex="-1"
+                                                aria-labelledby="insChallengeLabel{{ move.move }}" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5"
+                                                                id="insChallengeLabel{{ move.move }}">
+                                                                Insert challenge</h1>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            insert challenge for move #{{move.move}}
+                                                            {{move.get_coord()}} {{move.word}}
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" name="btninswithdraw" value="Withdraw"
+                                                                title="Insert withdraw" class="btn btn-info"><i
+                                                                    class="bi-clipboard-x"></i> Withdraw</button>
+                                                            <button type="submit" name="btninschallenge"
+                                                                value="Invalid Challenge"
+                                                                title="Insert invalid challenge"
+                                                                class="btn btn-primary"><i
+                                                                    class="bi-clipboard-check"></i> Invalid
+                                                                Challenge</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </td>
                                     </tr>
                                 </form>
@@ -196,16 +237,16 @@
                                                 class="form-control btn btn-outline-primary btn-sm" name="btnblanko"
                                                 value="Update" data-bs-toggle="tooltip" data-bs-placement="bottom"
                                                 title="Update">
-                                                <i class="bi-save"></i>&nbsp;
-                                            </button></div>
+                                                <i class="bi-save"></i></button>
+                                        </div>
                                     </td>
                                     <td>
                                         <div class="py-1"><button type="submit"
                                                 class="form-control btn btn-outline-danger btn-sm"
                                                 name="btnblankodelete" value="Delete" data-bs-toggle="tooltip"
                                                 data-bs-placement="bottom" title="Delete">
-                                                <i class="bi-trash"></i>&nbsp;
-                                            </button></div>
+                                                <i class="bi-trash"></i></button>
+                                        </div>
                                     </td>
                                 </form>
                             </tr>
