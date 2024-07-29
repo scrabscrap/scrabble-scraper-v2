@@ -396,6 +396,9 @@ def admin_change_move(
     previous_score = game.moves[index - 1].score if move_number > 1 else (0, 0)
 
     admin_recalc_moves(game, index, tiles_to_remove, tiles_to_add, previous_board, previous_score)
+    for i in range(index, len(game.moves)):
+        _store(game, game.moves[i], with_image=False)
+
     if event and not event.is_set():
         event.set()
 
@@ -437,7 +440,6 @@ def admin_recalc_moves(
             f'recalculate move #{moves[i].move} ({moves[i].type}) new points {moves[i].points} new score {moves[i].score}'
         )
         logging.info(f'\n{game.board_str(i)}')
-        _store(game, game.moves[i], with_image=False)
 
 
 def admin_del_challenge(waitfor: Optional[Future], game: Game, move_number: int, event=None):
@@ -464,6 +466,8 @@ def admin_del_challenge(waitfor: Optional[Future], game: Game, move_number: int,
     if to_delete.type == MoveType.WITHDRAW:
         tiles_to_add = game.moves[index - 1].new_tiles
     admin_recalc_moves(game, index, {}, tiles_to_add, previous_board, previous_score)
+    for i in range(index, len(game.moves)):
+        _store(game, game.moves[i], with_image=True)
     if event and not event.is_set():
         event.set()
 
@@ -504,6 +508,8 @@ def admin_toggle_challenge_type(waitfor: Optional[Future], game: Game, move_numb
         else (previous_score[0], previous_score[1] + to_change.points)
     )
     admin_recalc_moves(game, index, to_change.removed_tiles, {}, previous_board, previous_score)
+    for i in range(index, len(game.moves)):
+        _store(game, game.moves[i], with_image=True)
     if event and not event.is_set():
         event.set()
 
@@ -549,6 +555,8 @@ def admin_ins_challenge(waitfor: Optional[Future], game: Game, move_number: int,
     for i in range(index + 1, len(game.moves)):
         game.moves[i].move += 1
     admin_recalc_moves(game, index + 1, to_insert.removed_tiles, {}, previous_board, previous_score)
+    for i in range(index, len(game.moves)):
+        _store(game, game.moves[i], with_image=True)
     if event and not event.is_set():
         event.set()
 
