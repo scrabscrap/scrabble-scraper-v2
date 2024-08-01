@@ -26,7 +26,11 @@
 					"editor.formatOnSave": true,				
 					"ruff.lint.enable": false,
 					"ruff.lineLength": 128,
-					"ruff.nativeServer": true				
+					"ruff.nativeServer": true,
+					"terminal.integrated.env.linux": {
+						"PYTHONPATH": "src:test"
+					  },
+					"workbench.colorTheme":"Default Dark Modern"
 				},
 				"extensions": [
 					"charliermarsh.ruff",
