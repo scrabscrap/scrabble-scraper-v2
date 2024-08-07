@@ -28,7 +28,7 @@ done
   fi
 
   echo "*** run mypy"
-  mypy --follow-imports skip src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
+  mypy src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
   retVal=$?
   if [ $retVal -ne 0 ]; then
     echo "### mypy returns $retVal"

@@ -46,7 +46,7 @@ jobs:
         id: mypy
         run: |
           cd python
-          OUTPUT=$(mypy --follow-imports skip src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py)
+          OUTPUT=$(mypy src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py)
           echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
           exit ${PIPESTATUS[0]}
 
