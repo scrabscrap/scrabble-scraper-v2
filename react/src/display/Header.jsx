@@ -16,7 +16,7 @@ class Header extends Component {
             }
         }
 
-        const buttonclass = (this.props.highlight_reload) ? 'text-danger' :'text-muted'
+        const buttonclass = (this.props.highlight_reload) ? 'btn btn-link text-danger p-1' :'btn btn-link text-muted p-1'
         return (
             <div className='header bg-body'>
                 <div className='card-body'>
@@ -31,7 +31,7 @@ class Header extends Component {
                                 {this.props.time}&nbsp;{(this.props.settings.websocket) ? 'ws' : '  '}&nbsp;
                                 v{import.meta.env.PACKAGE_VERSION}-{import.meta.env.VITE_APP_VERSION}
                             </span>
-                            <span><a href="#" className={buttonclass} onClick={() => window.location.reload()} title='Reload'>&nbsp;&#x21BB;&nbsp;</a></span>
+                            <span><button className={buttonclass} onClick={() => window.location.reload()} title='Reload'>&#x21BB;</button></span>
                             <Settings settings={this.props.settings} updateSettings={this.props.updateSettings} />
                         </div>
                     </div>

@@ -74,7 +74,7 @@ class Settings extends Component {
     render() {
         return (
             <span>
-                <a href="#" onClick={this.toggleShow} title='Settings'>&nbsp;&#x2699;&nbsp;</a>
+                <button class='btn btn-sm btn-link p-1' onClick={this.toggleShow} title='Settings'>&#x2699;</button>
                 <div className={this.state.show ? '' : 'hidden'} tabIndex='-1'>
                     <div className='modal-dialog modal-dialog-centered' style={{ minWidth: '300px' }} >
                         <div className='modal-content'>
