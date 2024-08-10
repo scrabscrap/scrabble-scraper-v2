@@ -135,10 +135,15 @@ class App extends Component {
         }
       }
       if (data.status?.tournament) {
-        this.state.settings.header_text = data.status.tournament
+        this.setState( {
+          settings: { header_text: data.status.tournament}
+        })
+
       } 
       if (data.status?.layout) {
-        this.state.settings.theme2020 = data.status.layout.includes('2020')
+        this.setState( {
+          settings: { theme2020: data.status.layout.includes('2020')}
+        })
       }
 
       this.setState({
@@ -229,10 +234,14 @@ class App extends Component {
             }
           }
           if (data?.tournament) {
-              this.state.settings.header_text = data.tournament
-          }
+              this.setState( {
+                settings: { header_text: data.tournament}
+              })
+            }
           if (data?.layout) {
-            this.state.settings.theme2020 = data.layout.includes('2020')
+            this.setState( {
+              settings: { theme2020: data.layout.includes('2020')}
+            })
           } 
     
           this.setState({                        // use image-url, op ist calculated, clock1/2 is not available
