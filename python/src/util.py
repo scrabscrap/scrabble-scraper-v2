@@ -24,7 +24,7 @@ from typing import Any, Callable, Optional, Union
 
 import numpy as np
 
-TWarp = np.ndarray[float, np.dtype[np.float32]]
+TWarp = np.ndarray[Any, np.dtype[np.float32]]
 
 # def onexit(f):
 #     # see: https://peps.python.org/pep-0318/#examples
