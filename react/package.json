@@ -6,7 +6,7 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-use-websocket": "^4.9.0"
+    "react-use-websocket": "^4.10.1"
   },
   "engines": {
     "node": ">=18.0.0"
