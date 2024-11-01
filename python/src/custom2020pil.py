@@ -185,11 +185,11 @@ class Custom2020PILBoard(CustomBoard):
                 pil_img = pil_img.quantize(colors=3, method=Image.Quantize.FASTOCTREE)
 
                 pil_rgb = pil_img.convert(mode='RGB')
-                color_rgb = sorted(pil_rgb.getcolors(), reverse=True)[0][1]
+                color_rgb = sorted(pil_rgb.getcolors(), reverse=True)[0][1]  # type: ignore # mypy bug 16788
                 rgb_table[(col, row)] = color_rgb
 
                 pil_hsv = pil_img.convert(mode='HSV')
-                color_hsv_count, color_hsv = sorted(pil_hsv.getcolors(), reverse=True)[0]
+                color_hsv_count, color_hsv = sorted(pil_hsv.getcolors(), reverse=True)[0]  # type: ignore # mypy bug 16788
                 hsv_table[(col, row)] = color_hsv
 
                 # swap rgb to bgr
