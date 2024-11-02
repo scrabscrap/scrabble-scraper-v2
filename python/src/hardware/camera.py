@@ -32,7 +32,7 @@ from config import config
 from util import runtime_measure
 
 camera_dict: dict = {}
-logging.basicConfig(level=logging.INFO, force=True)
+logging.basicConfig(filename=f'{config.work_dir}/log/messages.log', level=logging.INFO, force=True)
 
 
 class Camera(Protocol):
@@ -41,7 +41,7 @@ class Camera(Protocol):
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
         """constructor"""
 
-    def read(self, peek: bool = False) -> MatLike:
+    def read(self, peek: bool = False) -> MatLike:  # type: ignore
         """read next picture"""
 
     def update(self, event: Event) -> None:

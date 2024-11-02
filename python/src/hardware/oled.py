@@ -20,6 +20,7 @@ import logging
 from typing import Optional
 
 import ifaddr
+from luma.core.error import DeviceNotFoundError  # type: ignore
 from luma.core.interface.serial import i2c  # type: ignore
 from luma.core.render import canvas  # type: ignore
 from luma.oled.device import ssd1306  # type: ignore
@@ -43,11 +44,16 @@ FONT_FAMILY = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
 FONT = ImageFont.truetype(FONT_FAMILY, 42)
 FONT1 = ImageFont.truetype(FONT_FAMILY, 20)
 FONT2 = ImageFont.truetype(FONT_FAMILY, 12)
-SERIAL: tuple[i2c, i2c] = (
-    i2c(port=IC2_PORT_PLAYER1, address=IC2_ADDRESS_PLAYER1),
-    i2c(port=IC2_PORT_PLAYER2, address=IC2_ADDRESS_PLAYER2),
-)
-DEVICE: tuple[ssd1306, ssd1306] = (ssd1306(SERIAL[0]), ssd1306(SERIAL[1]))
+try:
+    SERIAL: tuple[i2c, i2c] = (
+        i2c(port=IC2_PORT_PLAYER1, address=IC2_ADDRESS_PLAYER1),
+        i2c(port=IC2_PORT_PLAYER2, address=IC2_ADDRESS_PLAYER2),
+    )
+    DEVICE: tuple[ssd1306, ssd1306] = (ssd1306(SERIAL[0]), ssd1306(SERIAL[1]))
+except (OSError, DeviceNotFoundError) as e:
+    logging.basicConfig(filename=f'{config.work_dir}/log/messages.log', level=logging.INFO, force=True)
+    logging.error(f'error opening OLED 1 / OLED 2 {type(e).__name__}: {e}')
+    raise RuntimeError('Error: OLED 1 / OLED 2 not available') from e
 
 
 def get_ipv4_address() -> dict:
