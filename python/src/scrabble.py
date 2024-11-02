@@ -108,7 +108,7 @@ class Move:  # pylint: disable=too-many-instance-attributes
         previous_score: Tuple[int, int],
         img=None,
         rack=None,
-    ):  # pylint: disable=too-many-arguments
+    ):  # pylint: disable=too-many-arguments, too-many-positional-arguments
         self.type: MoveType = move_type
         self.time: str = str(datetime.now())
         self.move = 0  # set on append of move in class Game
