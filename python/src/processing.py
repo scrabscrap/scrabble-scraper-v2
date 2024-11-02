@@ -340,7 +340,7 @@ def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, 
 def admin_change_move(
     waitfor: Optional[Future], game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str, event=None
 ):
-    # pylint: disable=too-many-arguments, too-many-locals,too-many-branches,too-many-statements
+    # pylint: disable=too-many-arguments, too-many-locals,too-many-branches,too-many-statements, too-many-positional-arguments
     """fix move(direct call from admin)
 
     The provided tiles(word) will be set on the board with a probability of 99%
@@ -405,7 +405,7 @@ def admin_change_move(
 
 def admin_recalc_moves(
     game: Game, index: int, tiles_to_remove: dict, tiles_to_add: dict, previous_board: dict, previous_score: Tuple[int, int]
-):  # pylint: disable=too-many-arguments
+):  # pylint: disable=too-many-arguments, too-many-positional-arguments
     """recalculate move scores and points after admin changes"""
     moves = game.moves
     for i in range(index, len(moves)):
@@ -563,7 +563,7 @@ def admin_ins_challenge(waitfor: Optional[Future], game: Game, move_number: int,
 
 @trace
 def move(waitfor: Optional[Future], game: Game, img: MatLike, player: int, played_time: Tuple[int, int], event=None):
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     """Process a move
 
     Args:
@@ -856,7 +856,7 @@ def _move_processing(
     previous_board: dict,
     previous_score: Tuple[int, int],
 ) -> Move:
-    # pylint: disable=too-many-locals, too-many-branches, too-many-arguments
+    # pylint: disable=too-many-locals, too-many-branches, too-many-arguments, too-many-positional-arguments
 
     def strip_invalid_blanks(current_board, new_tiles):
         blanks = {(col, row) for col, row in new_tiles if new_tiles[(col, row)][0] == '_'}
