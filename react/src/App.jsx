@@ -15,6 +15,7 @@ class App extends Component {
     this.state = {
       op: 'START',
       tournament: 'SCRABBLE SCRAPER',
+      commit: null,
       layout: null,
       clock1: 1800, clock2: 1800,
       time: Date(),

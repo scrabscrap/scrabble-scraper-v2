@@ -40,7 +40,7 @@ class Display extends Component {
                         </div>
                         <div className='col'>
                             <Header time={this.props.state.time} highlight_reload={this.props.state.highlight_reload}
-                                settings={this.props.state.settings} updateSettings={this.props.updateSettings} />
+                                settings={this.props.state.settings} updateSettings={this.props.updateSettings} commit={data.commit} />
                         </div>
                         <div className='col-4'>
                             <Player counter={(player_on_move === '1') && data.settings.websocket} obs={data.settings.obsbank}
@@ -75,7 +75,7 @@ class Display extends Component {
                         </div>
                         <div className='col'>
                             <Header time={this.props.state.time} highlight_reload={this.props.state.highlight_reload}
-                                settings={this.props.state.settings} updateSettings={this.props.updateSettings} />
+                                settings={this.props.state.settings} updateSettings={this.props.updateSettings} commit={data.commit} />
                         </div>
                         <div className='col-4'>
                             <Player counter={(player_on_move === '1') && data.settings.websocket}
