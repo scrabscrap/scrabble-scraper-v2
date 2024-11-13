@@ -15,6 +15,11 @@ class Header extends Component {
                 items.push(<span key={i}>&nbsp;</span>)
             }
         }
+        let timestr = this.props.time.slice(0, this.props.time.indexOf('.')) // cut off nano sec
+        let commitstr = import.meta.env.VITE_APP_VERSION
+        if (import.meta.env.VITE_APP_VERSION != this.props.commit) {
+            commitstr = import.meta.env.VITE_APP_VERSION + '/' + this.props.commit
+        }
 
         const buttonclass = (this.props.highlight_reload) ? 'btn btn-link text-danger p-1' :'btn btn-link text-muted p-1'
         return (
@@ -28,8 +33,8 @@ class Header extends Component {
                     <div className='row'>
                         <div className='justify-content-center text-center m-auto'>
                             <span className='text-muted'>
-                                {this.props.time}&nbsp;{(this.props.settings.websocket) ? 'ws' : '  '}&nbsp;
-                                v{import.meta.env.PACKAGE_VERSION}-{import.meta.env.VITE_APP_VERSION}
+                                {timestr}&nbsp;{(this.props.settings.websocket) ? 'ws' : '  '}&nbsp;
+                                v{import.meta.env.PACKAGE_VERSION}-{commitstr}
                             </span>
                             <span><button className={buttonclass} onClick={() => window.location.reload()} title='Reload'>&#x21BB;</button></span>
                             <Settings settings={this.props.settings} updateSettings={this.props.updateSettings} />
