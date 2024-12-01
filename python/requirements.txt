@@ -21,7 +21,7 @@ gpiozero==2.0.1
 # └── colorzero [required: Any, installed: 2.0]
 #     └── setuptools [required: Any, installed: 69.2.0]
 imutils==0.5.4
-luma.oled==3.13.0
+luma.oled==3.14.0
 # └── luma.core [required: >=2.4.0, installed: 2.4.2]
 #     ├── cbor2 [required: Any, installed: 5.6.4]
 #     ├── pillow [required: >=9.2.0, installed: 10.3.0]
