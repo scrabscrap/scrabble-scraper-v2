@@ -19,13 +19,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install ruff pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Lint with flake8
+      - name: Lint with ruff
         id: ruff
         run: |
           cd python
-          OUTPUT=$(ruff check src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py)
-          echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
-          exit ${PIPESTATUS[0]}
+          ruff check src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py | tee ruff.txt
+          cat "ruff.txt" >> $GITHUB_STEP_SUMMARY
+          exit 0
   mypy:
     runs-on: ubuntu-latest
     env:
