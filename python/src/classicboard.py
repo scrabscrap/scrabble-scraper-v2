@@ -48,10 +48,10 @@ class ClassicBoard(GameBoard):
         pass
 
     @classmethod
-    def warp(cls, __image: MatLike) -> MatLike:  # pylint: disable=too-many-locals
+    def warp(cls, image: MatLike) -> MatLike:  # pylint: disable=too-many-locals
         """ " implement warp of a classic board"""
 
-        rect = ClassicBoard.find_board(__image)
+        rect = ClassicBoard.find_board(image)
 
         # now that we have our rectangle of points, let's compute
         # the width of our new image
@@ -76,7 +76,7 @@ class ClassicBoard(GameBoard):
         # calculate the perspective transform matrix and warp
         # the perspective to grab the screen
         matrix = cv2.getPerspectiveTransform(rect, dst)
-        result = cv2.warpPerspective(__image, matrix, (max_width, max_height))
+        result = cv2.warpPerspective(image, matrix, (max_width, max_height))
         # crop bild auf 10mm Rand
         # größe = 360mm x 360mm
         # abschneiden: oben: 7mm links: 15mm rechts 15mm unten 23mm
