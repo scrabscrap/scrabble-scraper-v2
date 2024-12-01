@@ -31,7 +31,7 @@ class GameBoard:
     """Implementation of a scrabble board analysis"""
 
     @classmethod
-    def warp(cls, __image):
+    def warp(cls, image) -> MatLike:  # type: ignore
         """ " implement warp of a game board"""
         pass
 
@@ -41,13 +41,13 @@ class GameBoard:
         return _img, set()
 
     @staticmethod
-    def find_board(__image) -> TWarp:
+    def find_board(image) -> TWarp:
         """try to find the game board border"""
         if config.video_warp_coordinates is not None:
             rect = np.array(config.video_warp_coordinates, dtype='float32')
         else:
             # based on: https://www.pyimagesearch.com/2014/08/25/4-point-opencv-getperspective-transform-example/
-            (blue, _, _) = cv2.split(__image.copy())
+            (blue, _, _) = cv2.split(image.copy())
 
             # Otsu's thresholding after Gaussian filtering
             blur = cv2.GaussianBlur(blue, (5, 5), 0)
@@ -69,9 +69,9 @@ class GameBoard:
             rect = np.zeros((4, 2), dtype='float32')
             if pts is None:
                 rect[0] = [0, 0]
-                rect[1] = [__image.shape[1] - 1, 0]
-                rect[2] = [__image.shape[1] - 1, __image.shape[0] - 1]
-                rect[3] = [0, __image.shape[0] - 1]
+                rect[1] = [image.shape[1] - 1, 0]
+                rect[2] = [image.shape[1] - 1, image.shape[0] - 1]
+                rect[3] = [0, image.shape[0] - 1]
                 return rect
             # the top-left point has the smallest sum whereas the
             # bottom-right has the largest sum
