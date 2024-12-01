@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^5.4.10",
+    "vite": "^6.0.1",
     "vite-plugin-package-version": "^1.1.0"
   }
 }
