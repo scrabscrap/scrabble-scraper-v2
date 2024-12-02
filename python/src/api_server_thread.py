@@ -26,11 +26,13 @@ import platform
 import re
 import subprocess
 import urllib.parse
+from datetime import datetime
 from signal import alarm
 from time import perf_counter, sleep
 
 import cv2
 import numpy as np
+import psutil
 from flask import Flask, abort, redirect, render_template, request, send_file, send_from_directory, url_for
 from flask_sock import ConnectionClosed, Sock
 from werkzeug.serving import make_server
@@ -213,6 +215,103 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         return render_template('logs.html', apiserver=ApiServer)
 
     @staticmethod
+    @app.route('/log_sysinfo', methods=['GET', 'POST'])
+    def log_sysinfo():  # pylint: disable=too-many-locals,too-many-statements
+        """log out system info"""
+
+        def bytes2human(n):
+            # http://code.activestate.com/recipes/578019
+            # >>> bytes2human(10000)
+            # '9.8K'
+            # >>> bytes2human(100001221)
+            # '95.4M'
+            symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+            prefix = {}
+            for i, s in enumerate(symbols):
+                prefix[s] = 1 << (i + 1) * 10
+            for s in reversed(symbols):
+                if abs(n) >= prefix[s]:
+                    value = float(n) / prefix[s]
+                    return f'{value:.1f}{s}'
+            return f'{n}B'
+
+        logging.info(f"{'='*40} System Information {'='*40}")
+        uname = platform.uname()
+        logging.info(f'System: {uname.system}')
+        logging.info(f'Node Name: {uname.node}')
+        logging.info(f'Release: {uname.release}')
+        logging.info(f'Version: {uname.version}')
+        logging.info(f'Machine: {uname.machine}')
+        logging.info(f'Processor: {uname.processor}')
+
+        logging.info(f"{'='*40} Boot Time {'='*40}")
+        boot_time_timestamp = psutil.boot_time()
+        bt = datetime.fromtimestamp(boot_time_timestamp)
+        logging.info(f'Boot Time: {bt.year}/{bt.month}/{bt.day} {bt.hour}:{bt.minute}:{bt.second}')
+
+        logging.info(f"{'='*40} CPU Info {'='*40}")
+        logging.info(f'Physical cores: {psutil.cpu_count(logical=False)}')
+        logging.info(f'Total cores: {psutil.cpu_count(logical=True)}')
+        cpufreq = psutil.cpu_freq()
+        logging.info(f'Max Frequency: {cpufreq.max:.2f}Mhz')
+        logging.info(f'Min Frequency: {cpufreq.min:.2f}Mhz')
+        logging.info(f'Current Frequency: {cpufreq.current:.2f}Mhz')
+        logging.info('CPU Usage Per Core:')
+        for i, percentage in enumerate(psutil.cpu_percent(percpu=True, interval=1)):
+            logging.info(f'  Core {i}: {percentage}%')
+        logging.info(f'Total CPU Usage: {psutil.cpu_percent()}%')
+        load_avg_1, load_avg_5, load_avg_15 = psutil.getloadavg()
+        logging.info(f'Load: {load_avg_1:.2f} {load_avg_5:.2f} {load_avg_15:.2f}')
+
+        logging.info(f"{'='*40} Memory Information {'='*40}")
+        svmem = psutil.virtual_memory()
+        logging.info(f'Total: {bytes2human(svmem.total)}')
+        logging.info(f'Available: {bytes2human(svmem.available)}')
+        logging.info(f'Used: {bytes2human(svmem.used)}')
+        logging.info(f'Percentage: {svmem.percent}%')
+
+        logging.info(f"{'='*40} SWAP {'='*40}")
+        swap = psutil.swap_memory()
+        logging.info(f'Total: {bytes2human(swap.total)}')
+        logging.info(f'Free: {bytes2human(swap.free)}')
+        logging.info(f'Used: {bytes2human(swap.used)}')
+        logging.info(f'Percentage: {swap.percent}%')
+
+        logging.info(f"{'='*40} Disk Information {'='*40}")
+        logging.info('Partitions and Usage:')
+        partitions = psutil.disk_partitions()
+        for partition in partitions:
+            logging.info(f'=== Device: {partition.device} ===')
+            logging.info(f'  Mountpoint: {partition.mountpoint}')
+            logging.info(f'  File system type: {partition.fstype}')
+            try:
+                partition_usage = psutil.disk_usage(partition.mountpoint)
+            except PermissionError:
+                continue
+            logging.info(f'  Total Size: {bytes2human(partition_usage.total)}')
+            logging.info(f'  Used: {bytes2human(partition_usage.used)}')
+            logging.info(f'  Free: {bytes2human(partition_usage.free)}')
+            logging.info(f'  Percentage: {partition_usage.percent}%')
+        # get IO statistics since boot
+        disk_io = psutil.disk_io_counters()
+        if disk_io:
+            logging.info(f'Total read: {bytes2human(disk_io.read_bytes)}')
+            logging.info(f'Total write: {bytes2human(disk_io.write_bytes)}')
+
+        logging.info(f"{'='*40} Process Info {'='*40}")
+        for process in psutil.process_iter(['pid', 'name', 'memory_percent', 'cpu_percent']):
+            try:
+                if 'python' in process.info['name'].lower():
+                    logging.info(
+                        f"{process.info['pid']:6} {process.info['name']} "
+                        f"mem:{ process.info['memory_percent']:.2f}% cpu:{process.info['cpu_percent']:.2f}%"
+                    )
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+
+        return redirect('/logs')
+
+    @staticmethod
     @app.route('/moves', methods=['GET', 'POST'])
     def route_moves():  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
         """edit moves form"""
@@ -251,19 +350,19 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             elif request.form.get('btndelchallenge'):
                 ApiServer.last_msg = f'delete challenge {move_number=}'
                 logging.info(ApiServer.last_msg)
-                State.do_del_challenge(move_number)
+                State.do_del_challenge(move_number)  # type: ignore
             elif request.form.get('btntogglechallenge'):
                 ApiServer.last_msg = f'toggle challenge type on move {move_number}'
                 logging.info(ApiServer.last_msg)
-                State.do_toggle_challenge_type(move_number=move_number)
+                State.do_toggle_challenge_type(move_number=move_number)  # type: ignore
             elif request.form.get('btninswithdraw'):
                 ApiServer.last_msg = f'insert withdraw for move {move_number}'
                 logging.info(ApiServer.last_msg)
-                State.do_ins_withdraw(move_number=move_number)
+                State.do_ins_withdraw(move_number=move_number)  # type: ignore
             elif request.form.get('btninschallenge'):
                 ApiServer.last_msg = f'insert invalid challenge for move {move_number}'
                 logging.info(ApiServer.last_msg)
-                State.do_ins_challenge(move_number=move_number)
+                State.do_ins_challenge(move_number=move_number)  # type: ignore
             elif request.form.get('btnmove'):
                 if move_number and (0 < move_number <= len(game.moves)):
                     score0 = request.form.get('move.score0', type=int)
@@ -279,7 +378,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     if move.score != (score0, score1):
                         ApiServer.last_msg = f'update score move# {move_number}: {move.score} => {(score0, score1)}'
                         logging.info(ApiServer.last_msg)
-                        State.do_change_score(move_number, (score0, score1))
+                        State.do_change_score(move_number, (score0, score1))  # type: ignore
 
                     # changes on move
                     if (move_type == 'EXCHANGE') and (move.type.name != move_type):
@@ -803,12 +902,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     _, im_buf_arr = cv2.imencode('.jpg', State.picture)
                     png_output = base64.b64encode(bytes(im_buf_arr))
                     logging.debug('b64encode')
-                    sock.send(  # pylint: disable=no-member
+                    sock.send(  # pylint: disable=no-member # type: ignore
                         f'{{"op": "{State.current_state}", '
                         f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}'
                     )  # type: ignore
                 else:
-                    sock.send(  # pylint: disable=no-member
+                    sock.send(  # pylint: disable=no-member # type: ignore
                         f'{{"op": "{State.current_state}", ' f'"clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}'
                     )  # type:ignore
             except ConnectionClosed:
