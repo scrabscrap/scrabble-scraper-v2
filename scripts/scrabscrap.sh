@@ -45,9 +45,13 @@ fi
 cd "$PYTHONDIR"
 
 while : ; do
+    # kill running python processes 
+    pkill -9 python 2> /dev/null
+    sleep 1
     python -m scrabscrap >> "$WORKDIR/log/game.log"
     if [ $? -eq 4 ]; then
         echo "restart scrabscrap"
+        echo "########## restart scrabscrap ##########" >> "$WORKDIR/log/game.log"
     else
         break
     fi
