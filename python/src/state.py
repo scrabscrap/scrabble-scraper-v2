@@ -370,7 +370,10 @@ class State(Static):
         before sending the next event, press button will wait for self.bounce
         """
         try:
-            cls.current_state = cls.state[(cls.current_state, button)]()
+            try:
+                cls.current_state = cls.state[(cls.current_state, button)]()
+            except Exception as oops:  # pylint: disable=broad-exception-caught
+                logging.warning(f'ignore invalid exception on button handling {oops}')
             if not cls.op_event.is_set():
                 cls.op_event.set()
             logging.info(f'{button}')
