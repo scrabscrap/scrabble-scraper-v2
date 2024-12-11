@@ -40,7 +40,11 @@ class RepeatedTimer:
         """call funtion on every tick"""
         self.event = event
         while not event.wait(self._time):
-            self.function()
+            try:
+                self.function()
+            except Exception as oops:  # pylint: disable=broad-exception-caught
+                # ignore all exceptions in self.function
+                logging.warning(f'Exception in timed function {oops}')
         event.clear()
 
     def cancel(self) -> None:
