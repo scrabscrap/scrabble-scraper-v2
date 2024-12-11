@@ -867,9 +867,9 @@ def _move_processing(
         set_of_cols = {col for col, row in new_tiles if new_tiles[(col, row)][0] != '_'}  # cols tiles with character
         set_of_rows = {row for col, row in new_tiles if new_tiles[(col, row)][0] != '_'}  # rows tiles with character
 
-        (min_col, max_col) = (min(set_of_cols), max(set_of_cols))
-        (min_row, max_row) = (min(set_of_rows), max(set_of_rows))
         if len(set_of_rows) == 1 or len(set_of_cols) == 1:
+            (min_col, max_col) = (min(set_of_cols), max(set_of_cols))
+            (min_row, max_row) = (min(set_of_rows), max(set_of_rows))
             # either columns or rows
             logging.debug(f'{set_of_cols=} {set_of_rows=} {blanks=} {min_row=} {max_row=} {min_col=} {max_col=}')
             if len(set_of_cols) == 1 and len(set_of_rows) == 1:  # only one tile: remove all blanks not in the column/row
