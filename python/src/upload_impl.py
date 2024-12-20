@@ -30,16 +30,16 @@ from config import config
 class Upload(Protocol):
     """upload files"""
 
-    def upload_move(self, move: int) -> bool:
+    def upload_move(self, move: int) -> bool:  # type: ignore # only interface
         """upload one move"""
 
-    def upload_status(self) -> bool:
+    def upload_status(self) -> bool:  # type: ignore # only interface
         """upload status"""
 
-    def upload_game(self, filename: str) -> bool:
+    def upload_game(self, filename: str) -> bool:  # type: ignore # only interface
         """upload complete game"""
 
-    def delete_files(self) -> bool:
+    def delete_files(self) -> bool:  # type: ignore # only interface
         """cleanup uploaded files"""
 
 

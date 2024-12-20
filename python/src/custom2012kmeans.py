@@ -218,7 +218,7 @@ def main():  # pylint: disable=too-many-locals
         image = cv2.imread(fn)
         warped = Custom2012kBoard.warp(image)
         result, _ = Custom2012kBoard.filter_image(_image=warped.copy())
-        cv2.imshow(f'{fn}', result)
+        cv2.imshow(f'{fn}', result)  # type: ignore
         cv2.waitKey()
         cv2.destroyWindow(f'{fn}')
 

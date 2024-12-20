@@ -161,7 +161,7 @@ class CustomBoard(GameBoard):
             mask_field |= cv2.inRange(tmp, np.array(cls.FIELD[i]), np.array(cls.FIELD[i + 1]))
 
         mask_result = mask_saturation | mask_tword | mask_dword | mask_tletter | mask_dletter | mask_field
-        mask_result = cv2.bitwise_not(mask_result)
+        mask_result = cv2.bitwise_not(mask_result)  # type: ignore
         candidates = set()
         filtered_pixels = {}
         for col in range(15):

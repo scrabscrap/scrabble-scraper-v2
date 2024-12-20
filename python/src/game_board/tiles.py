@@ -55,7 +55,7 @@ def load_tiles() -> List[OneTile]:
         gray = cv2.bitwise_not(gray)
         new_tile = OneTile()
         new_tile.name = tile_name
-        new_tile.img = gray
+        new_tile.img = gray  # type: ignore
         tiles.append(new_tile)
     return tiles
 
