@@ -111,7 +111,7 @@ def main():  # pylint: disable=too-many-locals
         masked = cv2.bitwise_and(warped, warped, mask=mask)
         blend = cv2.addWeighted(warped, 0.3, masked, 0.7, 0.0)
         result1 = hstack([warped, blend, cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)])
-        result2 = cv2.cvtColor(cv2.resize(result, (2400, 340)), cv2.COLOR_GRAY2BGR)
+        result2 = cv2.cvtColor(cv2.resize(result, (2400, 340)), cv2.COLOR_GRAY2BGR)  # type: ignore
         result = vstack([result1, result2])
 
         cv2.imshow(f'{fn}', result)

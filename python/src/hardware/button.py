@@ -55,7 +55,7 @@ class Button(Static):
     def button_pressed(cls, button: GpioButton) -> None:  # callback
         """perform button press"""
         press = time.time()
-        if press > cls.bounce[ButtonEnum(button.pin.number).name] + 0.1 and cls.func_pressed:
+        if press > cls.bounce[ButtonEnum(button.pin.number).name] + 0.1 and cls.func_pressed:  # type: ignore
             cls.func_pressed(ButtonEnum(button.pin.number).name)  # type: ignore # pylint: disable=not-callable
 
     @classmethod
