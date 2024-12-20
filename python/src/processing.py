@@ -726,6 +726,7 @@ def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
     for mov in game.moves[i + 1 :]:  # type: ignore
         if mov.type == MoveType.WITHDRAW:
             rack[mov.player], bag_len = prev_rack[mov.player], prev_bag_len
+            from_bag = 0
         else:
             prev_rack[mov.player], prev_bag_len = rack[mov.player], bag_len
             mov_len = len(mov.new_tiles)
