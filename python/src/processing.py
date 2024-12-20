@@ -148,7 +148,7 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
             thresh = int(thresh * 100)
             if _tile.name in ('Ä', 'Ü', 'Ö') and thresh >= suggest_prop - 1:
                 logging.debug(f"{chr(ord('A') + row)}{col + 1:2} => ({_tile.name},{thresh}) increase prop to {thresh+2}")
-                thresh += 2  # 2% Bonus for umlauts
+                thresh = min(99, thresh + 5)  # 5% Bonus for umlauts
             if thresh > suggest_prop:
                 suggest_tile = _tile.name
                 suggest_prop = thresh
