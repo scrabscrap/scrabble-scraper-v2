@@ -117,7 +117,7 @@ class State(Static):
         _, (time0, time1), _ = ScrabbleWatch.status()
         ScrabbleWatch.start(next_player)
         LED.switch_on(next_led)  # turn on next player LED
-        cls.picture = camera.cam.read().copy()  # type: ignore
+        cls.picture = camera.cam.read().copy()
         cls.last_submit = pool.submit(move, cls.last_submit, cls.game, cls.picture, player, (time0, time1), cls.op_event)
         return next_state
 
@@ -291,7 +291,7 @@ class State(Static):
 
         with suppress(Exception):
             cls.current_state = BLOCKING
-            LED.switch_on({LEDEnum.green, LEDEnum.red})  # type: ignore
+            LED.switch_on({LEDEnum.green, LEDEnum.red})
             cls.picture = None
             ScrabbleWatch.reset()
             cls.game.new_game()
@@ -310,7 +310,7 @@ class State(Static):
         logging.info(f'{cls.current_state} - (reset) -> {START}')
         with suppress(Exception):
             cls.current_state = BLOCKING
-            LED.switch_on({})  # type: ignore
+            LED.switch_on(set())
             ScrabbleWatch.display.show_ready(('prepare', 'end'))
             end_of_game(None, cls.game, cls.op_event)
         ScrabbleWatch.display.show_end_of_game()
@@ -330,7 +330,7 @@ class State(Static):
         with suppress(Exception):
             cls.current_state = BLOCKING
             ScrabbleWatch.display.show_boot()  # Display message REBOOT
-            LED.switch_on({})  # type: ignore
+            LED.switch_on(set())
             end_of_game(cls.last_submit, cls.game)
             store_zip_from_game(cls.game)
         ScrabbleWatch.display.stop()
@@ -357,7 +357,7 @@ class State(Static):
             if elem[1] in ('ScrabScrap', 'ScrabScrapTest'):
                 _ = subprocess.call(f'sudo -n /usr/sbin/wpa_cli select_network {elem[0]} -i wlan0', shell=True)
                 ScrabbleWatch.display.show_accesspoint()  # Display message AP Mode
-                LED.switch_on({})  # type: ignore
+                LED.switch_on(set())
                 sleep(5)
                 ScrabbleWatch.display.show_accesspoint()  # Display message AP Mode
         current_state = START

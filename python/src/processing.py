@@ -22,6 +22,7 @@ import logging
 import time
 from concurrent import futures
 from concurrent.futures import Future
+from datetime import datetime
 from typing import List, Optional, Tuple
 
 import cv2
@@ -143,7 +144,7 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
 
     def match(img: MatLike, suggest_tile: str, suggest_prop: int) -> tuple[str, int]:
         for _tile in tiles:
-            res = cv2.matchTemplate(img, _tile.img, cv2.TM_CCOEFF_NORMED)  # type: ignore
+            res = cv2.matchTemplate(img, _tile.img, cv2.TM_CCOEFF_NORMED)
             _, thresh, _, _ = cv2.minMaxLoc(res)
             thresh = int(thresh * 100)
             if _tile.name in ('Ä', 'Ü', 'Ö') and thresh >= suggest_prop - 1:
@@ -262,7 +263,7 @@ def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, 
         board = game.moves[index - 1].board.copy() if index > 0 else {}
         played_time = game.moves[index - 1].played_time if index > 0 else (0, 0)
         previous_score = game.moves[index - 1].score if index > 0 else (0, 0)
-        img = game.moves[index].img.copy() if game.moves[index].img is not None else None  # type: ignore
+        img = game.moves[index].img.copy() if game.moves[index].img is not None else None  # type: ignore[attr-defined]
 
         move1 = Move(
             MoveType.EXCHANGE,
@@ -723,7 +724,7 @@ def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
         i = -1  # if no moves found
     rack, prev_rack = [7, 7], [7, 7]
     prev_bag_len = bag_len
-    for mov in game.moves[i + 1 :]:  # type: ignore
+    for mov in game.moves[i + 1 :]:
         if mov.type == MoveType.WITHDRAW:
             rack[mov.player], bag_len = prev_rack[mov.player], prev_bag_len
             from_bag = 0
@@ -1039,7 +1040,9 @@ def store_zip_from_game(game: Game):  # pragma: no cover
     if config.is_testing:
         logging.info('skip store because flag is_testing is set')
         return
-    game_id = game.gamestart.strftime('%y%j-%H%M%S')  # type: ignore
+    if game.gamestart is None:
+        game.gamestart = datetime.now()
+    game_id = game.gamestart.strftime('%y%j-%H%M%S')
     zip_filename = f'{game_id}-{str(uuid.uuid4())}'
     with ZipFile(f'{config.web_dir}/{zip_filename}.zip', 'w') as _zip:
         logging.info(f'create zip with {len(game.moves):d} files')
@@ -1069,7 +1072,9 @@ def _development_recording(
     if config.development_recording:
         logging.debug(f'suffix "{suffix}" info {info}')
         recording_logger = logging.getLogger('gameRecordingLogger')
-        game_id = game.gamestart.strftime('%y%j-%H%M%S')  # type: ignore
+        if game.gamestart is None:
+            game.gamestart = datetime.now()
+        game_id = game.gamestart.strftime('%y%j-%H%M%S')
         if img is not None:
             move_number = len(game.moves) + 1 if is_next_move else len(game.moves)
             cv2.imwrite(
@@ -1077,7 +1082,7 @@ def _development_recording(
             )
         if info and len(game.moves) > 0:
             try:
-                warp_str = np.array2string(get_last_warp(), formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=',')  # type: ignore # pylint: disable=C0301 # noqa: E501
+                warp_str = np.array2string(get_last_warp(), formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=',')  # type: ignore[arg-type] # pylint: disable=C0301 # noqa: E501
             except AttributeError:
                 warp_str = None
             recording_logger.info(f'{game_id} move: {game.moves[-1].move}')

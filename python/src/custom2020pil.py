@@ -185,26 +185,26 @@ class Custom2020PILBoard(CustomBoard):
                 pil_img = pil_img.quantize(colors=3, method=Image.Quantize.FASTOCTREE)
 
                 pil_rgb = pil_img.convert(mode='RGB')
-                color_rgb = sorted(pil_rgb.getcolors(), reverse=True)[0][1]  # type: ignore # mypy bug 16788
+                color_rgb = sorted(pil_rgb.getcolors(), reverse=True)[0][1]
                 rgb_table[(col, row)] = color_rgb
 
                 pil_hsv = pil_img.convert(mode='HSV')
-                color_hsv_count, color_hsv = sorted(pil_hsv.getcolors(), reverse=True)[0]  # type: ignore # mypy bug 16788
+                color_hsv_count, color_hsv = sorted(pil_hsv.getcolors(), reverse=True)[0]
                 hsv_table[(col, row)] = color_hsv
 
                 # swap rgb to bgr
-                if is_tile((col, row), color_hsv, color_rgb):  # type: ignore
-                    info[:, :, 2], info[:, :, 1], info[:, :, 0] = color_rgb  # type: ignore
+                if is_tile((col, row), color_hsv, color_rgb):  # type: ignore[arg-type]
+                    info[:, :, 2], info[:, :, 1], info[:, :, 0] = color_rgb  # type: ignore[misc]
                 else:
                     info[:, :, 2], info[:, :, 1], info[:, :, 0] = (0, 0, 0)
 
-                if config.development_recording and color_hsv != (0, 0, 0) and color_hsv[2] > 5:  # type: ignore
+                if config.development_recording and color_hsv != (0, 0, 0) and color_hsv[2] > 5:  # type: ignore[index]
                     font = cv2.FONT_HERSHEY_SIMPLEX
                     scale = 0.33
                     color = (255, 255, 255)
-                    info = cv2.putText(info, f'{color_hsv[0]}', (1, 10), font, scale, color, 1, cv2.FILLED)  # type: ignore
-                    info = cv2.putText(info, f'{color_hsv[1]}', (1, 20), font, scale, color, 1, cv2.FILLED)  # type: ignore
-                    info = cv2.putText(info, f'{color_hsv[2]}', (1, 30), font, scale, color, 1, cv2.FILLED)  # type: ignore
+                    info = cv2.putText(info, f'{color_hsv[0]}', (1, 10), font, scale, color, 1, cv2.FILLED)  # type: ignore[index] # pylint: disable=line-too-long
+                    info = cv2.putText(info, f'{color_hsv[1]}', (1, 20), font, scale, color, 1, cv2.FILLED)  # type: ignore[index] # pylint: disable=line-too-long
+                    info = cv2.putText(info, f'{color_hsv[2]}', (1, 30), font, scale, color, 1, cv2.FILLED)  # type: ignore[index] # pylint: disable=line-too-long
                     info = cv2.putText(info, f'{color_hsv_count}', (1, 45), font, scale, color, 1, cv2.FILLED)
                 result[px_col + 1 : px_col + GRID_H - 1, px_row + 1 : px_row + GRID_W - 1] = info
 
@@ -252,10 +252,13 @@ def main():  # pylint: disable=too-many-locals
         masked = cv2.bitwise_and(warped, warped, mask=mask)
         blend = cv2.addWeighted(warped, 0.3, masked, 0.7, 0.0)
         result1 = hstack([warped, blend])
-        result2 = hstack([result, cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)])  # type: ignore
-        result = vstack([result1, result2])
+        if result:
+            result2 = hstack([result, cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)])
+            output = vstack([result1, result2])
+        else:
+            output = result1
 
-        cv2.imshow(f'{fn}', result)
+        cv2.imshow(f'{fn}', output)
         cv2.waitKey()
         cv2.destroyWindow(f'{fn}')
 

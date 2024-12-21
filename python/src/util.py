@@ -61,7 +61,7 @@ def trace(func: Callable[..., Any]) -> Callable[..., Any]:
         try:
             logging.debug(f'entering {func.__name__}')
             return func(*args, **kwargs)
-        except Exception:  # type: ignore
+        except Exception:
             logging.exception(f'exception in {func.__name__}')
             raise
         finally:
@@ -70,7 +70,7 @@ def trace(func: Callable[..., Any]) -> Callable[..., Any]:
     return do_trace
 
 
-def rotate_logs(loggers: Optional[Union[str, list]] = None, delimiter: str = ','):  # type: ignore # pragma: no cover
+def rotate_logs(loggers: Optional[Union[str, list]] = None, delimiter: str = ','):  # pragma: no cover
     """Rotate logs.
 
     Args:
@@ -87,15 +87,15 @@ def rotate_logs(loggers: Optional[Union[str, list]] = None, delimiter: str = ','
     handlers = []
     root = logging.getLogger()
     # Include root logger in dict.
-    logger_dict = {'': root, **root.manager.loggerDict}  # type: ignore
+    logger_dict = {'': root, **root.manager.loggerDict}
     for keys, values in logger_dict.items():
         if loggers is not None and keys not in loggers:
             continue
         try:
-            for handler in values.handlers:  # type: ignore # catched by AttributeError
+            for handler in values.handlers:  # type: ignore[union-attr]
                 if isinstance(handler, BaseRotatingHandler) and handler not in handlers:
                     handlers.append(handler)
         except AttributeError:
             pass
     for handler in handlers:
-        handler.doRollover()  # type: ignore # flase positive on mypy
+        handler.doRollover()  # type: ignore[attr-defined] # false positive mypy

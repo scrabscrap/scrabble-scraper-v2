@@ -115,13 +115,12 @@ class Custom2012kBoard(CustomBoard):
                 segment = img[px_col + 2 : px_col + grid_h - 2, px_row + 2 : px_row + grid_w - 2]
                 info = img[px_col + 1 : px_col + grid_h - 1, px_row + 1 : px_row + grid_w - 1]
                 # segment[:, :, 2] = 255  # ignore value for kmeas
-                data = segment.reshape((-1, 3))
-                data = np.float32(data)  # type: ignore
+                data = np.float32(segment.reshape((-1, 3)))
 
                 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 1.0)
                 k = 3
                 _, label, center = cv2.kmeans(data, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)  # type: ignore[call-overload] # noqa: E501 # pylint: disable=line-too-long
-                reduced = np.uint8(center)[label.flatten()]  # type: ignore # pylint: disable=unsubscriptable-object
+                reduced = center[label.flatten()].astype(np.uint8)
                 unique, counts = np.unique(reduced.reshape(-1, 3), axis=0, return_counts=True)
                 color = unique[np.argmax(counts)]
 
@@ -173,7 +172,7 @@ class Custom2012kBoard(CustomBoard):
         logging.debug(f'color table:\n{cls.log_color_table(color_table=color_table, candidates=set_of_tiles)}')
 
         result = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
-        result = cv2.hconcat([img, result])  # type: ignore
+        result = cv2.hconcat([img, result])
         if any(x in set_of_tiles for x in [(6, 7), (7, 6), (8, 7), (7, 8)]):
             logging.debug(f'candidates:\n{cls.log_candidates(set_of_tiles)}')
             return result, set_of_tiles
@@ -218,9 +217,12 @@ def main():  # pylint: disable=too-many-locals
         image = cv2.imread(fn)
         warped = Custom2012kBoard.warp(image)
         result, _ = Custom2012kBoard.filter_image(_image=warped.copy())
-        cv2.imshow(f'{fn}', result)  # type: ignore
-        cv2.waitKey()
-        cv2.destroyWindow(f'{fn}')
+        if result:
+            cv2.imshow(f'{fn}', result)
+            cv2.waitKey()
+            cv2.destroyWindow(f'{fn}')
+        else:
+            logging.error('no result')
 
 
 if __name__ == '__main__':

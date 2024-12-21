@@ -52,10 +52,10 @@ def load_tiles() -> List[OneTile]:
     for tile_name in tile_list:
         image = cv2.imread(f'{filepath}/{tile_name}.png')
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        gray = cv2.bitwise_not(gray)
+        gray = cv2.bitwise_not(gray).astype(np.uint8)
         new_tile = OneTile()
         new_tile.name = tile_name
-        new_tile.img = gray  # type: ignore
+        new_tile.img = gray
         tiles.append(new_tile)
     return tiles
 

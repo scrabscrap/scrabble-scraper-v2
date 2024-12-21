@@ -20,10 +20,10 @@ import logging
 from typing import Optional
 
 import ifaddr
-from luma.core.error import DeviceNotFoundError  # type: ignore
-from luma.core.interface.serial import i2c  # type: ignore
-from luma.core.render import canvas  # type: ignore
-from luma.oled.device import ssd1306  # type: ignore
+from luma.core.error import DeviceNotFoundError
+from luma.core.interface.serial import i2c
+from luma.core.render import canvas
+from luma.oled.device import ssd1306
 from PIL import ImageFont
 
 from config import config

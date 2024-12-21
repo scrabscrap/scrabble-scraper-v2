@@ -31,7 +31,7 @@ class GameBoard:
     """Implementation of a scrabble board analysis"""
 
     @classmethod
-    def warp(cls, image) -> MatLike:  # type: ignore
+    def warp(cls, image) -> MatLike:  # type: ignore[empty-body]
         """ " implement warp of a game board"""
         pass
 
@@ -58,7 +58,7 @@ class GameBoard:
 
             cnts = cv2.findContours(dilated.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cnts = imutils.grab_contours(cnts)
-            cnts = sorted(cnts, key=cv2.contourArea, reverse=True)  # type: ignore
+            cnts = sorted(cnts, key=cv2.contourArea, reverse=True)  # type: ignore[assignment, arg-type]
             pts = None
             for contour in cnts:
                 peri = cv2.arcLength(contour, True)  # type: ignore[arg-type]

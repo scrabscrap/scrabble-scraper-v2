@@ -30,17 +30,21 @@ from config import config
 class Upload(Protocol):
     """upload files"""
 
-    def upload_move(self, move: int) -> bool:  # type: ignore # only interface
+    def upload_move(self, move: int) -> bool:
         """upload one move"""
+        return False
 
-    def upload_status(self) -> bool:  # type: ignore # only interface
+    def upload_status(self) -> bool:
         """upload status"""
+        return False
 
-    def upload_game(self, filename: str) -> bool:  # type: ignore # only interface
+    def upload_game(self, filename: str) -> bool:
         """upload complete game"""
+        return False
 
-    def delete_files(self) -> bool:  # type: ignore # only interface
+    def delete_files(self) -> bool:
         """cleanup uploaded files"""
+        return False
 
 
 class UploadHttp(Upload):  # pragma: no cover
@@ -185,7 +189,7 @@ class UploadConfig:
     @property
     def server(self) -> str:
         """get server url"""
-        return self.config.get('server', fallback=None)  # type: ignore
+        return self.config.get('server', fallback=None)  # type: ignore[return-value]
 
     @server.setter
     def server(self, value: str):
@@ -195,7 +199,7 @@ class UploadConfig:
     @property
     def user(self) -> str:
         """get user name"""
-        return self.config.get('user', fallback='')  # type: ignore
+        return self.config.get('user', fallback='')  # type: ignore[return-value]
 
     @user.setter
     def user(self, value: str):
@@ -205,7 +209,7 @@ class UploadConfig:
     @property
     def password(self) -> str:
         """get password"""
-        return self.config.get('password', fallback='')  # type: ignore
+        return self.config.get('password', fallback='')  # type: ignore[return-value]
 
     @password.setter
     def password(self, value: str):

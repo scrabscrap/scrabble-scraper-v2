@@ -56,12 +56,12 @@ class ClassicBoard(GameBoard):
         # now that we have our rectangle of points, let's compute
         # the width of our new image
         (topleft, topright, bottomright, bottomleft) = rect
-        width_a = np.sqrt(((bottomright[0] - bottomleft[0]) ** 2) + ((bottomright[1] - bottomleft[1]) ** 2))  # type: ignore
-        width_b = np.sqrt(((topright[0] - topleft[0]) ** 2) + ((topright[1] - topleft[1]) ** 2))  # type: ignore
+        width_a = np.sqrt(((bottomright[0] - bottomleft[0]) ** 2) + ((bottomright[1] - bottomleft[1]) ** 2))  # type: ignore[index] # pylint: disable=line-too-long
+        width_b = np.sqrt(((topright[0] - topleft[0]) ** 2) + ((topright[1] - topleft[1]) ** 2))  # type: ignore[index]
 
         # ...and now for the height of our new image
-        height_a = np.sqrt(((topright[0] - bottomright[0]) ** 2) + ((topright[1] - bottomright[1]) ** 2))  # type: ignore
-        height_b = np.sqrt(((topleft[0] - bottomleft[0]) ** 2) + ((topleft[1] - bottomleft[1]) ** 2))  # type: ignore
+        height_a = np.sqrt(((topright[0] - bottomright[0]) ** 2) + ((topright[1] - bottomright[1]) ** 2))  # type: ignore[index]
+        height_b = np.sqrt(((topleft[0] - bottomleft[0]) ** 2) + ((topleft[1] - bottomleft[1]) ** 2))  # type: ignore[index]
 
         # take the maximum of the width and height values to reach
         # our final dimensions

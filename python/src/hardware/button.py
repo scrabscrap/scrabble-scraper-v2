@@ -55,15 +55,16 @@ class Button(Static):
     def button_pressed(cls, button: GpioButton) -> None:  # callback
         """perform button press"""
         press = time.time()
-        if press > cls.bounce[ButtonEnum(button.pin.number).name] + 0.1 and cls.func_pressed:  # type: ignore
-            cls.func_pressed(ButtonEnum(button.pin.number).name)  # type: ignore # pylint: disable=not-callable
+        if button.pin and press > cls.bounce[ButtonEnum(button.pin.number).name] + 0.1 and cls.func_pressed:
+            cls.func_pressed(ButtonEnum(button.pin.number).name)  # pylint: disable=not-callable
 
     @classmethod
     def button_released(cls, button: GpioButton) -> None:  # pragma: no cover  # currently not used callback
         """perform button release"""
-        cls.bounce[ButtonEnum(button.pin.number).name] = time.time()  # type: ignore
-        if cls.func_released:
-            cls.func_released(ButtonEnum(button.pin.number).name)  # type: ignore # pylint: disable=not-callable
+        if button.pin:
+            cls.bounce[ButtonEnum(button.pin.number).name] = time.time()
+            if cls.func_released:
+                cls.func_released(ButtonEnum(button.pin.number).name)  # pylint: disable=not-callable
 
     @classmethod
     def start(cls, func_pressed: Optional[Callable] = None, func_released: Optional[Callable] = None) -> None:

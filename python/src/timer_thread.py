@@ -26,7 +26,7 @@ from typing import Callable, Optional
 class RepeatedTimer:
     """create a timer thread with a specific intervall"""
 
-    def __init__(self, interval: int, function: Callable):  # type: ignore
+    def __init__(self, interval: int, function: Callable):
         self.interval = interval
         self.function = function
         self.event: Optional[Event] = None

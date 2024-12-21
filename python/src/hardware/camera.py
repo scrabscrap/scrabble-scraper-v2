@@ -55,8 +55,8 @@ class Camera(Protocol):
 
 
 if importlib.util.find_spec('picamera2'):
-    import libcamera  # type: ignore # pylint: disable=import-error
-    from picamera2 import Picamera2  # type: ignore # pylint: disable=import-error
+    import libcamera  # type: ignore[import-error] # pylint: disable=import-error
+    from picamera2 import Picamera2  # type: ignore[import-error] # pylint: disable=import-error
 
     class CameraRPI64(Camera):
         """uses RPI 64bit camera"""
@@ -75,7 +75,7 @@ if importlib.util.find_spec('picamera2'):
                 cfg['transform'] = libcamera.Transform(hflip=1, vflip=1)  # self.camera.rotation = 180
             self.camera.configure(cfg)
             self.camera.start()
-            self.wait = round(1 / self.framerate, 2)  # type: ignore
+            self.wait = round(1 / self.framerate, 2)
             sleep(2)  # warmup camera
             self.frame = self.camera.capture_array()
             atexit.register(self._atexit)
@@ -100,7 +100,7 @@ if importlib.util.find_spec('picamera2'):
             """update to next picture on thread event"""
             self.event = event
             while True:
-                self.frame = self.camera.capture_array()  # type: ignore
+                self.frame = self.camera.capture_array()
                 if event.is_set():
                     break
                 sleep(self.wait)
@@ -191,9 +191,9 @@ class CameraOpenCV(Camera):
         logging.info('### init CameraOpenCV')
         self.resolution = resolution or (config.video_width, config.video_height)
         self.framerate = framerate or config.video_fps
-        self.wait = round(1 / self.framerate, 2)  # type: ignore
+        self.wait = round(1 / self.framerate, 2)
         # self.stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
-        self.stream = cv2.VideoCapture(0)  # type: ignore # mypy: Too many arguments for "VideoCapture"
+        self.stream = cv2.VideoCapture(0)
         if not self.stream.isOpened():
             logging.error('CameraOpenCV can not open camera')
         else:
@@ -221,7 +221,7 @@ class CameraOpenCV(Camera):
     def update(self, event: Event) -> None:
         self.event = event
         while True:
-            valid, self.frame = self.stream.read()  # type: ignore
+            valid, self.frame = self.stream.read()
             if not valid:
                 logging.warning('CameraOpenCV: frame not valid')
             if config.video_rotate:

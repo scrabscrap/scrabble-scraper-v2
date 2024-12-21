@@ -326,7 +326,9 @@ class Game:
 
     def dev_str(self) -> str:  # pragma: no cover # pylint: disable=too-many-branches
         """Return devleompemt represention of the game for using in tests"""
-        game_id = self.gamestart.strftime('%y%j-%H%M%S')  # type: ignore
+        if self.gamestart is None:
+            self.gamestart = datetime.now()
+        game_id = self.gamestart.strftime('%y%j-%H%M%S')
         out_str = (
             f'game: {game_id}\ngame.ini\n'
             '[default]\n'

@@ -28,7 +28,7 @@ try:
     from hardware.oled import PlayerDisplay as DisplayImpl
 except (FileNotFoundError, ImportError, RuntimeError):
     logging.warning('error opening i2c device found or import error')
-    from display import DisplayMock as DisplayImpl  # type: ignore # pylint: disable=ungrouped-imports
+    from display import DisplayMock as DisplayImpl  # type: ignore[assignment] # pylint: disable=ungrouped-imports
 
 
 class ScrabbleWatch(Static):

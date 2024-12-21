@@ -152,7 +152,11 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             _, im_buf_arr = cv2.imencode('.jpg', img)
             png_output = base64.b64encode(bytes(im_buf_arr))
             warped, _ = warp_image(img)
-            warp_coord = json.dumps(get_last_warp().tolist())  # type: ignore
+            last_warped = get_last_warp()
+            if last_warped:
+                warp_coord = json.dumps(last_warped.tolist())
+            else:
+                warp_coord = '[]'
             overlay = overlay_grid(warped)
             _, im_buf_arr = cv2.imencode('.jpg', overlay)
             png_overlay = base64.b64encode(bytes(im_buf_arr))
@@ -347,22 +351,22 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 else:
                     ApiServer.last_msg = f'invalid move {move_number}'
                     logging.warning(ApiServer.last_msg)
-            elif request.form.get('btndelchallenge'):
+            elif request.form.get('btndelchallenge') and move_number:
                 ApiServer.last_msg = f'delete challenge {move_number=}'
                 logging.info(ApiServer.last_msg)
-                State.do_del_challenge(move_number)  # type: ignore
-            elif request.form.get('btntogglechallenge'):
+                State.do_del_challenge(move_number)
+            elif request.form.get('btntogglechallenge') and move_number:
                 ApiServer.last_msg = f'toggle challenge type on move {move_number}'
                 logging.info(ApiServer.last_msg)
-                State.do_toggle_challenge_type(move_number=move_number)  # type: ignore
-            elif request.form.get('btninswithdraw'):
+                State.do_toggle_challenge_type(move_number=move_number)
+            elif request.form.get('btninswithdraw') and move_number:
                 ApiServer.last_msg = f'insert withdraw for move {move_number}'
                 logging.info(ApiServer.last_msg)
-                State.do_ins_withdraw(move_number=move_number)  # type: ignore
-            elif request.form.get('btninschallenge'):
+                State.do_ins_withdraw(move_number=move_number)
+            elif request.form.get('btninschallenge') and move_number:
                 ApiServer.last_msg = f'insert invalid challenge for move {move_number}'
                 logging.info(ApiServer.last_msg)
-                State.do_ins_challenge(move_number=move_number)  # type: ignore
+                State.do_ins_challenge(move_number=move_number)
             elif request.form.get('btnmove'):
                 if move_number and (0 < move_number <= len(game.moves)):
                     score0 = request.form.get('move.score0', type=int)
@@ -375,10 +379,10 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
                     move = game.moves[move_number - 1]
                     # changes on scores
-                    if move.score != (score0, score1):
+                    if score0 and score1 and move.score != (score0, score1):
                         ApiServer.last_msg = f'update score move# {move_number}: {move.score} => {(score0, score1)}'
                         logging.info(ApiServer.last_msg)
-                        State.do_change_score(move_number, (score0, score1))  # type: ignore
+                        State.do_change_score(move_number, (score0, score1))
 
                     # changes on move
                     if (move_type == 'EXCHANGE') and (move.type.name != move_type):
@@ -386,23 +390,24 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         logging.info(ApiServer.last_msg)
                         State.do_edit_move(int(move_number), (0, 0), True, '')
                     else:
-                        vert, col, row = move.calc_coord(coord)  # type: ignore
-                        if (
-                            (str(move.type.name) != move_type)
-                            or (move.coord != (col, row))
-                            or (move.word != word)
-                            or (move.is_vertical != vert)
-                        ):
-                            if re.compile('[A-ZÜÄÖ_\\.]+').match(word):
-                                ApiServer.last_msg = (
-                                    f'edit move #{move_number} {get_coord(move.coord, move.is_vertical)} '
-                                    f'{move.word} => {coord} {word}'
-                                )
-                                logging.info(ApiServer.last_msg)
-                                State.do_edit_move(int(move_number), (col, row), vert, word)
-                            else:
-                                ApiServer.last_msg = f'invalid character in word {word}'
-                                logging.info(ApiServer.last_msg)
+                        if coord:
+                            vert, col, row = move.calc_coord(coord)
+                            if (
+                                (str(move.type.name) != move_type)
+                                or (move.coord != (col, row))
+                                or (move.word != word)
+                                or (move.is_vertical != vert)
+                            ):
+                                if re.compile('[A-ZÜÄÖ_\\.]+').match(word):
+                                    ApiServer.last_msg = (
+                                        f'edit move #{move_number} {get_coord(move.coord, move.is_vertical)} '
+                                        f'{move.word} => {coord} {word}'
+                                    )
+                                    logging.info(ApiServer.last_msg)
+                                    State.do_edit_move(int(move_number), (col, row), vert, word)
+                                else:
+                                    ApiServer.last_msg = f'invalid character in word {word}'
+                                    logging.info(ApiServer.last_msg)
                 else:
                     logging.warning(f'invalid move number {move_number}')
             return redirect('/moves')
@@ -811,7 +816,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             sleep(1)
             LED.blink_on({LEDEnum.red})
             sleep(1)
-            LED.switch_on({})  # type: ignore
+            LED.switch_on(set())
             ApiServer.flask_shutdown_blocked = False
             logging.info('led_test ended')
         else:
@@ -865,13 +870,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         # with will close at eof
         tmp = '\n' + ''.join(f.readlines()[-600:])  # first read last 600 lines
         tmp = html.escape(tmp)
-        sock.send(tmp)  # type: ignore  # pylint: disable=no-member
+        sock.send(tmp)  # type: ignore[no-member] # pylint: disable=no-member
         while True:
             tmp = f.readline()
             if tmp and tmp != '':  # new data available
                 try:
                     tmp = html.escape(tmp)
-                    sock.send(tmp)  # type: ignore  # pylint: disable=no-member
+                    sock.send(tmp)  # type: ignore[no-member] # pylint: disable=no-member
                 except ConnectionClosed:
                     f.close()
                     return
@@ -902,14 +907,14 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     _, im_buf_arr = cv2.imencode('.jpg', State.picture)
                     png_output = base64.b64encode(bytes(im_buf_arr))
                     logging.debug('b64encode')
-                    sock.send(  # pylint: disable=no-member # type: ignore
+                    sock.send(  # type:ignore[no-member] # pylint: disable=no-member
                         f'{{"op": "{State.current_state}", '
                         f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}'
-                    )  # type: ignore
+                    )
                 else:
-                    sock.send(  # pylint: disable=no-member # type: ignore
+                    sock.send(  # type: ignore[no-member] # pylint: disable=no-member
                         f'{{"op": "{State.current_state}", ' f'"clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}'
-                    )  # type:ignore
+                    )
             except ConnectionClosed:
                 return
             State.op_event.wait()

@@ -59,8 +59,8 @@ class LED:
 
     def cleanup_atexit(self) -> None:
         """cleanup on allication exit"""
-        LED.switch_on({})  # type: ignore
-        # Device.pin_factory.close()  # type: ignore
+        LED.switch_on(set())
+        # Device.pin_factory.close()
 
     @staticmethod
     def switch_on(leds: Set[GpioLED], switch_off: bool = True) -> None:
@@ -78,7 +78,7 @@ class LED:
             for i in LEDEnum.set().difference(leds):
                 i.off()
         for i in leds:
-            i.blink(on_time=0.2, off_time=0.2)  # type: ignore
+            i.blink(on_time=0.2, off_time=0.2)  # type: ignore # wrong in func definition
 
     @staticmethod
     def switch_off(leds: Set[GpioLED]) -> None:
