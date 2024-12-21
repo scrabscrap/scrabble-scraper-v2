@@ -185,7 +185,7 @@ class UploadConfig:
     @property
     def server(self) -> str:
         """get server url"""
-        return self.config.get('server', fallback=None)
+        return self.config.get('server', fallback=None)  # type: ignore
 
     @server.setter
     def server(self, value: str):
@@ -195,7 +195,7 @@ class UploadConfig:
     @property
     def user(self) -> str:
         """get user name"""
-        return self.config.get('user', fallback='')
+        return self.config.get('user', fallback='')  # type: ignore
 
     @user.setter
     def user(self, value: str):
@@ -205,7 +205,7 @@ class UploadConfig:
     @property
     def password(self) -> str:
         """get password"""
-        return self.config.get('password', fallback='')
+        return self.config.get('password', fallback='')  # type: ignore
 
     @password.setter
     def password(self, value: str):
