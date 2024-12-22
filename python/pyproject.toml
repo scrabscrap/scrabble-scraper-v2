@@ -58,7 +58,7 @@ ignore_missing_imports = true
 
 ## pylint
 [tool.pylint.MASTER]
-disable=["W0107", "W1203", "C0415", "C0413"]
+disable=["unnecessary-pass", "logging-fstring-interpolation", "line-too-long", "import-outside-toplevel", "wrong-import-position"]
 
 [tool.pylint.TYPECHECK]
 generated-members="cv2"

@@ -205,9 +205,9 @@ class Custom2012PILBoard(CustomBoard):
                     font = cv2.FONT_HERSHEY_SIMPLEX
                     scale = 0.33
                     color = (255, 255, 255)
-                    info = cv2.putText(info, f'{color_hsv[0]}', (1, 10), font, scale, color, 1, cv2.FILLED)  # type:ignore[index] # pylint: disable=line-too-long
-                    info = cv2.putText(info, f'{color_hsv[1]}', (1, 20), font, scale, color, 1, cv2.FILLED)  # type: ignore[index] # pylint: disable=line-too-long
-                    info = cv2.putText(info, f'{color_hsv[2]}', (1, 30), font, scale, color, 1, cv2.FILLED)  # type: ignore[index] # pylint: disable=line-too-long
+                    info = cv2.putText(info, f'{color_hsv[0]}', (1, 10), font, scale, color, 1, cv2.FILLED)  # type:ignore[index]
+                    info = cv2.putText(info, f'{color_hsv[1]}', (1, 20), font, scale, color, 1, cv2.FILLED)  # type: ignore[index]
+                    info = cv2.putText(info, f'{color_hsv[2]}', (1, 30), font, scale, color, 1, cv2.FILLED)  # type: ignore[index]
                     info = cv2.putText(info, f'{color_hsv_count}', (1, 45), font, scale, color, 1, cv2.FILLED)
                 result[px_col + 1 : px_col + GRID_H - 1, px_row + 1 : px_row + GRID_W - 1] = info
 

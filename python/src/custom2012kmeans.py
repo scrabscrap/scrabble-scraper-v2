@@ -119,7 +119,7 @@ class Custom2012kBoard(CustomBoard):
 
                 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 8, 1.0)
                 k = 3
-                _, label, center = cv2.kmeans(data, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)  # type: ignore[call-overload] # noqa: E501 # pylint: disable=line-too-long
+                _, label, center = cv2.kmeans(data, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)  # type: ignore[call-overload] # noqa: E501
                 reduced = center[label.flatten()].astype(np.uint8)
                 unique, counts = np.unique(reduced.reshape(-1, 3), axis=0, return_counts=True)
                 color = unique[np.argmax(counts)]
