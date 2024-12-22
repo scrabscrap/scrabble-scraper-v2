@@ -46,9 +46,10 @@ jobs:
         id: mypy
         run: |
           cd python
+          mypy src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
           OUTPUT=$(mypy src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py)
           echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
-          exit ${PIPESTATUS[0]}
+          exit 0
 
   pylint:
     runs-on: ubuntu-latest
