@@ -52,7 +52,7 @@ echo "## Upgrade pip libraries                                          ##"
 echo "####################################################################"
 source "$ROOT_PATH/python/.venv/bin/activate"
 ../scripts/pip-req-check.py
-pip install -U pip setuptools wheel -r requirements.txt
+pip install -U pip setuptools wheel -r requirements.txt --upgrade-strategy=eager
 
 # install nodejs npm
 echo "####################################################################"
