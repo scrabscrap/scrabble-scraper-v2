@@ -32,7 +32,7 @@ if [ $(uname -m) == 'aarch64' ]; then
   python3 -m venv .venv  --system-site-packages --prompt cv
   source ~/scrabble-scraper-v2/python/.venv/bin/activate
   pip install -U pip setuptools wheel
-  pip install -U -r requirements.txt
+  pip install -U -r requirements.txt --upgrade-strategy=eager
 
 else
   echo 'armv7l no longer supported'
