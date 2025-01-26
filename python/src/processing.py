@@ -147,9 +147,9 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
             res = cv2.matchTemplate(img, _tile.img, cv2.TM_CCOEFF_NORMED)
             _, thresh, _, _ = cv2.minMaxLoc(res)
             thresh = int(thresh * 100)
-            if _tile.name in ('Ä', 'Ü', 'Ö') and thresh >= suggest_prop - 1:
-                logging.debug(f"{chr(ord('A') + row)}{col + 1:2} => ({_tile.name},{thresh}) increase prop to {thresh+2}")
-                thresh = min(99, thresh + 5)  # 5% Bonus for umlauts
+            if _tile.name in ('Ä', 'Ü', 'Ö') and thresh >= suggest_prop:
+                logging.debug(f'{chr(ord("A") + row)}{col + 1:2} => ({_tile.name},{thresh}) increase prop to {thresh + 2}')
+                thresh = min(99, thresh + 2)  # 2% Bonus for umlauts
             if thresh > suggest_prop:
                 suggest_tile = _tile.name
                 suggest_prop = thresh
@@ -157,21 +157,21 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
 
     def find_tile():
         (tile, prop) = board.get(coord, ('_', 76))
-        if prop >= 90:
-            logging.debug(f"{chr(ord('A') + row)}{col + 1:2}: {tile} ({prop}) tile on board prop >= 90 ")
+        if prop > 97:
+            logging.debug(f'{chr(ord("A") + row)}{col + 1:2}: {tile} ({prop}) tile on board prop >= 98 ')
             return board[coord]
         (tile, prop) = match(gray, tile, prop)
-        if prop < 90:
+        if prop < 96:
             (tile, prop) = match(imutils.rotate(gray, -10), tile, prop)
-        if prop < 90:
+        if prop < 96:
             (tile, prop) = match(imutils.rotate(gray, 10), tile, prop)
-        if prop < 90 and tile != '_':
+        if prop < 96 and tile != '_':
             (tile, prop) = match(imutils.rotate(gray, -5), tile, prop)
-        if prop < 90 and tile != '_':
+        if prop < 96 and tile != '_':
             (tile, prop) = match(imutils.rotate(gray, 5), tile, prop)
-        if prop < 90 and tile != '_':
+        if prop < 96 and tile != '_':
             (tile, prop) = match(imutils.rotate(gray, -15), tile, prop)
-        if prop < 90 and tile != '_':
+        if prop < 96 and tile != '_':
             (tile, prop) = match(imutils.rotate(gray, 15), tile, prop)
         board[coord] = (tile, prop) if tile is not None else ('_', 76)
         return board[coord]
@@ -182,7 +182,7 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
         _x = get_x_position(col)
         gray = warped_gray[_y - 15 : _y + GRID_H + 15, _x - 15 : _x + GRID_W + 15]
         new_tile, new_prop = find_tile()
-        logging.info(f"{chr(ord('A') + row)}{col + 1:2}: {new_tile} ({new_prop:2}) found")
+        logging.info(f'{chr(ord("A") + row)}{col + 1:2}: {new_tile} ({new_prop:2}) found')
     return board
 
 
@@ -242,7 +242,7 @@ def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, e
             if (col, row) in mov.new_tiles:
                 mov.new_tiles[(col, row)] = value
                 index = row - mov.coord[1] if mov.is_vertical else col - mov.coord[0]
-                mov.word = f'{mov.word[:index]}{value}{mov.word[index + 1:]}'
+                mov.word = f'{mov.word[:index]}{value}{mov.word[index + 1 :]}'
     if event and not event.is_set():
         event.set()
 
