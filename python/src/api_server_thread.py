@@ -140,7 +140,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 rect[3] = (col, row)
             else:
                 rect[2] = (col, row)
-            logging.debug(f"new warp: {np.array2string(rect, formatter={'float_kind':lambda x: f'{x:.1f}'}, separator=', ')}")
+            logging.debug(f'new warp: {np.array2string(rect, formatter={"float_kind": lambda x: f"{x:.1f}"}, separator=", ")}')
             config.config.set(
                 'video',
                 'warp_coordinates',
@@ -153,7 +153,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             png_output = base64.b64encode(bytes(im_buf_arr))
             warped, _ = warp_image(img)
             last_warped = get_last_warp()
-            if last_warped:
+            if last_warped is not None:
                 warp_coord = json.dumps(last_warped.tolist())
             else:
                 warp_coord = '[]'
@@ -239,7 +239,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     return f'{value:.1f}{s}'
             return f'{n}B'
 
-        logging.info(f"{'='*40} System Information {'='*40}")
+        logging.info(f'{"=" * 40} System Information {"=" * 40}')
         uname = platform.uname()
         logging.info(f'System: {uname.system}')
         logging.info(f'Node Name: {uname.node}')
@@ -248,12 +248,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         logging.info(f'Machine: {uname.machine}')
         logging.info(f'Processor: {uname.processor}')
 
-        logging.info(f"{'='*40} Boot Time {'='*40}")
+        logging.info(f'{"=" * 40} Boot Time {"=" * 40}')
         boot_time_timestamp = psutil.boot_time()
         bt = datetime.fromtimestamp(boot_time_timestamp)
         logging.info(f'Boot Time: {bt.year}/{bt.month}/{bt.day} {bt.hour}:{bt.minute}:{bt.second}')
 
-        logging.info(f"{'='*40} CPU Info {'='*40}")
+        logging.info(f'{"=" * 40} CPU Info {"=" * 40}')
         logging.info(f'Physical cores: {psutil.cpu_count(logical=False)}')
         logging.info(f'Total cores: {psutil.cpu_count(logical=True)}')
         cpufreq = psutil.cpu_freq()
@@ -267,21 +267,21 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         load_avg_1, load_avg_5, load_avg_15 = psutil.getloadavg()
         logging.info(f'Load: {load_avg_1:.2f} {load_avg_5:.2f} {load_avg_15:.2f}')
 
-        logging.info(f"{'='*40} Memory Information {'='*40}")
+        logging.info(f'{"=" * 40} Memory Information {"=" * 40}')
         svmem = psutil.virtual_memory()
         logging.info(f'Total: {bytes2human(svmem.total)}')
         logging.info(f'Available: {bytes2human(svmem.available)}')
         logging.info(f'Used: {bytes2human(svmem.used)}')
         logging.info(f'Percentage: {svmem.percent}%')
 
-        logging.info(f"{'='*40} SWAP {'='*40}")
+        logging.info(f'{"=" * 40} SWAP {"=" * 40}')
         swap = psutil.swap_memory()
         logging.info(f'Total: {bytes2human(swap.total)}')
         logging.info(f'Free: {bytes2human(swap.free)}')
         logging.info(f'Used: {bytes2human(swap.used)}')
         logging.info(f'Percentage: {swap.percent}%')
 
-        logging.info(f"{'='*40} Disk Information {'='*40}")
+        logging.info(f'{"=" * 40} Disk Information {"=" * 40}')
         logging.info('Partitions and Usage:')
         partitions = psutil.disk_partitions()
         for partition in partitions:
@@ -302,13 +302,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             logging.info(f'Total read: {bytes2human(disk_io.read_bytes)}')
             logging.info(f'Total write: {bytes2human(disk_io.write_bytes)}')
 
-        logging.info(f"{'='*40} Process Info {'='*40}")
+        logging.info(f'{"=" * 40} Process Info {"=" * 40}')
         for process in psutil.process_iter(['pid', 'name', 'memory_percent', 'cpu_percent']):
             try:
                 if 'python' in process.info['name'].lower():
                     logging.info(
-                        f"{process.info['pid']:6} {process.info['name']} "
-                        f"mem:{ process.info['memory_percent']:.2f}% cpu:{process.info['cpu_percent']:.2f}%"
+                        f'{process.info["pid"]:6} {process.info["name"]} '
+                        f'mem:{process.info["memory_percent"]:.2f}% cpu:{process.info["cpu_percent"]:.2f}%'
                     )
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 pass
@@ -746,7 +746,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))  # 2. thread
             analyze(warped_gray, board, set(chunks[2]))  # 3. (this) thread
             futures.wait({future1, future2})  # 6. blocking wait
-            logging.info(f'analyze took {(perf_counter()-start):.4f} sec(s).')
+            logging.info(f'analyze took {(perf_counter() - start):.4f} sec(s).')
 
             logging.info(f'\n{board_to_string(board)}')
             # find log
@@ -854,8 +854,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             LED.blink_on({LEDEnum.yellow})
             ScrabbleWatch.display.show_ready(('Update...', 'pls wait'))
             os.system(
-                f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} |'
-                f' tee -a {config.log_dir}/messages.log &'
+                f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} | tee -a {config.log_dir}/messages.log &'
             )
             return redirect(url_for('route_index'))
         logging.warning('not in State START')
@@ -913,7 +912,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     )
                 else:
                     sock.send(  # type: ignore[no-member] # pylint: disable=no-member
-                        f'{{"op": "{State.current_state}", ' f'"clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}'
+                        f'{{"op": "{State.current_state}", "clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}'
                     )
             except ConnectionClosed:
                 return
