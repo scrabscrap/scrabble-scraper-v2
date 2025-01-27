@@ -101,7 +101,7 @@ class CustomBoard(GameBoard):
         # the perspective to grab the screen
         cls.last_warp = rect
         matrix = cv2.getPerspectiveTransform(rect, dst)
-        return cv2.warpPerspective(image, matrix, (800, 800))
+        return cv2.warpPerspective(image, matrix, (800, 800), flags=cv2.INTER_AREA)
 
     @classmethod
     def log_pixels(cls, filtered_pixels) -> str:
@@ -110,7 +110,7 @@ class CustomBoard(GameBoard):
         tmp = '  |' + ''.join(f'{i + 1:5d} ' for i in range(board_size)) + '\n'
         tmp += '\n'.join(
             [
-                f"{chr(ord('A') + row)} |{''.join(f' {filtered_pixels[(col, row)]:4d} ' for col in range(board_size))}|"
+                f'{chr(ord("A") + row)} |{"".join(f" {filtered_pixels[(col, row)]:4d} " for col in range(board_size))}|'
                 for row in range(board_size)
             ]
         )
@@ -123,7 +123,7 @@ class CustomBoard(GameBoard):
         tmp = '  |' + ''.join(f'{i + 1:2d} ' for i in range(board_size)) + '\n'
         tmp += '\n'.join(
             [
-                f"{chr(ord('A') + row)} |{''.join(' X ' if (col, row) in candidates else ' . ' for col in range(board_size))}|"
+                f'{chr(ord("A") + row)} |{"".join(" X " if (col, row) in candidates else " . " for col in range(board_size))}|'
                 for row in range(board_size)
             ]
         )
