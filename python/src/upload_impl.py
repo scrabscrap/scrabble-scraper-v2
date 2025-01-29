@@ -110,7 +110,7 @@ class UploadFtp(Upload):  # pragma: no cover
         """do upload/delete operation"""
         if (url := upload_config.server) is not None:
             try:
-                with ftplib.FTP(url, upload_config.user, upload_config.password) as session:
+                with ftplib.FTP_TLS(url, upload_config.user, upload_config.password) as session:
                     for key, fname in files.items():
                         with open(fname, 'rb') as file:
                             session.storbinary(f'STOR {key}', file)  # send the file
@@ -143,7 +143,7 @@ class UploadFtp(Upload):  # pragma: no cover
         if (url := upload_config.server) is not None:
             try:
                 logging.debug('ftp: delete files')
-                with ftplib.FTP(url, upload_config.user, upload_config.password) as session:
+                with ftplib.FTP_TLS(url, upload_config.user, upload_config.password) as session:
                     files = session.nlst()
                     for filename in files:
                         for prefix in ['image', 'data']:
