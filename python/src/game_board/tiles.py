@@ -48,6 +48,7 @@ def load_tiles() -> List[OneTile]:
     tiles.clear()
     filepath = config.tiles_image_path
     tile_list = [*config.tiles_scores]
+    # tile_list = sorted(config.tiles_scores, key=lambda t: config.tiles_scores[t], reverse=True)
     tile_list.remove('_')  # without blank
     for tile_name in tile_list:
         image = cv2.imread(f'{filepath}/{tile_name}.png', cv2.IMREAD_GRAYSCALE)
