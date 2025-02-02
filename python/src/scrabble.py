@@ -28,14 +28,14 @@ from config import config
 from game_board.board import DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER, TRIPLE_WORDS
 from game_board.tiles import bag_as_list, scores
 
-API_VERSION = '1.2'
+API_VERSION = '1.3'
 
 
 def board_to_string(board: dict) -> str:
     """Print out Scrabble board dictionary"""
     result = '\n  |' + ' '.join(f'{i + 1:2d}' for i in range(15)) + ' | ' + ' '.join(f'{i + 1:2d}' for i in range(15)) + '\n'
     for row in range(15):
-        left = f"{chr(ord('A') + row)} |"
+        left = f'{chr(ord("A") + row)} |'
         right = '| '
         for col in range(15):
             cell_key = (col, row)
@@ -288,6 +288,7 @@ class Game:
                     'onmove': name1,
                     'moves': [],
                     'board': {},
+                    'props': {},
                     'bag': bag_as_list.copy(),
                 }
             )
@@ -296,6 +297,7 @@ class Game:
         values = self.moves[move_index].board.values()
         keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in keys]
         values1 = [t for (t, _) in values]
+        prop1 = [p for (_, p) in values]
         bag = bag_as_list.copy()
         for i in values1:
             toremove = '_' if i.isalpha() and i.islower() else i
@@ -320,6 +322,7 @@ class Game:
                 'onmove': self.nicknames[self.moves[move_index].player],
                 'moves': gcg_moves,
                 'board': dict(zip(*[keys1, values1])),
+                'props': dict(zip(*[keys1, prop1])),
                 'bag': bag,
             }
         )
@@ -353,7 +356,7 @@ class Game:
                 if move.type == MoveType.WITHDRAW:
                     out_str += (
                         f'{move.move}, "Yellow", "P1", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points*-1}, {move.score[0]-move.points}, {move.score[1]}\n'
+                        f'"{move.word}", {move.points * -1}, {move.score[0] - move.points}, {move.score[1]}\n'
                     )
                     out_str += (
                         f'{move.move}, "DOUBT0", "P1", "{move.get_coord()}", '
@@ -377,7 +380,7 @@ class Game:
                         f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
                     )
                 elif move.type == MoveType.EXCHANGE:
-                    out_str += f'{move.move}, "Green", "S1", "-", ' f', {move.points}, {move.score[0]}, {move.score[1]}\n'
+                    out_str += f'{move.move}, "Green", "S1", "-", , {move.points}, {move.score[0]}, {move.score[1]}\n'
                 else:
                     out_str += (
                         f'{move.move}, "Green", "S1", "{move.get_coord()}", '
@@ -387,7 +390,7 @@ class Game:
                 if move.type == MoveType.WITHDRAW:
                     out_str += (
                         f'{move.move}, "Yellow", "P0", "{move.get_coord()}", '
-                        f'"{move.word}", {move.points*-1}, {move.score[0]}, {move.score[1]-move.points}\n'
+                        f'"{move.word}", {move.points * -1}, {move.score[0]}, {move.score[1] - move.points}\n'
                     )
                     out_str += (
                         f'{move.move}, "DOUBT0", "P0", "{move.get_coord()}", '
@@ -411,7 +414,7 @@ class Game:
                         f'"{move.word}", {move.points}, {move.score[0]}, {move.score[1]}\n'
                     )
                 elif move.type == MoveType.EXCHANGE:
-                    out_str += f'{move.move}, "Red", "S0", "-", ' f', {move.points}, {move.score[0]}, {move.score[1]}\n'
+                    out_str += f'{move.move}, "Red", "S0", "-", , {move.points}, {move.score[0]}, {move.score[1]}\n'
                 elif move.type in (MoveType.LAST_RACK_BONUS, MoveType.LAST_RACK_MALUS):
                     out_str += (
                         f'{move.move}, "EOG", "{("P0", "P1")[move.player]}", "{move.word}", '
