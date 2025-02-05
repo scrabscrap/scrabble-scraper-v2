@@ -45,6 +45,7 @@ class Config:  # pylint: disable=too-many-public-methods
         'video.rotate': False,
         'board.layout': 'custom2012',
         'board.tiles_threshold': 1000,
+        'board.min_tiles_rate': 96,
         'system.quit': 'shutdown',
         'system.gitbranch': 'main',
         'tiles.language': 'de',
@@ -232,6 +233,11 @@ class Config:  # pylint: disable=too-many-public-methods
     def board_tiles_threshold(self) -> int:
         """count of non black pixel to recognize a tile"""
         return self.config.getint('board', 'tiles_theshold', fallback=1000)
+
+    @property
+    def board_min_tiles_rate(self) -> int:
+        """Recognition rate in percent for template matching"""
+        return self.config.getint('board', 'min_tiles_rate', fallback=96)
 
     @property
     def tiles_language(self) -> str:

@@ -253,6 +253,16 @@
                                         <span class="input-group-text">px</span>
                                     </div>
                                 </div>
+                                <div class="py-1 input-group">
+                                    <label class="col-sm-4 col-form-label" for="board.min_tiles_rate">
+                                        Recognition rate
+                                    </label>
+                                    <input type="text" class="form-control" name="board.min_tiles_rate" placeholder={{
+                                        cfg['board.min_tiles_rate'] }} value="{{ cfg['board.min_tiles_rate'] }}">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div> <!-- end board -->
