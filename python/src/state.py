@@ -313,10 +313,10 @@ class State(Static):
             LED.switch_on(set())
             ScrabbleWatch.display.show_ready(('prepare', 'end'))
             end_of_game(None, cls.game, cls.op_event)
-        ScrabbleWatch.display.show_end_of_game()
-
-        with suppress(Exception):
+            ScrabbleWatch.display.show_ready(('upload', 'game'))
             store_zip_from_game(cls.game)
+
+        ScrabbleWatch.display.show_end_of_game()
         LED.blink_on({LEDEnum.yellow})
         cls.current_state = EOG
         return EOG
