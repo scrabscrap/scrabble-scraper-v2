@@ -264,12 +264,12 @@ def switch_camera(camera: str) -> Camera:
         logging.error(f'invalid camera selected: {camera}')
         raise ValueError(f'invalid camera selected: {camera}')
 
-    if cam:
+    if cam and cam.__class__.__name__ != 'CameraFile':
         cam.cancel()
-
-    if clazz.__name__ != 'CameraFile':
         sleep(1)
-        cam = clazz()
+
+    cam = clazz()
+    if clazz.__name__ != 'CameraFile':
         pool.submit(cam.update, event=Event())  # start cam
     cam.log_camera_info()
     return cam
