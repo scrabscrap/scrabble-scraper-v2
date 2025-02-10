@@ -15,6 +15,9 @@ export default defineConfig(() => {
             'import.meta.env.VITE_APP_VERSION': JSON.stringify(commitHash),
         },
         base: '',
+        server: {
+            allowedHosts: ['.gitpod.io', 'localhost'],
+        },
         plugins: [react(), loadVersion()],
     };
 });
