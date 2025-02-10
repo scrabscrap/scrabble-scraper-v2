@@ -1,8 +1,11 @@
 # ScrabScrap
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=504629544)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in_GitHub_Codespaces-blue?logo=github)](https://codespaces.new/scrabscrap/scrabble-scraper-v2?quickstart=1) &emsp; [![Open in Gitpod](https://img.shields.io/badge/Open_in_Gitpod-blue?logo=gitpod)](https://gitpod.io/#https://github.com/scrabscrap/scrabble-scraper-v2)
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/scrabscrap/scrabble-scraper-v2)
+Verwenden Sie zum Browsen oder Entwickeln den mitgelieferten Arbeitsbereich `scrabble-scraper-v2.code-workspace`.
+
+Use the supplied `scrabble-scraper-v2.code-workspace` workspace for browsing or developing.
+
 
 ## Über
 

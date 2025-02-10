@@ -1,5 +1,5 @@
 # [Choice] Python version: 3, 3.9, 3.8, 3.7, 3.6
-ARG VARIANT="3.9"
+ARG VARIANT="3.11"
 FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
 
 # [Option] Install Node.js
@@ -7,10 +7,10 @@ ARG INSTALL_NODE="true"
 ARG NODE_VERSION="lts/*"
 RUN if [ "${INSTALL_NODE}" = "true" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 
-RUN sudo apt-get update -q && \
-    sudo apt-get install -yq libopencv-dev python3-opencv
+RUN apt-get update -q && \
+    apt-get install -yq python3-dev
 
-RUN sudo apt-get install -yq pandoc texlive-latex-base texlive-fonts-recommended \
+RUN apt-get install -yq pandoc texlive-latex-base texlive-fonts-recommended \
     texlive-extra-utils texlive-latex-extra texlive-xetex
 
 

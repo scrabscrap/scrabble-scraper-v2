@@ -5,7 +5,7 @@
 		"context": "..",
 		"args": {
 			// Update 'VARIANT' to pick a Python version: 3, 3.6, 3.7, 3.8, 3.9
-			"VARIANT": "3.9",
+			"VARIANT": "3.11",
 			// Options
 			"INSTALL_NODE": "true",
 			"NODE_VERSION": "lts/*"
@@ -34,17 +34,15 @@
 				},
 				"extensions": [
 					"charliermarsh.ruff",
-					"eamodio.gitlens",
 					"github.vscode-pull-request-github",
 					"mhutchie.git-graph",
+					"mk12.better-git-line-blame",
 					"ms-python.debugpy",
 					"ms-python.python",
 					"ms-python.vscode-pylance",
-					"ms-vscode-remote.remote-ssh",
-					"ms-vscode-remote.remote-ssh-edit",
 					"ms-vscode.remote-explorer",
 					"shd101wyy.markdown-preview-enhanced"
-				],
+				]
 			}
 		},
 

@@ -13,7 +13,7 @@ tasks:
       cp -n python/defaults/* python/work/
     init: |
       pip install --upgrade pip
-      pip install -r python/requirements.txt
+      pip install -U -r python/requirements.txt -r python/requirements-devel.txt
 
   - name: react
     before: |
@@ -21,7 +21,7 @@ tasks:
       ln -s ../../python/work/web web || true
     init: |
       cd $GITPOD_REPO_ROOTS/react
-      npm install
+      npm install && npm run build
       cd $GITPOD_REPO_ROOTS
 
 gitConfig:
@@ -33,15 +33,11 @@ gitConfig:
 
 vscode:
   extensions:
-    - davidanson.vscode-markdownlint
     - ms-azuretools.vscode-docker
+    - charliermarsh.ruff
     - mhutchie.git-graph
-    - ms-python.flake8
-    - ms-python.isort
-    - ms-python.pylint
+    - mk12.better-git-line-blame
+    - ms-python.debugpy
     - ms-python.python
-    # not found in OPen VSX
-    # - ms-python.autopep8
-    # - ms-python.vscode-pylance
-    # - VisualStudioExptTeam.vscodeintellicode
-    # - GitHub.vscode-pull-request-github
+    - shd101wyy.markdown-preview-enhanced
+#    - ms-python.vscode-pylance
