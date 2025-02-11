@@ -54,7 +54,7 @@
     "initWorkFolder": "cp -n python/defaults/* python/work/",
     "initReactFolder": "cd react/public && (ln -s ../../python/work/web web || true)",
     "python": "pip3 install --user -r python/requirements.txt -r python/requirements-devel.txt",
-    "npm": "cd react && npm install"
+    "npm": "cd react && npm install && npm run build && cd ../python/src/static && (ln -s ../../../react/build webapp || true)"
   },
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.

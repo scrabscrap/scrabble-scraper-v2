@@ -22,7 +22,8 @@ tasks:
     init: |
       cd $GITPOD_REPO_ROOTS/react
       npm install && npm run build
-      cd $GITPOD_REPO_ROOTS
+      cd $GITPOD_REPO_ROOTS/python/src/static
+      ln -s ../../../react/build webapp || true
 
 gitConfig:
   alias.st: status -s
