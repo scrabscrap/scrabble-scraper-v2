@@ -41,7 +41,10 @@
 					"ms-python.python",
 					"ms-python.vscode-pylance",
 					"ms-vscode.remote-explorer",
-					"shd101wyy.markdown-preview-enhanced"
+					"shd101wyy.markdown-preview-enhanced",
+					"github.copilot",
+					"github.copilot-chat",
+					"github.codespaces"
 				]
 			}
 		},
