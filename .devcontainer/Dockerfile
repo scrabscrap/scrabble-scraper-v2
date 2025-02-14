@@ -10,8 +10,11 @@ RUN if [ "${INSTALL_NODE}" = "true" ]; then su vscode -c "umask 0002 && . /usr/l
 RUN apt-get update -q && \
     apt-get install -yq python3-dev
 
-RUN apt-get install -yq pandoc texlive-latex-base texlive-fonts-recommended \
-    texlive-extra-utils texlive-latex-extra texlive-xetex
+ARG PANDOC_VERSION=3.6.3-1
+RUN wget https://github.com/jgm/pandoc/releases/download/3.6.3/pandoc-${PANDOC_VERSION}-amd64.deb && \
+    dpkg -i pandoc-${PANDOC_VERSION}-amd64.deb
+
+RUN apt-get install -yq texlive-latex-base texlive-fonts-recommended texlive-extra-utils texlive-latex-extra texlive-xetex
 
 
 # [Optional] If your pip requirements rarely change, uncomment this section to add them to the image.
