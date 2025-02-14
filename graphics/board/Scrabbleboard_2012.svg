@@ -1,0 +1,1036 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 1007 1007" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+    <g id="Hintergrund" transform="matrix(1,0,0,1,63.7795,63.7795)">
+        <g transform="matrix(0.998325,0,0,0.993965,-63.7795,-63.7795)">
+            <rect x="0" y="0" width="1007.99" height="1012.41" style="fill:white;"/>
+        </g>
+        <g transform="matrix(1,0,0,1,-28.3465,-28.3465)">
+            <rect x="0" y="0" width="935.433" height="935.433" style="fill:rgb(0,170,61);"/>
+        </g>
+        <g id="Spielfläche" transform="matrix(1,0,0,1,0,36.8504)">
+            <rect x="0" y="-36.85" width="878.74" height="878.74" style="fill:rgb(0,170,61);"/>
+        </g>
+    </g>
+    <g id="Spielfeld" transform="matrix(1,0,0,1,63.7795,100.63)">
+        <g id="_2-Buchstabe" serif:id="2-Buchstabe">
+            <g id="G03" transform="matrix(1.03333,0,0,1.03333,-117.165,89.1024)">
+                <g id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker1" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld" transform="matrix(0.967742,0,0,0.967742,113.386,-86.2282)">
+                    <rect x="117.165" y="314.646" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="H04" transform="matrix(1.03333,0,0,1.03333,-58.5827,147.685)">
+                <g id="Feld-Marker2" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-5" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-0" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker3" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-3" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld1" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,56.6929,-142.921)">
+                    <rect x="175.748" y="373.228" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="H12" transform="matrix(1.03333,0,0,1.03333,410.079,147.685)">
+                <g id="Feld-Marker4" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-0" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-9" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker5" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-01" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-6" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld2" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-396.85,-142.921)">
+                    <rect x="644.409" y="373.228" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="I13" transform="matrix(1.03333,0,0,1.03333,468.661,206.268)">
+                <g id="Feld-Marker6" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-5-3" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-0-2" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker7" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld3" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-453.543,-199.614)">
+                    <rect x="702.992" y="431.811" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="C07" transform="matrix(1.03333,0,0,1.03333,117.165,-145.228)">
+                <g id="Feld-Marker8" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-7" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-00" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker9" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-1" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-5" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld4" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-113.386,140.543)">
+                    <rect x="351.496" y="80.315" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="D08" transform="matrix(1.03333,0,0,1.03333,175.748,-86.6456)">
+                <g id="Feld-Marker10" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-5-9" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-0-4" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker11" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-7" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-0" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld5" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-170.079,83.8506)">
+                    <rect x="410.079" y="138.898" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="L08" transform="matrix(1.03333,0,0,1.03333,175.748,382.016)">
+                <g id="Feld-Marker12" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker13" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-04" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld6" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-170.079,-369.693)">
+                    <rect x="410.079" y="607.559" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="M09" transform="matrix(1.03333,0,0,1.03333,234.331,440.598)">
+                <g id="Feld-Marker14" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-5-98" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-0-25" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker15" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-6" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-9" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld7" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-226.772,-426.386)">
+                    <rect x="468.661" y="666.142" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="M07" transform="matrix(1.03333,0,0,1.03333,117.165,440.598)">
+                <g id="Feld-Marker16" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker17" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-04-2" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld8" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-113.386,-426.386)">
+                    <rect x="351.496" y="666.142" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="G13" transform="matrix(1.03333,0,0,1.03333,468.661,89.1024)">
+                <g id="Feld-Marker18" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2-1" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5-6" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker19" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-04-2-3" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1-9" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld9" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-453.543,-86.2282)">
+                    <rect x="702.992" y="314.646" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="I07" transform="matrix(1.03333,0,0,1.03333,117.165,206.268)">
+                <g id="Feld-Marker20" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-5-3-6" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker21" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld10" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-113.386,-199.614)">
+                    <rect x="351.496" y="431.811" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="G07" transform="matrix(1.03333,0,0,1.03333,117.165,89.1024)">
+                <g id="Feld-Marker22" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2-1-0" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5-6-9" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker23" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-04-2-3-0" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1-9-8" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld11" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-113.386,-86.2282)">
+                    <rect x="351.496" y="314.646" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="I09" transform="matrix(1.03333,0,0,1.03333,234.331,206.268)">
+                <g id="Feld-Marker24" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-5-3-6-3" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker25" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld12" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-226.772,-199.614)">
+                    <rect x="468.661" y="431.811" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="G09" transform="matrix(1.03333,0,0,1.03333,234.331,89.1024)">
+                <g id="Feld-Marker26" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2-1-0-3" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5-6-9-6" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker27" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-04-2-3-0-6" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1-9-8-6" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld13" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-226.772,-86.2282)">
+                    <rect x="468.661" y="314.646" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="I03" transform="matrix(1.03333,0,0,1.03333,-117.165,206.268)">
+                <g id="Feld-Marker28" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-5-5" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-0-7" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker29" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-4" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-4" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld14" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,113.386,-199.614)">
+                    <rect x="117.165" y="431.811" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="C09" transform="matrix(1.03333,0,0,1.03333,234.331,-145.228)">
+                <g id="Feld-Marker30" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-5-7" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-0-1" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker31" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-60" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-1" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld15" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-226.772,140.543)">
+                    <rect x="468.661" y="80.315" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="O04" transform="matrix(1.03333,0,0,1.03333,-58.5827,557.764)">
+                <g id="Feld-Marker32" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2-7" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5-9" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker33" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,513.788,20.1658)">
+                    <rect id="rect6129-8-5-8-8-04-2-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1-97" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld16" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,56.6929,-539.771)">
+                    <rect x="175.748" y="783.307" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="O12" transform="matrix(1.03333,0,0,1.03333,410.079,557.764)">
+                <g id="Feld-Marker34" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2-7-4" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5-9-2" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker35" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,513.788,20.1658)">
+                    <rect id="rect6129-8-5-8-8-04-2-8-1" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1-97-1" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld17" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-396.85,-539.771)">
+                    <rect x="644.409" y="783.307" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="L01" transform="matrix(0,1.03333,-1.03333,0,284.126,373.228)">
+                <g id="Feld-Marker36" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2-7-1" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5-9-3" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker37" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,513.788,20.1658)">
+                    <rect id="rect6129-8-5-8-8-04-2-8-0" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1-97-10" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld18" serif:id="Feld" transform="matrix(0,-0.967742,0.967742,0,-361.189,274.961)">
+                    <rect x="0" y="607.559" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="D01" transform="matrix(0,1.03333,-1.03333,0,284.126,-95.433)">
+                <g id="Feld-Marker38" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2-7-1-1" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5-9-3-1" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker39" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,513.788,20.1658)">
+                    <rect id="rect6129-8-5-8-8-04-2-8-0-4" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1-97-10-2" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld19" serif:id="Feld" transform="matrix(0,-0.967742,0.967742,0,92.3545,274.961)">
+                    <rect x="0" y="138.898" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="A04" transform="matrix(-1.03333,0,0,-1.03333,468.661,247.276)">
+                <g id="Feld-Marker40" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2-7-1-1-4" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5-9-3-1-8" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker41" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,513.788,20.1658)">
+                    <rect id="rect6129-8-5-8-8-04-2-8-0-4-5" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1-97-10-2-6" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld20" serif:id="Feld" transform="matrix(-0.967742,0,0,-0.967742,453.543,239.299)">
+                    <rect x="175.748" y="-36.85" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="A12" transform="matrix(-1.03333,0,0,-1.03333,937.323,247.276)">
+                <g id="Feld-Marker42" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2-7-1-1-4-3" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5-9-3-1-8-7" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker43" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,513.788,20.1658)">
+                    <rect id="rect6129-8-5-8-8-04-2-8-0-4-5-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1-97-10-2-6-0" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld21" serif:id="Feld" transform="matrix(-0.967742,0,0,-0.967742,907.087,239.299)">
+                    <rect x="644.409" y="-36.85" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="D15" transform="matrix(0,-1.03333,1.03333,0,594.614,431.811)">
+                <g id="Feld-Marker44" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2-7-1-1-4-3-6" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5-9-3-1-8-7-2" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker45" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,513.788,20.1658)">
+                    <rect id="rect6129-8-5-8-8-04-2-8-0-4-5-8-3" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1-97-10-2-6-0-3" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld22" serif:id="Feld" transform="matrix(0,0.967742,-0.967742,0,417.882,-575.433)">
+                    <rect x="820.157" y="138.898" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+            <g id="L15" transform="matrix(0,-1.03333,1.03333,0,594.614,900.472)">
+                <g id="Feld-Marker46" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-7-1-2-7-1-1-4-3-6-5" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-2-4-2-1-5-9-3-1-8-7-2-4" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld-Marker47" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,513.788,20.1658)">
+                    <rect id="rect6129-8-5-8-8-04-2-8-0-4-5-8-3-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                    <rect id="rect6129-7-5-6-0-7-8-1-97-10-2-6-0-3-2" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(53,172,255);"/>
+                </g>
+                <g id="Feld23" serif:id="Feld" transform="matrix(0,0.967742,-0.967742,0,871.425,-575.433)">
+                    <rect x="820.157" y="607.559" width="58.583" height="58.583" style="fill:rgb(53,172,255);"/>
+                </g>
+            </g>
+        </g>
+        <g id="_3-Buchstabe" serif:id="3-Buchstabe">
+            <g id="J10" transform="matrix(1.03333,0,0,1.03333,292.913,264.85)">
+                <g id="Feld-Marker48" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker49" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld24" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-283.465,-256.307)">
+                    <rect x="527.244" y="490.394" width="58.583" height="58.583" style="fill:rgb(0,135,230);"/>
+                </g>
+            </g>
+            <g id="J06" transform="matrix(1.03333,0,0,1.03333,58.5827,264.85)">
+                <g id="Feld-Marker50" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker51" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld25" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-56.6929,-256.307)">
+                    <rect x="292.913" y="490.394" width="58.583" height="58.583" style="fill:rgb(0,134,230);"/>
+                </g>
+            </g>
+            <g id="J02" transform="matrix(1.03333,0,0,1.03333,-175.748,264.85)">
+                <g id="Feld-Marker52" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-2" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-7" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-4" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker53" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-6" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-0" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-2" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld26" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,170.079,-256.307)">
+                    <rect x="58.583" y="490.394" width="58.583" height="58.583" style="fill:rgb(0,134,230);"/>
+                </g>
+            </g>
+            <g id="J14" transform="matrix(1.03333,0,0,1.03333,527.244,264.85)">
+                <g id="Feld-Marker54" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-6" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-3" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-7" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker55" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-1" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-01" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-8" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld27" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-510.236,-256.307)">
+                    <rect x="761.575" y="490.394" width="58.583" height="58.583" style="fill:rgb(0,134,230);"/>
+                </g>
+            </g>
+            <g id="F10" transform="matrix(1.03333,0,0,1.03333,292.913,30.5197)">
+                <g id="Feld-Marker56" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-9" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-2" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-3" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker57" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-2" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-57" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-4" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld28" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-283.465,-29.5352)">
+                    <rect x="527.244" y="256.063" width="58.583" height="58.583" style="fill:rgb(0,134,230);"/>
+                </g>
+            </g>
+            <g id="F06" transform="matrix(1.03333,0,0,1.03333,58.5827,30.5197)">
+                <g id="Feld-Marker58" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-27" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-5" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-2" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker59" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-67" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-6" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-3" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld29" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-56.6929,-29.5352)">
+                    <rect x="292.913" y="256.063" width="58.583" height="58.583" style="fill:rgb(0,134,230);"/>
+                </g>
+            </g>
+            <g id="F02" transform="matrix(1.03333,0,0,1.03333,-175.748,30.5197)">
+                <g id="Feld-Marker60" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-2-7" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-7-4" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-4-3" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker61" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-6-7" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-0-2" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-2-1" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld30" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,170.079,-29.5352)">
+                    <rect x="58.583" y="256.063" width="58.583" height="58.583" style="fill:rgb(0,134,230);"/>
+                </g>
+            </g>
+            <g id="F14" transform="matrix(1.03333,0,0,1.03333,527.244,30.5197)">
+                <g id="Feld-Marker62" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-6-9" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-3-3" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-7-2" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker63" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-1-0" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-01-1" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-8-8" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld31" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-510.236,-29.5352)">
+                    <rect x="761.575" y="256.063" width="58.583" height="58.583" style="fill:rgb(0,134,230);"/>
+                </g>
+            </g>
+            <g id="B10" transform="matrix(1.03333,0,0,1.03333,292.913,-203.811)">
+                <g id="Feld-Marker64" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-9-2" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-2-2" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-3-4" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker65" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-2-6" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-57-0" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-4-4" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld32" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-283.465,197.236)">
+                    <rect x="527.244" y="21.732" width="58.583" height="58.583" style="fill:rgb(0,134,230);"/>
+                </g>
+            </g>
+            <g id="B06" transform="matrix(1.03333,0,0,1.03333,58.5827,-203.811)">
+                <g id="Feld-Marker66" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-27-9" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-5-8" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-2-2" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker67" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-67-9" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-6-4" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-3-3" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld33" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-56.6929,197.236)">
+                    <rect x="292.913" y="21.732" width="58.583" height="58.583" style="fill:rgb(0,134,230);"/>
+                </g>
+            </g>
+            <g id="N10" transform="matrix(1.03333,0,0,1.03333,292.913,499.181)">
+                <g id="Feld-Marker68" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-67" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-0" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-1" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker69" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-3" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-8" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-1" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld34" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-283.464,-483.079)">
+                    <rect x="527.244" y="724.724" width="58.583" height="58.583" style="fill:rgb(0,134,230);"/>
+                </g>
+            </g>
+            <g id="N06" transform="matrix(1.03333,0,0,1.03333,58.5827,499.181)">
+                <g id="Feld-Marker70" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-7" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-4" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-1" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld-Marker71" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-2" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-68" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-0" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(0,135,230);"/>
+                </g>
+                <g id="Feld35" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-56.6929,-483.079)">
+                    <rect x="292.913" y="724.724" width="58.583" height="58.583" style="fill:rgb(0,134,230);"/>
+                </g>
+            </g>
+        </g>
+        <g id="_2-Wort" serif:id="2-Wort">
+            <g id="E05" transform="matrix(1.03333,0,0,1.03333,0,-28.0629)">
+                <g id="Feld-Marker72" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker73" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld36" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,0,27.1577)">
+                    <rect x="234.331" y="197.48" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="D04" transform="matrix(1.03333,0,0,1.03333,-58.5827,-86.6456)">
+                <g id="Feld-Marker74" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker75" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld37" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,56.6929,83.8506)">
+                    <rect x="175.748" y="138.898" width="58.583" height="58.583" style="fill:rgb(255,103,103);stroke:rgb(0,170,61);stroke-width:0.45px;"/>
+                </g>
+            </g>
+            <g id="C03" transform="matrix(1.03333,0,0,1.03333,-117.165,-145.228)">
+                <g id="Feld-Marker76" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-5" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-7" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker77" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-9" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-9" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld38" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,113.386,140.543)">
+                    <rect x="117.165" y="80.315" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="B02" transform="matrix(1.03333,0,0,1.03333,-175.748,-203.811)">
+                <g id="Feld-Marker78" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-4" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker79" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-0" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld39" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,170.079,197.236)">
+                    <rect x="58.583" y="21.732" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="N14" transform="matrix(1.03333,0,0,1.03333,527.244,499.181)">
+                <g id="Feld-Marker80" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-72" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-0" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker81" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-69" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld40" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-510.236,-483.079)">
+                    <rect x="761.575" y="724.724" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="M13" transform="matrix(1.03333,0,0,1.03333,468.661,440.598)">
+                <g id="Feld-Marker82" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-5" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-0" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker83" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-5" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-7" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld41" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-453.543,-426.386)">
+                    <rect x="702.992" y="666.142" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="L12" transform="matrix(1.03333,0,0,1.03333,410.079,382.016)">
+                <g id="Feld-Marker84" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-5-8" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-7-3" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker85" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-9-3" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-9-5" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld42" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-396.85,-369.693)">
+                    <rect x="644.409" y="607.559" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="K11" transform="matrix(1.03333,0,0,1.03333,351.496,323.433)">
+                <g id="Feld-Marker86" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-9" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-4-9" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker87" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-7" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-0-1" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld43" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-340.157,-313)">
+                    <rect x="585.827" y="548.976" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="H08" transform="matrix(1.03333,0,0,1.03333,175.748,147.685)">
+                <g id="Feld-Marker88" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-9-2" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-4-9-5" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker89" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-7-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-0-1-2" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld44" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-170.079,-142.921)">
+                    <rect x="410.079" y="373.228" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="E11" transform="matrix(1.03333,0,0,1.03333,351.496,-28.0629)">
+                <g id="Feld-Marker90" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-9-2-3" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-4-9-5-6" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker91" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-7-8-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-0-1-2-3" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld45" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-340.157,27.1577)">
+                    <rect x="585.827" y="197.48" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="D12" transform="matrix(1.03333,0,0,1.03333,410.079,-86.6456)">
+                <g id="Feld-Marker92" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-9-2-3-3" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-4-9-5-6-0" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker93" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-7-8-8-5" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-0-1-2-3-8" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld46" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-396.85,83.8506)">
+                    <rect x="644.41" y="138.898" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="C13" transform="matrix(1.03333,0,0,1.03333,468.661,-145.228)">
+                <g id="Feld-Marker94" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-9-2-3-3-6" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-4-9-5-6-0-3" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker95" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-7-8-8-5-6" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-0-1-2-3-8-2" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld47" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-453.543,140.543)">
+                    <rect x="702.992" y="80.315" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="B14" transform="matrix(1.03333,0,0,1.03333,527.244,-203.811)">
+                <g id="Feld-Marker96" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-9-2-3-3-6-6" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-4-9-5-6-0-3-7" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker97" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-7-8-8-5-6-2" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-0-1-2-3-8-2-8" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld48" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-510.236,197.236)">
+                    <rect x="761.575" y="21.732" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="N02" transform="matrix(1.03333,0,0,1.03333,-175.748,499.181)">
+                <g id="Feld-Marker98" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-9-2-3-6" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-4-9-5-6-7" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker99" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-7-8-8-9" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-0-1-2-3-7" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld49" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,170.079,-483.079)">
+                    <rect x="58.583" y="724.724" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="M03" transform="matrix(1.03333,0,0,1.03333,-117.165,440.598)">
+                <g id="Feld-Marker100" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-9-2-3-3-63" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-4-9-5-6-0-5" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker101" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-7-8-8-5-9" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-0-1-2-3-8-8" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld50" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,113.386,-426.386)">
+                    <rect x="117.165" y="666.142" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="L04" transform="matrix(1.03333,0,0,1.03333,-58.5827,382.016)">
+                <g id="Feld-Marker102" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-9-2-3-3-6-7" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-4-9-5-6-0-3-2" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker103" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-7-8-8-5-6-6" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-0-1-2-3-8-2-1" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld51" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,56.6929,-369.693)">
+                    <rect x="175.748" y="607.559" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+            <g id="K05" transform="matrix(1.03333,0,0,1.03333,-9.51968e-06,323.433)">
+                <g id="Feld-Marker104" serif:id="Feld-Marker" transform="matrix(0.866667,0,0,1,34.0158,-1.41732)">
+                    <rect id="rect6129-0-0-9-2-3-3-6-6-9" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-2-4-9-5-6-0-3-7-9" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld-Marker105" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,513.788,-4.56439)">
+                    <rect id="rect6129-8-5-8-7-8-8-5-6-2-3" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                    <rect id="rect6129-7-5-6-0-1-2-3-8-2-8-5" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(255,103,103);"/>
+                </g>
+                <g id="Feld52" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,9.2126e-06,-313)">
+                    <rect x="234.331" y="548.976" width="58.583" height="58.583" style="fill:rgb(255,103,103);"/>
+                </g>
+            </g>
+        </g>
+        <g id="_3-Wort" serif:id="3-Wort">
+            <g id="O15" transform="matrix(1.03333,0,0,1.03333,585.827,557.764)">
+                <g id="Feld-Marker106" serif:id="Feld-Marker" transform="matrix(0.766667,0,0,1,55.2756,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-6-4-1-0-9" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-3-0-1-0-9" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-7-0-5-5-5" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld-Marker107" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,520.166,20.1658)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-1-8-8-0-9" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-01-4-1-6-37" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-8-3-2-2-0" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld53" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-566.929,-539.771)">
+                    <rect x="820.157" y="783.307" width="58.583" height="58.583" style="fill:rgb(254,0,0);"/>
+                </g>
+            </g>
+            <g id="O08" transform="matrix(0,1.03333,-1.03333,0,694.205,548.976)">
+                <g id="Feld-Marker108" serif:id="Feld-Marker" transform="matrix(0.766667,0,0,1,55.2756,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-6-4-9" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-3-0-6" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-7-0-4" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld-Marker109" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-1-8-6" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-01-4-7" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-8-3-0" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld54" serif:id="Feld" transform="matrix(0,-0.967742,0.967742,0,-531.268,671.811)">
+                    <rect x="410.079" y="783.307" width="58.583" height="58.583" style="fill:rgb(254,0,0);"/>
+                </g>
+            </g>
+            <g id="O01" transform="matrix(0,1.03333,-1.03333,0,284.126,548.976)">
+                <g id="Feld-Marker110" serif:id="Feld-Marker" transform="matrix(0.766667,0,0,1,55.2756,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-6-4-1-0-9-9" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-3-0-1-0-9-0" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-7-0-5-5-5-7" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld-Marker111" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,520.166,20.1658)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-1-8-8-0-9-2" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-01-4-1-6-37-9" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-8-3-2-2-0-1" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld55" serif:id="Feld" transform="matrix(0,-0.967742,0.967742,0,-531.268,274.961)">
+                    <rect x="-0" y="783.307" width="58.583" height="58.583" style="fill:rgb(254,0,0);"/>
+                </g>
+            </g>
+            <g id="H15" transform="matrix(1.03333,0,0,1.03333,585.827,147.685)">
+                <g id="Feld-Marker112" serif:id="Feld-Marker" transform="matrix(0.766667,0,0,1,55.2756,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-6-4" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-3-0" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-7-0" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld-Marker113" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-1-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-01-4" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-8-3" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld56" serif:id="Feld" transform="matrix(0.967742,0,0,0.967742,-566.929,-142.921)">
+                    <rect x="820.157" y="373.228" width="58.583" height="58.583" style="fill:rgb(254,0,0);"/>
+                </g>
+            </g>
+            <g id="H01" transform="matrix(-1.03333,0,0,-1.03333,292.913,657.354)">
+                <g id="Feld-Marker114" serif:id="Feld-Marker" transform="matrix(0.766667,0,0,1,55.2756,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-6-4-7" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-3-0-3" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-7-0-44" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld-Marker115" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-1-8-1" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-01-4-2" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-8-3-5" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld57" serif:id="Feld" transform="matrix(-0.967742,0,0,-0.967742,283.465,636.149)">
+                    <rect x="-0" y="373.228" width="58.583" height="58.583" style="fill:rgb(254,0,0);"/>
+                </g>
+            </g>
+            <g id="A15" transform="matrix(0,-1.03333,1.03333,0,594.614,256.063)">
+                <g id="Feld-Marker116" serif:id="Feld-Marker" transform="matrix(0.766667,0,0,1,55.2756,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-6-4-1-0-0" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-3-0-1-0-1" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-7-0-5-5-7" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld-Marker117" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,520.166,20.1658)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-1-8-8-0-7" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-01-4-1-6-3" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-8-3-2-2-9" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld58" serif:id="Feld" transform="matrix(0,0.967742,-0.967742,0,247.803,-575.433)">
+                    <rect x="820.157" y="-36.85" width="58.583" height="58.583" style="fill:rgb(254,0,0);"/>
+                </g>
+            </g>
+            <g id="A08" transform="matrix(0,-1.03333,1.03333,0,184.535,256.063)">
+                <g id="Feld-Marker118" serif:id="Feld-Marker" transform="matrix(0.766667,0,0,1,55.2756,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-6-4-1" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-3-0-1" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-7-0-5" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld-Marker119" serif:id="Feld-Marker" transform="matrix(0,0.866667,-1,0,520.166,-4.56439)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-1-8-8" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-01-4-1" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-8-3-2" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld59" serif:id="Feld" transform="matrix(0,0.967742,-0.967742,0,247.803,-178.583)">
+                    <rect x="410.079" y="-36.85" width="58.583" height="58.583" style="fill:rgb(254,0,0);"/>
+                </g>
+            </g>
+            <g id="A01" transform="matrix(-1.03333,0,0,-1.03333,292.913,247.276)">
+                <g id="Feld-Marker120" serif:id="Feld-Marker" transform="matrix(0.766667,0,0,1,55.2756,6.37795)">
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-3-6-4-1-0" x="212.598" y="236.693" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-2-4-2-0-2-0-0-6-3-3-0-1-0" x="212.598" y="250.866" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-0-0-7-5-3-6-3-5-6-5-7-0-5-5" x="212.598" y="222.52" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld-Marker121" serif:id="Feld-Marker" transform="matrix(0,0.766667,-1,0,520.166,20.1658)">
+                    <rect id="rect6129-8-5-8-8-0-1-8-1-0-7-1-8-8-0" x="247.302" y="247.331" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-3-01-4-1-6" x="247.302" y="261.505" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                    <rect id="rect6129-7-5-6-0-7-3-6-1-0-2-5-6-8-3-2-2" x="247.302" y="275.678" width="85.039" height="7.087" style="fill:rgb(254,0,0);"/>
+                </g>
+                <g id="Feld60" serif:id="Feld" transform="matrix(-0.967742,0,0,-0.967742,283.465,239.299)">
+                    <rect x="0" y="-36.85" width="58.583" height="58.583" style="fill:rgb(254,0,0);"/>
+                </g>
+            </g>
+        </g>
+        <rect id="Rahmen" x="1.465" y="-35.386" width="875.811" height="875.811" style="fill:none;stroke:black;stroke-width:2.93px;"/>
+        <g id="Gitter" transform="matrix(1,0,0,1,0,-8.50394)">
+            <path d="M58.583,-28.346L58.583,850.394M117.165,-28.346L117.165,850.394M175.748,-28.346L175.748,850.394M234.331,-28.346L234.331,850.394M292.913,-28.346L292.913,850.394M351.496,-28.346L351.496,850.394M410.079,-28.346L410.079,850.394M468.661,-28.346L468.661,850.394M527.244,-28.346L527.244,850.394M585.827,-28.346L585.827,850.394M644.409,-28.346L644.409,850.394M702.992,-28.346L702.992,850.394M761.575,-28.346L761.575,850.394M820.157,-28.346L820.157,850.394M0,30.236L878.74,30.236M0,88.819L878.74,88.819M0,147.402L878.74,147.402M0,205.984L878.74,205.984M0,264.567L878.74,264.567M0,323.15L878.74,323.15M0,381.732L878.74,381.732M0,440.315L878.74,440.315M0,498.898L878.74,498.898M0,557.48L878.74,557.48M0,616.063L878.74,616.063M0,674.646L878.74,674.646M0,733.228L878.74,733.228M0,791.811L878.74,791.811" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:1.46px;"/>
+        </g>
+    </g>
+    <g id="Legende" transform="matrix(1,0,0,1,-22.0953,-22.5327)">
+        <g id="Ziffern">
+            <g transform="matrix(1,0,0,1,86.494,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.394,-0L0.256,-0L0.256,-0.517C0.206,-0.47 0.147,-0.436 0.079,-0.413L0.079,-0.538C0.115,-0.549 0.154,-0.572 0.196,-0.604C0.238,-0.637 0.267,-0.675 0.282,-0.719L0.394,-0.719L0.394,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,144.458,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.506,-0.127L0.506,-0L0.025,-0C0.03,-0.048 0.046,-0.094 0.072,-0.137C0.098,-0.18 0.149,-0.237 0.226,-0.309C0.288,-0.366 0.326,-0.405 0.34,-0.426C0.359,-0.454 0.368,-0.482 0.368,-0.51C0.368,-0.54 0.36,-0.564 0.344,-0.58C0.327,-0.597 0.304,-0.605 0.275,-0.605C0.247,-0.605 0.224,-0.596 0.207,-0.579C0.19,-0.562 0.18,-0.533 0.178,-0.493L0.041,-0.507C0.049,-0.582 0.075,-0.637 0.118,-0.669C0.161,-0.702 0.214,-0.719 0.279,-0.719C0.349,-0.719 0.405,-0.7 0.445,-0.662C0.486,-0.624 0.506,-0.576 0.506,-0.52C0.506,-0.487 0.5,-0.457 0.489,-0.427C0.477,-0.398 0.459,-0.368 0.434,-0.336C0.417,-0.315 0.387,-0.284 0.344,-0.245C0.3,-0.205 0.273,-0.179 0.261,-0.166C0.25,-0.153 0.241,-0.14 0.233,-0.127L0.506,-0.127Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,202.88,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.038,-0.19L0.17,-0.206C0.175,-0.172 0.186,-0.146 0.205,-0.128C0.223,-0.111 0.246,-0.102 0.272,-0.102C0.3,-0.102 0.324,-0.112 0.344,-0.134C0.363,-0.155 0.373,-0.184 0.373,-0.221C0.373,-0.255 0.363,-0.283 0.345,-0.303C0.326,-0.323 0.304,-0.333 0.277,-0.333C0.259,-0.333 0.238,-0.33 0.214,-0.323L0.229,-0.435C0.266,-0.434 0.294,-0.442 0.314,-0.459C0.333,-0.476 0.343,-0.499 0.343,-0.527C0.343,-0.551 0.336,-0.57 0.322,-0.584C0.307,-0.599 0.288,-0.606 0.265,-0.606C0.241,-0.606 0.221,-0.598 0.205,-0.582C0.188,-0.565 0.178,-0.542 0.174,-0.51L0.048,-0.532C0.057,-0.575 0.07,-0.61 0.088,-0.635C0.105,-0.661 0.13,-0.682 0.162,-0.697C0.194,-0.711 0.229,-0.719 0.269,-0.719C0.336,-0.719 0.39,-0.697 0.431,-0.654C0.464,-0.619 0.481,-0.579 0.481,-0.535C0.481,-0.472 0.447,-0.422 0.378,-0.385C0.419,-0.376 0.452,-0.356 0.476,-0.326C0.501,-0.295 0.513,-0.258 0.513,-0.215C0.513,-0.152 0.49,-0.098 0.444,-0.054C0.398,-0.01 0.341,0.012 0.273,0.012C0.208,0.012 0.154,-0.006 0.112,-0.044C0.069,-0.081 0.044,-0.13 0.038,-0.19Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,261.529,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.312,-0L0.312,-0.144L0.019,-0.144L0.019,-0.264L0.329,-0.719L0.444,-0.719L0.444,-0.265L0.533,-0.265L0.533,-0.144L0.444,-0.144L0.444,-0L0.312,-0ZM0.312,-0.265L0.312,-0.509L0.147,-0.265L0.312,-0.265Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,319.968,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.044,-0.184L0.181,-0.198C0.185,-0.167 0.197,-0.143 0.216,-0.125C0.235,-0.107 0.257,-0.098 0.282,-0.098C0.311,-0.098 0.335,-0.109 0.355,-0.133C0.375,-0.156 0.385,-0.191 0.385,-0.238C0.385,-0.282 0.375,-0.315 0.355,-0.337C0.336,-0.359 0.31,-0.37 0.278,-0.37C0.239,-0.37 0.204,-0.352 0.172,-0.317L0.061,-0.333L0.131,-0.706L0.494,-0.706L0.494,-0.578L0.235,-0.578L0.214,-0.456C0.244,-0.471 0.276,-0.479 0.308,-0.479C0.368,-0.479 0.42,-0.457 0.462,-0.413C0.505,-0.368 0.526,-0.311 0.526,-0.24C0.526,-0.181 0.509,-0.129 0.475,-0.083C0.428,-0.019 0.363,0.012 0.281,0.012C0.215,0.012 0.161,-0.006 0.119,-0.041C0.077,-0.076 0.053,-0.124 0.044,-0.184Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,378.718,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.507,-0.541L0.375,-0.526C0.371,-0.553 0.363,-0.573 0.349,-0.586C0.335,-0.599 0.318,-0.606 0.296,-0.606C0.267,-0.606 0.242,-0.593 0.222,-0.567C0.202,-0.541 0.19,-0.487 0.185,-0.404C0.219,-0.445 0.261,-0.465 0.312,-0.465C0.369,-0.465 0.418,-0.443 0.459,-0.399C0.5,-0.356 0.521,-0.299 0.521,-0.23C0.521,-0.157 0.499,-0.098 0.456,-0.054C0.413,-0.01 0.358,0.012 0.291,0.012C0.218,0.012 0.159,-0.016 0.112,-0.072C0.066,-0.128 0.042,-0.22 0.042,-0.348C0.042,-0.479 0.067,-0.574 0.115,-0.632C0.164,-0.69 0.227,-0.719 0.304,-0.719C0.359,-0.719 0.404,-0.704 0.439,-0.673C0.475,-0.643 0.498,-0.598 0.507,-0.541ZM0.196,-0.241C0.196,-0.197 0.207,-0.162 0.227,-0.138C0.248,-0.114 0.271,-0.102 0.297,-0.102C0.323,-0.102 0.344,-0.111 0.361,-0.131C0.378,-0.151 0.386,-0.184 0.386,-0.229C0.386,-0.276 0.377,-0.31 0.359,-0.331C0.341,-0.353 0.318,-0.364 0.291,-0.364C0.264,-0.364 0.242,-0.353 0.224,-0.333C0.205,-0.312 0.196,-0.282 0.196,-0.241Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,437.485,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.042,-0.579L0.042,-0.706L0.512,-0.706L0.512,-0.606C0.473,-0.568 0.434,-0.514 0.394,-0.442C0.354,-0.371 0.323,-0.295 0.302,-0.215C0.281,-0.135 0.271,-0.063 0.271,-0L0.139,-0C0.141,-0.099 0.161,-0.2 0.2,-0.303C0.239,-0.406 0.29,-0.498 0.354,-0.579L0.042,-0.579Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,496.176,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.16,-0.386C0.125,-0.401 0.099,-0.422 0.083,-0.448C0.067,-0.474 0.059,-0.503 0.059,-0.534C0.059,-0.588 0.077,-0.632 0.115,-0.667C0.152,-0.701 0.205,-0.719 0.273,-0.719C0.341,-0.719 0.394,-0.701 0.432,-0.667C0.469,-0.632 0.488,-0.588 0.488,-0.534C0.488,-0.501 0.48,-0.471 0.462,-0.446C0.445,-0.42 0.421,-0.4 0.39,-0.386C0.429,-0.37 0.46,-0.347 0.48,-0.316C0.501,-0.286 0.511,-0.25 0.511,-0.21C0.511,-0.144 0.49,-0.091 0.448,-0.049C0.406,-0.008 0.35,0.013 0.28,0.013C0.215,0.013 0.16,-0.004 0.117,-0.039C0.066,-0.079 0.041,-0.134 0.041,-0.205C0.041,-0.243 0.05,-0.279 0.069,-0.311C0.089,-0.344 0.119,-0.369 0.16,-0.386ZM0.188,-0.524C0.188,-0.497 0.196,-0.476 0.212,-0.46C0.227,-0.445 0.248,-0.438 0.273,-0.438C0.299,-0.438 0.32,-0.445 0.336,-0.461C0.352,-0.476 0.359,-0.498 0.359,-0.525C0.359,-0.551 0.352,-0.571 0.336,-0.587C0.321,-0.602 0.3,-0.61 0.275,-0.61C0.249,-0.61 0.228,-0.602 0.212,-0.586C0.196,-0.571 0.188,-0.55 0.188,-0.524ZM0.176,-0.218C0.176,-0.18 0.185,-0.151 0.205,-0.129C0.224,-0.108 0.248,-0.098 0.277,-0.098C0.306,-0.098 0.329,-0.108 0.348,-0.128C0.366,-0.149 0.375,-0.178 0.375,-0.216C0.375,-0.25 0.366,-0.277 0.347,-0.297C0.328,-0.317 0.304,-0.328 0.275,-0.328C0.242,-0.328 0.217,-0.316 0.2,-0.293C0.184,-0.27 0.176,-0.245 0.176,-0.218Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,554.96,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.045,-0.166L0.178,-0.18C0.181,-0.153 0.19,-0.133 0.204,-0.12C0.217,-0.107 0.235,-0.101 0.258,-0.101C0.286,-0.101 0.31,-0.114 0.33,-0.14C0.35,-0.166 0.363,-0.22 0.368,-0.302C0.334,-0.262 0.291,-0.242 0.239,-0.242C0.182,-0.242 0.134,-0.263 0.093,-0.307C0.052,-0.35 0.032,-0.407 0.032,-0.477C0.032,-0.549 0.053,-0.608 0.096,-0.652C0.14,-0.697 0.194,-0.719 0.261,-0.719C0.334,-0.719 0.393,-0.691 0.44,-0.635C0.486,-0.578 0.51,-0.486 0.51,-0.357C0.51,-0.227 0.486,-0.132 0.437,-0.074C0.389,-0.016 0.325,0.013 0.248,0.013C0.192,0.013 0.146,-0.002 0.112,-0.032C0.077,-0.062 0.055,-0.106 0.045,-0.166ZM0.356,-0.465C0.356,-0.51 0.346,-0.544 0.325,-0.568C0.305,-0.593 0.282,-0.605 0.255,-0.605C0.229,-0.605 0.208,-0.595 0.192,-0.575C0.175,-0.555 0.167,-0.522 0.167,-0.477C0.167,-0.43 0.176,-0.396 0.194,-0.375C0.212,-0.353 0.235,-0.342 0.262,-0.342C0.289,-0.342 0.311,-0.353 0.329,-0.374C0.347,-0.394 0.356,-0.425 0.356,-0.465Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,606.415,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.394,-0L0.256,-0L0.256,-0.517C0.206,-0.47 0.147,-0.436 0.079,-0.413L0.079,-0.538C0.115,-0.549 0.154,-0.572 0.196,-0.604C0.238,-0.637 0.267,-0.675 0.282,-0.719L0.394,-0.719L0.394,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(16,0,0,16,29.0269,100.56)">
+                    <path d="M0.274,-0.719C0.344,-0.719 0.398,-0.694 0.437,-0.645C0.484,-0.586 0.507,-0.489 0.507,-0.353C0.507,-0.218 0.483,-0.12 0.437,-0.061C0.398,-0.012 0.344,0.012 0.274,0.012C0.205,0.012 0.149,-0.015 0.106,-0.068C0.063,-0.122 0.042,-0.217 0.042,-0.354C0.042,-0.489 0.065,-0.586 0.112,-0.646C0.151,-0.694 0.205,-0.719 0.274,-0.719ZM0.274,-0.605C0.258,-0.605 0.243,-0.6 0.23,-0.589C0.217,-0.579 0.207,-0.56 0.2,-0.532C0.19,-0.497 0.186,-0.437 0.186,-0.353C0.186,-0.269 0.19,-0.211 0.198,-0.18C0.207,-0.149 0.217,-0.128 0.23,-0.117C0.243,-0.107 0.258,-0.102 0.274,-0.102C0.291,-0.102 0.306,-0.107 0.319,-0.117C0.332,-0.128 0.342,-0.147 0.349,-0.174C0.359,-0.209 0.363,-0.269 0.363,-0.353C0.363,-0.437 0.359,-0.495 0.351,-0.526C0.342,-0.558 0.331,-0.579 0.319,-0.589C0.306,-0.6 0.291,-0.605 0.274,-0.605Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,667.098,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.394,-0L0.256,-0L0.256,-0.517C0.206,-0.47 0.147,-0.436 0.079,-0.413L0.079,-0.538C0.115,-0.549 0.154,-0.572 0.196,-0.604C0.238,-0.637 0.267,-0.675 0.282,-0.719L0.394,-0.719L0.394,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(16,0,0,16,28.1441,100.56)">
+                    <path d="M0.394,-0L0.256,-0L0.256,-0.517C0.206,-0.47 0.147,-0.436 0.079,-0.413L0.079,-0.538C0.115,-0.549 0.154,-0.572 0.196,-0.604C0.238,-0.637 0.267,-0.675 0.282,-0.719L0.394,-0.719L0.394,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,723.75,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.394,-0L0.256,-0L0.256,-0.517C0.206,-0.47 0.147,-0.436 0.079,-0.413L0.079,-0.538C0.115,-0.549 0.154,-0.572 0.196,-0.604C0.238,-0.637 0.267,-0.675 0.282,-0.719L0.394,-0.719L0.394,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(16,0,0,16,29.0269,100.56)">
+                    <path d="M0.506,-0.127L0.506,-0L0.025,-0C0.03,-0.048 0.046,-0.094 0.072,-0.137C0.098,-0.18 0.149,-0.237 0.226,-0.309C0.288,-0.366 0.326,-0.405 0.34,-0.426C0.359,-0.454 0.368,-0.482 0.368,-0.51C0.368,-0.54 0.36,-0.564 0.344,-0.58C0.327,-0.597 0.304,-0.605 0.275,-0.605C0.247,-0.605 0.224,-0.596 0.207,-0.579C0.19,-0.562 0.18,-0.533 0.178,-0.493L0.041,-0.507C0.049,-0.582 0.075,-0.637 0.118,-0.669C0.161,-0.702 0.214,-0.719 0.279,-0.719C0.349,-0.719 0.405,-0.7 0.445,-0.662C0.486,-0.624 0.506,-0.576 0.506,-0.52C0.506,-0.487 0.5,-0.457 0.489,-0.427C0.477,-0.398 0.459,-0.368 0.434,-0.336C0.417,-0.315 0.387,-0.284 0.344,-0.245C0.3,-0.205 0.273,-0.179 0.261,-0.166C0.25,-0.153 0.241,-0.14 0.233,-0.127L0.506,-0.127Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,782.323,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.394,-0L0.256,-0L0.256,-0.517C0.206,-0.47 0.147,-0.436 0.079,-0.413L0.079,-0.538C0.115,-0.549 0.154,-0.572 0.196,-0.604C0.238,-0.637 0.267,-0.675 0.282,-0.719L0.394,-0.719L0.394,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(16,0,0,16,29.0269,100.56)">
+                    <path d="M0.038,-0.19L0.17,-0.206C0.175,-0.172 0.186,-0.146 0.205,-0.128C0.223,-0.111 0.246,-0.102 0.272,-0.102C0.3,-0.102 0.324,-0.112 0.344,-0.134C0.363,-0.155 0.373,-0.184 0.373,-0.221C0.373,-0.255 0.363,-0.283 0.345,-0.303C0.326,-0.323 0.304,-0.333 0.277,-0.333C0.259,-0.333 0.238,-0.33 0.214,-0.323L0.229,-0.435C0.266,-0.434 0.294,-0.442 0.314,-0.459C0.333,-0.476 0.343,-0.499 0.343,-0.527C0.343,-0.551 0.336,-0.57 0.322,-0.584C0.307,-0.599 0.288,-0.606 0.265,-0.606C0.241,-0.606 0.221,-0.598 0.205,-0.582C0.188,-0.565 0.178,-0.542 0.174,-0.51L0.048,-0.532C0.057,-0.575 0.07,-0.61 0.088,-0.635C0.105,-0.661 0.13,-0.682 0.162,-0.697C0.194,-0.711 0.229,-0.719 0.269,-0.719C0.336,-0.719 0.39,-0.697 0.431,-0.654C0.464,-0.619 0.481,-0.579 0.481,-0.535C0.481,-0.472 0.447,-0.422 0.378,-0.385C0.419,-0.376 0.452,-0.356 0.476,-0.326C0.501,-0.295 0.513,-0.258 0.513,-0.215C0.513,-0.152 0.49,-0.098 0.444,-0.054C0.398,-0.01 0.341,0.012 0.273,0.012C0.208,0.012 0.154,-0.006 0.112,-0.044C0.069,-0.081 0.044,-0.13 0.038,-0.19Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,840.745,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.394,-0L0.256,-0L0.256,-0.517C0.206,-0.47 0.147,-0.436 0.079,-0.413L0.079,-0.538C0.115,-0.549 0.154,-0.572 0.196,-0.604C0.238,-0.637 0.267,-0.675 0.282,-0.719L0.394,-0.719L0.394,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(16,0,0,16,29.0269,100.56)">
+                    <path d="M0.312,-0L0.312,-0.144L0.019,-0.144L0.019,-0.264L0.329,-0.719L0.444,-0.719L0.444,-0.265L0.533,-0.265L0.533,-0.144L0.444,-0.144L0.444,-0L0.312,-0ZM0.312,-0.265L0.312,-0.509L0.147,-0.265L0.312,-0.265Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,899.494,-24.0838)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.394,-0L0.256,-0L0.256,-0.517C0.206,-0.47 0.147,-0.436 0.079,-0.413L0.079,-0.538C0.115,-0.549 0.154,-0.572 0.196,-0.604C0.238,-0.637 0.267,-0.675 0.282,-0.719L0.394,-0.719L0.394,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(16,0,0,16,29.0269,100.56)">
+                    <path d="M0.044,-0.184L0.181,-0.198C0.185,-0.167 0.197,-0.143 0.216,-0.125C0.235,-0.107 0.257,-0.098 0.282,-0.098C0.311,-0.098 0.335,-0.109 0.355,-0.133C0.375,-0.156 0.385,-0.191 0.385,-0.238C0.385,-0.282 0.375,-0.315 0.355,-0.337C0.336,-0.359 0.31,-0.37 0.278,-0.37C0.239,-0.37 0.204,-0.352 0.172,-0.317L0.061,-0.333L0.131,-0.706L0.494,-0.706L0.494,-0.578L0.235,-0.578L0.214,-0.456C0.244,-0.471 0.276,-0.479 0.308,-0.479C0.368,-0.479 0.42,-0.457 0.462,-0.413C0.505,-0.368 0.526,-0.311 0.526,-0.24C0.526,-0.181 0.509,-0.129 0.475,-0.083C0.428,-0.019 0.363,0.012 0.281,0.012C0.215,0.012 0.161,-0.006 0.119,-0.041C0.077,-0.076 0.053,-0.124 0.044,-0.184Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+        </g>
+        <g id="Buchstaben">
+            <g transform="matrix(1,0,0,1,44.8278,21.6956)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.718,-0L0.561,-0L0.499,-0.163L0.212,-0.163L0.153,-0L0,-0L0.279,-0.716L0.432,-0.716L0.718,-0ZM0.452,-0.283L0.354,-0.549L0.257,-0.283L0.452,-0.283Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,44.6051,80.2151)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.073,-0.716L0.359,-0.716C0.416,-0.716 0.458,-0.713 0.486,-0.709C0.514,-0.704 0.539,-0.694 0.561,-0.679C0.583,-0.664 0.601,-0.644 0.616,-0.619C0.63,-0.594 0.638,-0.567 0.638,-0.536C0.638,-0.502 0.629,-0.471 0.611,-0.443C0.593,-0.415 0.568,-0.394 0.537,-0.38C0.581,-0.368 0.614,-0.346 0.638,-0.315C0.661,-0.285 0.673,-0.249 0.673,-0.208C0.673,-0.175 0.665,-0.143 0.65,-0.113C0.635,-0.082 0.614,-0.057 0.588,-0.039C0.562,-0.02 0.53,-0.009 0.491,-0.005C0.467,-0.002 0.409,-0.001 0.317,-0L0.073,-0L0.073,-0.716ZM0.218,-0.597L0.218,-0.431L0.313,-0.431C0.369,-0.431 0.404,-0.432 0.417,-0.434C0.442,-0.437 0.462,-0.445 0.476,-0.459C0.49,-0.473 0.497,-0.492 0.497,-0.515C0.497,-0.537 0.491,-0.555 0.479,-0.569C0.467,-0.583 0.448,-0.591 0.424,-0.594C0.41,-0.596 0.369,-0.597 0.301,-0.597L0.218,-0.597ZM0.218,-0.312L0.218,-0.121L0.352,-0.121C0.404,-0.121 0.437,-0.122 0.451,-0.125C0.472,-0.129 0.49,-0.138 0.503,-0.154C0.517,-0.169 0.523,-0.189 0.523,-0.214C0.523,-0.236 0.518,-0.254 0.508,-0.269C0.497,-0.284 0.482,-0.295 0.463,-0.302C0.443,-0.309 0.4,-0.312 0.334,-0.312L0.218,-0.312Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,44.8278,138.735)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.531,-0.263L0.671,-0.219C0.649,-0.141 0.614,-0.083 0.564,-0.045C0.514,-0.007 0.45,0.012 0.374,0.012C0.278,0.012 0.2,-0.02 0.139,-0.085C0.078,-0.15 0.047,-0.239 0.047,-0.352C0.047,-0.471 0.078,-0.563 0.14,-0.629C0.201,-0.695 0.282,-0.728 0.382,-0.728C0.47,-0.728 0.541,-0.702 0.596,-0.65C0.628,-0.62 0.653,-0.576 0.669,-0.519L0.526,-0.484C0.517,-0.521 0.5,-0.551 0.473,-0.572C0.446,-0.594 0.413,-0.604 0.375,-0.604C0.322,-0.604 0.279,-0.585 0.246,-0.547C0.213,-0.509 0.196,-0.448 0.196,-0.362C0.196,-0.272 0.213,-0.207 0.245,-0.169C0.278,-0.131 0.32,-0.111 0.372,-0.111C0.41,-0.111 0.444,-0.124 0.471,-0.148C0.499,-0.172 0.519,-0.211 0.531,-0.263Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,44.6168,197.254)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.072,-0.716L0.336,-0.716C0.396,-0.716 0.441,-0.711 0.473,-0.702C0.515,-0.69 0.551,-0.668 0.581,-0.636C0.611,-0.605 0.633,-0.566 0.649,-0.52C0.665,-0.475 0.672,-0.418 0.672,-0.351C0.672,-0.292 0.665,-0.241 0.65,-0.199C0.632,-0.147 0.607,-0.104 0.574,-0.072C0.549,-0.048 0.515,-0.029 0.472,-0.015C0.44,-0.005 0.398,-0 0.344,-0L0.072,-0L0.072,-0.716ZM0.217,-0.595L0.217,-0.121L0.325,-0.121C0.365,-0.121 0.394,-0.123 0.412,-0.127C0.436,-0.133 0.455,-0.143 0.47,-0.157C0.486,-0.171 0.499,-0.194 0.508,-0.226C0.518,-0.258 0.523,-0.302 0.523,-0.357C0.523,-0.413 0.518,-0.455 0.508,-0.485C0.499,-0.514 0.485,-0.538 0.467,-0.554C0.45,-0.571 0.427,-0.582 0.4,-0.588C0.38,-0.592 0.341,-0.595 0.282,-0.595L0.217,-0.595Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,45.0543,255.774)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.073,-0L0.073,-0.716L0.604,-0.716L0.604,-0.595L0.217,-0.595L0.217,-0.436L0.577,-0.436L0.577,-0.315L0.217,-0.315L0.217,-0.121L0.617,-0.121L0.617,-0L0.073,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,45.4684,314.293)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.074,-0L0.074,-0.716L0.564,-0.716L0.564,-0.595L0.218,-0.595L0.218,-0.425L0.517,-0.425L0.517,-0.304L0.218,-0.304L0.218,-0L0.074,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,44.4528,372.813)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.406,-0.263L0.406,-0.384L0.717,-0.384L0.717,-0.099C0.687,-0.069 0.643,-0.044 0.586,-0.021C0.528,0.001 0.47,0.012 0.411,0.012C0.336,0.012 0.271,-0.003 0.215,-0.035C0.16,-0.066 0.118,-0.111 0.09,-0.17C0.062,-0.228 0.048,-0.292 0.048,-0.36C0.048,-0.435 0.063,-0.501 0.095,-0.559C0.126,-0.617 0.172,-0.661 0.232,-0.692C0.278,-0.716 0.335,-0.728 0.403,-0.728C0.492,-0.728 0.562,-0.709 0.612,-0.672C0.662,-0.635 0.694,-0.583 0.708,-0.518L0.564,-0.491C0.554,-0.526 0.535,-0.554 0.508,-0.574C0.48,-0.594 0.445,-0.604 0.403,-0.604C0.34,-0.604 0.29,-0.584 0.253,-0.544C0.215,-0.504 0.197,-0.445 0.197,-0.366C0.197,-0.281 0.216,-0.218 0.253,-0.175C0.291,-0.133 0.341,-0.111 0.402,-0.111C0.432,-0.111 0.462,-0.117 0.493,-0.129C0.523,-0.141 0.549,-0.155 0.571,-0.172L0.571,-0.263L0.406,-0.263Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,44.8239,431.332)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.073,-0L0.073,-0.716L0.218,-0.716L0.218,-0.434L0.501,-0.434L0.501,-0.716L0.646,-0.716L0.646,-0L0.501,-0L0.501,-0.313L0.218,-0.313L0.218,-0L0.073,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,48.3239,489.852)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <rect x="0.068" y="-0.716" width="0.145" height="0.716" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,46.6364,548.225)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.331,-0.716L0.475,-0.716L0.475,-0.263C0.475,-0.203 0.47,-0.158 0.459,-0.126C0.445,-0.084 0.42,-0.051 0.383,-0.026C0.347,-0 0.298,0.012 0.238,0.012C0.167,0.012 0.113,-0.008 0.075,-0.047C0.037,-0.087 0.017,-0.145 0.017,-0.221L0.153,-0.237C0.155,-0.196 0.161,-0.167 0.171,-0.15C0.187,-0.124 0.211,-0.111 0.243,-0.111C0.275,-0.111 0.298,-0.121 0.311,-0.139C0.324,-0.157 0.331,-0.195 0.331,-0.253L0.331,-0.716Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,44.2145,606.891)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.075,-0L0.075,-0.716L0.219,-0.716L0.219,-0.398L0.511,-0.716L0.706,-0.716L0.436,-0.437L0.72,-0L0.533,-0L0.336,-0.336L0.219,-0.216L0.219,-0L0.075,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,45.3161,665.34)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.077,-0L0.077,-0.71L0.221,-0.71L0.221,-0.121L0.581,-0.121L0.581,-0L0.077,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,43.9098,723.93)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.071,-0L0.071,-0.716L0.287,-0.716L0.417,-0.228L0.545,-0.716L0.762,-0.716L0.762,-0L0.628,-0L0.628,-0.563L0.486,-0L0.347,-0L0.205,-0.563L0.205,-0L0.071,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,44.8434,782.449)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.074,-0L0.074,-0.716L0.215,-0.716L0.508,-0.238L0.508,-0.716L0.642,-0.716L0.642,-0L0.497,-0L0.208,-0.467L0.208,-0L0.074,-0Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+            <g transform="matrix(1,0,0,1,44.3239,840.969)">
+                <g transform="matrix(16,0,0,16,20.1285,100.56)">
+                    <path d="M0.043,-0.354C0.043,-0.426 0.054,-0.488 0.076,-0.537C0.092,-0.574 0.115,-0.606 0.143,-0.635C0.171,-0.664 0.202,-0.686 0.235,-0.7C0.28,-0.719 0.331,-0.728 0.39,-0.728C0.495,-0.728 0.58,-0.695 0.643,-0.63C0.706,-0.564 0.738,-0.473 0.738,-0.357C0.738,-0.241 0.706,-0.151 0.644,-0.086C0.581,-0.02 0.497,0.012 0.392,0.012C0.285,0.012 0.201,-0.02 0.138,-0.085C0.075,-0.15 0.043,-0.24 0.043,-0.354ZM0.192,-0.358C0.192,-0.277 0.211,-0.216 0.249,-0.174C0.286,-0.132 0.333,-0.111 0.391,-0.111C0.449,-0.111 0.496,-0.132 0.533,-0.174C0.57,-0.215 0.588,-0.277 0.588,-0.36C0.588,-0.442 0.57,-0.504 0.534,-0.544C0.498,-0.584 0.451,-0.604 0.391,-0.604C0.332,-0.604 0.284,-0.584 0.247,-0.543C0.211,-0.502 0.192,-0.441 0.192,-0.358Z" style="fill:white;fill-rule:nonzero;"/>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
