@@ -1,11 +1,3 @@
----
-output:
-  pdf_document:
-    path: pdf/turnier-checklist-de.pdf
-    highlight: tango
-geometry: margin=2cm
----
-
 # Checkliste
 
 - [ ] Zugriff auf den Config-Web-App (\<ip\>:5050/)

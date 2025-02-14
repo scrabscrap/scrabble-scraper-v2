@@ -1,11 +1,3 @@
----
-output:
-  pdf_document:
-    path: pdf/manual-user-en.pdf
-    highlight: tango
-geometry: margin=2cm
----
-
 ## ScrabScrap - Player 1 (Green)
 
 ### Play

@@ -1,11 +1,3 @@
----
-output:
-  pdf_document:
-    path: pdf/manual-hardware-de.pdf
-    highlight: tango
-geometry: margin=2cm
----
-
 # ScrabScrap v2 Hardware-Installation
 
 ## Teileliste

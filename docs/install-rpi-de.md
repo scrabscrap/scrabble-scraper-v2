@@ -1,11 +1,3 @@
----
-output:
-  pdf_document:
-    path: pdf/install-rpi-de.pdf
-    highlight: tango
-geometry: margin=2cm
----
-
 # Installation ScrabScrap v2
 
 Die Installation von ScrabScrap unter 32-Bit Betriebssystem und Python < 3.11 wird nicht mehr unterstützt.
