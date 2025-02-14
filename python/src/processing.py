@@ -1080,7 +1080,7 @@ def _development_recording(
             )
         if info and len(game.moves) > 0:
             try:
-                warp_str = np.array2string(get_last_warp(), formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=',')  # type: ignore[arg-type] # pylint: disable=C0301 # noqa: E501
+                warp_str = np.array2string(get_last_warp(), formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=',')  # type: ignore[arg-type, call-overload] # pylint: disable=C0301 # noqa: E501
             except AttributeError:
                 warp_str = None
             recording_logger.info(f'{game_id} move: {game.moves[-1].move}')
