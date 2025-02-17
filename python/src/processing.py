@@ -33,7 +33,6 @@ from cv2.typing import MatLike
 from classicboard import ClassicBoard
 from config import config
 from custom2012board import Custom2012Board
-from custom2012kmeans import Custom2012kBoard
 from custom2012pil import Custom2012PILBoard
 from custom2020board import Custom2020Board
 from custom2020pil import Custom2020PILBoard
@@ -52,8 +51,6 @@ def get_last_warp() -> Optional[TWarp]:  # pylint: disable=too-many-return-state
         return ClassicBoard.last_warp
     if config.board_layout == 'custom2012':
         return Custom2012Board.last_warp
-    if config.board_layout == 'custom2012kmeans':
-        return Custom2012kBoard.last_warp
     if config.board_layout == 'custom2012pil':
         return Custom2012PILBoard.last_warp
     if config.board_layout == 'custom2020':
@@ -69,8 +66,6 @@ def clear_last_warp():
         ClassicBoard.last_warp = None
     elif config.board_layout == 'custom2012':
         Custom2012Board.last_warp = None
-    elif config.board_layout == 'custom2012kmeans':
-        Custom2012kBoard.last_warp = None
     elif config.board_layout == 'custom2012pil':
         Custom2012PILBoard.last_warp = None
     elif config.board_layout == 'custom2020':
@@ -90,8 +85,6 @@ def warp_image(img: MatLike) -> tuple[MatLike, MatLike]:
             warped = ClassicBoard.warp(img)
         elif config.board_layout == 'custom2012':
             warped = Custom2012Board.warp(img)
-        elif config.board_layout == 'custom2012kmeans':
-            warped = Custom2012kBoard.warp(img)
         elif config.board_layout == 'custom2012pil':
             warped = Custom2012PILBoard.warp(img)
         elif config.board_layout == 'custom2020':
@@ -112,8 +105,6 @@ def filter_image(img: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disa
         return ClassicBoard.filter_image(img)
     if config.board_layout == 'custom2012':
         return Custom2012Board.filter_image(img)
-    if config.board_layout == 'custom2012kmeans':
-        return Custom2012kBoard.filter_image(img)
     if config.board_layout == 'custom2012pil':
         return Custom2012PILBoard.filter_image(img)
     if config.board_layout == 'custom2020':
