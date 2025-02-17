@@ -30,7 +30,6 @@ import imutils
 import numpy as np
 from cv2.typing import MatLike
 
-from classicboard import ClassicBoard
 from config import config
 from custom2012board import Custom2012Board
 from custom2012pil import Custom2012PILBoard
@@ -47,8 +46,6 @@ from util import TWarp, runtime_measure, trace
 
 def get_last_warp() -> Optional[TWarp]:  # pylint: disable=too-many-return-statements
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if config.board_layout == 'classic':
-        return ClassicBoard.last_warp
     if config.board_layout == 'custom2012':
         return Custom2012Board.last_warp
     if config.board_layout == 'custom2012pil':
@@ -62,9 +59,7 @@ def get_last_warp() -> Optional[TWarp]:  # pylint: disable=too-many-return-state
 
 def clear_last_warp():
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if config.board_layout == 'classic':
-        ClassicBoard.last_warp = None
-    elif config.board_layout == 'custom2012':
+    if config.board_layout == 'custom2012':
         Custom2012Board.last_warp = None
     elif config.board_layout == 'custom2012pil':
         Custom2012PILBoard.last_warp = None
@@ -81,9 +76,7 @@ def warp_image(img: MatLike) -> tuple[MatLike, MatLike]:
     logging.debug(f'({config.board_layout})')
     warped = img
     if config.video_warp:
-        if config.board_layout == 'classic':
-            warped = ClassicBoard.warp(img)
-        elif config.board_layout == 'custom2012':
+        if config.board_layout == 'custom2012':
             warped = Custom2012Board.warp(img)
         elif config.board_layout == 'custom2012pil':
             warped = Custom2012PILBoard.warp(img)
@@ -101,8 +94,6 @@ def warp_image(img: MatLike) -> tuple[MatLike, MatLike]:
 def filter_image(img: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disable=too-many-return-statements
     """Delegates the image filter of the ``img`` according to the configured board style"""
     logging.debug(f'({config.board_layout})')
-    if config.board_layout == 'classic':
-        return ClassicBoard.filter_image(img)
     if config.board_layout == 'custom2012':
         return Custom2012Board.filter_image(img)
     if config.board_layout == 'custom2012pil':
