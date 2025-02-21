@@ -39,7 +39,7 @@ class Display extends Component {
                                 player_color='text-success' />
                         </div>
                         <div className='col'>
-                            <Header time={this.props.state.time} highlight_reload={this.props.state.highlight_reload}
+                            <Header time={this.props.state.time} highlight_reload={this.props.state.highlight_reload} tournament={this.props.state.tournament}
                                 settings={this.props.state.settings} updateSettings={this.props.updateSettings} commit={data.commit} />
                         </div>
                         <div className='col-4'>
@@ -74,7 +74,7 @@ class Display extends Component {
                                 player_color='text-success' />
                         </div>
                         <div className='col'>
-                            <Header time={this.props.state.time} highlight_reload={this.props.state.highlight_reload}
+                            <Header time={this.props.state.time} highlight_reload={this.props.state.highlight_reload} tournament={this.props.state.tournament}
                                 settings={this.props.state.settings} updateSettings={this.props.updateSettings} commit={data.commit} />
                         </div>
                         <div className='col-4'>

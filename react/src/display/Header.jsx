@@ -6,7 +6,7 @@ class Header extends Component {
 
     render() {
         const items = [];
-        const str = this.props.settings.header_text;
+        const str = this.props.tournament;
 
         for (let i in str) {
             if (str[i] !== ' ') {

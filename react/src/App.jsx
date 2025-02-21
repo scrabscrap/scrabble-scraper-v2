@@ -32,7 +32,6 @@ class App extends Component {
         obs: this.getCookie('OBS', false),
         obsbank: this.getCookie('OBSBANK', false),
         websocket: true,
-        header_text: 'SCRABBLE SCRAPER',
         theme2020: this.getCookie('THEME2020', false)
       },
       unknown_move: false,
@@ -135,12 +134,6 @@ class App extends Component {
           if (value.includes('(unknown)')) { unknown_move = true }
         }
       }
-      if (data.status?.tournament) {
-        this.setState( {
-          settings: { header_text: data.status.tournament}
-        })
-
-      } 
       if (data.status?.layout) {
         this.setState( {
           settings: { theme2020: data.status.layout.includes('2020')}
@@ -234,11 +227,6 @@ class App extends Component {
               if (value.includes('(unknown)')) { unknown_move = true }
             }
           }
-          if (data?.tournament) {
-              this.setState( {
-                settings: { header_text: data.tournament}
-              })
-            }
           if (data?.layout) {
             this.setState( {
               settings: { theme2020: data.layout.includes('2020')}
