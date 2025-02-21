@@ -407,11 +407,12 @@ def admin_recalc_moves(
 ):  # pylint: disable=too-many-arguments, too-many-positional-arguments
     """recalculate move scores and points after admin changes"""
     moves = game.moves
+    logging.debug(f'{index=} {tiles_to_remove=} {tiles_to_add=} {previous_score=}')
     for i in range(index, len(moves)):
         new_move = copy.deepcopy(moves[i])  # board, img, score
 
-        for elem in tiles_to_remove:  # repair board
-            if elem in new_move.board and new_move.board[elem] == tiles_to_remove[elem]:
+        for elem in tiles_to_remove.copy():  # repair board
+            if elem in new_move.board:
                 del new_move.board[elem]
         new_move.board |= tiles_to_add
 
@@ -549,8 +550,8 @@ def admin_ins_challenge(waitfor: Optional[Future], game: Game, move_number: int,
     else:
         game.moves.append(to_insert)
 
-    previous_board = game.moves[index - 1].board if index > 0 else {}
-    previous_score = game.moves[index - 1].score if index > 0 else (0, 0)
+    previous_board = game.moves[index].board if index >= 0 else {}
+    previous_score = game.moves[index].score if index >= 0 else (0, 0)
     for i in range(index + 1, len(game.moves)):
         game.moves[i].move += 1
     admin_recalc_moves(game, index + 1, to_insert.removed_tiles, {}, previous_board, previous_score)
