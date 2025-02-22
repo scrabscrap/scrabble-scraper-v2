@@ -10,9 +10,9 @@ class Header extends Component {
 
         for (let i in str) {
             if (str[i] !== ' ') {
-                items.push(<span key={i} className='tile'>{str[i]}</span>)
+                items.push(<span key={i} className='tile'>{str[i].toUpperCase()}</span>)
             } else {
-                items.push(<span key={i}>&nbsp;</span>)
+                items.push(<span key={i} className='tile'>&nbsp;</span>)
             }
         }
         let timestr = this.props.time.slice(0, this.props.time.indexOf('.')) // cut off nano sec
