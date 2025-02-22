@@ -1,9 +1,13 @@
+body {
+  background-color: #00607d;
+}
+
 .theme2020 {
   background: #00607d;
 }
 
 .theme2012 {
-  background: darkgreen;
+  background: #00607d;
 }
 
 .obs-main-camera {
@@ -33,35 +37,22 @@
 /* picture */
 .picture {
   width: 100%;
-  height: auto;
+  aspect-ratio : 1 / 1;
+  /* height: auto; */
   display: block;
   background-color: white;
+  border: 1px solid #888;
   box-shadow: 0 8px 6px -6px #888;
 }
 
 /* bag */
-.theme2012 .bag-body {
-  padding: .5rem !important;
-  max-width: 100%;
-}
-
-.theme2020 .bag-body {
+.bag-body {
   padding: .5rem !important;
   background-color: #207F8E;
   max-width: 100%;
 }
 
-.theme2012 .tile {
-  background-color: #FEF1BC;
-  width: 25px;
-  height: 25px;
-  text-align: center;
-  font-weight: bold;
-  border-radius: 2px;
-  border: 1px solid gray;
-}
-
-.theme2020 .tile {
+.tile {
   background-color: #F5F5F5;
   width: 25px;
   height: 25px;

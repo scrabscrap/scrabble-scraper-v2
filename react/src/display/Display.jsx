@@ -20,10 +20,8 @@ class Display extends Component {
 
         let root_css = 'container-fluid '
         if (data.settings.theme2020) {
-            document.body.style.backgroundColor = '#00607d'
             root_css += 'theme2020'
         } else {
-            document.body.style.backgroundColor = 'darkgreen'
             root_css += 'theme2012'
         }
 
