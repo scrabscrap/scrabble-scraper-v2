@@ -45,14 +45,6 @@ sudo apt -yq autoremove
 # run scrabscrap at reboot
 crontab -u pi $SCRIPTPATH/config/crontab.user
 
-# Auto AP
-sudo apt-get install -yq systemd-resolved
-sudo curl -L https://github.com/gitbls/autoAP/raw/master/autoAP.sh -o /usr/local/bin/autoAP.sh
-sudo curl -L https://github.com/gitbls/autoAP/raw/master/install-autoAP -o /usr/local/bin/install-autoAP
-sudo curl -L https://github.com/gitbls/autoAP/raw/master/rpi-networkconfig -o /usr/local/bin/rpi-networkconfig
-sudo chmod 755 /usr/local/bin/autoAP.sh /usr/local/bin/install-autoAP /usr/local/bin/rpi-networkconfig
-sudo /usr/local/bin/install-autoAP
-
 echo "------------------------------"
 echo "before using scrapscrap activate camera, spi, i2c with:"
 echo "sudo raspi-config"

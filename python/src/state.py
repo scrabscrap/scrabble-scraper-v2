@@ -65,6 +65,7 @@ class State(Static):
     game: Game = Game(None)
     picture = None
     op_event = threading.Event()
+    ap_mode = False
 
     # def __init__(self, cam=None, watch: Optional[ScrabbleWatch] = None, button_handler: Optional[Button] = None) -> None:
     #     self.current_state: str = START
@@ -344,22 +345,22 @@ class State(Static):
         """Switch to AP Mode"""
         import subprocess
 
-        logging.info(f'{cls.current_state} - (switch to AP Mode) -> {START}')
-        process1 = subprocess.run(
-            ['sudo', '-n', '/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'],
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-        wifi_raw = process1.stdout.decode().split(sep='\n')[1:-1]
-        wifi_list = [element.split(sep='\t') for element in wifi_raw]
-        for elem in wifi_list:
-            if elem[1] in ('ScrabScrap', 'ScrabScrapTest'):
-                _ = subprocess.call(f'sudo -n /usr/sbin/wpa_cli select_network {elem[0]} -i wlan0', shell=True)
-                ScrabbleWatch.display.show_accesspoint()  # Display message AP Mode
+        ScrabbleWatch.display.show_ready(('switch', 'AP'))
+        cls.ap_mode = not cls.ap_mode
+        logging.info(f'{cls.current_state} - (switch to AP Mode) -> {AP}')
+        cmd = ['sudo', '-n', '/usr/bin/nmcli', 'connection', 'up' if cls.ap_mode else 'down', 'ScrabScrap']
+        logging.debug(f'switch to AP {cmd=}')
+        ret = subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if ret.returncode == 0:
+            if cls.ap_mode:
                 LED.switch_on(set())
                 sleep(5)
                 ScrabbleWatch.display.show_accesspoint()  # Display message AP Mode
+            else:
+                sleep(5)
+                LED.switch_on({LEDEnum.green, LEDEnum.red})
+                ScrabbleWatch.display.show_ready()
+
         current_state = START
         return current_state
 
