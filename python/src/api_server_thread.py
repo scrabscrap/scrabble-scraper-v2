@@ -17,7 +17,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import base64
+import binascii
 import configparser
+import hashlib
 import json
 import logging
 import logging.config
@@ -29,6 +31,8 @@ import urllib.parse
 from datetime import datetime
 from signal import alarm
 from time import perf_counter, sleep
+from typing import Tuple
+
 
 import cv2
 import numpy as np
@@ -507,63 +511,66 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/wifi', methods=['GET', 'POST'])
     def route_wifi():
         """set wifi param (ssid, psk) via post request"""
+
+        def wpa_psk(ssid: str, password: str) -> str:
+            dk = hashlib.pbkdf2_hmac('sha1', str.encode(password), str.encode(ssid), 4096, 256)
+            return binascii.hexlify(dk)[0:64].decode('utf8')
+
+        def run_cmd(cmd: list, log_len=None) -> Tuple[int, list]:
+            logging.debug(f'{cmd[log_len]=}' if log_len else f'{cmd=}')
+            process = subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            return process.returncode, process.stdout.splitlines()
+
         ApiServer._clear_message()
         if request.method == 'POST':
+            logging.debug(f'request.form: {request.form.keys()}')
             if request.form.get('btnadd'):
                 if (ssid := request.form.get('ssid')) and (key := request.form.get('psk')):
-                    process = subprocess.call(
-                        f'sudo -n sh -c \'wpa_passphrase {ssid} {key} | sed "/^.*ssid=.*/i priority=10"'
-                        " >> /etc/wpa_supplicant/wpa_supplicant-wlan0.conf'",
-                        shell=True,
-                    )
-                    process1 = subprocess.call('sudo -n /usr/sbin/wpa_cli reconfigure -i wlan0', shell=True)
-                    ApiServer.last_msg = f'configure wifi return={process}; reconfigure wpa return={process1}'
-                    logging.info(f'{ApiServer.last_msg}')
-                    sleep(5)
+                    hashed = wpa_psk(ssid, key)
+                    cmd = ['sudo', '-n', '/usr/bin/nmcli', 'device', 'wifi', 'connect', ssid, 'password', hashed]
+                    ret, _ = run_cmd(cmd, -1)
+                    ApiServer.last_msg = f'configure wifi {ret=}'
+                    sleep(2)
                     State.do_new_game()
             elif request.form.get('btnselect'):
-                process = -1
-                for i in request.form:
-                    logging.info(f'wpa network select {i}')
-                    process = subprocess.call(f'sudo -n /usr/sbin/wpa_cli select_network {i} -i wlan0', shell=True)
-                sleep(5)
-                ApiServer.last_msg = f'select wifi return={process}'
-                logging.info(f'{ApiServer.last_msg}')
-                State.do_new_game()
-            elif request.form.get('btnscan'):
-                _ = subprocess.run(
-                    ['sudo', '-n', '/usr/sbin/wpa_cli', 'scan', '-i', 'wlan0'],
-                    check=False,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                )
-                sleep(3)
-                process2 = subprocess.run(
-                    ['sudo', '-n', '/usr/sbin/wpa_cli', 'scan_results', '-i', 'wlan0'],
-                    check=False,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                )
-                ApiServer.last_msg = f'{process2.stdout}'
+                if ssid := request.form.get('selectwifi'):
+                    cmd = ['sudo', '-n', '/usr/bin/nmcli', 'connection', 'up', ssid]
+                    ret, output = run_cmd(cmd)
+                    ApiServer.last_msg = f'select wifi {ret=}; {output=}'
+                    sleep(2)
+                    State.do_new_game()
             elif request.form.get('btndelete'):
-                for i in request.form:
-                    if request.form.get(i) == 'on':
-                        logging.info(f'wpa network delete {i}')
-                        _ = subprocess.call(f'sudo -n /usr/sbin/wpa_cli remove_network {i} -i wlan0', shell=True)
-                    _ = subprocess.call('sudo -n /usr/sbin/wpa_cli save_config -i wlan0', shell=True)
+                if ssid := request.form.get('selectwifi'):
+                    cmd = ['sudo', '-n', '/usr/bin/nmcli', 'connection', 'delete', 'id', ssid]
+                    ret, output = run_cmd(cmd)
+                    ApiServer.last_msg = f'delete wifi {ret=}; {output=}'
+                    ScrabbleWatch.display.show_ready()
+            elif request.form.get('btnscan'):
+                ApiServer.last_msg = 'scan wifi'
+            elif request.form.get('btnhotspot'):
+                State.do_accesspoint()
+            logging.info(f'{ApiServer.last_msg}')
             return redirect('/wifi')
+
         # fall through: request.method == 'GET':
-        process1 = subprocess.run(
-            ['sudo', '-n', '/usr/sbin/wpa_cli', 'list_networks', '-i', 'wlan0'],
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-        )
-        wifi_raw = process1.stdout.split(sep='\n')[1:-1]
-        wifi_list = [element.split(sep='\t') for element in wifi_raw]
-        return render_template('wifi.html', apiserver=ApiServer, wifi_list=wifi_list)
+        cmd = ['sudo', '-n', '/usr/bin/nmcli', '-t', '-f', 'NAME,TYPE,DEVICE', 'con', 'show']
+        ret, output = run_cmd(cmd)  # NetworkManager configured wifi
+        wifi_clist = [line.split(':', 2) for line in filter(None, output)]
+        unique_wifi = {n: (t, d) for n, t, d in wifi_clist if t in ('802-11-wireless', '802-11-wireless-security')}
+        wifi_configured = [[n, t, d] for n, (t, d) in unique_wifi.items()]
+        logging.debug(f'{wifi_configured=}')
+
+        cmd = ['sudo', '-n', '/usr/bin/nmcli', '-t', '-f', 'IN-USE,SSID', 'device', 'wifi', 'list', '--rescan', 'yes']
+        ret, output = run_cmd(cmd)  # available wifi
+        wifi_list = [line.split(':', 1) for line in filter(None, output)]
+        unique_wifi = {}
+        for in_use, ssid in wifi_list:
+            if ssid not in unique_wifi or unique_wifi[ssid] == ' ':
+                unique_wifi[ssid] = in_use if in_use else ' '
+        filtered_wifi_list = [[in_use, ssid] for ssid, in_use in unique_wifi.items()]
+        logging.debug(f'{filtered_wifi_list=}')
+
+        return render_template('wifi.html', apiserver=ApiServer, wifi_list=filtered_wifi_list, wifi_configured=wifi_configured)
 
     @staticmethod
     @app.route('/delete_logs', methods=['POST', 'GET'])

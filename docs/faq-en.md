@@ -333,12 +333,18 @@ Host scrabscrap
 
 The following extensions should then be installed in VSCode.
 
-* GitLens (GitKraken)
 * GitGraph (mhutchie)
+* Better Git Line Blame (Mitchell Kember)
 * Markdown Preview Enhanced (Yiyi Wang)
 * Python (Microsoft)
 * Pylance (Microsoft)
+* Python Debugger (Microsoft)
 * Ruff (Astral Software)
+
+optional
+
+* GitHub Codespaces
+* HitHub Copilot
 
 If remote development is to take place on the Raspberry PI, the following
 

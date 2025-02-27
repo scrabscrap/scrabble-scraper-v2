@@ -1,4 +1,4 @@
-# Pin Belegung
+# Pin Layout
 
 Pin | GPiO | Funktion | Ziel
 ----|------|----------|-----

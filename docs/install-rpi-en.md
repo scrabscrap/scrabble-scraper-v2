@@ -46,7 +46,7 @@ The next step is to install general tools.
 ### Install Git and Python
 
 ```bash
-sudo apt-get install -y git python3-venv python3-dev i2c-tools
+sudo apt-get install -y git python3-venv python3-dev i2c-tools dnsmasq
 #install picamera2 without gui
 sudo apt install -y python3-picamera2 --no-install-recommends
 ```
@@ -186,39 +186,19 @@ max_framebuffers=2
 
 see FAQ
 
-## Automatic HotSpot
+## HotSpot
 
-see [GitHub project https://github.com/gitbls/autoAP](https://github.com/gitbls/autoAP)
+Create a WiFi Hotspot named "ScrabScrap" with NetworkManager
 
 ```bash
-sudo apt install systemd-resolved
-sudo curl -L https://github.com/gitbls/autoAP/raw/master/autoAP.sh -o /usr/local/bin/autoAP.sh
-sudo curl -L https://github.com/gitbls/autoAP/raw/master/install-autoAP -o /usr/local/bin/install-autoAP
-sudo curl -L https://github.com/gitbls/autoAP/raw/master/rpi-networkconfig -o /usr/local/bin/rpi-networkconfig
-sudo chmod 755 /usr/local/bin/autoAP.sh /usr/local/bin/install-autoAP /usr/local/bin/rpi-networkconfig
-sudo /usr/local/bin/install-autoAP
+sudo nmcli dev wifi hotspot ifname wlan0 con-name ScrabScrap ssid ScrabScrap password scrabscrap
 ```
 
-Enter the following values as AP
-
-- ssid = ScrabScrap
-- psk = scrabscrap
-- ip = 10.0.0.1
-
-In addition, a local WLAN must be specified (usually the WLAN with which there is currently a connection).
-
-At the end, if necessary, set `sudo /usr/local/bin/rpi-networkconfig` to `systemd-networkd`.
-
-Commands for accessing the network configuration
+Disable dnsmasq
 
 ```bash
-iwgetid
-wpa_cli list_networks -i wlan0
-wpa_cli remove_network <number> -i wlan0
-wpa_cli save_config
-wpa_cli scan -i wlan0
-wpa_cli scan_results -i wlan0
-wpa_passphrase {ssid} {key}
+sudo service dnsmasq stop
+sudo systemctl disable dnsmasq
 ```
 
 ## Miscellaneous
@@ -257,3 +237,13 @@ Read the time directly from the RTC module
 ```bash
 sudo hwclock -v -r
 ```
+
+### Install tailscale
+
+Install via ScrabScrap Admin-GUI:
+
+1. Menu: "VPN -> Install Tailscale"
+2. Menu: "Exit -> Restart App"
+3. Menu: "VPN -> Start Tailscale"
+4. Use URL to authenticate in your local browser.
+5. "Disable Key expiry" in Tailscale Admin GUI
