@@ -9,13 +9,13 @@
                 <div class="card-body">
                     <form action="/test_analyze" method="post">
                         <div class="row">
-                            <div class="col-6">
-                                <img style="padding:5px; max-width: 40vw" src="data:image/jpg;base64,{{img_data}}" />
+                            <div class="col-5">
+                                <img style="padding:5px; max-width: 30vw" src="data:image/jpg;base64,{{img_data}}" />
                             </div>
-                            <div class="col-6">
+                            <div class="col-7">
                                 <div class="card-body">
                                     <div style="font-family: monospace; display: flex; flex-direction: column-reverse; 
-                                        max-height: 40vw; overflow: auto;font-size: 50%; white-space: pre-wrap;"
+                                        max-height: calc(96vh - 150px); overflow: auto;font-size: 70%; white-space: pre-wrap;"
                                         id="logentry">
                                         {{log}}
                                     </div>
