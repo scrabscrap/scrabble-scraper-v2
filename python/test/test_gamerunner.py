@@ -106,6 +106,9 @@ class GameRunnerTestCase(unittest.TestCase):
     def test_game15(self):
         self.run_game(file=f'{TEST_DIR}/game15/game.ini')
 
+    def test_game16(self):
+        self.run_game(file=f'{TEST_DIR}/game16/game.ini')
+
     def test_game2023dm01(self):
         self.run_game(file=f'{TEST_DIR}/game2023DM-01/game.ini')
 
