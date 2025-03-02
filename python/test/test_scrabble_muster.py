@@ -302,6 +302,8 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
     def test_board2020(self):
         """Test some board 2020 images"""
+
+        # todo: new printout - the tests have to be adapted
         files = {
             # TEST_DIR + "/board2020/board-01.png": {},
             TEST_DIR + '/board2020/board-02.jpg': {
@@ -373,7 +375,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
         for file, expected in files.items():
             img = cv2.imread(file)
-            self.config_setter('board', 'layout', 'custom2020')
+            self.config_setter('board', 'layout', 'custom2020light')
             logging.debug(f'file: {file}')
 
             warped, warped_gray = warp_image(img)
