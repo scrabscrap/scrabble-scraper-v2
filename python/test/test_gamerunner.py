@@ -173,7 +173,7 @@ class GameRunnerTestCase(unittest.TestCase):
         self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom'))
         camera.cam.formatter = formatter  # type: ignore
         camera.cam.counter = 1  # type: ignore
-        camera.cam.resize = False
+        camera.cam.resize = False  # type: ignore
         State.do_new_game()
         State.game.nicknames = (name1, name2)
         State.press_button(start_button.upper())  # green begins

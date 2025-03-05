@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-from custom2020board import Custom2020Board
+from customboard import CustomBoard
 
 
-class Custom2020LightBoard(Custom2020Board):
+class Custom2020LightBoard(CustomBoard):
     """Implementation custom 2020 light scrabble board analysis"""
 
     # hsv 0-180, 0-255, 0-255
@@ -30,9 +30,8 @@ class Custom2020LightBoard(Custom2020Board):
     # color_field = np.array([97, 145, 156])
 
     # layout 2020 light
-    # TLETTER = [[148, 80, 10], [180, 255, 255], [0, 80, 10], [10, 255, 255]]  # H 336 => 168
-    # DLETTER = [[0, 10, 0], [180, 255, 80]]  # H 235 => 117 # no spec color if very dark
-    TWORD = [[10, 80, 50], [50, 255, 255]]  # H 60  => 30
-    DWORD = [[0, 160, 60], [40, 255, 255]]  # H 40 => 20
-    # FIELD = [[75, 5, 5], [125, 255, 255]]  # H 194 => 97
-    # SATURATION = [[0, 120, 10], [180, 255, 255]]
+    TLETTER = [[160, 200, 100], [180, 255, 255]]
+    DLETTER = [[50, 40, 0], [140, 255, 180]]
+    TWORD = [[10, 80, 50], [50, 255, 255]]
+    DWORD = [[0, 160, 60], [40, 255, 255]]
+    FIELD = [[70, 0, 0], [110, 220, 200]]
