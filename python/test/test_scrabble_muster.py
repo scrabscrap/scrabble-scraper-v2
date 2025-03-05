@@ -62,10 +62,10 @@ class ScrabbleMusterTestCase(unittest.TestCase):
                 if (col, row) in board:
                     result += f' {board[(col, row)][0]} '
                 else:
-                    result += ' . '
+                    result += ' · '
             result += ' | '
             for col in range(15):
-                result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' . '
+                result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' · '
             result += ' | \n'
         return result
 

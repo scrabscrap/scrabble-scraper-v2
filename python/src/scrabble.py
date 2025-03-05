@@ -39,7 +39,7 @@ def board_to_string(board: dict) -> str:
         right = '| '
         for col in range(15):
             cell_key = (col, row)
-            cell_value = board.get(cell_key, ('.', '. '))
+            cell_value = board.get(cell_key, ('·', '· '))
             left += f' {cell_value[0]} '
             right += f' {cell_value[1]}'
         result += left + right + ' | \n'

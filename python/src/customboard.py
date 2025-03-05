@@ -123,7 +123,7 @@ class CustomBoard(GameBoard):
         tmp = '  |' + ''.join(f'{i + 1:2d} ' for i in range(board_size)) + '\n'
         tmp += '\n'.join(
             [
-                f'{chr(ord("A") + row)} |{"".join(" X " if (col, row) in candidates else " . " for col in range(board_size))}|'
+                f'{chr(ord("A") + row)} |{"".join(" X " if (col, row) in candidates else " · " for col in range(board_size))}|'
                 for row in range(board_size)
             ]
         )

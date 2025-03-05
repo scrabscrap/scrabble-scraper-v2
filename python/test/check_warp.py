@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 import logging.config
 import signal
@@ -30,8 +31,9 @@ from game_board.board import overlay_grid, overlay_tiles
 from processing import analyze, filter_candidates, filter_image, warp_image
 from threadpool import pool
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
-                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+logging.basicConfig(
+    stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
+)
 
 
 def print_board(board: dict) -> str:
@@ -44,15 +46,15 @@ def print_board(board: dict) -> str:
         result += f'{(i + 1):2d} '
     result += '\n'
     for row in range(15):
-        result += f"{chr(ord('A') + row)} |"
+        result += f'{chr(ord("A") + row)} |'
         for col in range(15):
             if (col, row) in board:
                 result += f' {board[(col, row)][0]} '
             else:
-                result += ' . '
+                result += ' · '
         result += ' | '
         for col in range(15):
-            result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' . '
+            result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' · '
         result += ' | \n'
     return result
 
@@ -84,7 +86,7 @@ def main() -> None:
     cv2.imwrite('log/warped.jpg', warped)
     cv2.imwrite('log/warped_gray.jpg', warped_gray)
 
-    _, tiles_candidates = filter_image(warped)                          # find potential tiles on board
+    _, tiles_candidates = filter_image(warped)  # find potential tiles on board
     logging.debug(f'tiles candidated: {tiles_candidates}')
     ignore_coords = set()  # only analyze tiles from last 3 moves
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
@@ -100,8 +102,8 @@ def main() -> None:
     chunks = chunkify(list(filtered_candidates), 3)
     future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))  # 1. thread
     future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))  # 2. thread
-    analyze(warped_gray, board, set(chunks[2]))                         # 3. (this) thread
-    done, _ = futures.wait({future1, future2})                          # blocking wait
+    analyze(warped_gray, board, set(chunks[2]))  # 3. (this) thread
+    done, _ = futures.wait({future1, future2})  # blocking wait
     assert len(done) == 2, 'error on wait to futures'
 
     logging.debug(f'board: \n{print_board(board)}')
