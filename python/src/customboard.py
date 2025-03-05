@@ -130,37 +130,51 @@ class CustomBoard(GameBoard):
         return tmp
 
     @classmethod
-    def filter_image(cls, _image: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disable=too-many-locals
-        img = cv2.blur(_image, (3, 3))
+    def filter_image(cls, color: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disable=too-many-locals
+        def create_mask(hsv: MatLike, color_range, board_mask) -> np.ndarray:
+            tmp = cv2.bitwise_and(hsv, hsv, mask=board_mask)
+            mask = np.zeros((800, 800), dtype='uint8')
+            for i in range(0, len(color_range), 2):
+                mask |= cv2.inRange(tmp, np.array(color_range[i]), np.array(color_range[i + 1]))
+            return mask
+
+        def filter_color(hsv: MatLike) -> np.ndarray:
+            mask_tword = create_mask(hsv, cls.TWORD, board_tword)
+            mask_dword = create_mask(hsv, cls.DWORD, board_dword)
+            mask_tletter = create_mask(hsv, cls.TLETTER, board_tletter)
+            mask_dletter = create_mask(hsv, cls.DLETTER, board_dletter)
+            mask_field = create_mask(hsv, cls.FIELD, board_field)
+            return mask_tword | mask_dword | mask_tletter | mask_dletter | mask_field
+
+        def dynamic_threshold(image: MatLike) -> np.ndarray:
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            gray_blur = cv2.GaussianBlur(gray, (5, 5), 0)
+
+            # Thresholding for gray image
+            segment = gray_blur[
+                int(OFFSET + (7 * GRID_H)) : int(OFFSET + (7 * GRID_H)) + GRID_H,
+                int(OFFSET + (7 * GRID_W)) : int(OFFSET + (7 * GRID_W)) + GRID_W,
+            ]
+            threshold_center, _ = cv2.threshold(segment, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+            segment = gray_blur[int(OFFSET) : int(OFFSET) + (GRID_H * 14), int(OFFSET) : int(OFFSET) + (GRID_W * 14)]
+            threshold_board, _ = cv2.threshold(gray_blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+            logging.debug(f'{threshold_center=} {threshold_board=} use={int((threshold_center + threshold_board) / 2)}')
+            _, thresh = cv2.threshold(gray_blur, int((threshold_center + threshold_board) / 2), 255, cv2.THRESH_BINARY_INV)
+            return thresh
+
+        img = cv2.blur(color, (3, 3))
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
         mask_saturation = cv2.inRange(hsv, np.array(cls.SATURATION[0]), np.array(cls.SATURATION[1]))
+        mask_color = filter_color(hsv)
 
-        tmp = cv2.bitwise_and(hsv, hsv, mask=board_tword)
-        mask_tword = np.zeros((800, 800), dtype='uint8')
-        for i in range(0, len(cls.TWORD), 2):
-            mask_tword |= cv2.inRange(tmp, np.array(cls.TWORD[i]), np.array(cls.TWORD[i + 1]))
+        if config.board_dynamic_threshold:
+            mask_result = mask_color | dynamic_threshold(color)
+        else:
+            mask_result = mask_saturation | mask_color
 
-        tmp = cv2.bitwise_and(hsv, hsv, mask=board_dword)
-        mask_dword = np.zeros((800, 800), dtype='uint8')
-        for i in range(0, len(cls.DWORD), 2):
-            mask_dword |= cv2.inRange(tmp, np.array(cls.DWORD[i]), np.array(cls.DWORD[i + 1]))
-
-        tmp = cv2.bitwise_and(hsv, hsv, mask=board_tletter)
-        mask_tletter = np.zeros((800, 800), dtype='uint8')
-        for i in range(0, len(cls.TLETTER), 2):
-            mask_tletter |= cv2.inRange(tmp, np.array(cls.TLETTER[i]), np.array(cls.TLETTER[i + 1]))
-
-        tmp = cv2.bitwise_and(hsv, hsv, mask=board_dletter)
-        mask_dletter = np.zeros((800, 800), dtype='uint8')
-        for i in range(0, len(cls.DLETTER), 2):
-            mask_dletter |= cv2.inRange(tmp, np.array(cls.DLETTER[i]), np.array(cls.DLETTER[i + 1]))
-
-        tmp = cv2.bitwise_and(hsv, hsv, mask=board_field)
-        mask_field = np.zeros((800, 800), dtype='uint8')
-        for i in range(0, len(cls.FIELD), 2):
-            mask_field |= cv2.inRange(tmp, np.array(cls.FIELD[i]), np.array(cls.FIELD[i + 1]))
-
-        mask_result = mask_saturation | mask_tword | mask_dword | mask_tletter | mask_dletter | mask_field
         mask_result = cv2.bitwise_not(mask_result)  # type: ignore
         candidates = set()
         filtered_pixels = {}
@@ -174,7 +188,7 @@ class CustomBoard(GameBoard):
                 if number_of_not_black_pix > cls.TILES_THRESHOLD:
                     candidates.add((col, row))
         if logging.getLogger().isEnabledFor(logging.DEBUG):
-            result = cv2.hconcat((mask_saturation, mask_tword, mask_dword, mask_field, mask_tletter, mask_dletter, mask_result))  # pylint: disable=C0301
+            result = cv2.hconcat((mask_result))  # pylint: disable=C0301
             logging.debug(f'filtered pixels:\n{cls.log_pixels(filtered_pixels=filtered_pixels)}')
             logging.debug(f'candidates:\n{cls.log_candidates(candidates=candidates)}')
         else:
@@ -225,7 +239,7 @@ def main():  # pylint: disable=too-many-locals
         image = cv2.imread(fn)
         warped = CustomBoard.warp(image)
 
-        result, tiles_candidates = CustomBoard.filter_image(_image=warped.copy())
+        result, tiles_candidates = CustomBoard.filter_image(color=warped.copy())
         mask = np.zeros(warped.shape[:2], dtype='uint8')
         for col, row in tiles_candidates:
             px_col = int(OFFSET + (row * GRID_H))

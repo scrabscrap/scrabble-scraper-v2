@@ -44,7 +44,7 @@ class Config:  # pylint: disable=too-many-public-methods
         'video.fps': 30,
         'video.rotate': False,
         'board.layout': 'custom2012',
-        'board.tiles_threshold': 1000,
+        'board.tiles_threshold': 800,
         'board.min_tiles_rate': 96,
         'board.dynamic_threshold': True,
         'system.quit': 'shutdown',

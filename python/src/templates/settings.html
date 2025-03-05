@@ -230,6 +230,17 @@
                                         <span class="input-group-text">px</span>
                                     </div>
                                 </div>
+                                <div class="input-group">
+                                    <label class="col-sm-4 col-form-label" for="board.dynamic_threshold">
+                                        Dynamic threshold
+                                    </label>
+                                    <div class="form-check form-switch py-2">
+                                        <input class="form-check-input" type="checkbox" value="True"
+                                            name="board.dynamic_threshold" id="board.dynamic_threshold"
+                                            {%if 'True'==cfg['board.dynamic_threshold'] %}checked {%endif %}>
+                                    </div>
+                                </div>
+
                                 <div class="py-1 input-group">
                                     <label class="col-sm-4 col-form-label" for="board.min_tiles_rate">
                                         Recognition rate
