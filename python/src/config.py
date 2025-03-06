@@ -46,6 +46,7 @@ class Config:  # pylint: disable=too-many-public-methods
         'board.layout': 'custom2012',
         'board.tiles_threshold': 1000,
         'board.min_tiles_rate': 96,
+        'board.dynamic_threshold': True,
         'system.quit': 'shutdown',
         'system.gitbranch': 'main',
         'tiles.language': 'de',
@@ -144,57 +145,57 @@ class Config:  # pylint: disable=too-many-public-methods
     @property
     def development_recording(self) -> bool:
         """record images in hires and moves to disk"""
-        return self.config.getboolean('development', 'recording', fallback=False)
+        return self.config.getboolean('development', 'recording', fallback=self.defaults['development.recording'])  # type: ignore
 
     @property
     def tournament(self) -> str:
         """tournament"""
-        return self.config.get('scrabble', 'tournament', fallback='SCRABBLE SCRAPER')
+        return self.config.get('scrabble', 'tournament', fallback=self.defaults['scrabble.tournament'])  # type: ignore
 
     @property
     def malus_doubt(self) -> int:
         """malus for wrong doubt"""
-        return self.config.getint('scrabble', 'malus_doubt', fallback=10)
+        return self.config.getint('scrabble', 'malus_doubt', fallback=self.defaults['scrabble.malus_doubt'])  # type: ignore
 
     @property
     def max_time(self) -> int:
         """maximum play time"""
-        return self.config.getint('scrabble', 'max_time', fallback=1800)
+        return self.config.getint('scrabble', 'max_time', fallback=self.defaults['scrabble.max_time'])  # type: ignore
 
     @property
     def min_time(self) -> int:
         """maximum overtime"""
-        return self.config.getint('scrabble', 'min_time', fallback=-300)
+        return self.config.getint('scrabble', 'min_time', fallback=self.defaults['scrabble.min_time'])  # type: ignore
 
     @property
     def doubt_timeout(self) -> int:
         """how long is doubt possible"""
-        return self.config.getint('scrabble', 'doubt_timeout', fallback=20)
+        return self.config.getint('scrabble', 'doubt_timeout', fallback=self.defaults['scrabble.doubt_timeout'])  # type: ignore
 
     @property
     def scrabble_verify_moves(self) -> int:
         """moves to look back for tiles corrections"""
-        return self.config.getint('scrabble', 'verify_moves', fallback=3)
+        return self.config.getint('scrabble', 'verify_moves', fallback=self.defaults['scrabble.verify_moves'])  # type: ignore
 
     @property
     def show_score(self) -> bool:
         """should the display show current score"""
-        return self.config.getboolean('scrabble', 'show_score', fallback=False)
+        return self.config.getboolean('scrabble', 'show_score', fallback=self.defaults['scrabble.show_score'])  # type: ignore
 
     @property
     def upload_server(self) -> bool:
         """should ftp upload used"""
-        return self.config.getboolean('output', 'upload_server', fallback=False)
+        return self.config.getboolean('output', 'upload_server', fallback=self.defaults['output.upload_server'])  # type: ignore
 
     @property
     def upload_modus(self) -> str:
         """should ftp upload used"""
-        return self.config.get('output', 'upload_modus', fallback='http')
+        return self.config.get('output', 'upload_modus', fallback=self.defaults['output.upload_modus']).replace('"', '')  # type: ignore
 
     @property
     def video_warp(self) -> bool:
         """should warp performed"""
-        return self.config.getboolean('video', 'warp', fallback=True)
+        return self.config.getboolean('video', 'warp', fallback=self.defaults['video.warp'])  # type: ignore
 
     @property
     def video_warp_coordinates(self) -> Optional[list]:
@@ -207,43 +208,48 @@ class Config:  # pylint: disable=too-many-public-methods
     @property
     def video_width(self) -> int:
         """used image width"""
-        return self.config.getint('video', 'width', fallback=928)
+        return self.config.getint('video', 'width', fallback=self.defaults['video.width'])  # type: ignore
 
     @property
     def video_height(self) -> int:
         """used image height"""
-        return self.config.getint('video', 'height', fallback=912)
+        return self.config.getint('video', 'height', fallback=self.defaults['video.height'])  # type: ignore
 
     @property
     def video_fps(self) -> int:
         """used fps on camera monitoring"""
-        return self.config.getint('video', 'fps', fallback=30)
+        return self.config.getint('video', 'fps', fallback=self.defaults['video.fps'])  # type: ignore
 
     @property
     def video_rotate(self) -> bool:
         """should the images rotated by 180°"""
-        return self.config.getboolean('video', 'rotate', fallback=False)
+        return self.config.getboolean('video', 'rotate', fallback=self.defaults['video.rotate'])  # type: ignore
 
     @property
     def board_layout(self) -> str:
         """which board layout should be used"""
-        return self.config.get('board', 'layout', fallback='custom2012').replace('"', '')
+        return self.config.get('board', 'layout', fallback=self.defaults['board.layout']).replace('"', '')  # type: ignore
 
     @property
     def board_tiles_threshold(self) -> int:
         """count of non black pixel to recognize a tile"""
-        return self.config.getint('board', 'tiles_theshold', fallback=1000)
+        return self.config.getint('board', 'tiles_theshold', fallback=self.defaults['board.tiles_threshold'])  # type: ignore
 
     @property
     def board_min_tiles_rate(self) -> int:
         """Recognition rate in percent for template matching"""
-        return self.config.getint('board', 'min_tiles_rate', fallback=96)
+        return self.config.getint('board', 'min_tiles_rate', fallback=self.defaults['board.min_tiles_rate'])  # type: ignore
+
+    @property
+    def board_dynamic_threshold(self) -> int:
+        """use dynamic threshold for color filtering"""
+        return self.config.getboolean('board', 'dynamic_threshold', fallback=self.defaults['board.dynamic_threshold'])  # type: ignore
 
     @property
     def tiles_language(self) -> str:
         """used language for the tiles"""
         # use german language as default
-        return self.config.get('tiles', 'language', fallback='de')
+        return self.config.get('tiles', 'language', fallback=self.defaults['tiles.language']).replace('"', '')  # type: ignore
 
     @property
     def tiles_image_path(self) -> str:
@@ -282,12 +288,12 @@ class Config:  # pylint: disable=too-many-public-methods
     @property
     def system_quit(self) -> str:
         """on reboot button: should the app just stop (no reboot)"""
-        return self.config.get('system', 'quit', fallback='shutdown').replace('"', '')
+        return self.config.get('system', 'quit', fallback=self.defaults['system.quit']).replace('"', '')  # type: ignore
 
     @property
     def system_gitbranch(self) -> str:
         """git tag or branch to use for updates"""
-        return self.config.get('system', 'gitbranch', fallback='main').replace('"', '')
+        return self.config.get('system', 'gitbranch', fallback=self.defaults['system.gitbranch']).replace('"', '')  # type: ignore
 
     @property
     def git_commit(self) -> str:
