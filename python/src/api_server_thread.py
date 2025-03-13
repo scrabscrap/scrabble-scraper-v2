@@ -509,7 +509,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
     @staticmethod
     @app.route('/wifi', methods=['GET', 'POST'])
-    def route_wifi():
+    def route_wifi():  # pylint: disable=too-many-branches, too-many-statements
         """set wifi param (ssid, psk) via post request"""
 
         def wpa_psk(ssid: str, password: str) -> str:
