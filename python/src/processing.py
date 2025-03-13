@@ -775,7 +775,7 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tu
     _development_recording(game, filtered_image, suffix='~filter', is_next_move=True)
 
     if len(game.moves) > 1:  # 3a. check for wrong blank tiles
-        to_del = [i for i in game.moves[-1].new_tiles if (game.moves[-1].board[i][0] == '_') and i not in tiles_candidates]  # noqa: W503
+        to_del = [i for i in game.moves[-1].new_tiles if (game.moves[-1].board[i][0] == '_') and i not in tiles_candidates]
         if to_del:
             _move = game.moves[-1]
             for i in to_del:
