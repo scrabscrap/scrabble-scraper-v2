@@ -233,7 +233,7 @@ class Config:  # pylint: disable=too-many-public-methods
     @property
     def board_tiles_threshold(self) -> int:
         """count of non black pixel to recognize a tile"""
-        return self.config.getint('board', 'tiles_theshold', fallback=self.defaults['board.tiles_threshold'])  # type: ignore
+        return self.config.getint('board', 'tiles_threshold', fallback=self.defaults['board.tiles_threshold'])  # type: ignore
 
     @property
     def board_min_tiles_rate(self) -> int:
