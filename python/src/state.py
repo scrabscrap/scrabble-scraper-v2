@@ -156,15 +156,13 @@ class State(Static):
         _, played_time, current = ScrabbleWatch.status()
         if current[player] > config.doubt_timeout:
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
-            logging.info(f'no challenge possible, because of timeout {current[0]}')
-        else:
-            ScrabbleWatch.display.add_remove_tiles(player, played_time, current)  # player 1 has to remove the last move
-            cls.last_submit = pool.submit(
-                valid_challenge, cls.last_submit, cls.game, player, (played_time[0], played_time[1]), cls.op_event
-            )
-            LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
-            led_on = ({LEDEnum.green}, {LEDEnum.red})[player]
-            LED.blink_on(led_on, switch_off=False)
+            logging.warning(f'valid challenge after timeout {current[0]}')
+        ScrabbleWatch.display.add_remove_tiles(player, played_time, current)  # player 1 has to remove the last move
+        cls.last_submit = pool.submit(
+            valid_challenge, cls.last_submit, cls.game, player, (played_time[0], played_time[1]), cls.op_event
+        )
+        LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
+        LED.blink_on(({LEDEnum.green}, {LEDEnum.red})[player], switch_off=False)
         return next_state
 
     @classmethod
@@ -177,15 +175,13 @@ class State(Static):
         _, played_time, current = ScrabbleWatch.status()
         if current[player] > config.doubt_timeout:
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
-            logging.info(f'no challenge possible, because of timeout {current[player]}')
-        else:
-            ScrabbleWatch.display.add_malus(player, played_time, current)  # player 0 gets a malus
-            cls.last_submit = pool.submit(
-                invalid_challenge, cls.last_submit, cls.game, player, (played_time[0], played_time[1]), cls.op_event
-            )
-            LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
-            led_on = ({LEDEnum.green}, {LEDEnum.red})[player]
-            LED.blink_on(led_on, switch_off=False)
+            logging.warning(f'invalid challenge after timeout {current[player]}')
+        ScrabbleWatch.display.add_malus(player, played_time, current)  # player 0 gets a malus
+        cls.last_submit = pool.submit(
+            invalid_challenge, cls.last_submit, cls.game, player, (played_time[0], played_time[1]), cls.op_event
+        )
+        LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
+        LED.blink_on(({LEDEnum.green}, {LEDEnum.red})[player], switch_off=False)
         return next_state
 
     @classmethod
