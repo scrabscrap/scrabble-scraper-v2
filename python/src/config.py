@@ -34,6 +34,7 @@ class Config:  # pylint: disable=too-many-public-methods
         'scrabble.max_time': 1800,
         'scrabble.min_time': -300,
         'scrabble.doubt_timeout': 20,
+        'scrabble.timeout_malus': 10,
         'scrabble.verify_moves': 3,
         'scrabble.show_score': False,
         'output.upload_server': False,
@@ -171,6 +172,11 @@ class Config:  # pylint: disable=too-many-public-methods
     def doubt_timeout(self) -> int:
         """how long is doubt possible"""
         return self.config.getint('scrabble', 'doubt_timeout', fallback=self.defaults['scrabble.doubt_timeout'])  # type: ignore
+
+    @property
+    def timeout_malus(self) -> int:
+        """how long is doubt possible"""
+        return self.config.getint('scrabble', 'timeout_malus', fallback=self.defaults['scrabble.timeout_malus'])  # type: ignore
 
     @property
     def scrabble_verify_moves(self) -> int:
