@@ -2539,6 +2539,34 @@ class AlgorithmTestCase(unittest.TestCase):
         score = game.moves[-1].score
         self.assertEqual(score1, score, 'same score with _ and e expected')
 
+    def test_150(self):
+        from processing import end_of_game
+
+        game = State.game
+        game.new_game()
+
+        board = {(3, 7): ('F', 75), (4, 7): ('I', 85), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
+        new_tiles = board.copy()
+        move = Move(
+            move_type=MoveType.REGULAR,
+            player=0,
+            coord=(3, 7),
+            is_vertical=False,
+            word='FIRNS',
+            new_tiles=new_tiles,
+            removed_tiles={},
+            board=board,
+            played_time=(1864, 1984),
+            previous_score=(0, 0),
+        )
+        # time_malus(64sec, 184sec) = (-20, -40)
+        game.add_move(move)
+        score = game.moves[-1].score
+        self.assertEqual((24, 0), score, 'score FIRNS')
+        end_of_game(None, game, None)
+        score = game.moves[-1].score
+        self.assertEqual((4, -40), score, 'score for overtime expected')
+
 
 if __name__ == '__main__':
     unittest.main(module='test_algorithm')

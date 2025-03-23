@@ -659,6 +659,13 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
         time.sleep(0.01)
     # time.sleep(1.5)
     if len(game.moves) > 0:
+        t = (config.max_time - game.moves[-1].played_time[0], config.max_time - game.moves[-1].played_time[1])
+        for player in range(2):
+            if t[player] < 0:  # in overtime
+                malus = (t[player] // 60) * config.timeout_malus  # config.timeout_malus per minute
+                game.add_timout_malus(player, malus)  # add as move
+                _store(game, game.moves[-1])  # store move to hd
+
         points, rackstr = _end_of_game_calculate_rack(game)
         game.add_last_rack(points, rackstr)
         if event and not event.is_set():

@@ -381,6 +381,8 @@ class Game:
                     )
                 elif move.type == MoveType.EXCHANGE:
                     out_str += f'{move.move}, "Green", "S1", "-", , {move.points}, {move.score[0]}, {move.score[1]}\n'
+                elif move.type == MoveType.TIME_MALUS:
+                    pass
                 else:
                     out_str += (
                         f'{move.move}, "Green", "S1", "{move.get_coord()}", '
@@ -420,6 +422,8 @@ class Game:
                         f'{move.move}, "EOG", "{("P0", "P1")[move.player]}", "{move.word}", '
                         f', {move.points}, {move.score[0]}, {move.score[1]}\n'
                     )
+                elif move.type == MoveType.TIME_MALUS:
+                    pass
                 else:
                     out_str += (
                         f'{move.move}, "Red", "S0", "{move.get_coord()}", '
@@ -550,6 +554,38 @@ class Game:
         self.moves.append(move)
         move.move = len(self.moves)  # set move number
         logging.info(f'valid challenge: player {move.player} points {move.points}')
+        return self
+
+    def add_timout_malus(self, player: int, malus: int) -> object:
+        """Add time malus on overtime
+
+        Args:
+            player (int): active player
+            malus (int): malus points
+
+        Returns:
+            self(Game): current game
+        """
+
+        if len(self.moves) > 0:
+            last_move = self.moves[-1]
+        else:
+            last_move = Move(MoveType.UNKNOWN, 0, None, False, '', {}, {}, {}, (0, 0), (0, 0))
+        logging.debug('scrabble: create move last rack bonus/malus')
+
+        move = copy.deepcopy(last_move)
+        move.type = MoveType.TIME_MALUS
+        move.time = str(datetime.now())
+        move.player = player
+        move.word = ''
+        move.removed_tiles = {}
+        move.new_tiles = {}
+        move.modification_cache = {}
+        move.points = malus
+        points = (malus, 0) if player == 0 else (0, malus)
+        move.score = (move.score[0] + points[0], move.score[1] + points[1])
+        move.move = len(self.moves) + 1  # set move number
+        self.moves.append(move)
         return self
 
     def add_last_rack(self, points: Tuple[int, int], rack_str: str) -> object:
