@@ -567,6 +567,44 @@ def move(waitfor: Optional[Future], game: Game, img: MatLike, player: int, playe
 
 
 @trace
+def check_resume(
+    waitfor: Optional[Future],
+    game: Game,
+    image: MatLike,
+    player: int,
+    played_time: Tuple[int, int],
+    current_time: Tuple[int, int],
+    event=None,
+):  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    """check resume
+
+    Args:
+        waitfor(futures): wait for jobs to complete
+        game(Game): the current game data
+        image(MatLike): the image to analyze
+        player(int): active player
+        played_time(int, int): current player times
+        current_time(int, int): current move times
+        event: event to set
+    """
+    while waitfor is not None and waitfor.running():
+        time.sleep(0.01)
+    last_move = game.moves[-1] if game.moves else None
+    if last_move is not None and last_move.type == MoveType.REGULAR:  # only check regular moves
+        if not last_move.new_tiles:  # no new tiles in last move
+            return
+        warped, _ = warp_image(image)
+        _, tiles_candidates = filter_image(warped)
+        intersection = set(last_move.new_tiles.keys()) & set(tiles_candidates)
+        if intersection == set():  #  empty set => tiles are removed
+            valid_challenge(waitfor, game, player, played_time, event)
+            logging.info(f'automatic valid challenge (move time {current_time[player]} sec)')
+        # else: # uncomment if you want a invalid challenges as default on resume
+        #     invalid_challenge(waitfor, game, player, played_time, event)
+        #     logging.info(f'automatic invalid challenge (move time {current_time[player]} sec)')
+
+
+@trace
 def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int], event=None):
     """Process a valid challenge
 

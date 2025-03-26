@@ -1,0 +1,14 @@
+Move, Button, State, Coord, Word, Points, Score1, Score2
+1, "green", "S1", "-", , 0, 0, 0
+2, "red", "S0",  "H4", "MÜHST", 32, 0, 32
+2, "yellow", "P0","H4", "MÜHST", 32, 0, 32
+3, "yellow", "S0","--", "MÜHST", -32, 0, 0
+4, "green", "S1",  "H4", "MÜHST", 32, 32, 0
+5, "red", "S0", "7F", "NI.SIGER", 62, 32, 62
+5, "yellow", "P0", "7F", "NI.SIGER", 62, 32, 62
+5, "yellow", "S0", "7F", "NI.SIGER", 62, 32, 62
+6, "green", "S1",  "M7", ".UCKELTE", 88, 120, 62
+6, "yellow", "P1","M7", ".UCKELTE", 88, 120, 62
+7, "yellow", "S1","--", ".UCKELTE", -88, 32, 62
+8, "red", "S0","M7", ".UCKELTE", 88, 32, 150
+9, "green", "S1",  "15K", "JENES", 49, 81, 150

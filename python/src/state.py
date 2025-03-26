@@ -30,7 +30,16 @@ from config import config
 from hardware import camera
 from hardware.button import Button
 from hardware.led import LED, LEDEnum
-from processing import end_of_game, invalid_challenge, move, start_of_game, store_status, store_zip_from_game, valid_challenge
+from processing import (
+    check_resume,
+    end_of_game,
+    invalid_challenge,
+    move,
+    start_of_game,
+    store_status,
+    store_zip_from_game,
+    valid_challenge,
+)
 from scrabble import Game, MoveType
 from scrabblewatch import ScrabbleWatch
 from threadpool import pool
@@ -142,8 +151,13 @@ class State(Static):
         next_state = (S0, S1)[player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
         logging.info(f'{cls.current_state} - (resume) -> {next_state}')
+        _, (time0, time1), current_time = ScrabbleWatch.status()
         ScrabbleWatch.resume()
         LED.switch_on(next_led)  # turn on player LED
+        cls.picture = camera.cam.read(peek=True).copy()
+        cls.last_submit = pool.submit(
+            check_resume, cls.last_submit, cls.game, cls.picture, player, (time0, time1), current_time, cls.op_event
+        )
         return next_state
 
     @classmethod
