@@ -36,7 +36,7 @@ class GameBoard:
         pass
 
     @classmethod
-    def filter_image(cls, _img: MatLike) -> tuple[Optional[MatLike], set]:
+    def filter_image(cls, _img: MatLike) -> tuple[Optional[MatLike], set]:  # pragma: no cover
         """implement filter for game board"""
         return _img, set()
 

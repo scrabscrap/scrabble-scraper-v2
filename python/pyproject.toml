@@ -84,7 +84,9 @@ omit = [
 	"*/hardware/oled.py", 	# requires special hardware
 	"*/hardware/camera.py",
 	"*/api_server_thread.py", 	# dispatcher for flask web app
-	"*/scrabscrap.py" 	# starter of main application
+	"*/scrabscrap.py", 	# starter of main application
+	"*/upload.py",
+	"*/upload_impl.py"
 ]
 
 [tool.coverage.report]

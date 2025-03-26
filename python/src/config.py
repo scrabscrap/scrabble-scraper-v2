@@ -92,7 +92,7 @@ class Config:  # pylint: disable=too-many-public-methods
         except OSError as oops:
             logging.error(f'can not read INI-File: error({oops.errno}): {oops.strerror}')
 
-    def save(self) -> None:
+    def save(self) -> None:  # pragma: no cover
         """save configuration to file"""
         with open(self.ini_path, 'w', encoding='UTF-8') as config_file:
             val = self.config['path']['src_dir']

@@ -47,7 +47,7 @@ def runtime_measure(func: Callable[..., Any]) -> Callable[..., Any]:  # pragma: 
     def runtime(*args: Any, **kwargs: Any) -> Any:
         start = time.perf_counter()
         result = func(*args, **kwargs)
-        logging.info(f'{func.__name__} took {(time.perf_counter()-start):.4f} sec(s).')
+        logging.info(f'{func.__name__} took {(time.perf_counter() - start):.4f} sec(s).')
         return result
 
     return runtime
@@ -61,7 +61,7 @@ def trace(func: Callable[..., Any]) -> Callable[..., Any]:
         try:
             logging.debug(f'entering {func.__name__}')
             return func(*args, **kwargs)
-        except Exception:
+        except Exception:  # pragma: no cover
             logging.exception(f'exception in {func.__name__}')
             raise
         finally:
