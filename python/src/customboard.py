@@ -187,17 +187,16 @@ class CustomBoard(GameBoard):
                 filtered_pixels[(col, row)] = number_of_not_black_pix
                 if number_of_not_black_pix > cls.TILES_THRESHOLD:
                     candidates.add((col, row))
+        result = None
         if logging.getLogger().isEnabledFor(logging.DEBUG):
             result = cv2.hconcat((mask_result))  # pylint: disable=C0301
             logging.debug(f'filtered pixels:\n{cls.log_pixels(filtered_pixels=filtered_pixels)}')
             logging.debug(f'candidates:\n{cls.log_candidates(candidates=candidates)}')
-        else:
-            result = None
         return result, candidates
 
 
 # test and debug
-def main():  # pylint: disable=too-many-locals
+def main():  # pragma: no cover # pylint: disable=too-many-locals
     """main function for test and debug"""
 
     import sys
