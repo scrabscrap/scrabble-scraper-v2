@@ -105,7 +105,7 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
     """find tiles on board"""
     match_calls = 0
 
-    def match(img: MatLike, suggest_tile: str, suggest_prop: int) -> tuple[str, int]:
+    def match_tile(img: MatLike, suggest_tile: str, suggest_prop: int) -> tuple[str, int]:
         nonlocal match_calls
 
         for _tile in tiles:
@@ -127,7 +127,7 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
             return (tile, prop)
 
         for angle in MATCH_ROTATIONS:
-            tile, prop = match(imutils.rotate(gray, angle), tile, prop)
+            tile, prop = match_tile(imutils.rotate(gray, angle), tile, prop)
             if prop >= config.board_min_tiles_rate:
                 break
 
@@ -136,9 +136,8 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
 
     for coord in coord_list:
         (col, row) = coord
-        _y = get_y_position(row)
-        _x = get_x_position(col)
-        gray = warped_gray[_y - 15 : _y + GRID_H + 15, _x - 15 : _x + GRID_W + 15]
+        x, y = get_x_position(col), get_y_position(row)
+        gray = warped_gray[y - 15 : y + GRID_H + 15, x - 15 : x + GRID_W + 15]
         new_tile, new_prop = find_tile()
         logging.info(f'{chr(ORD_A + row)}{col + 1:2}: {new_tile} ({new_prop:2}) found')
     logging.debug(f'templateMatch calls: {match_calls}')
