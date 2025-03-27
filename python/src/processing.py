@@ -145,7 +145,7 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
     return board
 
 
-def remove_blanko(waitfor: Optional[Future], game: Game, coord: str, event=None):
+def remove_blanko(waitfor: Optional[Future], game: Game, gcg_coord: str, event=None):
     """remove blank
 
     Args:
@@ -154,23 +154,26 @@ def remove_blanko(waitfor: Optional[Future], game: Game, coord: str, event=None)
     event: event to inform webservice
     """
     waitfor_future(waitfor)
-    dirty: bool = False
-    logging.info(f'remove blanko {coord}')
-    for mov in game.moves:
-        board = mov.board
-        _, col, row = mov.calc_coord(coord)
-        if (col, row) in board and (board[(col, row)][0] == '_' or board[(col, row)][0].islower()):
-            if (col, row) in mov.new_tiles:
-                dirty = True
-                del mov.new_tiles[(col, row)]
-            if dirty:
-                del mov.board[(col, row)]
-                mov.is_vertical, mov.coord, mov.word = _find_word(mov.board, sorted(mov.new_tiles))
-                mov.type = MoveType.REGULAR
-                prev_score = game.moves[mov.move - 2].score if mov.move > 2 else (0, 0)
-                mov.points, mov.score, mov.is_scrabble = mov.calculate_score(prev_score)
-                # store move
-                _store(game, mov)
+    logging.info(f'remove blanko {gcg_coord}')
+    if game.moves:
+        _, col, row = game.moves[-1].calc_coord(gcg_coord)
+        coord = (col, row)
+        index = -1
+        for elem in game.moves:  # noqa: B007 # find first occurrence of blanko
+            board = elem.board
+            if coord in board and (board[coord][0] == '_' or board[coord][0].islower()):
+                index = game.moves.index(elem)
+                del board[coord]
+                break
+        if index > -1:
+            tiles_to_add: dict = {}
+            tiles_to_remove: dict = {}
+            tiles_to_remove[coord] = ('_', 76)
+            previous_board = game.moves[index - 1].board if index > 0 else {}
+            previous_score = game.moves[index - 1].score if index > 0 else (0, 0)
+            admin_recalc_moves(game, index, tiles_to_remove, tiles_to_add, previous_board, previous_score)
+            for mov in game.moves[index:]:
+                _store(game, mov, with_image=False)
     event_set(event)
 
 
@@ -890,7 +893,7 @@ def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = 
     """store and upload move"""
 
     if config.is_testing:
-        logging.info('skip store because flag is_testing is set')
+        logging.info(f'skip store move {move_to_store.move if move_to_store else "n/a"} because flag is_testing is set')
         return
 
     if game.moves and move_to_store:
