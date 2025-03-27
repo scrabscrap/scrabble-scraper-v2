@@ -200,56 +200,41 @@ def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, e
 def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, event=None):  # pylint: disable=too-many-locals
     """insert two exchange moves before move number"""
     waitfor_future(waitfor)
-    if 0 < move_number <= len(game.moves):
-        logging.info(f'insert before move {move_number}')
-        assert game.moves[move_number - 1].move == move_number
+    if move_number <= 0 or move_number > len(game.moves):
+        raise ValueError('invalid move number {move_number}')
 
-        index = move_number - 1
-        player1 = game.moves[index].player
-        player2 = 0 if player1 == 1 else 1
-        board = game.moves[index - 1].board.copy() if index > 0 else {}
-        played_time = game.moves[index - 1].played_time if index > 0 else (0, 0)
-        previous_score = game.moves[index - 1].score if index > 0 else (0, 0)
-        img = game.moves[index].img.copy() if game.moves[index].img is not None else None  # type: ignore[attr-defined]
+    logging.info(f'insert before move {move_number}')
+    move_index = move_number - 1
+    player1, player2 = (game.moves[move_index].player, (game.moves[move_index].player + 1) % 2)
+    board = game.moves[move_index - 1].board.copy() if move_index > 0 else {}
+    played_time = game.moves[move_index - 1].played_time if move_index > 0 else (0, 0)
+    previous_score = game.moves[move_index - 1].score if move_index > 0 else (0, 0)
+    img = game.moves[move_index].img.copy() if game.moves[move_index].img is not None else None  # type: ignore[attr-defined]
 
-        move1 = Move(
-            MoveType.EXCHANGE,
-            player=player1,
-            coord=(0, 0),
-            is_vertical=True,
-            word='',
-            new_tiles={},
-            removed_tiles={},
-            board=board,
-            played_time=played_time,
-            previous_score=previous_score,
-            img=img,
-        )
-        move2 = Move(
-            MoveType.EXCHANGE,
-            player=player2,
-            coord=(0, 0),
-            is_vertical=True,
-            word='',
-            new_tiles={},
-            removed_tiles={},
-            board=board,
-            played_time=played_time,
-            previous_score=previous_score,
-            img=img,
-        )
+    move1 = Move(
+        MoveType.EXCHANGE,
+        player=player1,
+        coord=(0, 0),
+        is_vertical=True,
+        word='',
+        new_tiles={},
+        removed_tiles={},
+        board=board,
+        played_time=played_time,
+        previous_score=previous_score,
+        img=img,
+    )
+    move2 = copy.deepcopy(move1)
+    move2.player = player2
 
-        game.moves.insert(index, move2)
-        game.moves.insert(index, move1)
+    game.moves.insert(move_index, move2)
+    game.moves.insert(move_index, move1)
 
-        for i, mov in enumerate(game.moves[index:]):
-            mov.move = i + index + 1
-            logging.debug(f'set/store move index {index + i} / move number {mov.move}')
-            _store(game, mov)
-        event_set(event)
-    else:
-        logging.warning(f'wrong move number for insert after move: {move_number}')
-        raise ValueError('invalid move number')
+    for i, mov in enumerate(game.moves[move_index:]):
+        mov.move = i + move_index + 1
+        logging.debug(f'set/store move index {move_index + i} / move number {mov.move}')
+        _store(game, mov)
+    event_set(event)
 
 
 def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, new_score: Tuple[int, int], event=None):
