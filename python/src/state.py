@@ -20,7 +20,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import gc
 import logging
 import threading
-from concurrent import futures
 from concurrent.futures import Future
 from signal import alarm
 from time import sleep
@@ -31,14 +30,24 @@ from hardware import camera
 from hardware.button import Button
 from hardware.led import LED, LEDEnum
 from processing import (
+    admin_change_move,
+    admin_change_score,
+    admin_del_challenge,
+    admin_ins_challenge,
+    admin_insert_moves,
+    admin_toggle_challenge_type,
     check_resume,
     end_of_game,
+    event_set,
     invalid_challenge,
     move,
+    remove_blanko,
+    set_blankos,
     start_of_game,
     store_status,
     store_zip_from_game,
     valid_challenge,
+    waitfor_future,
 )
 from scrabble import Game, MoveType
 from scrabblewatch import ScrabbleWatch
@@ -104,8 +113,6 @@ class State(Static):
     @classmethod
     def do_start(cls, player: int) -> str:
         """Start playing with player 0/1"""
-        assert player in {0, 1}, 'invalid player number'
-
         next_state = (S0, S1)[player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
         logging.info(f'{cls.current_state} - (start) -> {next_state}')
@@ -118,8 +125,6 @@ class State(Static):
     @classmethod
     def do_move(cls, player: int) -> str:
         """analyze players 0/1 move"""
-        assert player in {0, 1}, 'invalid player number'
-
         next_player = abs(player - 1)
         next_state = (S0, S1)[next_player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[next_player]
@@ -134,8 +139,6 @@ class State(Static):
     @classmethod
     def do_pause(cls, player: int) -> str:
         """pause pressed while player 0 is active"""
-        assert player in {0, 1}, 'invalid player number'
-
         next_state = (P0, P1)[player]
         next_led = ({LEDEnum.green, LEDEnum.yellow}, {LEDEnum.red, LEDEnum.yellow})[player]
         logging.info(f'{cls.current_state} - (pause) -> {next_state}')
@@ -146,8 +149,6 @@ class State(Static):
     @classmethod
     def do_resume(cls, player: int) -> str:
         """resume from pause while player 0 is active"""
-        assert player in {0, 1}, 'invalid player number'
-
         next_state = (S0, S1)[player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
         logging.info(f'{cls.current_state} - (resume) -> {next_state}')
@@ -163,8 +164,6 @@ class State(Static):
     @classmethod
     def do_valid_challenge(cls, player: int) -> str:
         """player 0/1 has a valid challenge for the last move from player 1/0"""
-        assert player in {0, 1}, 'invalid player number'
-
         next_state = (P0, P1)[player]
         logging.info(f'{cls.current_state} - (valid challenge) -> {next_state}')
         _, played_time, current = ScrabbleWatch.status()
@@ -182,8 +181,6 @@ class State(Static):
     @classmethod
     def do_invalid_challenge(cls, player: int) -> str:
         """player 0/1 has an invalid challenge for the last move from player 1/0"""
-        assert player in {0, 1}, 'invalid player number'
-
         next_state = (P0, P1)[player]
         logging.info(f'{cls.current_state} - (invalid challenge) -> {next_state} (-{config.malus_doubt:2d})')  # -10
         _, played_time, current = ScrabbleWatch.status()
@@ -205,95 +202,67 @@ class State(Static):
         if cls.current_state == START:
             store_status(cls.game)
             cls.do_ready()
-        if not cls.op_event.is_set():
-            cls.op_event.set()
+        event_set(cls.op_event)
 
     @classmethod
     def do_set_blankos(cls, coord: str, value: str):
         """set char for blanko"""
-        from processing import set_blankos
-
         cls.last_submit = pool.submit(set_blankos, cls.last_submit, cls.game, coord, value, cls.op_event)
-        _, not_done = futures.wait({cls.last_submit})
-        assert len(not_done) == 0, 'error while waiting for future'
+        waitfor_future(cls.last_submit)
 
     @classmethod
     def do_remove_blanko(cls, coord: str):
         """remove blanko"""
-        from processing import remove_blanko
-
         cls.last_submit = pool.submit(remove_blanko, cls.last_submit, cls.game, coord, cls.op_event)
-        _, not_done = futures.wait({cls.last_submit})
-        assert len(not_done) == 0, 'error while waiting for future'
+        waitfor_future(cls.last_submit)
 
     @classmethod
     def do_insert_moves(cls, move_number: int):
         """insert two exchange move before move number via api"""
-        from processing import admin_insert_moves
-
         cls.last_submit = pool.submit(admin_insert_moves, cls.last_submit, cls.game, move_number, cls.op_event)
-        _, not_done = futures.wait({cls.last_submit})
-        assert len(not_done) == 0, 'error while waiting for future'
+        waitfor_future(cls.last_submit)
 
     @classmethod
     def do_edit_move(cls, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str):
         """change move via api"""
-        from processing import admin_change_move
-
         cls.last_submit = pool.submit(
             admin_change_move, cls.last_submit, cls.game, move_number, coord, isvertical, word, cls.op_event
         )
-        _, not_done = futures.wait({cls.last_submit})
-        assert len(not_done) == 0, 'error while waiting for future'
+        waitfor_future(cls.last_submit)
 
     @classmethod
     def do_change_score(cls, move_number: int, score: Tuple[int, int]):
         """change scoring value"""
-        from processing import admin_change_score
-
         cls.last_submit = pool.submit(admin_change_score, cls.last_submit, cls.game, move_number, score, cls.op_event)
-        _, not_done = futures.wait({cls.last_submit})
-        assert len(not_done) == 0, 'error while waiting for future'
+        waitfor_future(cls.last_submit)
 
     @classmethod
     def do_del_challenge(cls, move_number: int):
         """delete challenge with move number via api"""
-        from processing import admin_del_challenge
-
         cls.last_submit = pool.submit(admin_del_challenge, cls.last_submit, cls.game, move_number, cls.op_event)
-        _, not_done = futures.wait({cls.last_submit})
-        assert len(not_done) == 0, 'error while waiting for future'
+        waitfor_future(cls.last_submit)
 
     @classmethod
     def do_toggle_challenge_type(cls, move_number: int):
         """delete challenge with move number via api"""
-        from processing import admin_toggle_challenge_type
-
         cls.last_submit = pool.submit(admin_toggle_challenge_type, cls.last_submit, cls.game, move_number, cls.op_event)
-        _, not_done = futures.wait({cls.last_submit})
-        assert len(not_done) == 0, 'error while waiting for future'
+        waitfor_future(cls.last_submit)
 
     @classmethod
     def do_ins_challenge(cls, move_number: int):
         """insert invalid challenge for move_number via api"""
-        from processing import admin_ins_challenge
-
         cls.last_submit = pool.submit(
             admin_ins_challenge, cls.last_submit, cls.game, move_number, MoveType.CHALLENGE_BONUS, cls.op_event
         )
-        _, not_done = futures.wait({cls.last_submit})
-        assert len(not_done) == 0, 'error while waiting for future'
+        waitfor_future(cls.last_submit)
 
     @classmethod
     def do_ins_withdraw(cls, move_number: int):
         """insert withdraw for move_number via api"""
-        from processing import admin_ins_challenge
-
         cls.last_submit = pool.submit(
             admin_ins_challenge, cls.last_submit, cls.game, move_number, MoveType.WITHDRAW, cls.op_event
         )
-        _, not_done = futures.wait({cls.last_submit})
-        assert len(not_done) == 0, 'error while waiting for future'
+        waitfor_future(cls.last_submit)
 
     @classmethod
     def do_new_game(cls) -> str:
@@ -309,8 +278,7 @@ class State(Static):
             gc.collect()
 
         start_of_game(cls.game)
-        if not cls.op_event.is_set():
-            cls.op_event.set()
+        event_set(cls.op_event)
         return cls.do_ready()
 
     @classmethod
@@ -385,8 +353,7 @@ class State(Static):
                 cls.current_state = cls.state[(cls.current_state, button)]()
             except Exception as oops:  # pylint: disable=broad-exception-caught
                 logging.warning(f'ignore invalid exception on button handling {oops}')
-            if not cls.op_event.is_set():
-                cls.op_event.set()
+            event_set(cls.op_event)
             logging.info(f'{button}')
         except KeyError:
             logging.warning('Key Error - ignore')
