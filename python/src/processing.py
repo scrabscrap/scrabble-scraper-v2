@@ -173,7 +173,7 @@ def remove_blanko(waitfor: Optional[Future], game: Game, gcg_coord: str, event=N
             previous_score = game.moves[index - 1].score if index > 0 else (0, 0)
             admin_recalc_moves(game, index, tiles_to_remove, tiles_to_add, previous_board, previous_score)
             for mov in game.moves[index:]:
-                _store(game, mov, with_image=False)
+                store_game_status(game, mov, with_image=False)
     event_set(event)
 
 
@@ -238,7 +238,7 @@ def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, 
     for i, mov in enumerate(game.moves[move_index:]):
         mov.move = i + move_index + 1
         logging.debug(f'set/store move index {move_index + i} / move number {mov.move}')
-        _store(game, mov)
+        store_game_status(game, mov)
     event_set(event)
 
 
@@ -256,7 +256,7 @@ def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, 
         for mov in game.moves[move_index:]:
             mov.score = (mov.score[0] - delta[0], mov.score[1] - delta[1])
             logging.info(f'>> move {mov.move}: new score {mov.score}')
-            _store(game, mov, with_image=False)
+            store_game_status(game, mov, with_image=False)
     event_set(event)
 
 
@@ -317,7 +317,7 @@ def admin_change_move(
 
     admin_recalc_moves(game, index, tiles_to_remove, tiles_to_add, previous_board, previous_score)
     for i in range(index, len(game.moves)):
-        _store(game, game.moves[i], with_image=False)
+        store_game_status(game, game.moves[i], with_image=False)
     event_set(event)
 
 
@@ -389,7 +389,7 @@ def admin_del_challenge(waitfor: Optional[Future], game: Game, move_number: int,
         tiles_to_add = game.moves[index - 1].new_tiles
     admin_recalc_moves(game, index, {}, tiles_to_add, previous_board, previous_score)
     for i in range(index, len(game.moves)):
-        _store(game, game.moves[i], with_image=True)
+        store_game_status(game, game.moves[i], with_image=True)
     event_set(event)
 
 
@@ -428,7 +428,7 @@ def admin_toggle_challenge_type(waitfor: Optional[Future], game: Game, move_numb
     )
     admin_recalc_moves(game, index, to_change.removed_tiles, {}, previous_board, previous_score)
     for i in range(index, len(game.moves)):
-        _store(game, game.moves[i], with_image=True)
+        store_game_status(game, game.moves[i], with_image=True)
     event_set(event)
 
 
@@ -472,7 +472,7 @@ def admin_ins_challenge(waitfor: Optional[Future], game: Game, move_number: int,
         game.moves[i].move += 1
     admin_recalc_moves(game, index + 1, to_insert.removed_tiles, {}, previous_board, previous_score)
     for i in range(index, len(game.moves)):
-        _store(game, game.moves[i], with_image=True)
+        store_game_status(game, game.moves[i], with_image=True)
     event_set(event)
 
 
@@ -494,7 +494,7 @@ def move(waitfor: Optional[Future], game: Game, img: MatLike, player: int, playe
     if logging.getLogger('root').isEnabledFor(logging.DEBUG):
         msg = '\n' + ''.join(f'{mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
         logging.debug(f'{msg}\nscores: {game.moves[-1].score}\napi: {game.json_str()}')
-    _store(game, game.moves[-1])
+    store_game_status(game, game.moves[-1])
     _development_recording(game, img, suffix='~original')
     _development_recording(game, warped, suffix='~warped')
 
@@ -535,7 +535,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         event_set(event)
 
         logging.info(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
-        _store(game, game.moves[-1])
+        store_game_status(game, game.moves[-1])
     except Exception as oops:  # pylint: disable=broad-exception-caught
         logging.error(f'exception on valid_challenge {oops}')
         logging.info('no new move')
@@ -550,7 +550,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         event_set(event)
 
         logging.info(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
-        _store(game, game.moves[-1])
+        store_game_status(game, game.moves[-1])
     except Exception as oops:  # pylint: disable=broad-exception-caught
         logging.error(f'exception on in_valid_challenge {oops}')
         logging.info('no new move')
@@ -559,7 +559,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
 @trace
 def store_status(game: Game):
     """store current status.json - does not update data - *.json !"""
-    _store(game, None)
+    store_game_status(game, None)
 
 
 @trace
@@ -582,7 +582,7 @@ def start_of_game(game: Game):
             util.rotate_logs()
     except OSError:
         logging.error('OS Error on delete web data/image files')
-    _store(game, None)
+    store_game_status(game, None)
 
 
 @trace
@@ -596,7 +596,7 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
             if t[player] < 0:  # in overtime
                 malus = (t[player] // 60) * config.timeout_malus  # config.timeout_malus per minute
                 game.add_timout_malus(player, malus)  # add as move
-                _store(game, game.moves[-1])  # store move to hd
+                store_game_status(game, game.moves[-1])  # store move to hd
 
         points, rackstr = _end_of_game_calculate_rack(game)
         game.add_last_rack(points, rackstr)
@@ -605,8 +605,8 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
         logging.debug(f'last rack scores:\n{game.board_str()}{msg}\nscores: {game.moves[-1].score}\napi: {game.json_str()}')
         logging.info(game.dev_str())
 
-        _store(game, game.moves[-2])
-        _store(game, game.moves[-1])
+        store_game_status(game, game.moves[-2])
+        store_game_status(game, game.moves[-1])
 
 
 def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
@@ -894,8 +894,15 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     return prev_score
 
 
-def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = True):  # pragma: no cover
+def store_game_status(game: Game, move_to_store: Optional[Move] = None, with_image: bool = True):  # pragma: no cover
     """store and upload move"""
+
+    def write_json(filename: str, content: str):
+        try:
+            with open(filename, 'w', encoding='UTF-8') as handle:
+                handle.write(content)
+        except OSError as error:
+            logging.error(f'Error writing {filename}: {error}')
 
     if config.is_testing:
         logging.info(f'skip store move {move_to_store.move if move_to_store else "n/a"} because flag is_testing is set')
@@ -903,32 +910,27 @@ def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = 
 
     if game.moves and move_to_store:
         if with_image and move_to_store.img is not None:
-            if not cv2.imwrite(
-                f'{config.web_dir}/image-{move_to_store.move}.jpg', move_to_store.img, [cv2.IMWRITE_JPEG_QUALITY, 100]
-            ):
+            image_path = f'{config.web_dir}/image-{move_to_store.move}.jpg'
+            if not cv2.imwrite(image_path, move_to_store.img, [cv2.IMWRITE_JPEG_QUALITY, 100]):
                 logging.error(f'error writing image-{move_to_store.move}.jpg')
-        try:
-            with open(f'{config.web_dir}/data-{move_to_store.move}.json', 'w', encoding='UTF-8') as handle:
-                handle.write(game.json_str(move_to_store.move))
-            if game.moves[-1].move == move_to_store.move:
-                logging.debug('write status.json')
-                with open(f'{config.web_dir}/status.json', 'w', encoding='UTF-8') as handle:
-                    handle.write(game.json_str(move_to_store.move))
-        except OSError as error:
-            logging.error(f'error writing game move {move_to_store.move}: {error}')
+
+        json_content = game.json_str(move_to_store.move)
+        write_json(f'{config.web_dir}/data-{move_to_store.move}.json', json_content)
+
+        if game.moves[-1].move == move_to_store.move:
+            logging.debug('Write status.json')
+            write_json(f'{config.web_dir}/status.json', json_content)
+
         _development_recording(game, None, info=True)
 
         if config.upload_server:
             pool.submit(upload.upload_move, move_to_store.move)
     else:
-        try:
-            logging.debug('upload status.json')
-            with open(f'{config.web_dir}/status.json', 'w', encoding='UTF-8') as handle:
-                handle.write(game.json_str())
-            if config.upload_server:
-                pool.submit(upload.upload_status)  # upload empty status
-        except OSError as error:
-            logging.error(f'error writing status.json: {error}')
+        logging.debug('Upload status.json')
+        write_json(f'{config.web_dir}/status.json', game.json_str())
+
+        if config.upload_server:
+            pool.submit(upload.upload_status)  # upload empty status
 
 
 def store_zip_from_game(game: Game):  # pragma: no cover
