@@ -325,40 +325,45 @@ def admin_recalc_moves(
     game: Game, index: int, tiles_to_remove: dict, tiles_to_add: dict, previous_board: dict, previous_score: Tuple[int, int]
 ):  # pylint: disable=too-many-arguments, too-many-positional-arguments
     """recalculate move scores and points after admin changes"""
+
+    def update_board(m: Move, tiles_to_remove: dict, tiles_to_add: dict):
+        for elem in tiles_to_remove:
+            m.board.pop(elem, None)
+        m.board |= tiles_to_add
+
+    def update_score_for_bonus(m: Move, prev_score: Tuple[int, int]):
+        penalty = config.malus_doubt
+        m.score = (prev_score[0] - penalty, prev_score[1]) if m.player == 0 else (prev_score[0], prev_score[1] - penalty)
+
+    def update_withdrawn_move(m: Move, prev_move: Move):
+        m.points = -prev_move.points
+        m.word = prev_move.word
+        m.removed_tiles = prev_move.new_tiles
+        m.new_tiles = {}
+
     moves = game.moves
     logging.debug(f'{index=} {tiles_to_remove=} {tiles_to_add=} {previous_score=}')
     for i in range(index, len(moves)):
         new_move = copy.deepcopy(moves[i])  # board, img, score
+        update_board(new_move, tiles_to_remove, tiles_to_add)
 
-        for elem in tiles_to_remove.copy():  # repair board
-            if elem in new_move.board:
-                del new_move.board[elem]
-        new_move.board |= tiles_to_add
-
-        if new_move.type == MoveType.CHALLENGE_BONUS and new_move.player == 0:
-            new_move.score = (previous_score[0] - config.malus_doubt, previous_score[1])
-        elif new_move.type == MoveType.CHALLENGE_BONUS and new_move.player == 1:
-            new_move.score = (previous_score[0], previous_score[1] - config.malus_doubt)
-        elif new_move.type == MoveType.WITHDRAW:
-            if len(moves) > 1:
-                new_move.points = -moves[i - 1].points
-                new_move.word = moves[i - 1].word
-                new_move.removed_tiles = moves[i - 1].new_tiles
-                new_move.new_tiles = {}
-        else:
-            save_cache = new_move.modification_cache
-            new_move = _move_processing(
-                game, new_move.player, new_move.played_time, new_move.img, new_move.board, previous_board, previous_score
-            )
-            new_move.modification_cache = save_cache
+        match new_move.type:
+            case MoveType.CHALLENGE_BONUS:
+                update_score_for_bonus(new_move, previous_score)
+            case MoveType.WITHDRAW:
+                update_withdrawn_move(new_move, moves[i - 1])
+            case _:
+                save_cache = new_move.modification_cache
+                new_move = _move_processing(
+                    game, new_move.player, new_move.played_time, new_move.img, new_move.board, previous_board, previous_score
+                )
+                new_move.modification_cache = save_cache
         new_move.move = i + 1
         previous_board = new_move.board
         previous_score = new_move.score
         moves[i] = new_move
-        logging.info(
-            f'recalculate move #{moves[i].move} ({moves[i].type}) new points {moves[i].points} new score {moves[i].score}'
-        )
-        logging.info(f'\n{game.board_str(i)}')
+        logging.info(f'#{moves[i].move} ({moves[i].type}) new points {moves[i].points} new score {moves[i].score}')
+        logging.debug(f'\n{game.board_str(i)}')
 
 
 def admin_del_challenge(waitfor: Optional[Future], game: Game, move_number: int, event=None):
