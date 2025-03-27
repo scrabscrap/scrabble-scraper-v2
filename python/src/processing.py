@@ -252,32 +252,22 @@ def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, 
         raise ValueError('invalid move number')
 
 
-def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, score: Tuple[int, int], event=None):
-    """fix scores (direct call from admin)
-
-    Args:
-    game(Move): the game to fix
-    move_number: the move to fix(beginning with 1)
-    score(Tuple[int, int]): new score
-    event: event to inform webservice
-    """
+def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, new_score: Tuple[int, int], event=None):
+    """fix scores (direct call from admin)"""
     waitfor_future(waitfor)
-    if 0 < move_number <= len(game.moves):
-        mov = game.moves[move_number - 1]
-        assert mov.move == move_number
-
-        delta = tuple(np.subtract(mov.score, score))
-        if delta[0] != 0 or delta[1] != 0:
-            mov.modification_cache['score'] = mov.score
-        logging.debug(f'set score for move {move_number} {mov.score} => {score} / delta {delta}')
-        for mov in game.moves[move_number - 1 :]:
-            mov.score = (int(mov.score[0] - delta[0]), int(mov.score[1] - delta[1]))
-            logging.info(f'>> move {mov.move}: {mov.score}')
+    if move_number <= 0 or move_number > len(game.moves):
+        raise ValueError('invalid move number {move_number}')
+    move_index = move_number - 1
+    mov = game.moves[move_index]
+    delta = (mov.score[0] - new_score[0], mov.score[1] - new_score[1])
+    if delta != (0, 0):  # score change
+        mov.modification_cache['score'] = mov.score
+        logging.debug(f'set score for move {move_number} {mov.score} => {new_score} / delta {delta}')
+        for mov in game.moves[move_index:]:
+            mov.score = (mov.score[0] - delta[0], mov.score[1] - delta[1])
+            logging.info(f'>> move {mov.move}: new score {mov.score}')
             _store(game, mov, with_image=False)
-        event_set(event)
-    else:
-        logging.warning(f'wrong move number for change score: {move_number}')
-        raise ValueError('invalid move number')
+    event_set(event)
 
 
 def admin_change_move(
