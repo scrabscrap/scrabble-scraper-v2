@@ -174,7 +174,7 @@ def remove_blanko(waitfor: Optional[Future], game: Game, coord: str, event=None)
     event_set(event)
 
 
-def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, event=None):
+def set_blankos(waitfor: Optional[Future], game: Game, gcg_coord: str, value: str, event=None):
     """set char for blanko
 
     Args:
@@ -184,16 +184,18 @@ def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, e
     event: event to inform webservice
     """
     waitfor_future(waitfor)
-    logging.info(f'set blanko {coord} to {value}')
-    for mov in game.moves:
-        board = mov.board
-        _, col, row = mov.calc_coord(coord)
-        if (col, row) in board and (board[(col, row)][0] == '_' or board[(col, row)][0].islower()):
-            board[(col, row)] = (value, board[(col, row)][1])
-            if (col, row) in mov.new_tiles:
-                mov.new_tiles[(col, row)] = value
-                index = row - mov.coord[1] if mov.is_vertical else col - mov.coord[0]
-                mov.word = f'{mov.word[:index]}{value}{mov.word[index + 1 :]}'
+    logging.info(f'set blanko {gcg_coord} to {value}')
+    if game.moves:
+        _, col, row = game.moves[-1].calc_coord(gcg_coord)
+        coord = (col, row)
+        for mov in game.moves:
+            board = mov.board
+            if coord in board and (board[coord][0] == '_' or board[coord][0].islower()):
+                board[coord] = (value, board[coord][1])
+                if coord in mov.new_tiles:
+                    mov.new_tiles[coord] = value.lower()[:1]
+                    index = row - mov.coord[1] if mov.is_vertical else col - mov.coord[0]
+                    mov.word = f'{mov.word[:index]}{value}{mov.word[index + 1 :]}'
     event_set(event)
 
 
