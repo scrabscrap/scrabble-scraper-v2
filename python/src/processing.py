@@ -19,7 +19,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import copy
 import logging
-import time
 from concurrent import futures
 from concurrent.futures import Future
 from datetime import datetime
@@ -41,73 +40,64 @@ from threadpool import pool
 from upload import upload
 from util import TWarp, runtime_measure, trace
 
+BOARD_CLASSES = {'custom2012': Custom2012Board, 'custom2020': Custom2020Board, 'custom2020light': Custom2020LightBoard}
+BLANK_PROP = 76
+MATCH_ROTATIONS = [0, -5, 5, -10, 10, -15, 15]
+THRESHOLD_PROP_BOARD = 97
+THRESHOLD_UMLAUT_BONUS = 2
+UMLAUTS = ('Ä', 'Ü', 'Ö')
+ORD_A = ord('A')
+
 
 def get_last_warp() -> Optional[TWarp]:  # pylint: disable=too-many-return-statements
     """Delegates the warp of the ``img`` according to the configured board style"""
-    if config.board_layout == 'custom2012':
-        return Custom2012Board.last_warp
-    if config.board_layout == 'custom2020':
-        return Custom2020Board.last_warp
-    if config.board_layout == 'custom2020light':
-        return Custom2020LightBoard.last_warp
-    return Custom2012Board.last_warp
+    return BOARD_CLASSES.get(config.board_layout, Custom2012Board).last_warp
 
 
 def clear_last_warp():
-    """Delegates the warp of the ``img`` according to the configured board style"""
-    if config.board_layout == 'custom2012':
-        Custom2012Board.last_warp = None
-    elif config.board_layout == 'custom2020':
-        Custom2020Board.last_warp = None
-    elif config.board_layout == 'custom2020light':
-        Custom2020LightBoard.last_warp = None
-    Custom2012Board.last_warp = None
+    """Delegates the last_warp according to the configured board style"""
+    BOARD_CLASSES.get(config.board_layout, Custom2012Board).last_warp = None
 
 
 @runtime_measure
 def warp_image(img: MatLike) -> tuple[MatLike, MatLike]:
     """Delegates the warp of the ``img`` according to the configured board style"""
-    logging.debug(f'({config.board_layout})')
-    warped = img
-    if config.video_warp:
-        if config.board_layout == 'custom2012':
-            warped = Custom2012Board.warp(img)
-        elif config.board_layout == 'custom2020':
-            warped = Custom2020Board.warp(img)
-        elif config.board_layout == 'custom2020light':
-            warped = Custom2020LightBoard.warp(img)
-        else:
-            warped = Custom2012Board.warp(img)
-    warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
-    return warped, warped_gray
+    warped = BOARD_CLASSES.get(config.board_layout, Custom2012Board).warp(img) if config.video_warp else img
+    return warped, cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
 
 
 @runtime_measure
 def filter_image(img: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disable=too-many-return-statements
     """Delegates the image filter of the ``img`` according to the configured board style"""
-    logging.debug(f'({config.board_layout})')
-    if config.board_layout == 'custom2012':
-        return Custom2012Board.filter_image(img)
-    if config.board_layout == 'custom2020':
-        return Custom2020Board.filter_image(img)
-    if config.board_layout == 'custom2020light':
-        return Custom2020LightBoard.filter_image(img)
-    return Custom2012Board.filter_image(img)
+    return BOARD_CLASSES.get(config.board_layout, Custom2012Board).filter_image(img)
+
+
+def waitfor_future(waitfor: Optional[Future]):
+    """wait for future and skips wait if waitfor is None"""
+    if waitfor is not None:
+        _, not_done = futures.wait({waitfor})
+        if len(not_done) != 0:
+            logging.error(f'error while waiting for future - lenght of not_done: {len(not_done)}')
+
+
+def event_set(event):
+    """set event and skips set if event is None. Informs the webservice about the end of the task"""
+    if event is not None:
+        event.set()
 
 
 def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], ignore_set: set[tuple[int, int]]) -> set:
     """allow only valid field for analysis"""
-    (col, row) = coord
-    result: set = set()
-    if coord not in candidates:  # already visited
-        return result
-    candidates.remove(coord)
-    if coord not in ignore_set:
-        result.add(coord)
-    result = result | filter_candidates((col + 1, row), candidates, ignore_set)
-    result = result | filter_candidates((col - 1, row), candidates, ignore_set)
-    result = result | filter_candidates((col, row + 1), candidates, ignore_set)
-    result = result | filter_candidates((col, row - 1), candidates, ignore_set)
+    result = set()
+    stack = [coord]
+    while stack:
+        col, row = stack.pop()
+        if (col, row) not in candidates:
+            continue
+        candidates.remove((col, row))
+        if (col, row) not in ignore_set:
+            result.add((col, row))
+        stack.extend([(col + 1, row), (col - 1, row), (col, row + 1), (col, row - 1)])
     return result
 
 
@@ -123,26 +113,25 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
             match_calls += 1
             _, thresh, _, _ = cv2.minMaxLoc(res)
             thresh = int(thresh * 100)
-            if _tile.name in ('Ä', 'Ü', 'Ö') and thresh >= suggest_prop:
-                logging.debug(f'{chr(ord("A") + row)}{col + 1:2} => ({_tile.name},{thresh}) increase prop to {thresh + 2}')
-                thresh = min(99, thresh + 2)  # 2% Bonus for umlauts
+            if _tile.name in UMLAUTS and thresh >= suggest_prop:
+                thresh = min(99, thresh + THRESHOLD_UMLAUT_BONUS)  # 2% Bonus for umlauts
+                logging.debug(f'{chr(ORD_A + row)}{col + 1:2} => ({_tile.name},{thresh}) increased prop')
             if thresh > suggest_prop:
                 suggest_tile, suggest_prop = _tile.name, thresh
         return suggest_tile, suggest_prop
 
     def find_tile():
-        (tile, prop) = board.get(coord, ('_', 76))
-        if prop > 97:
-            logging.debug(f'{chr(ord("A") + row)}{col + 1:2}: {tile} ({prop}) tile on board prop >= 98 ')
+        (tile, prop) = board.get(coord, ('_', BLANK_PROP))
+        if prop > THRESHOLD_PROP_BOARD:
+            logging.debug(f'{chr(ORD_A + row)}{col + 1:2}: {tile} ({prop}) tile on board prop > {THRESHOLD_PROP_BOARD} ')
             return (tile, prop)
 
-        rotations = [0, -5, 5, -10, 10, -15, 15]
-        for angle in rotations:
+        for angle in MATCH_ROTATIONS:
             tile, prop = match(imutils.rotate(gray, angle), tile, prop)
             if prop >= config.board_min_tiles_rate:
                 break
 
-        board[coord] = (tile, prop) if tile is not None else ('_', 76)
+        board[coord] = (tile, prop) if tile is not None else ('_', BLANK_PROP)
         return (tile, prop)
 
     for coord in coord_list:
@@ -151,7 +140,7 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
         _x = get_x_position(col)
         gray = warped_gray[_y - 15 : _y + GRID_H + 15, _x - 15 : _x + GRID_W + 15]
         new_tile, new_prop = find_tile()
-        logging.info(f'{chr(ord("A") + row)}{col + 1:2}: {new_tile} ({new_prop:2}) found')
+        logging.info(f'{chr(ORD_A + row)}{col + 1:2}: {new_tile} ({new_prop:2}) found')
     logging.debug(f'templateMatch calls: {match_calls}')
     return board
 
@@ -164,10 +153,7 @@ def remove_blanko(waitfor: Optional[Future], game: Game, coord: str, event=None)
     coord: coord of blank
     event: event to inform webservice
     """
-    if waitfor is not None:  # wait for previous moves
-        _, not_done = futures.wait({waitfor})
-        assert len(not_done) == 0, 'error while waiting for future'
-
+    waitfor_future(waitfor)
     dirty: bool = False
     logging.info(f'remove blanko {coord}')
     for mov in game.moves:
@@ -185,9 +171,7 @@ def remove_blanko(waitfor: Optional[Future], game: Game, coord: str, event=None)
                 mov.points, mov.score, mov.is_scrabble = mov.calculate_score(prev_score)
                 # store move
                 _store(game, mov)
-
-    if event and not event.is_set():
-        event.set()
+    event_set(event)
 
 
 def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, event=None):
@@ -199,10 +183,7 @@ def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, e
     value: char for blank
     event: event to inform webservice
     """
-    if waitfor is not None:  # wait for previous moves
-        _, not_done = futures.wait({waitfor})
-        assert len(not_done) == 0, 'error while waiting for future'
-
+    waitfor_future(waitfor)
     logging.info(f'set blanko {coord} to {value}')
     for mov in game.moves:
         board = mov.board
@@ -213,16 +194,12 @@ def set_blankos(waitfor: Optional[Future], game: Game, coord: str, value: str, e
                 mov.new_tiles[(col, row)] = value
                 index = row - mov.coord[1] if mov.is_vertical else col - mov.coord[0]
                 mov.word = f'{mov.word[:index]}{value}{mov.word[index + 1 :]}'
-    if event and not event.is_set():
-        event.set()
+    event_set(event)
 
 
 def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, event=None):  # pylint: disable=too-many-locals
     """insert two exchange moves before move number"""
-    if waitfor is not None:  # wait for previous moves
-        _, not_done = futures.wait({waitfor})
-        assert len(not_done) == 0, 'error while waiting for future'
-
+    waitfor_future(waitfor)
     if 0 < move_number <= len(game.moves):
         logging.info(f'insert before move {move_number}')
         assert game.moves[move_number - 1].move == move_number
@@ -269,8 +246,7 @@ def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, 
             mov.move = i + index + 1
             logging.debug(f'set/store move index {index + i} / move number {mov.move}')
             _store(game, mov)
-        if event and not event.is_set():
-            event.set()
+        event_set(event)
     else:
         logging.warning(f'wrong move number for insert after move: {move_number}')
         raise ValueError('invalid move number')
@@ -285,10 +261,7 @@ def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, 
     score(Tuple[int, int]): new score
     event: event to inform webservice
     """
-    if waitfor is not None:  # wait for previous moves
-        _, not_done = futures.wait({waitfor})
-        assert len(not_done) == 0, 'error while waiting for future'
-
+    waitfor_future(waitfor)
     if 0 < move_number <= len(game.moves):
         mov = game.moves[move_number - 1]
         assert mov.move == move_number
@@ -301,8 +274,7 @@ def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, 
             mov.score = (int(mov.score[0] - delta[0]), int(mov.score[1] - delta[1]))
             logging.info(f'>> move {mov.move}: {mov.score}')
             _store(game, mov, with_image=False)
-        if event and not event.is_set():
-            event.set()
+        event_set(event)
     else:
         logging.warning(f'wrong move number for change score: {move_number}')
         raise ValueError('invalid move number')
@@ -325,10 +297,7 @@ def admin_change_move(
         word: the new word valid chars(A - Z._) crossing chars will replaced with '.'
         event: event to infom webservice
     """
-    if waitfor is not None:  # wait for previous moves
-        _, not_done = futures.wait({waitfor})
-        assert len(not_done) == 0, 'error while waiting for future'
-
+    waitfor_future(waitfor)
     moves = game.moves
     if move_number < 1 or move_number > len(game.moves):
         raise ValueError('invalid move number ({move_number=})')
@@ -369,9 +338,7 @@ def admin_change_move(
     admin_recalc_moves(game, index, tiles_to_remove, tiles_to_add, previous_board, previous_score)
     for i in range(index, len(game.moves)):
         _store(game, game.moves[i], with_image=False)
-
-    if event and not event.is_set():
-        event.set()
+    event_set(event)
 
 
 def admin_recalc_moves(
@@ -416,9 +383,7 @@ def admin_recalc_moves(
 
 def admin_del_challenge(waitfor: Optional[Future], game: Game, move_number: int, event=None):
     """delete challenge move number"""
-    if waitfor is not None:  # wait for running actions
-        _, not_done = futures.wait({waitfor})
-        assert len(not_done) == 0, 'error while waiting for future'
+    waitfor_future(waitfor)
     if move_number < 1 or move_number > len(game.moves):
         raise ValueError(f'invalid move number for delete challenge {move_number=}')
 
@@ -440,15 +405,12 @@ def admin_del_challenge(waitfor: Optional[Future], game: Game, move_number: int,
     admin_recalc_moves(game, index, {}, tiles_to_add, previous_board, previous_score)
     for i in range(index, len(game.moves)):
         _store(game, game.moves[i], with_image=True)
-    if event and not event.is_set():
-        event.set()
+    event_set(event)
 
 
 def admin_toggle_challenge_type(waitfor: Optional[Future], game: Game, move_number: int, event=None):
     """toggle challenge type on move number"""
-    if waitfor is not None:  # wait for running actions
-        _, not_done = futures.wait({waitfor})
-        assert len(not_done) == 0, 'error while waiting for future'
+    waitfor_future(waitfor)
     if move_number < 1 or move_number > len(game.moves):
         raise ValueError(f'invalid move number ({move_number=})')
 
@@ -482,15 +444,12 @@ def admin_toggle_challenge_type(waitfor: Optional[Future], game: Game, move_numb
     admin_recalc_moves(game, index, to_change.removed_tiles, {}, previous_board, previous_score)
     for i in range(index, len(game.moves)):
         _store(game, game.moves[i], with_image=True)
-    if event and not event.is_set():
-        event.set()
+    event_set(event)
 
 
 def admin_ins_challenge(waitfor: Optional[Future], game: Game, move_number: int, move_type: MoveType, event=None):
     """insert invalid challenge or withdraw for move number"""
-    if waitfor is not None:  # wait for running actions
-        _, not_done = futures.wait({waitfor})
-        assert len(not_done) == 0, 'error while waiting for future'
+    waitfor_future(waitfor)
     if move_number < 1 or move_number > len(game.moves):
         raise ValueError(f'invalid move number ({move_number=})')
 
@@ -529,23 +488,13 @@ def admin_ins_challenge(waitfor: Optional[Future], game: Game, move_number: int,
     admin_recalc_moves(game, index + 1, to_insert.removed_tiles, {}, previous_board, previous_score)
     for i in range(index, len(game.moves)):
         _store(game, game.moves[i], with_image=True)
-    if event and not event.is_set():
-        event.set()
+    event_set(event)
 
 
 @trace
 def move(waitfor: Optional[Future], game: Game, img: MatLike, player: int, played_time: Tuple[int, int], event=None):
     # pylint: disable=too-many-arguments, too-many-positional-arguments
-    """Process a move
-
-    Args:
-        waitfor(futures): wait for jobs to complete
-        game(Game): the current game data
-        img: the image to analyze
-        player(int): active player
-        played_time(int, int): current player times
-        event: event to set
-    """
+    """Process a move"""
     warped, board = _image_processing(waitfor, game, img)
 
     previous_board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # get previous board information
@@ -554,16 +503,15 @@ def move(waitfor: Optional[Future], game: Game, img: MatLike, player: int, playe
     current_move = _move_processing(game, player, played_time, warped, board, previous_board, previous_score)
 
     game.add_move(current_move)  # 9. add move
-    if event and not event.is_set():
-        event.set()
+    event_set(event)
 
     logging.info(f'\n{game.board_str()}')
     if logging.getLogger('root').isEnabledFor(logging.DEBUG):
         msg = '\n' + ''.join(f'{mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
         logging.debug(f'{msg}\nscores: {game.moves[-1].score}\napi: {game.json_str()}')
+    _store(game, game.moves[-1])
     _development_recording(game, img, suffix='~original')
     _development_recording(game, warped, suffix='~warped')
-    _store(game, game.moves[-1])
 
 
 @trace
@@ -576,19 +524,8 @@ def check_resume(
     current_time: Tuple[int, int],
     event=None,
 ):  # pylint: disable=too-many-arguments,too-many-positional-arguments
-    """check resume
-
-    Args:
-        waitfor(futures): wait for jobs to complete
-        game(Game): the current game data
-        image(MatLike): the image to analyze
-        player(int): active player
-        played_time(int, int): current player times
-        current_time(int, int): current move times
-        event: event to set
-    """
-    while waitfor is not None and waitfor.running():
-        time.sleep(0.01)
+    """check resume"""
+    waitfor_future(waitfor)
     last_move = game.moves[-1] if game.moves else None
     if last_move is not None and last_move.type == MoveType.REGULAR:  # only check regular moves
         if not last_move.new_tiles:  # no new tiles in last move
@@ -606,21 +543,11 @@ def check_resume(
 
 @trace
 def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int], event=None):
-    """Process a valid challenge
-
-    Args:
-        waitfor(futures): wait for jobs to complete
-        game(Game): the current game data
-        player(int): active player
-        played_time(int, int): current player times
-        event: event to set
-    """
-    while waitfor is not None and waitfor.running():
-        time.sleep(0.01)
+    """Process a valid challenge"""
+    waitfor_future(waitfor)
     try:
         game.add_valid_challenge(player, played_time)
-        if event and not event.is_set():
-            event.set()
+        event_set(event)
 
         logging.info(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
         _store(game, game.moves[-1])
@@ -631,21 +558,11 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
 
 @trace
 def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int], event=None):
-    """Process an invalid challenge
-
-    Args:
-        waitfor(futures): wait for jobs to complete
-        game(Game): the current game data
-        player(int): active player
-        played_time(int, int): current player times
-        event: event to set
-    """
-    while waitfor is not None and waitfor.running():
-        time.sleep(0.01)
+    """Process an invalid challenge"""
+    waitfor_future(waitfor)
     try:
         game.add_invalid_challenge(player, played_time)  # 9. add move
-        if event and not event.is_set():
-            event.set()
+        event_set(event)
 
         logging.info(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
         _store(game, game.moves[-1])
@@ -686,16 +603,8 @@ def start_of_game(game: Game):
 @trace
 def end_of_game(waitfor: Optional[Future], game: Game, event=None):
     # pragma: no cover #pylint: disable=too-many-locals # no ftp upload on tests
-    """Process end of game
-
-    Args:
-        waitfor(futures): wait for jobs to complete
-        game(Game): the current game data
-        event: event to set
-    """
-    while waitfor is not None and waitfor.running():
-        time.sleep(0.01)
-    # time.sleep(1.5)
+    """Process end of game"""
+    waitfor_future(waitfor)
     if len(game.moves) > 0:
         t = (config.max_time - game.moves[-1].played_time[0], config.max_time - game.moves[-1].played_time[1])
         for player in range(2):
@@ -706,8 +615,7 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
 
         points, rackstr = _end_of_game_calculate_rack(game)
         game.add_last_rack(points, rackstr)
-        if event and not event.is_set():
-            event.set()
+        event_set(event)
         msg = '\n' + ''.join(f'{mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
         logging.debug(f'last rack scores:\n{game.board_str()}{msg}\nscores: {game.moves[-1].score}\napi: {game.json_str()}')
         logging.info(game.dev_str())
@@ -812,9 +720,7 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
 @runtime_measure
 def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tuple[MatLike, dict]:
     # pylint: disable=too-many-locals
-    if waitfor is not None:  # wait for previous moves
-        done, not_done = futures.wait({waitfor})
-        assert len(not_done) == 0, 'error while waiting for future'
+    waitfor_future(waitfor)
     warped, warped_gray = warp_image(img)  # 1. warp image if necessary
     filtered_image, tiles_candidates = filter_image(warped)  # 3. find potential tiles on board
     _development_recording(game, filtered_image, suffix='~filter', is_next_move=True)
@@ -1004,13 +910,7 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
 
 
 def _store(game: Game, move_to_store: Optional[Move] = None, with_image: bool = True):  # pragma: no cover
-    """store and upload move
-
-    Args:
-        game: current game
-        move_index: index to store
-        with_image: write img file
-    """
+    """store and upload move"""
 
     if config.is_testing:
         logging.info('skip store because flag is_testing is set')
