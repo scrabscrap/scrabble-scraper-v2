@@ -2630,14 +2630,77 @@ class AlgorithmTestCase(unittest.TestCase):
             (4, 8): ('T', 75),
             (4, 9): ('E', 75),
             (4, 10): ('_', 75),
-            (2, 6): ('M', 75),
-            (2, 7): ('Ö', 75),
-            (2, 8): ('S', 75),
+            (1, 9): ('M', 75),
+            (2, 9): ('Ö', 75),
+            (3, 9): ('S', 75),
         }
-        new_tiles = {(2, 6): ('M', 75), (2, 7): ('Ö', 75), (2, 8): ('S', 75)}
+        new_tiles = {(1, 9): ('M', 75), (2, 9): ('Ö', 75), (3, 9): ('S', 75)}
         move = Move(
             move_type=MoveType.REGULAR,
             player=0,
+            coord=(1, 9),
+            is_vertical=False,
+            word='MÖS.',
+            new_tiles=new_tiles,
+            removed_tiles={},
+            board=board,
+            played_time=(1, 1),
+            previous_score=score1,
+        )
+        game.add_move(move)
+        score1 = game.moves[-1].score
+
+        admin_insert_moves(None, game, 3, None)
+        assert 5 == len(game.moves), f'invalid count of moves: {len(game.moves)}'
+        # score (24,0) => (18,0)
+        # score (24,18) => (18,18)
+        # score (43,18) => (36,18)
+        admin_change_score(None, game, 1, (18, 0), None)
+        assert game.moves[-1].score == (37, 18), f'score {game.moves[-1].score} == 37,18'
+
+        admin_change_score(None, game, 2, (18, 9), None)
+        assert game.moves[-1].score == (37, 9), f'score {game.moves[-1].score} == 37,9'
+
+    def test_remove_blanko(self):
+        from processing import remove_blanko, admin_insert_moves
+
+        game = State.game
+        game.new_game()
+
+        board = {(3, 7): ('F', 75), (4, 7): ('I', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
+        new_tiles = board.copy()
+        move = Move(
+            move_type=MoveType.REGULAR,
+            player=0,
+            coord=(3, 7),
+            is_vertical=False,
+            word='FIRNS',
+            new_tiles=new_tiles,
+            removed_tiles={},
+            board=board,
+            played_time=(1, 0),
+            previous_score=(0, 0),
+        )
+        # time_malus(64sec, 184sec) = (-20, -40)
+        game.add_move(move)
+        score1 = game.moves[-1].score
+
+        # 5G V.TEn
+        board = {
+            (3, 7): ('F', 75),
+            (4, 7): ('I', 75),
+            (5, 7): ('R', 75),
+            (6, 7): ('N', 75),
+            (7, 7): ('S', 75),
+            (4, 6): ('V', 75),
+            (4, 8): ('T', 75),
+            (4, 9): ('E', 75),
+            (4, 10): ('_', 75),
+        }
+        new_tiles = {(4, 6): ('V', 75), (4, 8): ('T', 75), (4, 9): ('E', 75), (4, 10): ('_', 75)}
+        move = Move(
+            move_type=MoveType.REGULAR,
+            player=1,
             coord=(4, 6),
             is_vertical=True,
             word='V.TE_',
@@ -2650,18 +2713,60 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_move(move)
         score1 = game.moves[-1].score
 
+        # J2 MÖS.
+        board = {
+            (3, 7): ('F', 75),
+            (4, 7): ('I', 75),
+            (5, 7): ('R', 75),
+            (6, 7): ('N', 75),
+            (7, 7): ('S', 75),
+            (4, 6): ('V', 75),
+            (4, 8): ('T', 75),
+            (4, 9): ('E', 75),
+            (4, 10): ('_', 75),
+            (1, 9): ('M', 75),
+            (2, 9): ('Ö', 75),
+            (3, 9): ('S', 75),
+        }
+        new_tiles = {(1, 9): ('M', 75), (2, 9): ('Ö', 75), (3, 9): ('S', 75)}
+        move = Move(
+            move_type=MoveType.REGULAR,
+            player=0,
+            coord=(1, 9),
+            is_vertical=False,
+            word='MÖS.',
+            new_tiles=new_tiles,
+            removed_tiles={},
+            board=board,
+            played_time=(1, 1),
+            previous_score=score1,
+        )
+        game.add_move(move)
+        score1 = game.moves[-1].score
+
         admin_insert_moves(None, game, 3, None)
         assert 5 == len(game.moves), 'invalid count of moves'
-        logging.debug(f'{game.dev_str()}')
-        # score (24,0) => (18,0)
-        # score (24,18) => (18,18)
-        # score (42,18) => (36,18)
-        admin_change_score(None, game, 1, (18, 0), None)
-        assert game.moves[-1].score == (36, 18), 'score 36,18'
 
-        admin_change_score(None, game, 2, (18, 9), None)
-        logging.debug(f'{game.dev_str()}')
-        assert game.moves[-1].score == (36, 9), 'score 36,9'
+        remove_blanko(None, game, '5K', None)
+
+        assert game.moves[-1].score == (43, 9), f'score {game.moves[-1].score} == 43,9'
+        self.assertEqual(
+            game.moves[-1].board,
+            {
+                (3, 7): ('F', 75),
+                (4, 7): ('I', 75),
+                (5, 7): ('R', 75),
+                (6, 7): ('N', 75),
+                (7, 7): ('S', 75),
+                (4, 6): ('V', 75),
+                (4, 8): ('T', 75),
+                (4, 9): ('E', 75),
+                (1, 9): ('M', 75),
+                (2, 9): ('Ö', 75),
+                (3, 9): ('S', 75),
+            },
+            f'invalid board',
+        )
 
 
 if __name__ == '__main__':
