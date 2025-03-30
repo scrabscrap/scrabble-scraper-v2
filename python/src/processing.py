@@ -613,7 +613,8 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
             bag_len -= tiles_from_bag
             if rack != [7, 7]:
                 logging.debug(
-                    f'move {mov.move} ({mov.type}) player={mov.player} rack={rack} tiles_from_bag={tiles_from_bag} bag_len={bag_len}'
+                    f'move {mov.move} ({mov.type}) player={mov.player} rack={rack} '
+                    f'tiles_from_bag={tiles_from_bag} bag_len={bag_len}'
                 )
         points = sum(scores(elem) for elem in bag)
         logging.debug(f'last rack {rack} {bag} {points=}')
