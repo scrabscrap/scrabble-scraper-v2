@@ -491,8 +491,10 @@ def move(waitfor: Optional[Future], game: Game, img: MatLike, player: int, playe
 
     logging.info(f'\n{game.board_str()}')
     if logging.getLogger('root').isEnabledFor(logging.DEBUG):
-        msg = '\n' + ''.join(f'{mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
-        logging.debug(f'{msg}\nscores: {game.moves[-1].score}\napi: {game.json_str()}')
+        msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
+        logging.debug(
+            f'{msg}\nscores: {game.moves[-1].score}\napi: {game.json_str()[: game.json_str().find("moves") + 7]}...\n'
+        )
     store_game_status(game, game.moves[-1])
     _development_recording(game, img, suffix='~original')
     _development_recording(game, warped, suffix='~warped')
@@ -600,8 +602,11 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
         points, rackstr = _end_of_game_calculate_rack(game)
         game.add_last_rack(points, rackstr)
         event_set(event)
-        msg = '\n' + ''.join(f'{mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
-        logging.debug(f'last rack scores:\n{game.board_str()}{msg}\nscores: {game.moves[-1].score}\napi: {game.json_str()}')
+        msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
+        logging.debug(
+            f'last rack scores:\n{game.board_str()}{msg}\nscores: {game.moves[-1].score}\n'
+            f'api: {game.json_str()[: game.json_str().find("moves") + 7]}...\n'
+        )
         logging.info(game.dev_str())
 
         store_game_status(game, game.moves[-2])
