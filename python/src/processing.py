@@ -656,10 +656,6 @@ def _changes(board: dict, previous_board: dict) -> Tuple[dict, dict, dict, dict]
     return board, new_tiles, removed_tiles, changed_tiles
 
 
-def _chunkify(lst, chunks):
-    return [lst[i::chunks] for i in range(chunks)]
-
-
 def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
     if len(changed) < 1:
         logging.info('move: no new tiles detected')
@@ -696,6 +692,9 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
 @runtime_measure
 def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tuple[MatLike, dict]:
     # pylint: disable=too-many-locals
+    def chunkify(lst, chunks):
+        return [lst[i::chunks] for i in range(chunks)]
+
     waitfor_future(waitfor)
     warped, warped_gray = warp_image(img)  # 1. warp image if necessary
     filtered_image, tiles_candidates = filter_image(warped)  # 3. find potential tiles on board
@@ -738,7 +737,7 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tu
     logging.debug(f'filtered_candidates {filtered_candidates}')
 
     board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # copy board for analyze
-    chunks = _chunkify(list(filtered_candidates), 3)  # 5. picture analysis
+    chunks = chunkify(list(filtered_candidates), 3)  # 5. picture analysis
     future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))  # 1. thread
     future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))  # 2. thread
     analyze(warped_gray, board, set(chunks[2]))  # 3. (this) thread
