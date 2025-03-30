@@ -590,8 +590,40 @@ def start_of_game(game: Game):
 def end_of_game(waitfor: Optional[Future], game: Game, event=None):
     # pragma: no cover #pylint: disable=too-many-locals # no ftp upload on tests
     """Process end of game"""
+
+    def calculate_rack(game) -> Tuple[Tuple[int, int], str]:
+        from game_board.tiles import bag_as_list, scores
+
+        bag = bag_as_list.copy()
+        rack = [7, 7]
+        bag_len = len(bag) - 14  # both rack are filled wit 7 tiles
+        for mov in game.moves:
+            if mov.type == MoveType.WITHDRAW:
+                mov_len = len(mov.removed_tiles)
+                tiles_from_bag = min((rack[mov.player] + mov_len - 7) * -1, 0)  # tiles to put back
+                rack[mov.player] = min(rack[mov.player] + mov_len, 7)  # tiles on rack
+                for v, _ in mov.removed_tiles.values():
+                    bag.append(v)
+            else:
+                mov_len = len(mov.new_tiles)
+                tiles_from_bag = min(mov_len, bag_len)  # tiles available in bag
+                rack[mov.player] = rack[mov.player] - (mov_len - tiles_from_bag)  # tiles on rack
+                for v, _ in mov.new_tiles.values():
+                    bag.remove('_' if v.isalpha() and v.islower() else v)
+            bag_len -= tiles_from_bag
+            if rack != [7, 7]:
+                logging.debug(
+                    f'move {mov.move} ({mov.type}) player={mov.player} rack={rack} tiles_from_bag={tiles_from_bag} bag_len={bag_len}'
+                )
+        points = sum(scores(elem) for elem in bag)
+        logging.debug(f'last rack {rack} {bag} {points=}')
+        if (rack[0] == 0) != (rack[1] == 0):  # xor
+            return (points, -points) if rack[0] == 0 else (-points, points), ''.join(sorted(bag))
+        return (0, 0), '?'
+
     waitfor_future(waitfor)
-    if len(game.moves) > 0:
+    if game.moves:
+        # calculate overtime malus
         t = (config.max_time - game.moves[-1].played_time[0], config.max_time - game.moves[-1].played_time[1])
         for player in range(2):
             if t[player] < 0:  # in overtime
@@ -599,8 +631,11 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
                 game.add_timout_malus(player, malus)  # add as move
                 store_game_status(game, game.moves[-1])  # store move to hd
 
-        points, rackstr = _end_of_game_calculate_rack(game)
+        points, rackstr = calculate_rack(game)
         game.add_last_rack(points, rackstr)
+        store_game_status(game, game.moves[-2])
+        store_game_status(game, game.moves[-1])
+
         event_set(event)
         msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
         logging.debug(
@@ -608,54 +643,6 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
             f'api: {game.json_str()[: game.json_str().find("moves") + 7]}...\n'
         )
         logging.info(game.dev_str())
-
-        store_game_status(game, game.moves[-2])
-        store_game_status(game, game.moves[-1])
-
-
-def _end_of_game_calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
-    from game_board.tiles import bag_as_list, scores
-
-    def calculate_bag(_mov) -> list[str]:
-        values = [t for (t, _) in _mov.board.values()]
-        result = bag_as_list.copy()
-        for val in values:
-            toremove = '_' if val.isalpha() and val.islower() else val
-            if toremove in result:
-                result.remove(toremove)
-        return result
-
-    bag_len = 0
-    i = -1
-    for i, mov in enumerate(reversed(game.moves)):
-        bag = calculate_bag(mov)
-        if len(bag) >= 14:
-            bag_len = len(bag) - 14
-            i = len(game.moves) - i - 1  # revert Index
-            break
-    else:
-        i = -1  # if no moves found
-    rack, prev_rack = [7, 7], [7, 7]
-    prev_bag_len = bag_len
-    for mov in game.moves[i + 1 :]:
-        if mov.type == MoveType.WITHDRAW:
-            rack[mov.player], bag_len = prev_rack[mov.player], prev_bag_len
-            from_bag = 0
-        else:
-            prev_rack[mov.player], prev_bag_len = rack[mov.player], bag_len
-            mov_len = len(mov.new_tiles)
-            from_bag = min(mov_len, bag_len)
-            rack[mov.player] -= mov_len - from_bag
-            bag_len -= from_bag
-        logging.info(f'move={mov.move} {mov.type} {mov.player=} rack-size={rack[mov.player]} {from_bag=} {bag_len=}')
-    if len(game.moves) > 0:
-        bag = calculate_bag(game.moves[-1])
-        points = sum(scores(elem) for elem in bag)
-        if rack[0] == 0 and rack[1] > 0:
-            return (points, -points), ''.join(bag)
-        if rack[1] == 0 and rack[0] > 0:
-            return (-points, points), ''.join(bag)
-    return (0, 0), '?'
 
 
 def _changes(board: dict, previous_board: dict) -> Tuple[dict, dict, dict, dict]:
