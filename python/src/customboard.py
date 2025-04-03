@@ -21,12 +21,12 @@ import logging
 from typing import Optional
 
 import cv2
+import imutils
 import numpy as np
 from cv2.typing import MatLike
 
 from config import config
 from game_board.board import DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W, OFFSET, TRIPLE_LETTER, TRIPLE_WORDS
-from gameboard import GameBoard
 from util import TWarp
 
 # dimension board custom
@@ -43,36 +43,7 @@ from util import TWarp
 # 19mm x 19mm
 
 
-def _create_masks() -> tuple[MatLike, MatLike, MatLike, MatLike, MatLike]:
-    tword = np.zeros((800, 800), dtype='uint8')
-    dword = np.zeros((800, 800), dtype='uint8')
-    tletter = np.zeros((800, 800), dtype='uint8')
-    dletter = np.zeros((800, 800), dtype='uint8')
-    field = np.zeros((800, 800), dtype='uint8')
-    field[:] = 255
-    for col in range(15):
-        for row in range(15):
-            px_col = int(OFFSET + (row * GRID_H))
-            px_row = int(OFFSET + (col * GRID_W))
-            if (col, row) in TRIPLE_WORDS:
-                tword[px_col - 5 : px_col + GRID_H + 5, px_row - 5 : px_row + GRID_W + 5] = 255
-                field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
-            elif (col, row) in DOUBLE_WORDS:
-                dword[px_col - 5 : px_col + GRID_H + 5, px_row - 5 : px_row + GRID_W + 5] = 255
-                field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
-            elif (col, row) in TRIPLE_LETTER:
-                tletter[px_col - 5 : px_col + GRID_H + 5, px_row - 5 : px_row + GRID_W + 5] = 255
-                field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
-            elif (col, row) in DOUBLE_LETTER:
-                dletter[px_col - 5 : px_col + GRID_H + 5, px_row - 5 : px_row + GRID_W + 5] = 255
-                field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
-    return tword, dword, tletter, dletter, field
-
-
-board_tword, board_dword, board_tletter, board_dletter, board_field = _create_masks()
-
-
-class CustomBoard(GameBoard):
+class CustomBoard:
     """Implementation custom scrabble board analysis"""
 
     # layout 2012
@@ -85,6 +56,8 @@ class CustomBoard(GameBoard):
     SATURATION = [[0, 110, 0], [180, 255, 255]]
     TILES_THRESHOLD = config.board_tiles_threshold
 
+    BOARD_MASK_BORDER = 5
+    TWORD_MASK, DWORD_MASK, TLETTER_MASK, DLETTER_MASK, FIELD_MASK = None, None, None, None, None
     last_warp: Optional[TWarp] = None
 
     @classmethod
@@ -104,33 +77,9 @@ class CustomBoard(GameBoard):
         return cv2.warpPerspective(image, matrix, (800, 800), flags=cv2.INTER_AREA)
 
     @classmethod
-    def log_pixels(cls, filtered_pixels) -> str:
-        """Print candidates set"""
-        board_size = 15
-        tmp = '  |' + ''.join(f'{i + 1:5d} ' for i in range(board_size)) + '\n'
-        tmp += '\n'.join(
-            [
-                f'{chr(ord("A") + row)} |{"".join(f" {filtered_pixels[(col, row)]:4d} " for col in range(board_size))}|'
-                for row in range(board_size)
-            ]
-        )
-        return tmp
-
-    @classmethod
-    def log_candidates(cls, candidates) -> str:
-        """Print candidates set"""
-        board_size = 15
-        tmp = '  |' + ''.join(f'{i + 1:2d} ' for i in range(board_size)) + '\n'
-        tmp += '\n'.join(
-            [
-                f'{chr(ord("A") + row)} |{"".join(" X " if (col, row) in candidates else " · " for col in range(board_size))}|'
-                for row in range(board_size)
-            ]
-        )
-        return tmp
-
-    @classmethod
     def filter_image(cls, color: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disable=too-many-locals
+        """implement filter for game board"""
+
         def create_mask(hsv: MatLike, color_range, board_mask) -> np.ndarray:
             tmp = cv2.bitwise_and(hsv, hsv, mask=board_mask)
             mask = np.zeros((800, 800), dtype='uint8')
@@ -139,11 +88,11 @@ class CustomBoard(GameBoard):
             return mask
 
         def filter_color(hsv: MatLike) -> np.ndarray:
-            mask_tword = create_mask(hsv, cls.TWORD, board_tword)
-            mask_dword = create_mask(hsv, cls.DWORD, board_dword)
-            mask_tletter = create_mask(hsv, cls.TLETTER, board_tletter)
-            mask_dletter = create_mask(hsv, cls.DLETTER, board_dletter)
-            mask_field = create_mask(hsv, cls.FIELD, board_field)
+            mask_tword = create_mask(hsv, cls.TWORD, cls.TWORD_MASK)
+            mask_dword = create_mask(hsv, cls.DWORD, cls.DWORD_MASK)
+            mask_tletter = create_mask(hsv, cls.TLETTER, cls.TLETTER_MASK)
+            mask_dletter = create_mask(hsv, cls.DLETTER, cls.DLETTER_MASK)
+            mask_field = create_mask(hsv, cls.FIELD, cls.FIELD_MASK)
             return mask_tword | mask_dword | mask_tletter | mask_dletter | mask_field
 
         def dynamic_threshold(image: MatLike) -> np.ndarray:
@@ -164,6 +113,8 @@ class CustomBoard(GameBoard):
             _, thresh = cv2.threshold(gray_blur, int((threshold_center + threshold_board) / 2), 255, cv2.THRESH_BINARY_INV)
             return thresh
 
+        if cls.TWORD_MASK is None:
+            cls.TWORD_MASK, cls.DWORD_MASK, cls.TLETTER_MASK, cls.DLETTER_MASK, cls.FIELD_MASK = cls.create_board_masks()
         img = cv2.blur(color, (3, 3))
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -193,6 +144,119 @@ class CustomBoard(GameBoard):
             logging.debug(f'filtered pixels:\n{cls.log_pixels(filtered_pixels=filtered_pixels)}')
             logging.debug(f'candidates:\n{cls.log_candidates(candidates=candidates)}')
         return result, candidates
+
+    @staticmethod
+    def log_pixels(filtered_pixels) -> str:
+        """Print candidates set"""
+        board_size = 15
+        tmp = '  |' + ''.join(f'{i + 1:5d} ' for i in range(board_size)) + '\n'
+        tmp += '\n'.join(
+            [
+                f'{chr(ord("A") + row)} |{"".join(f" {filtered_pixels[(col, row)]:4d} " for col in range(board_size))}|'
+                for row in range(board_size)
+            ]
+        )
+        return tmp
+
+    @staticmethod
+    def log_candidates(candidates) -> str:
+        """Print candidates set"""
+        board_size = 15
+        tmp = '  |' + ''.join(f'{i + 1:2d} ' for i in range(board_size)) + '\n'
+        tmp += '\n'.join(
+            [
+                f'{chr(ord("A") + row)} |{"".join(" X " if (col, row) in candidates else " · " for col in range(board_size))}|'
+                for row in range(board_size)
+            ]
+        )
+        return tmp
+
+    @classmethod
+    def create_board_masks(cls) -> tuple[MatLike, MatLike, MatLike, MatLike, MatLike]:
+        """create board masks for custom board"""
+
+        tword = np.zeros((800, 800), dtype='uint8')
+        dword = np.zeros((800, 800), dtype='uint8')
+        tletter = np.zeros((800, 800), dtype='uint8')
+        dletter = np.zeros((800, 800), dtype='uint8')
+        field = np.zeros((800, 800), dtype='uint8')
+        field[:] = 255
+        for col in range(15):
+            for row in range(15):
+                px_col = int(OFFSET + (row * GRID_H))
+                px_row = int(OFFSET + (col * GRID_W))
+                if (col, row) in TRIPLE_WORDS:
+                    tword[
+                        px_col - cls.BOARD_MASK_BORDER : px_col + GRID_H + cls.BOARD_MASK_BORDER,
+                        px_row - cls.BOARD_MASK_BORDER : px_row + GRID_W + cls.BOARD_MASK_BORDER,
+                    ] = 255
+                    field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
+                elif (col, row) in DOUBLE_WORDS:
+                    dword[
+                        px_col - cls.BOARD_MASK_BORDER : px_col + GRID_H + cls.BOARD_MASK_BORDER,
+                        px_row - cls.BOARD_MASK_BORDER : px_row + GRID_W + cls.BOARD_MASK_BORDER,
+                    ] = 255
+                    field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
+                elif (col, row) in TRIPLE_LETTER:
+                    tletter[
+                        px_col - cls.BOARD_MASK_BORDER : px_col + GRID_H + cls.BOARD_MASK_BORDER,
+                        px_row - cls.BOARD_MASK_BORDER : px_row + GRID_W + cls.BOARD_MASK_BORDER,
+                    ] = 255
+                    field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
+                elif (col, row) in DOUBLE_LETTER:
+                    dletter[
+                        px_col - cls.BOARD_MASK_BORDER : px_col + GRID_H + cls.BOARD_MASK_BORDER,
+                        px_row - cls.BOARD_MASK_BORDER : px_row + GRID_W + cls.BOARD_MASK_BORDER,
+                    ] = 255
+                    field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
+        return tword, dword, tletter, dletter, field
+
+    @staticmethod
+    def find_board(image) -> TWarp:
+        """try to find the game board border"""
+        if config.video_warp_coordinates is not None:
+            rect = np.array(config.video_warp_coordinates, dtype='float32')
+        else:
+            # based on: https://www.pyimagesearch.com/2014/08/25/4-point-opencv-getperspective-transform-example/
+            (blue, _, _) = cv2.split(image.copy())
+
+            # Otsu's thresholding after Gaussian filtering
+            blur = cv2.GaussianBlur(blue, (5, 5), 0)
+            _, th3 = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
+            dilated = cv2.dilate(th3, kernel)
+
+            cnts = cv2.findContours(dilated.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cnts = imutils.grab_contours(cnts)
+            cnts = sorted(cnts, key=cv2.contourArea, reverse=True)  # type: ignore[assignment, arg-type]
+            pts = None
+            for contour in cnts:
+                peri = cv2.arcLength(contour, True)  # type: ignore[arg-type]
+                approx = cv2.approxPolyDP(contour, 0.02 * peri, True)  # type: ignore[arg-type]
+                if len(approx) == 4:
+                    pts = approx.reshape(4, 2)
+                    break
+            rect = np.zeros((4, 2), dtype='float32')
+            if pts is None:
+                rect[0] = [0, 0]
+                rect[1] = [image.shape[1] - 1, 0]
+                rect[2] = [image.shape[1] - 1, image.shape[0] - 1]
+                rect[3] = [0, image.shape[0] - 1]
+                return rect
+            # the top-left point has the smallest sum whereas the
+            # bottom-right has the largest sum
+            sums = pts.sum(axis=1)
+            rect[0] = pts[np.argmin(sums)]
+            rect[2] = pts[np.argmax(sums)]
+
+            # compute the difference between the points -- the top-right
+            # will have the minumum difference and the bottom-left will
+            # have the maximum difference
+            diff = np.diff(pts, axis=1)
+            rect[1] = pts[np.argmin(diff)]
+            rect[3] = pts[np.argmax(diff)]
+        return rect
 
 
 # test and debug
@@ -248,7 +312,7 @@ def main():  # pragma: no cover # pylint: disable=too-many-locals
         masked = cv2.bitwise_and(warped, warped, mask=mask)
         blend = cv2.addWeighted(warped, 0.3, masked, 0.7, 0.0)
         result1 = hstack([warped, blend, cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)])
-        if result:
+        if result is not None:
             result2 = cv2.cvtColor(cv2.resize(result, (2400, 340)), cv2.COLOR_GRAY2BGR)
             output = vstack([result1, result2])
         else:

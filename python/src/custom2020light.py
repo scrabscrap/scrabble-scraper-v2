@@ -35,3 +35,5 @@ class Custom2020LightBoard(CustomBoard):
     TWORD = [[10, 80, 50], [50, 255, 255]]
     DWORD = [[0, 160, 60], [40, 255, 255]]
     FIELD = [[70, 0, 0], [110, 220, 200]]
+
+    BOARD_MASK_BORDER = 0

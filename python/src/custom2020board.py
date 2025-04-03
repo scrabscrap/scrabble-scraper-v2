@@ -16,36 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-from typing import Set, Tuple
-
-import numpy as np
-
 from customboard import CustomBoard
-from game_board.board import DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W, OFFSET, TRIPLE_LETTER, TRIPLE_WORDS
-
-
-def _create_masks() -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    def create_mask(shape=(800, 800)) -> np.ndarray:
-        return np.zeros(shape, dtype='uint8')
-
-    def apply_mask(
-        mask: np.ndarray, coordinates: Set[Tuple[int, int]], grid_h: int, grid_w: int, offset: int, field: np.ndarray
-    ):  # pylint: disable=too-many-arguments, too-many-positional-arguments
-        for col, row in coordinates:
-            px_col, px_row = int(offset + row * grid_h), int(offset + col * grid_w)
-            mask[px_col : px_col + grid_h, px_row : px_row + grid_w] = 255
-            field[px_col : px_col + grid_h, px_row : px_row + grid_w] = 0
-
-    field = np.full((800, 800), 255, dtype='uint8')
-    masks = {'tword': create_mask(), 'dword': create_mask(), 'tletter': create_mask(), 'dletter': create_mask()}
-
-    for key, coords in zip(masks.keys(), [TRIPLE_WORDS, DOUBLE_WORDS, TRIPLE_LETTER, DOUBLE_LETTER]):
-        apply_mask(masks[key], coords, GRID_H, GRID_W, OFFSET, field)
-
-    return masks['tword'], masks['dword'], masks['tletter'], masks['dletter'], field
-
-
-board_tword, board_dword, board_tletter, board_dletter, board_field = _create_masks()
 
 
 class Custom2020Board(CustomBoard):
@@ -59,3 +30,4 @@ class Custom2020Board(CustomBoard):
     FIELD = [[70, 0, 0], [110, 220, 200]]
 
     # TILES_THRESHOLD = 1000 # use configured threshold
+    BOARD_MASK_BORDER = 0
