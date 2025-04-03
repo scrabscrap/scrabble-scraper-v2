@@ -558,12 +558,6 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
 
 
 @trace
-def store_status(game: Game):
-    """store current status.json - does not update data - *.json !"""
-    store_game_status(game, None)
-
-
-@trace
 def start_of_game(game: Game):
     """start of game"""
     import glob

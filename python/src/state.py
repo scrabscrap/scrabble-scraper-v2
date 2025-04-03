@@ -44,7 +44,7 @@ from processing import (
     remove_blanko,
     set_blankos,
     start_of_game,
-    store_status,
+    store_game_status,
     store_zip_from_game,
     valid_challenge,
     waitfor_future,
@@ -200,7 +200,7 @@ class State(Static):
         """set new player names and upload status, if state is START"""
         cls.game.nicknames = (name1, name2)
         if cls.current_state == START:
-            store_status(cls.game)
+            store_game_status(cls.game)
             cls.do_ready()
         event_set(cls.op_event)
 
