@@ -113,7 +113,7 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
             match_calls += 1
             _, thresh, _, _ = cv2.minMaxLoc(res)
             thresh = int(thresh * 100)
-            if _tile.name in UMLAUTS and thresh >= suggest_prop:
+            if _tile.name in UMLAUTS and thresh > suggest_prop - THRESHOLD_UMLAUT_BONUS:
                 thresh = min(99, thresh + THRESHOLD_UMLAUT_BONUS)  # 2% Bonus for umlauts
                 logging.debug(f'{chr(ORD_A + row)}{col + 1:2} => ({_tile.name},{thresh}) increased prop')
             if thresh > suggest_prop:
