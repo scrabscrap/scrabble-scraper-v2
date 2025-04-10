@@ -287,11 +287,12 @@ class State(Static):
         from contextlib import suppress
 
         logging.info(f'{cls.current_state} - (reset) -> {START}')
+        cls.current_state = BLOCKING
         with suppress(Exception):
-            cls.current_state = BLOCKING
             LED.switch_on(set())
             ScrabbleWatch.display.show_ready(('prepare', 'end'))
             end_of_game(None, cls.game, cls.op_event)
+        with suppress(Exception):
             ScrabbleWatch.display.show_ready(('upload', 'game'))
             store_zip_from_game(cls.game)
 
@@ -306,11 +307,12 @@ class State(Static):
         from contextlib import suppress
 
         logging.info(f'{cls.current_state} - (reboot) -> {START}')
+        cls.current_state = BLOCKING
         with suppress(Exception):
-            cls.current_state = BLOCKING
             ScrabbleWatch.display.show_boot()  # Display message REBOOT
             LED.switch_on(set())
             end_of_game(cls.last_submit, cls.game)
+        with suppress(Exception):
             store_zip_from_game(cls.game)
         ScrabbleWatch.display.stop()
         current_state = START

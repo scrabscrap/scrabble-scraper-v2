@@ -587,33 +587,35 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
 
     def calculate_rack(game) -> Tuple[Tuple[int, int], str]:
         from game_board.tiles import bag_as_list, scores
+        from contextlib import suppress
 
-        bag = bag_as_list.copy()
-        rack = [7, 7]
-        bag_len = len(bag) - 14  # both rack are filled wit 7 tiles
-        for mov in game.moves:
-            if mov.type == MoveType.WITHDRAW:
-                mov_len = len(mov.removed_tiles)
-                tiles_from_bag = min((rack[mov.player] + mov_len - 7) * -1, 0)  # tiles to put back
-                rack[mov.player] = min(rack[mov.player] + mov_len, 7)  # tiles on rack
-                for v, _ in mov.removed_tiles.values():
-                    bag.append(v)
-            else:
-                mov_len = len(mov.new_tiles)
-                tiles_from_bag = min(mov_len, bag_len)  # tiles available in bag
-                rack[mov.player] = rack[mov.player] - (mov_len - tiles_from_bag)  # tiles on rack
-                for v, _ in mov.new_tiles.values():
-                    bag.remove('_' if v.isalpha() and v.islower() else v)
-            bag_len -= tiles_from_bag
-            if rack != [7, 7]:
-                logging.debug(
-                    f'move {mov.move} ({mov.type}) player={mov.player} rack={rack} '
-                    f'tiles_from_bag={tiles_from_bag} bag_len={bag_len}'
-                )
-        points = sum(scores(elem) for elem in bag)
-        logging.debug(f'last rack {rack} {bag} {points=}')
-        if (rack[0] == 0) != (rack[1] == 0):  # xor
-            return (points, -points) if rack[0] == 0 else (-points, points), ''.join(sorted(bag))
+        with suppress(Exception):  # possible exception, if bag is invalid because of wrong recognition
+            bag = bag_as_list.copy()
+            rack = [7, 7]
+            bag_len = len(bag) - 14  # both rack are filled wit 7 tiles
+            for mov in game.moves:
+                if mov.type == MoveType.WITHDRAW:
+                    mov_len = len(mov.removed_tiles)
+                    tiles_from_bag = min((rack[mov.player] + mov_len - 7) * -1, 0)  # tiles to put back
+                    rack[mov.player] = min(rack[mov.player] + mov_len, 7)  # tiles on rack
+                    for v, _ in mov.removed_tiles.values():
+                        bag.append(v)
+                else:
+                    mov_len = len(mov.new_tiles)
+                    tiles_from_bag = min(mov_len, bag_len)  # tiles available in bag
+                    rack[mov.player] = rack[mov.player] - (mov_len - tiles_from_bag)  # tiles on rack
+                    for v, _ in mov.new_tiles.values():
+                        bag.remove('_' if v.isalpha() and v.islower() else v)
+                bag_len -= tiles_from_bag
+                if rack != [7, 7]:
+                    logging.debug(
+                        f'move {mov.move} ({mov.type}) player={mov.player} rack={rack} '
+                        f'tiles_from_bag={tiles_from_bag} bag_len={bag_len}'
+                    )
+            points = sum(scores(elem) for elem in bag)
+            logging.debug(f'last rack {rack} {bag} {points=}')
+            if (rack[0] == 0) != (rack[1] == 0):  # xor
+                return (points, -points) if rack[0] == 0 else (-points, points), ''.join(sorted(bag))
         return (0, 0), '?'
 
     waitfor_future(waitfor)
