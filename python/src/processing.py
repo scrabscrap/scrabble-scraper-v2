@@ -662,28 +662,22 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
     if vertical and horizontal:
         logging.warning(f'illegal move: {changed}')
         raise InvalidMoveExeption('move: illegal move horizontal and vertical changes detected')
+
+    col, row = start = changed[0]
     if len(changed) == 1:  # only 1 tile
-        col, row = changed[-1]
         horizontal = ((col - 1, row) in board) or ((col + 1, row) in board)
-        vertical = False if horizontal else ((col, row - 1) in board) or ((col, row + 1) in board)
-    col, row = changed[0]
-    min_col, min_row = col, row
+        vertical = not horizontal
+
+    direction = (0, 1) if vertical else (1, 0)  # (dx, dy)
+    while (col - direction[0], row - direction[1]) in board:  # find start position
+        (col, row) = (col - direction[0], row - direction[1])
+    start = (col, row)
+
     word = ''
-    if vertical:
-        while row > 0 and (col, row - 1) in board:
-            row -= 1
-        min_row = row
-        while row < 15 and (col, row) in board:
-            word += board[(col, row)][0] if (col, row) in changed else '.'
-            row += 1
-    else:
-        while col > 0 and (col - 1, row) in board:
-            col -= 1
-        min_col = col
-        while col < 15 and (col, row) in board:
-            word += board[(col, row)][0] if (col, row) in changed else '.'
-            col += 1
-    return vertical, (min_col, min_row), word
+    while (col, row) in board:  # build word
+        word += board[(col, row)][0] if (col, row) in changed else '.'
+        (col, row) = (col + direction[0], row + direction[1])
+    return vertical, start, word
 
 
 @runtime_measure
