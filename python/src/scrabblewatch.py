@@ -66,7 +66,7 @@ class ScrabbleWatch(Static):
     def reset(cls) -> None:
         """reset timer"""
         cls.paused = True
-        cls.display.show_reset()
+        cls.display.show_ready(('', ''))
         cls.play_time = 0
         cls.time = (0, 0)
         cls.current = (0, 0)

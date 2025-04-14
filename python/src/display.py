@@ -32,9 +32,6 @@ class Display(Protocol):
     def show_boot(self) -> None:
         """show boot message"""
 
-    def show_reset(self) -> None:
-        """show reset message"""
-
     def show_accesspoint(self) -> None:
         """show AP Mode message"""
 
@@ -122,9 +119,6 @@ class DisplayMock(Display):
 
     def show_boot(self) -> None:
         logging.debug('Boot message')
-
-    def show_reset(self) -> None:
-        logging.debug('Reset message')
 
     def show_accesspoint(self) -> None:
         logging.debug('AP Mode message')

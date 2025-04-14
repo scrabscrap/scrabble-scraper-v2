@@ -28,7 +28,7 @@ from PIL import ImageFont
 
 from config import config
 from display import Display
-from scrabble import Game, MoveType
+from scrabble import Game
 
 IC2_PORT_PLAYER1 = 1
 IC2_ADDRESS_PLAYER1 = 0x3C
@@ -66,7 +66,6 @@ class PlayerDisplay(Display):
 
     def __init__(self) -> None:
         self.game: Optional[Game] = None
-        self.last_score = (0, 0)
 
     def stop(self) -> None:
         logging.debug('display stop')
@@ -74,46 +73,20 @@ class PlayerDisplay(Display):
             DEVICE[i].hide()
 
     def show_boot(self) -> None:
-        logging.debug('Loading message')
-        ips = get_ipv4_address()
-        wip: str = ips.get('wlan0', 'n/a')
-        eip: str = ips.get('eth0', 'n/a')
-        current_ip = (wip, eip)
-        msg = 'Loading ...'
-        for i in range(2):
-            with canvas(DEVICE[i]) as draw:
-                draw.text((1, 1), current_ip[i], font=FONT2, fill=WHITE)
-                draw.text(MIDDLE, msg, font=FONT1, anchor='mm', align='center', fill=WHITE)
-
-    def show_reset(self) -> None:
-        logging.debug('New Game message')
-        msg = 'New Game'
-        for i in range(2):
-            with canvas(DEVICE[i]) as draw:
-                draw.text(MIDDLE, msg, font=FONT1, anchor='mm', align='center', fill=WHITE)
+        self.show_ready(('Loading\u2026', 'Loading\u2026'))
 
     def show_accesspoint(self) -> None:
-        logging.debug('AP Mode message')
-        ips = get_ipv4_address()
-        wip: str = ips.get('wlan0', 'n/a')
-        eip: str = ips.get('eth0', 'n/a')
-        current_ip = (wip, eip)
-
-        msg = 'AP Mode'
-        for i in range(2):
-            with canvas(DEVICE[i]) as draw:
-                draw.text((1, 1), current_ip[i], font=FONT2, fill=WHITE)
-                draw.text(MIDDLE, msg, font=FONT1, anchor='mm', align='center', fill=WHITE)
+        self.show_ready(('AP Mode', 'AP Mode'))
 
     def show_ready(self, msg=('Ready', 'Ready')) -> None:
-        logging.debug('Ready message')
+        logging.debug(f'show message {msg}')
         ips = get_ipv4_address()
         wip: str = ips.get('wlan0', 'n/a')
         eip: str = ips.get('eth0', 'n/a')
-        current_ip = (wip, eip)
+        title = (wip, eip)
         for i in range(2):
             with canvas(DEVICE[i]) as draw:
-                draw.text((1, 1), current_ip[i], font=FONT2, fill=WHITE)
+                draw.text((1, 1), title[i], font=FONT2, fill=WHITE)
                 text = msg[i][:10]
                 draw.text(MIDDLE, text, font=FONT1, anchor='mm', align='center', fill=WHITE)
 
@@ -129,7 +102,6 @@ class PlayerDisplay(Display):
                         draw.text((2, 30), f'{minutes:02d}:{seconds:02d}  {score:3d}', font=FONT1, fill=WHITE)
 
     def show_pause(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in {0, 1}, 'invalid player number'
         msg = 'Pause'
         logging.debug('Pause message')
         if config.show_score and self.game and len(self.game.moves):
@@ -137,86 +109,57 @@ class PlayerDisplay(Display):
         self.render_display(player, played_time, current, msg)
 
     def add_malus(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in {0, 1}, 'invalid player number'
         logging.debug(f'{player}: malus -10')
         self.render_display(player, played_time, current, '-10P')
 
     def add_remove_tiles(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in {0, 1}, 'invalid player number'
         logging.debug(f'{player}: Entf. Zug')
         self.render_display(player, played_time, current, '\u2717Zug\u270d')
 
     def add_doubt_timeout(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in {0, 1}, 'invalid player number'
         logging.debug(f'{player}: doubt timeout')
         self.render_display(player, played_time, current, '\u21afZeit')
 
     def show_cam_err(self) -> None:
-        logging.debug('Cam err message')
-        for i in range(2):
-            with canvas(DEVICE[i]) as draw:
-                draw.text(MIDDLE, '\u2620Cam', font=FONT, anchor='mm', align='center', fill=WHITE)
+        self.show_ready(('\u2620 Cam err', '\u2620 Cam err'))
 
     def show_ftp_err(self) -> None:
-        logging.debug('FTP err message')
-        for i in range(2):
-            with canvas(DEVICE[i]) as draw:
-                draw.text(MIDDLE, '\u2620ftp', font=FONT, anchor='mm', align='center', fill=WHITE)
+        self.show_ready(('\u2620 FTP err', '\u2620 FTP err'))
 
     def set_game(self, game: Game) -> None:
         self.game = game
-        self.last_score = (0, 0)
-
-    def _refresh_points(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in {0, 1}, 'invalid player number'
-
-        minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
-        text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
-        with canvas(DEVICE[player]) as draw:
-            if config.show_score and self.game:
-                nickname = self.game.nicknames[player]
-                if len(nickname) > 5:
-                    nickname = f'{nickname[:4]}\u2026'
-                if len(self.game.moves):
-                    if self.game.moves[-1].type == MoveType.UNKNOWN:
-                        draw.text((20, 1), f'{nickname} ???', font=FONT2, fill=WHITE)
-                    else:
-                        draw.text((20, 1), f'{nickname} {self.game.moves[-1].score[player]:3d}', font=FONT2, fill=WHITE)
-                else:
-                    draw.text((20, 1), f'{nickname}   0', font=FONT2, fill=WHITE)
-            if current[player] != 0:
-                draw.text((90, 1), f'{current[player]:3d}', font=FONT1, fill=WHITE)
-            draw.text((1, 22), text, font=FONT, fill=WHITE)
 
     def render_display(
         self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: Optional[str] = None
     ) -> None:
-        assert player in {0, 1}, 'invalid player number'
+        def _format_time(played: int) -> str:
+            delta = config.max_time - played
+            minutes, seconds = divmod(abs(delta), 60)
+            return f'-{minutes:1d}:{seconds:02d}' if delta < 0 else f'{minutes:02d}:{seconds:02d}'
 
-        minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
-        text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
-        with canvas(DEVICE[player]) as draw:
-            if 0 < current[player] <= config.doubt_timeout:
-                draw.text((1, 1), '\u2049', font=FONT1, fill=WHITE)  # alternative \u2718
-            if info:
-                left, top, right, bottom = draw.textbbox((20, 1), info, font=FONT1)
-                draw.rectangle((left - 2, top - 2, right + 2, bottom + 2), fill=WHITE)
-                draw.text((20, 1), info, font=FONT1, fill=BLACK)
-            elif config.show_score and self.game:
-                nickname = self.game.nicknames[player]
-                if len(nickname) > 5:
-                    nickname = f'{nickname[:4]}\u2026'
-                if len(self.game.moves):
-                    draw.text((20, 1), f'{nickname} {self.game.moves[-1].score[player]:3d}', font=FONT2, fill=WHITE)
-                    if self.last_score != self.game.moves[-1].score:
-                        self._refresh_points(0 if player == 1 else 1, played_time=played_time, current=current)
-                        self.last_score = self.game.moves[-1].score
-                else:
-                    draw.text((20, 1), f'{nickname}   0', font=FONT2, fill=WHITE)
-            elif self.game:
-                nickname = self.game.nicknames[player][:10]
-                draw.text((20, 1), f'{nickname}', font=FONT2, fill=WHITE)
-            if current[player] != 0:
-                draw.text((90, 1), f'{current[player]:3d}', font=FONT1, fill=WHITE)
+        def _shorten_nickname(nickname: str, max_length: int = 6) -> str:
+            return f'{nickname[: max_length - 1]}\u2026' if len(nickname) > max_length else nickname
 
-            draw.text((1, 22), text, font=FONT, fill=WHITE)
+        for i in range(2):
+            time_str = _format_time(played_time[i])
+            color = WHITE
+            with canvas(DEVICE[i]) as draw:
+                if info and i == player:
+                    draw.rectangle((1, 1, 128, 64), fill=WHITE)  # white background
+                    color = BLACK
+                if info:
+                    draw.text((20, 1), info, font=FONT1, fill=color)
+                if i == player:
+                    if 0 < current[player] <= config.doubt_timeout:
+                        draw.text((1, 1), '\u2049', font=FONT1, fill=color)  # alternative \u2718
+                    if current[player] != 0:
+                        draw.text((90, 1), f'{current[player]:3d}', font=FONT1, fill=color)
+                if self.game and not info:
+                    if config.show_score:
+                        nickname = _shorten_nickname(self.game.nicknames[player])
+                        score = self.game.moves[-1].score[i] if len(self.game.moves) else 0
+                        draw.text((20, 1), f'{nickname}{score:3d}', font=FONT2, fill=color)
+                    else:
+                        nickname = _shorten_nickname(self.game.nicknames[i], 10)
+                        draw.text((20, 1), f'{nickname}', font=FONT2, fill=color)
+                draw.text((1, 22), time_str, font=FONT, fill=color)
