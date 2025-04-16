@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 import sys
 import threading
@@ -22,12 +23,13 @@ import time
 import unittest
 
 from config import config
-from display import DisplayMock
+from display import Display
 from hardware.led import LED
 from scrabblewatch import ScrabbleWatch
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True,
-                    format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+logging.basicConfig(
+    stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
+)
 
 
 # noinspection PyMethodMayBeStatic
@@ -55,7 +57,7 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         """test: timer"""
         display_pause = 0.1
 
-        ScrabbleWatch.display = DisplayMock()
+        ScrabbleWatch.display = Display()
         logging.info('without start')
         ScrabbleWatch.display.show_boot()
         time.sleep(display_pause)
@@ -72,11 +74,11 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         ScrabbleWatch.pause()
         time.sleep(display_pause)
         logging.info('pause mit malus')
-        ScrabbleWatch.display.add_malus(0, [100, 100], [10, 10])
+        ScrabbleWatch.display.add_malus(0, (100, 100), (10, 10))
         ScrabbleWatch.pause()
         time.sleep(display_pause)
         logging.info('pause mit remove')
-        ScrabbleWatch.display.add_remove_tiles(1, [100, 100], [10, 10])
+        ScrabbleWatch.display.add_remove_tiles(1, (100, 100), (10, 10))
         ScrabbleWatch.pause()
         time.sleep(display_pause)
         logging.info('resume')

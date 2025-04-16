@@ -140,7 +140,7 @@ class GameRunnerTestCase(unittest.TestCase):
         """Test csv games"""
         import tracemalloc
 
-        from display import DisplayMock
+        from display import Display
         from scrabblewatch import ScrabbleWatch
         from state import State
 
@@ -148,7 +148,7 @@ class GameRunnerTestCase(unittest.TestCase):
             tracemalloc.start()
             tracemalloc.reset_peak()
 
-        ScrabbleWatch.display = DisplayMock()
+        ScrabbleWatch.display = Display()
         camera.switch_camera('file')
 
         # read *.ini

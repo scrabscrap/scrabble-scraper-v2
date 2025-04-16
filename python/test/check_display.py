@@ -1,20 +1,21 @@
 """
- This file is part of the scrabble-scraper-v2 distribution
- (https://github.com/scrabscrap/scrabble-scraper-v2)
- Copyright (c) 2022 Rainer Rohloff.
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2022 Rainer Rohloff.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, version 3.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 import os
 import unittest
@@ -22,17 +23,16 @@ from time import sleep
 
 try:
     os.stat('/dev/i2c-1')
-    from hardware.oled import PlayerDisplay
+    from hardware.oled import OLEDDisplay as DisplayImpl
 except (FileNotFoundError, ImportError):
     logging.warning('no i2c device found or import error')
-    from display import DisplayMock as PlayerDisplay  # type: ignore # fallback on ImportError
+    from display import Display as DisplayImpl  # type: ignore # fallback on ImportError
 
 from config import config
 from scrabblewatch import ScrabbleWatch
 from util import trace
 
-logging.basicConfig(
-    level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 
 class DisplayTestCase(unittest.TestCase):
@@ -49,7 +49,7 @@ class DisplayTestCase(unittest.TestCase):
     @trace
     def test_display(self):
         """show different pattern on the OLED Displays"""
-        ScrabbleWatch.display = PlayerDisplay()
+        ScrabbleWatch.display = DisplayImpl()
 
         ScrabbleWatch.display.show_boot()
         ScrabbleWatch.display.show_cam_err()

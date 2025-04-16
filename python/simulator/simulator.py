@@ -184,7 +184,7 @@ def main():
     import sys
     from threading import Event
 
-    from display import DisplayMock
+    from display import Display
 
     def log_exception_handler(exctype, value, tb):
         import traceback
@@ -226,7 +226,7 @@ def main():
         camera.cam.resize = False
 
     # set Watch
-    ScrabbleWatch.display = DisplayMock()
+    ScrabbleWatch.display = Display()
     timer = RepeatedTimer(1, ScrabbleWatch.tick)
     _ = pool.submit(timer.tick, Event())
 

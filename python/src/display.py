@@ -17,23 +17,30 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import logging
-from typing import Optional, Protocol
+from typing import Optional
 
 from config import config
 from scrabble import Game
 
 
-class Display(Protocol):
+class Display:
     """Display to show timer and events"""
+
+    def __init__(self) -> None:
+        self.lastplayer: int = -1
+        self.game: Optional[Game] = None
 
     def stop(self) -> None:
         """Poweroff display"""
+        logging.debug('display stop')
 
     def show_boot(self) -> None:
         """show boot message"""
+        self.show_ready(('Loading\u2026', 'Loading\u2026'))
 
     def show_accesspoint(self) -> None:
         """show AP Mode message"""
+        self.show_ready(('AP Mode', 'AP Mode'))
 
     def show_ready(self, msg: tuple[str, str] = ('Ready', 'Ready')) -> None:
         """show ready message
@@ -41,9 +48,17 @@ class Display(Protocol):
         Parameters:
             msg(tuple[str, str]): message to show - default=('Ready', 'Ready')
         """
+        logging.debug(f'Ready message: {msg}')
 
     def show_end_of_game(self) -> None:
         """show ready message"""
+        logging.debug('end of game message')
+        if self.game and self.game.moves:
+            for i in range(2):
+                nickname = self.game.nicknames[i][:10]
+                minutes, seconds = divmod(abs(config.max_time - self.game.moves[-1].played_time[i]), 60)
+                score = self.game.moves[-1].score[i]
+                logging.debug(f'{nickname} {score} {minutes:02d}:{seconds:02d}')
 
     def show_pause(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
         """show pause hint
@@ -53,6 +68,11 @@ class Display(Protocol):
             played_time(tuple[int, int]): played time to display
             current(tuple[int, int]): time for current move
         """
+        logging.debug('Pause message')
+        msg = 'Pause'
+        if config.show_score and self.game and len(self.game.moves):
+            msg = f'P {self.game.moves[-1].score[player]:3d}'
+        self.render_display(player, played_time, current, msg)
 
     def add_malus(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
         """show malus hint
@@ -62,6 +82,7 @@ class Display(Protocol):
             played_time(tuple[int, int]): played time to display
             current(tuple[int, int]): time for current move
         """
+        self.render_display(player, played_time, current, '-10P')
 
     def add_remove_tiles(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
         """show remove tiles
@@ -71,6 +92,7 @@ class Display(Protocol):
             played_time(tuple[int, int]): played time to display
             current(tuple[int, int]): time for current move
         """
+        self.render_display(player, played_time, current, '\u2717Zug\u270d')
 
     def add_doubt_timeout(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
         """show error on doubt: timeout
@@ -80,12 +102,15 @@ class Display(Protocol):
             played_time(tuple[int, int]): played time to display
             current(tuple[int, int]): time for current move
         """
+        self.render_display(player, played_time, current, '\u21afZeit')
 
     def show_cam_err(self) -> None:
         """show cam error"""
+        self.show_ready(('\u2620 Cam err', '\u2620 Cam err'))
 
     def show_ftp_err(self) -> None:
         """show ftp error"""
+        self.show_ready(('\u2620 FTP err', '\u2620 FTP err'))
 
     def set_game(self, game: Game) -> None:
         """set current game to display scores
@@ -93,6 +118,7 @@ class Display(Protocol):
         Parameters:
             game(Game): game to set
         """
+        self.game = game
 
     def render_display(
         self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: Optional[str] = None
@@ -105,63 +131,9 @@ class Display(Protocol):
             current(tuple[int, int]): time for current move
             info(str): additional string to display
         """
-
-
-class DisplayMock(Display):
-    """display abstract implementation"""
-
-    def __init__(self) -> None:
-        self.lastplayer: int = -1
-        super().__init__()
-
-    def stop(self) -> None:
-        logging.debug('display stop')
-
-    def show_boot(self) -> None:
-        logging.debug('Boot message')
-
-    def show_accesspoint(self) -> None:
-        logging.debug('AP Mode message')
-
-    def show_ready(self, msg=('Ready', 'Ready')) -> None:
-        logging.debug(f'Ready message: {msg}')
-
-    def show_end_of_game(self) -> None:
-        logging.debug('end of game message')
-
-    def show_pause(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in {0, 1}, 'invalid player number'
-        logging.debug(f'Pause message: {player}/{played_time}/{current}')
-
-    def add_malus(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in {0, 1}, 'invalid player number'
-        logging.debug(f'{player}: malus -10: {played_time}/{current}')
-
-    def add_remove_tiles(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in {0, 1}, 'invalid player number'
-        logging.debug(f'{player}: Entf. Zug: {played_time}/{current}')
-
-    def add_doubt_timeout(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        assert player in {0, 1}, 'invalid player number'
-        logging.debug(f'{player}: doubt timeout: {played_time}/{current}')
-
-    def show_cam_err(self) -> None:
-        logging.debug('Cam err message')
-
-    def show_ftp_err(self) -> None:
-        logging.debug('FTP err message')
-
-    def set_game(self, game: Game) -> None:
-        pass
-
-    def render_display(
-        self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: Optional[str] = None
-    ) -> None:
-        assert player in {0, 1}, 'invalid player number'
-
         minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
         text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
         # log message only if player changed
-        if self.lastplayer != player:
+        if info or self.lastplayer != player:
             logging.debug(f'render_display {player}: {text} ({current}/{info})')
             self.lastplayer = player

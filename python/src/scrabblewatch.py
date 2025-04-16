@@ -16,19 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-import logging
-import os
-
-from display import Display
 from util import Static
 
 try:
-    os.stat('/dev/i2c-1')
-    os.stat('/dev/i2c-3')
-    from hardware.oled import PlayerDisplay as DisplayImpl
-except (FileNotFoundError, ImportError, RuntimeError):
-    logging.warning('error opening i2c device found or import error')
-    from display import DisplayMock as DisplayImpl  # type: ignore[assignment] # pylint: disable=ungrouped-imports
+    from hardware.oled import OLEDDisplay as DisplayImpl
+except (ImportError, RuntimeError):
+    from display import Display as DisplayImpl  # type: ignore[assignment] # pylint: disable=ungrouped-imports
 
 
 class ScrabbleWatch(Static):
@@ -39,7 +32,7 @@ class ScrabbleWatch(Static):
     current: tuple[int, int] = (0, 0)
     paused: bool = True
     player: int = 0  # 0/1 ... player 1/player 2
-    display: Display = DisplayImpl()
+    display = DisplayImpl()
 
     @classmethod
     def start(cls, player: int) -> None:

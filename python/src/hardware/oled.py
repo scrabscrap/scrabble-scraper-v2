@@ -28,22 +28,13 @@ from PIL import ImageFont
 
 from config import config
 from display import Display
-from scrabble import Game
 
+# docu https://luma-oled.readthedocs.io/en/latest/index.html
 IC2_PORT_PLAYER1 = 1
 IC2_ADDRESS_PLAYER1 = 0x3C
 IC2_PORT_PLAYER2 = 3
 IC2_ADDRESS_PLAYER2 = 0x3C
-BLACK = 'black'
-WHITE = 'white'
-MIDDLE = (64, 42)
 
-# docu https://luma-oled.readthedocs.io/en/latest/index.html
-
-FONT_FAMILY = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
-FONT = ImageFont.truetype(FONT_FAMILY, 42)
-FONT1 = ImageFont.truetype(FONT_FAMILY, 20)
-FONT2 = ImageFont.truetype(FONT_FAMILY, 12)
 try:
     SERIAL: tuple[i2c, i2c] = (
         i2c(port=IC2_PORT_PLAYER1, address=IC2_ADDRESS_PLAYER1),
@@ -55,35 +46,31 @@ except (OSError, DeviceNotFoundError) as e:
     logging.error(f'error opening OLED 1 / OLED 2 {type(e).__name__}: {e}')
     raise RuntimeError('Error: OLED 1 / OLED 2 not available') from e
 
+BLACK = 'black'
+WHITE = 'white'
+MIDDLE = (64, 42)
 
-def get_ipv4_address() -> dict:
-    """Get IPv4 addresses for all adapters."""
-    return {adapter.name: ip.ip for adapter in ifaddr.get_adapters() for ip in adapter.ips if ip.is_IPv4}
+FONT_FAMILY = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
+FONT = ImageFont.truetype(FONT_FAMILY, 42)
+FONT1 = ImageFont.truetype(FONT_FAMILY, 20)
+FONT2 = ImageFont.truetype(FONT_FAMILY, 12)
 
 
-class PlayerDisplay(Display):
+class OLEDDisplay(Display):
     """Implementation of class Display with OLED"""
-
-    def __init__(self) -> None:
-        self.game: Optional[Game] = None
 
     def stop(self) -> None:
         logging.debug('display stop')
         for i in range(2):
             DEVICE[i].hide()
 
-    def show_boot(self) -> None:
-        self.show_ready(('Loading\u2026', 'Loading\u2026'))
-
-    def show_accesspoint(self) -> None:
-        self.show_ready(('AP Mode', 'AP Mode'))
-
     def show_ready(self, msg=('Ready', 'Ready')) -> None:
+        def get_ipv4_address() -> tuple:
+            ips = {adapter.name: ip.ip for adapter in ifaddr.get_adapters() for ip in adapter.ips if ip.is_IPv4}
+            return (ips.get('wlan0', 'n/a'), ips.get('eth0', 'n/a'))
+
         logging.debug(f'show message {msg}')
-        ips = get_ipv4_address()
-        wip: str = ips.get('wlan0', 'n/a')
-        eip: str = ips.get('eth0', 'n/a')
-        title = (wip, eip)
+        title = get_ipv4_address()
         for i in range(2):
             with canvas(DEVICE[i]) as draw:
                 draw.text((1, 1), title[i], font=FONT2, fill=WHITE)
@@ -100,34 +87,6 @@ class PlayerDisplay(Display):
                         minutes, seconds = divmod(abs(config.max_time - self.game.moves[-1].played_time[i]), 60)
                         score = self.game.moves[-1].score[i]
                         draw.text((2, 30), f'{minutes:02d}:{seconds:02d}  {score:3d}', font=FONT1, fill=WHITE)
-
-    def show_pause(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        msg = 'Pause'
-        logging.debug('Pause message')
-        if config.show_score and self.game and len(self.game.moves):
-            msg = f'P {self.game.moves[-1].score[player]:3d}'
-        self.render_display(player, played_time, current, msg)
-
-    def add_malus(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        logging.debug(f'{player}: malus -10')
-        self.render_display(player, played_time, current, '-10P')
-
-    def add_remove_tiles(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        logging.debug(f'{player}: Entf. Zug')
-        self.render_display(player, played_time, current, '\u2717Zug\u270d')
-
-    def add_doubt_timeout(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
-        logging.debug(f'{player}: doubt timeout')
-        self.render_display(player, played_time, current, '\u21afZeit')
-
-    def show_cam_err(self) -> None:
-        self.show_ready(('\u2620 Cam err', '\u2620 Cam err'))
-
-    def show_ftp_err(self) -> None:
-        self.show_ready(('\u2620 FTP err', '\u2620 FTP err'))
-
-    def set_game(self, game: Game) -> None:
-        self.game = game
 
     def render_display(
         self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: Optional[str] = None
