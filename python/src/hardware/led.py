@@ -18,7 +18,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import atexit
 import platform
-from enum import Enum
 from typing import Set
 
 from gpiozero import LED as GpioLED, Device
@@ -29,12 +28,9 @@ if platform.machine() not in ('aarch64', 'armv7l', 'armv6l'):
     Device.pin_factory = MockFactory()
 
 
-class GpioLEDEnum(Enum):
-    """Enumeration of supported LED GPIO"""
-
-    GREEN_GPIO = 20  # GPIO20 - pin 38 - led green
-    YELLOW_GPIO = 27  # GPIO27 - pin 13 - led yellow
-    RED_GPIO = 24  # GPIO24  - pin 18 - led red
+LED_GREEN_GPIO = 20  # GPIO20 - pin 38 - led green
+LED_YELLOW_GPIO = 27  # GPIO27 - pin 13 - led yellow
+LED_RED_GPIO = 24  # GPIO24  - pin 18 - led red
 
 
 class LEDEnum:  # pylint: disable=too-few-public-methods
@@ -45,22 +41,13 @@ class LEDEnum:  # pylint: disable=too-few-public-methods
         """set enumeration value"""
         return {LEDEnum.green, LEDEnum.yellow, LEDEnum.red}
 
-    green = GpioLED(GpioLEDEnum.GREEN_GPIO.value)
-    yellow = GpioLED(GpioLEDEnum.YELLOW_GPIO.value)
-    # blue = GpioLED(GpioLEDEnum.BLUE_GPIO.value)
-    red = GpioLED(GpioLEDEnum.RED_GPIO.value)
+    green = GpioLED(LED_GREEN_GPIO)
+    yellow = GpioLED(LED_YELLOW_GPIO)
+    red = GpioLED(LED_RED_GPIO)
 
 
 class LED:
     """Implementation of LED access"""
-
-    def __init__(self) -> None:
-        atexit.register(self.cleanup_atexit)
-
-    def cleanup_atexit(self) -> None:
-        """cleanup on allication exit"""
-        LED.switch_on(set())
-        # Device.pin_factory.close()
 
     @staticmethod
     def switch_on(leds: Set[GpioLED], switch_off: bool = True) -> None:
@@ -78,10 +65,16 @@ class LED:
             for i in LEDEnum.set().difference(leds):
                 i.off()
         for i in leds:
-            i.blink(on_time=0.2, off_time=0.2)  # type: ignore # wrong in func definition
+            i.blink(on_time=0.5, off_time=0.5)  # type: ignore # wrong in func definition
 
     @staticmethod
     def switch_off(leds: Set[GpioLED]) -> None:
         """switch all LEDs off"""
         for i in leds:
             i.off()
+
+
+@atexit.register
+def led_cleanup_atexit() -> None:
+    """ "cleanup leds atexit"""
+    LED.switch_on(set())
