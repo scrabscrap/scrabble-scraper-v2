@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)-5.5s] 
 
 # ruff: noqa: E402
 from config import config
-from display import DisplayMock
+from display import Display
 from hardware import camera
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
@@ -84,7 +84,7 @@ class CheckButtonTestCase(unittest.TestCase):
 
     def test_button(self):
         """start button event handler - display LED on Button press"""
-        ScrabbleWatch.display = DisplayMock()
+        ScrabbleWatch.display = Display()
         camera.switch_camera('file')
 
         # SimulateState.cam = camera.cam

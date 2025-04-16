@@ -27,7 +27,7 @@ from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
 from config import config
-from display import DisplayMock
+from display import Display
 from hardware import camera
 from hardware.button import ButtonEnum
 from hardware.led import LED, LEDEnum
@@ -67,7 +67,7 @@ class ButtonTestCase(unittest.TestCase):
         self.pin_reset = Device.pin_factory.pin(ButtonEnum.RESET.value)
         self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
         # self.pin_config = Device.pin_factory.pin(ButtonEnum.config.value)
-        ScrabbleWatch.display = DisplayMock()
+        ScrabbleWatch.display = Display()
         camera.switch_camera('file')
         State.init()
         return super().setUp()

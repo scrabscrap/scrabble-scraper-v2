@@ -43,7 +43,7 @@ from werkzeug.serving import make_server
 
 import upload
 from config import config
-from display import DisplayMock
+from display import Display
 from game_board.board import overlay_grid
 from hardware import camera
 from processing import get_last_warp, warp_image
@@ -979,7 +979,7 @@ def main():
     )
 
     # set Mock-Display
-    ScrabbleWatch.display = DisplayMock()
+    ScrabbleWatch.display = Display()
 
     # set Mock-Camera
     switch_camera('file')
