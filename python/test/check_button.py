@@ -87,7 +87,7 @@ class CheckButtonTestCase(unittest.TestCase):
         ScrabbleWatch.display = DisplayMock()
         camera.switch_camera('file')
 
-        SimulateState.cam = camera.cam
+        # SimulateState.cam = camera.cam
         SimulateState.init()
         pause()
 
