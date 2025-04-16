@@ -140,7 +140,8 @@ class State(Static):
     def do_pause(cls, player: int) -> str:
         """pause pressed while player 0 is active"""
         next_state = (P0, P1)[player]
-        next_led = ({LEDEnum.green, LEDEnum.yellow}, {LEDEnum.red, LEDEnum.yellow})[player]
+        # next_led = ({LEDEnum.green, LEDEnum.yellow}, {LEDEnum.red, LEDEnum.yellow})[player]
+        next_led = {LEDEnum.yellow}
         logging.info(f'{cls.current_state} - (pause) -> {next_state}')
         ScrabbleWatch.pause()
         LED.switch_on(next_led)  # turn on player pause LED
