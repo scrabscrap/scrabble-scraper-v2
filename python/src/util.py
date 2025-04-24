@@ -59,7 +59,7 @@ def trace(func: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(func)
     def do_trace(*args: Any, **kwargs: Any) -> Any:
         try:
-            logging.debug(f'entering {func.__name__}')
+            logging.debug(f'entering {func.__qualname__}')
             return func(*args, **kwargs)
         except Exception:  # pragma: no cover
             logging.exception(f'exception in {func.__name__}')
