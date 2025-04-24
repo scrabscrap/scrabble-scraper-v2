@@ -23,6 +23,7 @@ import unittest
 
 from config import config
 from display import Display
+from processing import set_blankos
 from scrabble import Move, MoveType
 from scrabblewatch import ScrabbleWatch
 from state import State
@@ -2767,6 +2768,32 @@ class AlgorithmTestCase(unittest.TestCase):
             },
             f'invalid board',
         )
+
+    def test_set_blanko(self):
+        from processing import remove_blanko, admin_insert_moves
+
+        game = State.game
+        game.new_game()
+
+        board = {(3, 7): ('F', 75), (4, 7): ('_', 75), (5, 7): ('R', 75), (6, 7): ('N', 75), (7, 7): ('S', 75)}
+        new_tiles = board.copy()
+        move = Move(
+            move_type=MoveType.REGULAR,
+            player=0,
+            coord=(3, 7),
+            is_vertical=False,
+            word='F_RNS',
+            new_tiles=new_tiles,
+            removed_tiles={},
+            board=board,
+            played_time=(1, 0),
+            previous_score=(0, 0),
+        )
+        game.add_move(move)
+        score1 = game.moves[-1].score
+        prop = move.new_tiles[(4, 7)][1]
+        set_blankos(None, game, 'H5', 'i')
+        assert game.moves[-1].board[(4, 7)] == ('i', prop), f'invalid board {game.moves[-1].board}'
 
 
 if __name__ == '__main__':

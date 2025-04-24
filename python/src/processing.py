@@ -195,7 +195,7 @@ def set_blankos(waitfor: Optional[Future], game: Game, gcg_coord: str, value: st
             if coord in board and (board[coord][0] == '_' or board[coord][0].islower()):
                 board[coord] = (value, board[coord][1])
                 if coord in mov.new_tiles:
-                    mov.new_tiles[coord] = value.lower()[:1]
+                    mov.new_tiles[coord] = (value.lower()[:1], mov.new_tiles[coord][1])
                     index = row - mov.coord[1] if mov.is_vertical else col - mov.coord[0]
                     mov.word = f'{mov.word[:index]}{value}{mov.word[index + 1 :]}'
     event_set(event)
@@ -584,10 +584,10 @@ def start_of_game(game: Game):
 def end_of_game(waitfor: Optional[Future], game: Game, event=None):
     # pragma: no cover #pylint: disable=too-many-locals # no ftp upload on tests
     """Process end of game"""
+    from contextlib import suppress
 
-    def calculate_rack(game) -> Tuple[Tuple[int, int], str]:
+    def calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
         from game_board.tiles import bag_as_list, scores
-        from contextlib import suppress
 
         with suppress(Exception):  # possible exception, if bag is invalid because of wrong recognition
             bag = bag_as_list.copy()
@@ -628,10 +628,11 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
                 game.add_timout_malus(player, malus)  # add as move
                 store_game_status(game, game.moves[-1])  # store move to hd
 
-        points, rackstr = calculate_rack(game)
-        game.add_last_rack(points, rackstr)
-        store_game_status(game, game.moves[-2])
-        store_game_status(game, game.moves[-1])
+        with suppress(Exception):
+            points, rackstr = calculate_rack(game)
+            game.add_last_rack(points, rackstr)
+            store_game_status(game, game.moves[-2])
+            store_game_status(game, game.moves[-1])
 
         event_set(event)
         msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
