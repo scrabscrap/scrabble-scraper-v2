@@ -40,6 +40,7 @@ from threadpool import pool
 from upload import upload
 from util import TWarp, runtime_measure, trace
 
+ANALYZE_THREADS = 4
 BOARD_CLASSES = {'custom2012': Custom2012Board, 'custom2020': Custom2020Board, 'custom2020light': Custom2020LightBoard}
 BLANK_PROP = 76
 MATCH_ROTATIONS = [0, -5, 5, -10, 10, -15, 15]
@@ -87,8 +88,14 @@ def event_set(event):
         event.set()
 
 
-def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], ignore_set: set[tuple[int, int]]) -> set:
+DIRECTIONS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+
+def filter_candidates(
+    coord: tuple[int, int], candidates: set[tuple[int, int]], ignore_set: set[tuple[int, int]]
+) -> set[tuple[int, int]]:
     """allow only valid field for analysis"""
+    candidates = candidates.copy()
     result = set()
     stack = [coord]
     while stack:
@@ -98,7 +105,7 @@ def filter_candidates(coord: tuple[int, int], candidates: set[tuple[int, int]], 
         candidates.remove((col, row))
         if (col, row) not in ignore_set:
             result.add((col, row))
-        stack.extend([(col + 1, row), (col - 1, row), (col, row + 1), (col, row - 1)])
+        stack.extend([(col + dx, row + dy) for dx, dy in DIRECTIONS])
     return result
 
 
@@ -121,8 +128,8 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
                 suggest_tile, suggest_prop = _tile.name, thresh
         return suggest_tile, suggest_prop
 
-    def find_tile():
-        (tile, prop) = board.get(coord, ('_', BLANK_PROP))
+    def find_tile(gray, tile):
+        (tile, prop) = tile
         if prop > THRESHOLD_PROP_BOARD:
             logging.debug(f'{chr(ORD_A + row)}{col + 1:2}: {tile} ({prop}) tile on board prop > {THRESHOLD_PROP_BOARD} ')
             return (tile, prop)
@@ -138,10 +145,30 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
     for coord in coord_list:
         (col, row) = coord
         x, y = get_x_position(col), get_y_position(row)
-        gray = warped_gray[y - 15 : y + GRID_H + 15, x - 15 : x + GRID_W + 15]
-        new_tile, new_prop = find_tile()
-        logging.info(f'{chr(ORD_A + row)}{col + 1:2}: {new_tile} ({new_prop:2}) found')
+        segment = warped_gray[y - 15 : y + GRID_H + 15, x - 15 : x + GRID_W + 15]
+        board[coord] = find_tile(segment, board.get(coord, ('_', BLANK_PROP)))
+        logging.info(f'{chr(ORD_A + row)}{col + 1:2}: {board[coord]}) found')
     logging.debug(f'templateMatch calls: {match_calls}')
+    return board
+
+
+def analyze_threads(warped_gray: MatLike, board: dict, candidates: set[tuple[int, int]]):
+    """start threads for analyze"""
+
+    def chunkify(lst, chunks):
+        return [lst[i::chunks] for i in range(chunks)]
+
+    chunks = chunkify(list(candidates), ANALYZE_THREADS)  # chunks for picture analysis
+    analyze_futures = []
+    for i in range(ANALYZE_THREADS):
+        board_chunk = {key: board[key] for key in chunks[i] if key in board}
+        future = pool.submit(analyze, warped_gray, board_chunk, set(chunks[i]))
+        analyze_futures.append(future)
+    done, not_done = futures.wait(analyze_futures)  # blocking wait
+    for f in done:
+        board.update(f.result())
+    for e in not_done:
+        logging.error(f'Error during analyze future: {e.exception}')
     return board
 
 
@@ -685,8 +712,6 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
 @runtime_measure
 def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tuple[MatLike, dict]:
     # pylint: disable=too-many-locals
-    def chunkify(lst, chunks):
-        return [lst[i::chunks] for i in range(chunks)]
 
     waitfor_future(waitfor)
     warped, warped_gray = warp_image(img)  # 1. warp image if necessary
@@ -725,18 +750,12 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tu
             ignore_coords = set(
                 {i: i for i in game.moves[-1 * config.scrabble_verify_moves].board if i in game.moves[-1].board}
             )
-    tiles_candidates = tiles_candidates | ignore_coords  # tiles_candidates must contain ignored_coords
-    filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
-    logging.debug(f'filtered_candidates {filtered_candidates}')
+    tiles_candidates |= ignore_coords  # tiles_candidates must contain ignored_coords
+    tiles_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
+    logging.debug(f'filtered_candidates {tiles_candidates}')
 
     board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # copy board for analyze
-    chunks = chunkify(list(filtered_candidates), 3)  # 5. picture analysis
-    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))  # 1. thread
-    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))  # 2. thread
-    analyze(warped_gray, board, set(chunks[2]))  # 3. (this) thread
-    done, _ = futures.wait({future1, future2})  # 6. blocking wait
-    assert len(done) == 2, 'error on wait to futures'
-    return warped, board
+    return warped, analyze_threads(warped_gray, board, tiles_candidates)
 
 
 def _move_processing(

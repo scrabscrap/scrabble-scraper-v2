@@ -33,7 +33,6 @@ from signal import alarm
 from time import perf_counter, sleep
 from typing import Tuple
 
-
 import cv2
 import numpy as np
 import psutil
@@ -733,13 +732,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/test_analyze')
     def do_test_analyze():  # pylint: disable=too-many-locals
         """start simple analyze test"""
-        from concurrent import futures
-
-        from processing import analyze, filter_image  # , filter_candidates
+        from processing import ANALYZE_THREADS, analyze_threads, filter_image
         from scrabble import board_to_string
-
-        def _chunkify(lst, chunks):
-            return [lst[i::chunks] for i in range(chunks)]
 
         if State.current_state in ('START', 'EOG', 'P0', 'P1'):
             log_message = 'run analyze test'
@@ -752,14 +746,10 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             start = perf_counter()
             warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
-            # tiles_candidates = filter_candidates((7, 7), tiles_candidates, set())
+
             board = {}
-            chunks = _chunkify(list(tiles_candidates), 3)  # 5. picture analysis
-            future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))  # 1. thread
-            future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))  # 2. thread
-            analyze(warped_gray, board, set(chunks[2]))  # 3. (this) thread
-            futures.wait({future1, future2})  # 6. blocking wait
-            logging.info(f'analyze took {(perf_counter() - start):.4f} sec(s).')
+            board = analyze_threads(warped_gray, board, tiles_candidates)
+            logging.info(f'analyze took {(perf_counter() - start):.4f} sec(s). ({ANALYZE_THREADS} threads)')
 
             logging.info(f'\n{board_to_string(board)}')
             # find log
