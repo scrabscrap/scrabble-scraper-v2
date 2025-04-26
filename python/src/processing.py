@@ -26,7 +26,6 @@ from typing import List, Optional, Tuple
 
 import cv2
 import imutils
-import numpy as np
 from cv2.typing import MatLike
 
 from config import config
@@ -38,6 +37,7 @@ from game_board.tiles import tiles
 from scrabble import Game, InvalidMoveExeption, Move, MoveType, NoMoveException
 from threadpool import pool
 from upload import upload
+import upload_impl
 from util import TWarp, runtime_measure, trace
 
 ANALYZE_THREADS = 4
@@ -198,7 +198,7 @@ def remove_blanko(waitfor: Optional[Future], game: Game, gcg_coord: str, event=N
             previous_score = game.moves[index - 1].score if index > 0 else (0, 0)
             admin_recalc_moves(game, index, tiles_to_remove, tiles_to_add, previous_board, previous_score)
             for mov in game.moves[index:]:
-                store_game_status(game, mov, with_image=False)
+                write_files(game, mov, only_json=True)
     event_set(event)
 
 
@@ -263,7 +263,7 @@ def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, 
     for i, mov in enumerate(game.moves[move_index:]):
         mov.move = i + move_index + 1
         logging.debug(f'set/store move index {move_index + i} / move number {mov.move}')
-        store_game_status(game, mov)
+        write_files(game, mov)
     event_set(event)
 
 
@@ -281,7 +281,7 @@ def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, 
         for mov in game.moves[move_index:]:
             mov.score = (mov.score[0] - delta[0], mov.score[1] - delta[1])
             logging.info(f'>> move {mov.move}: new score {mov.score}')
-            store_game_status(game, mov, with_image=False)
+            write_files(game, mov, only_json=True)
     event_set(event)
 
 
@@ -341,8 +341,8 @@ def admin_change_move(
     previous_score = game.moves[index - 1].score if move_number > 1 else (0, 0)
 
     admin_recalc_moves(game, index, tiles_to_remove, tiles_to_add, previous_board, previous_score)
-    for i in range(index, len(game.moves)):
-        store_game_status(game, game.moves[i], with_image=False)
+    for m in game.moves[index:]:
+        write_files(game, m, only_json=True)
     event_set(event)
 
 
@@ -413,8 +413,8 @@ def admin_del_challenge(waitfor: Optional[Future], game: Game, move_number: int,
     if to_delete.type == MoveType.WITHDRAW:
         tiles_to_add = game.moves[index - 1].new_tiles
     admin_recalc_moves(game, index, {}, tiles_to_add, previous_board, previous_score)
-    for i in range(index, len(game.moves)):
-        store_game_status(game, game.moves[i], with_image=True)
+    for m in game.moves[index:]:
+        write_files(game, m)
     event_set(event)
 
 
@@ -452,8 +452,8 @@ def admin_toggle_challenge_type(waitfor: Optional[Future], game: Game, move_numb
         else (previous_score[0], previous_score[1] + to_change.points)
     )
     admin_recalc_moves(game, index, to_change.removed_tiles, {}, previous_board, previous_score)
-    for i in range(index, len(game.moves)):
-        store_game_status(game, game.moves[i], with_image=True)
+    for m in game.moves[index:]:
+        write_files(game, m, only_json=True)
     event_set(event)
 
 
@@ -496,8 +496,8 @@ def admin_ins_challenge(waitfor: Optional[Future], game: Game, move_number: int,
     for i in range(index + 1, len(game.moves)):
         game.moves[i].move += 1
     admin_recalc_moves(game, index + 1, to_insert.removed_tiles, {}, previous_board, previous_score)
-    for i in range(index, len(game.moves)):
-        store_game_status(game, game.moves[i], with_image=True)
+    for m in game.moves[index:]:
+        write_files(game, m)
     event_set(event)
 
 
@@ -521,9 +521,7 @@ def move(waitfor: Optional[Future], game: Game, img: MatLike, player: int, playe
         logging.debug(
             f'{msg}\nscores: {game.moves[-1].score}\napi: {game.json_str()[: game.json_str().find("moves") + 7]}...\n'
         )
-    store_game_status(game, game.moves[-1])
-    _development_recording(game, img, suffix='~original')
-    _development_recording(game, warped, suffix='~warped')
+    write_files(game, game.moves[-1], img)
 
 
 @trace
@@ -562,7 +560,7 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
         event_set(event)
 
         logging.info(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
-        store_game_status(game, game.moves[-1])
+        write_files(game, game.moves[-1])
     except Exception as oops:  # pylint: disable=broad-exception-caught
         logging.error(f'exception on valid_challenge {oops}')
         logging.info('no new move')
@@ -577,7 +575,7 @@ def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played
         event_set(event)
 
         logging.info(f'new scores {game.moves[-1].score}: {game.json_str()}\n{game.board_str()}')
-        store_game_status(game, game.moves[-1])
+        write_files(game, game.moves[-1])
     except Exception as oops:  # pylint: disable=broad-exception-caught
         logging.error(f'exception on in_valid_challenge {oops}')
         logging.info('no new move')
@@ -591,7 +589,9 @@ def start_of_game(game: Game):
 
     import util
 
-    pool.submit(upload.delete_files)  # first delete images and data files on ftp server
+    upload_impl.last_future = pool.submit(
+        upload.delete_files, upload_impl.last_future
+    )  # first delete images and data files on ftp server
     try:
         file_list = glob.glob(f'{config.web_dir}/image-*.jpg')
         file_list += glob.glob(f'{config.web_dir}/data-*.json')
@@ -601,7 +601,7 @@ def start_of_game(game: Game):
             util.rotate_logs()
     except OSError:
         logging.error('OS Error on delete web data/image files')
-    store_game_status(game, None)
+    write_files(game)  # only status file
 
 
 @trace
@@ -650,13 +650,12 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
             if t[player] < 0:  # in overtime
                 malus = (t[player] // 60) * config.timeout_malus  # config.timeout_malus per minute
                 game.add_timout_malus(player, malus)  # add as move
-                store_game_status(game, game.moves[-1])  # store move to hd
 
         with suppress(Exception):
             points, rackstr = calculate_rack(game)
             game.add_last_rack(points, rackstr)
-            store_game_status(game, game.moves[-2])
-            store_game_status(game, game.moves[-1])
+            write_files(game, game.moves[-2])
+            write_files(game, game.moves[-1])
 
         event_set(event)
         msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str(game.nicknames)}\n' for mov in game.moves)
@@ -711,8 +710,7 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tu
 
     waitfor_future(waitfor)
     warped, warped_gray = warp_image(img)  # 1. warp image if necessary
-    filtered_image, tiles_candidates = filter_image(warped)  # 3. find potential tiles on board
-    _development_recording(game, filtered_image, suffix='~filter', is_next_move=True)
+    _, tiles_candidates = filter_image(warped)  # 3. find potential tiles on board
 
     if len(game.moves) > 1:  # 3a. check for wrong blank tiles
         to_del = [i for i in game.moves[-1].new_tiles if (game.moves[-1].board[i][0] == '_') and i not in tiles_candidates]
@@ -892,48 +890,65 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     return prev_score
 
 
-def store_game_status(game: Game, move_to_store: Optional[Move] = None, with_image: bool = True):  # pragma: no cover
-    """store and upload move"""
+def write_files(
+    game: Game, move_to_store: Optional[Move] = None, dev_img: Optional[MatLike] = None, only_json: bool = False
+):  # pragma: no cover
+    """Write game data and images to disk."""
 
-    def write_json(filename: str, content: str):
+    def write_json_file(name: str, content: str):
         try:
-            with open(filename, 'w', encoding='UTF-8') as handle:
-                handle.write(content)
-        except OSError as error:
-            logging.error(f'Error writing {filename}: {error}')
+            with open(name, 'w', encoding='UTF-8') as f:
+                f.write(content)
+        except OSError as e:
+            logging.error(f'Error writing {name}: {e}')
+
+    def save_image(path: str, img: MatLike):
+        if not cv2.imwrite(path, img, [cv2.IMWRITE_JPEG_QUALITY, 100]):
+            logging.error(f'Error writing image: {path}')
+
+    def write_dev_log_entry():
+        logger = logging.getLogger('gameRecordingLogger')
+        if game.gamestart is None:
+            game.gamestart = datetime.now()
+        game_id = game.gamestart.strftime('%y%j-%H%M%S')
+        move = game.moves[-1]
+        logger.info(f'{game_id} move: {move.move}')
+        logger.info(f'{game_id} warp: {get_last_warp()}')
+        logger.info(f'{game_id} player: {move.player}')
+        logger.info(f'{game_id} coord: {move.coord} vertical: {move.is_vertical}')
+        logger.info(f'{game_id} word: {move.points}')
+        logger.info(f'{game_id} points: {move.points}')
+        logger.info(f'{game_id} score: {move.score}')
+        logger.info(f'{game_id} new tiles: {move.new_tiles}')
+        logger.info(f'{game_id} removed tiles: {move.removed_tiles}')
+        logger.info(f'{game_id} board: {move.board}')
 
     if config.is_testing:
-        logging.info(f'skip store move {move_to_store.move if move_to_store else "n/a"} because flag is_testing is set')
+        logging.info('Skip store because is_testing is set')
         return
 
-    if game.moves and move_to_store:
-        if with_image and move_to_store.img is not None:
-            image_path = f'{config.web_dir}/image-{move_to_store.move}.jpg'
-            if not cv2.imwrite(image_path, move_to_store.img, [cv2.IMWRITE_JPEG_QUALITY, 100]):
-                logging.error(f'error writing image-{move_to_store.move}.jpg')
+    if move_to_store:
+        if not only_json and move_to_store.img is not None:
+            save_image(f'{config.web_dir}/image-{move_to_store.move}.jpg', move_to_store.img)
+        if config.development_recording and dev_img is not None:
+            save_image(f'{config.web_dir}/image-{move_to_store.move}-camera.jpg', dev_img)
+            write_dev_log_entry()
 
         json_content = game.json_str(move_to_store.move)
-        write_json(f'{config.web_dir}/data-{move_to_store.move}.json', json_content)
-
-        if game.moves[-1].move == move_to_store.move:
-            logging.debug('Write status.json')
-            write_json(f'{config.web_dir}/status.json', json_content)
-
-        _development_recording(game, None, info=True)
-
+        write_json_file(f'{config.web_dir}/data-{move_to_store.move}.json', json_content)
+        if move_to_store.move == game.moves[-1].move:
+            write_json_file(f'{config.web_dir}/status.json', json_content)
         if config.upload_server:
-            pool.submit(upload.upload_move, move_to_store.move)
+            upload_impl.last_future = pool.submit(upload.upload_move, upload_impl.last_future, move_to_store.move)
     else:
-        logging.debug('Upload status.json')
-        write_json(f'{config.web_dir}/status.json', game.json_str())
-
+        json_content = game.json_str()
+        write_json_file(f'{config.web_dir}/status.json', json_content)
         if config.upload_server:
-            pool.submit(upload.upload_status)  # upload empty status
+            upload_impl.last_future = pool.submit(upload.upload_status, upload_impl.last_future)
 
 
 def store_zip_from_game(game: Game):  # pragma: no cover
     """zip a game and upload to server"""
-    import glob
     import os
     import uuid
     from zipfile import ZipFile
@@ -950,49 +965,14 @@ def store_zip_from_game(game: Game):  # pragma: no cover
         for mov in game.moves:
             if os.path.exists(f'{config.web_dir}/image-{mov.move}.jpg'):
                 _zip.write(f'{config.web_dir}/image-{mov.move}.jpg', arcname=f'image-{mov.move}.jpg')
+            if os.path.exists(f'{config.web_dir}/image-{mov.move}-camera.jpg'):
+                _zip.write(f'{config.web_dir}/image-{mov.move}-camera.jpg', arcname=f'image-{mov.move}-camera.jpg')
             if os.path.exists(f'{config.web_dir}/data-{mov.move}.json'):
                 _zip.write(f'{config.web_dir}/data-{mov.move}.json', arcname=f'data-{mov.move}.json')
         if os.path.exists(f'{config.log_dir}/messages.log'):
             _zip.write(f'{config.log_dir}/messages.log', arcname='messages.log')
-        if config.development_recording:
-            file_list = glob.glob(f'{config.work_dir}/recording/{game_id}-*')
-            for filename in file_list:
-                _zip.write(f'{filename}', arcname=f'recording/{os.path.basename(filename)}')
-            if os.path.exists(f'{config.work_dir}/recording/gameRecording.log'):
-                _zip.write(f'{config.work_dir}/recording/gameRecording.log', arcname='recording/gameRecording.log')
+        if os.path.exists(f'{config.log_dir}/gameRecording.log'):
+            _zip.write(f'{config.log_dir}/gameRecording.log', arcname='gameRecording.log')
+
     if config.upload_server:
-        upload.upload_game(f'{zip_filename}')
-
-
-def _development_recording(
-    game: Game, img: Optional[MatLike], suffix: str = '', info: bool = False, is_next_move: bool = False
-):  # pragma: no cover
-    if config.is_testing:
-        logging.info('skip store because flag is_testing is set')
-        return
-    if config.development_recording:
-        logging.debug(f'suffix "{suffix}" info {info}')
-        recording_logger = logging.getLogger('gameRecordingLogger')
-        if game.gamestart is None:
-            game.gamestart = datetime.now()
-        game_id = game.gamestart.strftime('%y%j-%H%M%S')
-        if img is not None:
-            move_number = len(game.moves) + 1 if is_next_move else len(game.moves)
-            cv2.imwrite(
-                f'{config.work_dir}/recording/{game_id}-{move_number}{suffix}.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 100]
-            )
-        if info and len(game.moves) > 0:
-            try:
-                warp_str = np.array2string(get_last_warp(), formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=',')  # type: ignore[arg-type, call-overload] # pylint: disable=C0301 # noqa: E501
-            except AttributeError:
-                warp_str = None
-            recording_logger.info(f'{game_id} move: {game.moves[-1].move}')
-            recording_logger.info(f'{game_id} warp: {warp_str}')
-            recording_logger.info(f'{game_id} player: {game.moves[-1].player}')
-            recording_logger.info(f'{game_id} coord: {game.moves[-1].coord} vertical: {game.moves[-1].is_vertical}')
-            recording_logger.info(f'{game_id} word: {game.moves[-1].points}')
-            recording_logger.info(f'{game_id} points: {game.moves[-1].points}')
-            recording_logger.info(f'{game_id} score: {game.moves[-1].score}')
-            recording_logger.info(f'{game_id} new tiles: {game.moves[-1].new_tiles}')
-            recording_logger.info(f'{game_id} removed tiles: {game.moves[-1].removed_tiles}')
-            recording_logger.info(f'{game_id} board: {game.moves[-1].board}')
+        upload_impl.last_future = pool.submit(upload.zip_files, upload_impl.last_future, f'{zip_filename}')
