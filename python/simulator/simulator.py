@@ -246,7 +246,7 @@ def main():
     api.app.add_url_rule('/simulator', 'simulator', simulator)
 
     # start State-Machine
-    State.do_ready()
+    State.do_new_game()
     logging.debug(f'#### workdir {config.work_dir}')
     logging.info('####################################################################')
 
