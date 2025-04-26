@@ -19,6 +19,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import configparser
 import ftplib
 import logging
+from concurrent import futures
+from concurrent.futures import Future
+from pathlib import Path
 from typing import Optional, Protocol
 
 import requests
@@ -26,32 +29,80 @@ from requests.auth import HTTPBasicAuth
 
 from config import config
 
+last_future: Optional[Future] = None
+
 
 class Upload(Protocol):
     """upload files"""
 
-    def upload_move(self, move: int) -> bool:
+    def waitfor_future(self, waitfor: Optional[Future]):
+        """wait for future and skips wait if waitfor is None"""
+        if waitfor is not None:
+            _, not_done = futures.wait({waitfor})
+            if len(not_done) != 0:
+                logging.error(f'error while waiting for future - lenght of not_done: {len(not_done)}')
+
+    def upload(self, data: Optional[dict] = None, files: Optional[dict] = None) -> bool:
+        """do upload/delete operation"""
+        return False
+
+    def upload_move(self, waitfor: Optional[Future], move: int) -> bool:
         """upload one move"""
+        files = {
+            f'image-{move}.jpg': f'{config.web_dir}/image-{move}.jpg',
+            f'data-{move}.json': f'{config.web_dir}/data-{move}.json',
+            'status.json': f'{config.web_dir}/status.json',
+            'messages.log': f'{config.log_dir}/messages.log',
+            f'image-{move}-camera.jpg': f'{config.web_dir}/image-{move}-camera.jpg',
+        }
+        self.waitfor_future(waitfor)
+        try:
+            upload_files = {}
+            for key, fname in files.items():
+                if Path(fname).is_file():
+                    upload_files.update({key: open(fname, 'rb')})  # pylint: disable=R1732
+            if upload_files:
+                return self.upload(files=upload_files)
+        except IOError as oops:
+            logging.error(f'upload I/O error({oops.errno}): {oops.strerror}')
         return False
 
-    def upload_status(self) -> bool:
+    def upload_status(self, waitfor: Optional[Future]) -> bool:
         """upload status"""
+        logging.debug('start transfer status file status.json')
+        files = {'status.json': f'{config.web_dir}/status.json', 'messages.log': f'{config.log_dir}/messages.log'}
+        self.waitfor_future(waitfor)
+        try:
+            upload_files = {}
+            for key, fname in files.items():
+                if Path(fname).is_file():
+                    upload_files.update({key: open(fname, 'rb')})  # pylint: disable=R1732
+            if upload_files:
+                return self.upload(files=files)
+        except IOError as oops:
+            logging.error(f'upload I/O error({oops.errno}): {oops.strerror}')
         return False
 
-    def upload_game(self, filename: str) -> bool:
-        """upload complete game"""
-        return False
-
-    def delete_files(self) -> bool:
+    def delete_files(self, waitfor: Optional[Future]) -> bool:
         """cleanup uploaded files"""
+        self.waitfor_future(waitfor)
+        return False
+
+    def zip_files(self, waitfor: Optional[Future], filename: Optional[str] = None) -> bool:
+        """zip uploaded files"""
+        self.waitfor_future(waitfor)
         return False
 
 
 class UploadHttp(Upload):  # pragma: no cover
     """http implementation"""
 
-    def upload(self, data: dict, files: Optional[dict] = None) -> bool:
+    def upload(self, data: Optional[dict] = None, files: Optional[dict] = None) -> bool:
         """do upload/delete operation"""
+
+        logging.debug(f'http: upload files {list(files.keys())}' if files else 'http: no files to upload')
+        if data is None:
+            data = {'upload': 'true'}
         if (url := upload_config.server) is not None:
             try:
                 url = url if url.startswith(('http://', 'https://')) else f'https://{url}'
@@ -59,7 +110,6 @@ class UploadHttp(Upload):  # pragma: no cover
                 ret = requests.post(
                     url, data=data, files=files, timeout=50, auth=HTTPBasicAuth(upload_config.user, upload_config.password)
                 )
-                logging.debug(f'http: status code: {ret.status_code}:{ret.reason}')
                 return ret.status_code == 200
             except requests.Timeout:
                 logging.error(f'http: error timeout url={url}')
@@ -67,79 +117,36 @@ class UploadHttp(Upload):  # pragma: no cover
                 logging.error(f'http: error connection error url={url}')
         return False
 
-    def upload_move(self, move: int) -> bool:
-        try:
-            files = {
-                f'image-{move}.jpg': open(f'{config.web_dir}/image-{move}.jpg', 'rb'),  # pylint: disable=R1732
-                f'data-{move}.json': open(f'{config.web_dir}/data-{move}.json', 'rb'),  # pylint: disable=R1732
-                'status.json': open(f'{config.web_dir}/status.json', 'rb'),  # pylint: disable=R1732
-            }
-            logging.debug(f'http: start transfer move files {files}')
-            return self.upload(data={'upload': 'true'}, files=files)
-        except IOError as oops:
-            logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
-        return False
-
-    def upload_status(self) -> bool:
-        logging.debug('http: start transfer status file status.json')
-        try:
-            files = {'status.json': open(f'{config.web_dir}/status.json', 'rb')}  # pylint: disable=consider-using-with
-            return self.upload(data={'upload': 'true'}, files=files)
-        except IOError as oops:
-            logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
-        return False
-
-    def upload_game(self, filename: str) -> bool:
-        logging.debug(f'http: start transfer game {filename}.zip')
-        try:
-            files = {f'{filename}.zip': open(f'{config.web_dir}/{filename}.zip', 'rb')}  # pylint: disable=R1732
-            return self.upload(data={'upload': 'true'}, files=files)
-        except IOError as oops:
-            logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
-        return False
-
-    def delete_files(self) -> bool:
+    def delete_files(self, waitfor: Optional[Future]) -> bool:
         logging.debug('http: delete files')
+        self.waitfor_future(waitfor)
         return self.upload(data={'delete': 'true'})
+
+    def zip_files(self, waitfor: Optional[Future], filename: Optional[str] = None) -> bool:
+        logging.debug('http: zip files on server')
+        self.waitfor_future(waitfor)
+        return self.upload(data={'zip': 'true'})
 
 
 class UploadFtp(Upload):  # pragma: no cover
     """ftp implementation"""
 
-    def upload(self, files: dict) -> bool:
+    def upload(self, data: Optional[dict] = None, files: Optional[dict] = None) -> bool:
         """do upload/delete operation"""
-        if (url := upload_config.server) is not None:
+        if (url := upload_config.server) is not None and files is not None:
             try:
                 with ftplib.FTP_TLS(url, upload_config.user, upload_config.password) as session:
                     for key, fname in files.items():
                         with open(fname, 'rb') as file:
                             session.storbinary(f'STOR {key}', file)  # send the file
-                logging.info(f'ftp: end of transfer {files}')
                 return True
             except IOError as oops:
                 logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False
 
-    def upload_move(self, move: int) -> bool:
-        files = {
-            f'image-{move}.jpg': f'{config.web_dir}/image-{move}.jpg',
-            f'data-{move}.json': f'{config.web_dir}/data-{move}.json',
-            'status.json': f'{config.web_dir}/data-{move}.json',
-        }
-        logging.debug('ftp: start transfer move files {files}')
-        return self.upload(files=files)
-
-    def upload_status(self) -> bool:
-        files = {'status.json': f'{config.web_dir}/status.json'}
-        logging.debug(f'ftp: start transfer status file {files}')
-        return self.upload(files=files)
-
-    def upload_game(self, filename: str) -> bool:
-        files = {f'{filename}.zip': f'{config.web_dir}/{filename}.zip'}
-        logging.debug('ftp: start transfer game {files}')
-        return self.upload(files=files)
-
-    def delete_files(self) -> bool:
+    def delete_files(self, waitfor: Optional[Future]) -> bool:
+        """cleanup uploaded files"""
+        self.waitfor_future(waitfor)
         if (url := upload_config.server) is not None:
             try:
                 logging.debug('ftp: delete files')
@@ -153,6 +160,17 @@ class UploadFtp(Upload):  # pragma: no cover
                 return True
             except IOError as oops:
                 logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
+        return False
+
+    def zip_files(self, waitfor: Optional[Future], filename: Optional[str] = None) -> bool:
+        """zip uploaded files"""
+        self.waitfor_future(waitfor)
+        logging.debug('ftp: upload zip file')
+        try:
+            files = {f'{filename}.zip': open(f'{config.web_dir}/{filename}.zip', 'rb')}  # pylint: disable=R1732
+            return self.upload(files=files)
+        except IOError as oops:
+            logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
         return False
 
 

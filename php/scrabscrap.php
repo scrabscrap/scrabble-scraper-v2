@@ -21,7 +21,7 @@ if(isset($_POST["delete"])) {
 
   $errors = []; // Store errors here
   $noerrors = [];
-  $fileExtensionsAllowed = ['jpeg','jpg','png', 'json', 'zip']; // These will be the only file extensions allowed 
+  $fileExtensionsAllowed = ['jpeg','jpg','png', 'json', 'zip', 'log']; // These will be the only file extensions allowed 
 
   foreach($_FILES as $file) {
       $fileName = $file['name'];
@@ -58,6 +58,30 @@ if(isset($_POST["delete"])) {
   foreach ($noerrors as $msg) {
     echo $msg;
   }
+
+} elseif (isset($_POST["zip"])) {
+
+  $zip = new ZipArchive();
+  $filename = $path . date('Y-m-d-His') . '.zip';
+
+  if ($zip->open($filename, ZipArchive::CREATE) !== TRUE) {
+      exit("ERROR: Could not open archive");
+  }
+
+  foreach (glob($path."*.jpg") as $file) {
+      $zip->addFile($file, basename($file));
+  }
+  foreach (glob($path."*.png") as $file) {
+    $zip->addFile($file, basename($file));
+  }
+  foreach (glob($path."*.json") as $file) {
+    $zip->addFile($file, basename($file));
+  }
+  foreach (glob($path."messages.log") as $file) {
+    $zip->addFile($file, basename($file));
+  }
+  $zip->close();
+  echo 'OK: ' . $filename . '\n';
 
 } else {
   http_response_code(400);
