@@ -115,7 +115,7 @@ class OLEDDisplay(Display):
                         draw.text((90, 1), f'{current[player]:3d}', font=FONT1, fill=color)
                 if self.game and not info:
                     if config.show_score:
-                        nickname = _shorten_nickname(self.game.nicknames[player])
+                        nickname = _shorten_nickname(self.game.nicknames[i])
                         score = self.game.moves[-1].score[i] if len(self.game.moves) else 0
                         draw.text((20, 1), f'{nickname}{score:3d}', font=FONT2, fill=color)
                     else:
