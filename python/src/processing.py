@@ -596,9 +596,7 @@ def start_of_game(game: Game):
     pool.submit(upload.delete_files)  # first delete images and data files on ftp server
     try:
         file_list = glob.glob(f'{config.web_dir}/image-*.jpg')
-        for file_path in file_list:
-            os.remove(file_path)
-        file_list = glob.glob(f'{config.web_dir}/data-*.json')
+        file_list += glob.glob(f'{config.web_dir}/data-*.json')
         for file_path in file_list:
             os.remove(file_path)
         if file_list:
