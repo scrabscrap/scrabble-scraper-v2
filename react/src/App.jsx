@@ -134,6 +134,11 @@ class App extends Component {
           if (value.includes('(unknown)')) { unknown_move = true }
         }
       }
+      if (data.status?.layout) {
+        this.setState( {
+          settings: { theme2020: data.status.layout.includes('2020')}
+        })
+      }
 
       this.setState({
         op: data.op, clock1: data.clock1, clock2: data.clock2,
@@ -145,11 +150,6 @@ class App extends Component {
           websocket: true,
         }
       })
-      if (data.status?.layout) {
-        this.setState( {
-          settings: { theme2020: data.status.layout.includes('2020')}
-        })
-      }
     }
 
     ws.onclose = e => {  // websocket onclose event listener
@@ -227,6 +227,11 @@ class App extends Component {
               if (value.includes('(unknown)')) { unknown_move = true }
             }
           }
+          if (data?.layout) {
+            this.setState( {
+              settings: { theme2020: data.layout.includes('2020')}
+            })
+          } 
     
           this.setState({                        // use image-url, op ist calculated, clock1/2 is not available
             op: op, clock1: data.time1, clock2: data.time2,
@@ -238,11 +243,6 @@ class App extends Component {
               websocket: false,
             }
           });
-          if (data?.layout) {
-            this.setState( {
-              settings: { theme2020: data.layout.includes('2020')}
-            })
-          } 
           this.last_timestamp = data.time;
           this.nodataCnt = 0;
         } else {
