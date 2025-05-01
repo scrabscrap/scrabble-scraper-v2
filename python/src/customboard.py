@@ -42,6 +42,8 @@ from util import TWarp
 # -----
 # 19mm x 19mm
 
+THRESHOLD_MAX_DIFF = 70
+
 
 class CustomBoard:
     """Implementation custom scrabble board analysis"""
@@ -109,8 +111,12 @@ class CustomBoard:
             segment = gray_blur[int(OFFSET) : int(OFFSET) + (GRID_H * 14), int(OFFSET) : int(OFFSET) + (GRID_W * 14)]
             threshold_board, _ = cv2.threshold(gray_blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-            logging.debug(f'{threshold_center=} {threshold_board=} use={int((threshold_center + threshold_board) / 2)}')
-            _, thresh = cv2.threshold(gray_blur, int((threshold_center + threshold_board) / 2), 255, cv2.THRESH_BINARY_INV)
+            diff = abs(threshold_board - threshold_center)
+            alpha = min(diff / THRESHOLD_MAX_DIFF, 1.0)
+            final_thresh = alpha * threshold_center + (1 - alpha) * threshold_board
+
+            logging.debug(f'{threshold_center=} {threshold_board=} use={int(final_thresh)}')
+            _, thresh = cv2.threshold(gray_blur, int(final_thresh), 255, cv2.THRESH_BINARY_INV)
             return thresh
 
         if cls.TWORD_MASK is None:
