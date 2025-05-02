@@ -44,6 +44,7 @@ BOARD_CLASSES = {'custom2012': Custom2012Board, 'custom2020': Custom2020Board, '
 BLANK_PROP = 76
 MATCH_ROTATIONS = [0, -5, 5, -10, 10, -15, 15]
 THRESHOLD_PROP_BOARD = 97
+THRESHOLD_PROP_TILE = 86
 THRESHOLD_UMLAUT_BONUS = 2
 UMLAUTS = ('Ä', 'Ü', 'Ö')
 ORD_A = ord('A')
@@ -131,7 +132,7 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
             if prop >= config.board_min_tiles_rate:
                 break
 
-        board[coord] = (tile, prop) if tile is not None else ('_', BLANK_PROP)
+        board[coord] = (tile, prop) if tile is not None and prop > THRESHOLD_PROP_TILE else ('_', BLANK_PROP)
         return (tile, prop)
 
     for coord in coord_list:
