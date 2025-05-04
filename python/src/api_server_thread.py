@@ -786,7 +786,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             logging.info('  no password entry found')
 
         try:
-            if upload.upload.upload_status():
+            if upload.upload.upload_status(waitfor=None):
                 logging.info('upload success')
             else:
                 logging.warning('upload = False')
@@ -903,12 +903,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             clock1 = config.max_time - clock1
             clock2 = config.max_time - clock2
             jsonstr = State.game.json_str()
-            logging.debug(f'send socket {State.current_state} clock1 {clock1} clock2: {clock2}')
+            # logging.debug(f'send socket {State.current_state} clock1 {clock1} clock2: {clock2}')
             try:
                 if (State.current_state in ['S0', 'S1', 'P0', 'P1']) and State.picture is not None:
                     _, im_buf_arr = cv2.imencode('.jpg', State.picture)
                     png_output = base64.b64encode(bytes(im_buf_arr))
-                    logging.debug('b64encode')
+                    # logging.debug('b64encode')
                     sock.send(  # type:ignore[no-member] # pylint: disable=no-member
                         f'{{"op": "{State.current_state}", '
                         f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}'
@@ -918,6 +918,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         f'{{"op": "{State.current_state}", "clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}'
                     )
             except ConnectionClosed:
+                logging.debug('connection closed /ws_status')
                 return
             State.op_event.wait()
 
