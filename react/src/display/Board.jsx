@@ -6,6 +6,9 @@ class Board extends Component {
         if (board != null) {
             const e = board[coord];
             if (e != null) {
+                if (e === '_') {
+                    return (<div id={coord} className='tile'>&nbsp;</div>);
+                }
                 return (<div id={coord} className='tile'>{e}</div>);
             } else {
                 return (<div id={coord}></div>);
