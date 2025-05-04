@@ -11,7 +11,11 @@ class Bag extends Component {
         let panelclass = 'card-body bag-body'
         if (this.props.bag != null) {
             for (const [key, value] of this.props.bag.entries()) {
-                items.push(<span key={key} className='tile'>{value}</span>)
+                if (value === '_') {
+                    items.push(<span key={key} className='tile'>&nbsp;</span>)
+                } else {
+                    items.push(<span key={key} className='tile'>{value}</span>)
+                }
             }
             cnt_tiles = this.props.bag.length
             if (this.props.bag.length <= 14) {
