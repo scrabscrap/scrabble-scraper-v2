@@ -56,7 +56,6 @@ class CustomBoard:
     FIELD = [[30, 85, 20], [90, 255, 255]]  # 140 => 70  (-40, + 20)
 
     SATURATION = [[0, 110, 0], [180, 255, 255]]
-    TILES_THRESHOLD = config.board_tiles_threshold
 
     BOARD_MASK_BORDER = 5
     TWORD_MASK, DWORD_MASK, TLETTER_MASK, DLETTER_MASK, FIELD_MASK = None, None, None, None, None
@@ -140,9 +139,9 @@ class CustomBoard:
                 px_col = int(OFFSET + (row * GRID_H))
                 px_row = int(OFFSET + (col * GRID_W))
                 segment = mask_result[px_col + 2 : px_col + GRID_H - 2, px_row + 2 : px_row + GRID_W - 2]
-                number_of_not_black_pix: int = np.sum(segment != 0)
+                number_of_not_black_pix: int = np.sum(segment > 10)
                 filtered_pixels[(col, row)] = number_of_not_black_pix
-                if number_of_not_black_pix > cls.TILES_THRESHOLD:
+                if number_of_not_black_pix > config.board_tiles_threshold:
                     candidates.add((col, row))
         result = None
         if logging.getLogger().isEnabledFor(logging.DEBUG):
