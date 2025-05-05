@@ -913,17 +913,17 @@ def write_files(
         if game.gamestart is None:
             game.gamestart = datetime.now()
         game_id = game.gamestart.strftime('%y%j-%H%M%S')
-        move = game.moves[-1]
-        logger.info(f'{game_id} move: {move.move}')
+        last_move = game.moves[-1]
+        logger.info(f'{game_id} move: {last_move.move}')
         logger.info(f'{game_id} warp: {get_last_warp()}')
-        logger.info(f'{game_id} player: {move.player}')
-        logger.info(f'{game_id} coord: {move.coord} vertical: {move.is_vertical}')
-        logger.info(f'{game_id} word: {move.points}')
-        logger.info(f'{game_id} points: {move.points}')
-        logger.info(f'{game_id} score: {move.score}')
-        logger.info(f'{game_id} new tiles: {move.new_tiles}')
-        logger.info(f'{game_id} removed tiles: {move.removed_tiles}')
-        logger.info(f'{game_id} board: {move.board}')
+        logger.info(f'{game_id} player: {last_move.player}')
+        logger.info(f'{game_id} coord: {last_move.coord} vertical: {last_move.is_vertical}')
+        logger.info(f'{game_id} word: {last_move.points}')
+        logger.info(f'{game_id} points: {last_move.points}')
+        logger.info(f'{game_id} score: {last_move.score}')
+        logger.info(f'{game_id} new tiles: {last_move.new_tiles}')
+        logger.info(f'{game_id} removed tiles: {last_move.removed_tiles}')
+        logger.info(f'{game_id} board: {last_move.board}')
 
     if config.is_testing:
         logging.info('Skip store because is_testing is set')
