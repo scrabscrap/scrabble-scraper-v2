@@ -87,23 +87,23 @@ class OneTile:  # pylint: disable=too-few-public-methods
         self.img = np.array([], dtype=np.uint8)
 
 
-bag = BAGS[config.board_language]
+bag = BAGS[config.board.language]
 bag_as_list = [k for k, count in bag.items() for _ in range(count)]
 tiles: List[OneTile] = []
 
 
 def scores(tile: str) -> int:
     """returns 0 if  '_' or lower chars otherwise the scoring value"""
-    return 0 if tile.islower() or tile == '_' else SCORES[config.board_language][tile]
+    return 0 if tile.islower() or tile == '_' else SCORES[config.board.language][tile]
 
 
 def load_tiles() -> List[OneTile]:
     """load tile images from disk"""
 
     tiles.clear()
-    filepath = PATH_TILES_IMAGES[config.board_language]
+    filepath = PATH_TILES_IMAGES[config.board.language]
     # tile_list = [*SCORES[config.board_language]]
-    tile_list = sorted(SCORES[config.board_language], key=lambda t: SCORES[config.board_language][t], reverse=True)
+    tile_list = sorted(SCORES[config.board.language], key=lambda t: SCORES[config.board.language][t], reverse=True)
     tile_list.remove('_')  # without blank
     for tile_name in tile_list:
         image = cv2.imread(f'{filepath}/{tile_name}.png', cv2.IMREAD_GRAYSCALE)

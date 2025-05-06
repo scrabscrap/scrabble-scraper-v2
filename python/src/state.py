@@ -168,7 +168,7 @@ class State(Static):
         next_state = (P0, P1)[player]
         logging.info(f'{cls.current_state} - (valid challenge) -> {next_state}')
         _, played_time, current = ScrabbleWatch.status()
-        if current[player] > config.doubt_timeout:
+        if current[player] > config.scrabble.doubt_timeout:
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.warning(f'valid challenge after timeout {current[0]}')
         ScrabbleWatch.display.add_remove_tiles(player, played_time, current)  # player 1 has to remove the last move
@@ -183,9 +183,9 @@ class State(Static):
     def do_invalid_challenge(cls, player: int) -> str:
         """player 0/1 has an invalid challenge for the last move from player 1/0"""
         next_state = (P0, P1)[player]
-        logging.info(f'{cls.current_state} - (invalid challenge) -> {next_state} (-{config.malus_doubt:2d})')  # -10
+        logging.info(f'{cls.current_state} - (invalid challenge) -> {next_state} (-{config.scrabble.malus_doubt:2d})')  # -10
         _, played_time, current = ScrabbleWatch.status()
-        if current[player] > config.doubt_timeout:
+        if current[player] > config.scrabble.doubt_timeout:
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.warning(f'invalid challenge after timeout {current[player]}')
         ScrabbleWatch.display.add_malus(player, played_time, current)  # player 0 gets a malus

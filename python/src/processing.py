@@ -53,25 +53,25 @@ ORD_A = ord('A')
 
 def get_last_warp() -> Optional[TWarp]:  # pylint: disable=too-many-return-statements
     """Delegates the warp of the ``img`` according to the configured board style"""
-    return BOARD_CLASSES.get(config.board_layout, Custom2012Board).last_warp
+    return BOARD_CLASSES.get(config.board.layout, Custom2012Board).last_warp
 
 
 def clear_last_warp():
     """Delegates the last_warp according to the configured board style"""
-    BOARD_CLASSES.get(config.board_layout, Custom2012Board).last_warp = None
+    BOARD_CLASSES.get(config.board.layout, Custom2012Board).last_warp = None
 
 
 @runtime_measure
 def warp_image(img: MatLike) -> tuple[MatLike, MatLike]:
     """Delegates the warp of the ``img`` according to the configured board style"""
-    warped = BOARD_CLASSES.get(config.board_layout, Custom2012Board).warp(img) if config.video_warp else img
+    warped = BOARD_CLASSES.get(config.board.layout, Custom2012Board).warp(img) if config.video.warp else img
     return warped, cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
 
 
 @runtime_measure
 def filter_image(img: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disable=too-many-return-statements
     """Delegates the image filter of the ``img`` according to the configured board style"""
-    return BOARD_CLASSES.get(config.board_layout, Custom2012Board).filter_image(img)
+    return BOARD_CLASSES.get(config.board.layout, Custom2012Board).filter_image(img)
 
 
 def waitfor_future(waitfor: Optional[Future]):
@@ -136,7 +136,7 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
 
         for angle in MATCH_ROTATIONS:
             tile, prop = match_tile(imutils.rotate(gray, angle), tile, prop)
-            if prop >= config.board_min_tiles_rate:
+            if prop >= config.board.min_tiles_rate:
                 break
 
         board[coord] = (tile, prop) if tile is not None and prop > THRESHOLD_PROP_TILE else ('_', BLANK_PROP)
@@ -359,7 +359,7 @@ def admin_recalc_moves(
         m.board |= tiles_to_add
 
     def update_score_for_bonus(m: Move, prev_score: Tuple[int, int]):
-        penalty = config.malus_doubt
+        penalty = config.scrabble.malus_doubt
         m.score = (prev_score[0] - penalty, prev_score[1]) if m.player == 0 else (prev_score[0], prev_score[1] - penalty)
 
     def update_withdrawn_move(m: Move, prev_move: Move):
@@ -437,7 +437,7 @@ def admin_toggle_challenge_type(waitfor: Optional[Future], game: Game, move_numb
     previous_score = game.moves[index - 1].score if move_number > 1 else (0, 0)
     if to_change.type == MoveType.WITHDRAW:  # new type=MoveType.CHALLENGE_BONUS
         to_change.type = MoveType.CHALLENGE_BONUS
-        to_change.points = config.malus_doubt * -1
+        to_change.points = config.scrabble.malus_doubt * -1
         to_change.word = ''
         to_change.removed_tiles = {}
     else:  # new type=MoveType.WITHDRAW
@@ -474,7 +474,7 @@ def admin_ins_challenge(waitfor: Optional[Future], game: Game, move_number: int,
     to_insert.removed_tiles = {}
     if move_type == MoveType.CHALLENGE_BONUS:
         to_insert.type = MoveType.CHALLENGE_BONUS
-        to_insert.points = config.malus_doubt * -1
+        to_insert.points = config.scrabble.malus_doubt * -1
         to_insert.word = ''
         to_insert.player = 0 if to_insert.player == 1 else 1
     else:
@@ -595,8 +595,8 @@ def start_of_game(game: Game):
         upload.delete_files, upload_impl.last_future
     )  # first delete images and data files on ftp server
     try:
-        file_list = glob.glob(f'{config.web_dir}/image-*.jpg')
-        file_list += glob.glob(f'{config.web_dir}/data-*.json')
+        file_list = glob.glob(f'{config.path.web_dir}/image-*.jpg')
+        file_list += glob.glob(f'{config.path.web_dir}/data-*.json')
         for file_path in file_list:
             os.remove(file_path)
         if file_list:
@@ -647,10 +647,10 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
     waitfor_future(waitfor)
     if game.moves:
         # calculate overtime malus
-        t = (config.max_time - game.moves[-1].played_time[0], config.max_time - game.moves[-1].played_time[1])
+        t = (config.scrabble.max_time - game.moves[-1].played_time[0], config.scrabble.max_time - game.moves[-1].played_time[1])
         for player in range(2):
             if t[player] < 0:  # in overtime
-                malus = (t[player] // 60) * config.timeout_malus  # config.timeout_malus per minute
+                malus = (t[player] // 60) * config.scrabble.timeout_malus  # config.timeout_malus per minute
                 game.add_timout_malus(player, malus)  # add as move
 
         with suppress(Exception):
@@ -736,12 +736,16 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tu
                 logging.warning(f'could not correct move #{_move.move}')
 
     ignore_coords = set()
-    if len(game.moves) > config.verify_moves:
+    if len(game.moves) > config.scrabble.verify_moves:
         # if opponents move has a valid challenge
-        if game.moves[-1 * config.verify_moves + 1].type in (MoveType.PASS_TURN, MoveType.EXCHANGE, MoveType.WITHDRAW):
-            ignore_coords = set({i: i for i in game.moves[-1 * config.verify_moves + 1].board if i in game.moves[-1].board})
+        if game.moves[-1 * config.scrabble.verify_moves + 1].type in (MoveType.PASS_TURN, MoveType.EXCHANGE, MoveType.WITHDRAW):
+            ignore_coords = set(
+                {i: i for i in game.moves[-1 * config.scrabble.verify_moves + 1].board if i in game.moves[-1].board}
+            )
         else:
-            ignore_coords = set({i: i for i in game.moves[-1 * config.verify_moves].board if i in game.moves[-1].board})
+            ignore_coords = set(
+                {i: i for i in game.moves[-1 * config.scrabble.verify_moves].board if i in game.moves[-1].board}
+            )
     tiles_candidates |= ignore_coords  # tiles_candidates must contain ignored_coords
     tiles_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
     logging.debug(f'filtered_candidates {tiles_candidates}')
@@ -865,7 +869,7 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     """
 
     logging.info(f'changed tiles: {changed}')
-    to_inspect = min(config.verify_moves, len(game.moves)) * -1
+    to_inspect = min(config.scrabble.verify_moves, len(game.moves)) * -1
     prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
     must_recalculate = False
     for mov in game.moves[to_inspect:]:
@@ -927,21 +931,21 @@ def write_files(
 
     if move_to_store:
         if not only_json and move_to_store.img is not None:
-            save_image(f'{config.web_dir}/image-{move_to_store.move}.jpg', move_to_store.img)
-        if config.development_recording and dev_img is not None:
-            save_image(f'{config.web_dir}/image-{move_to_store.move}-camera.jpg', dev_img)
+            save_image(f'{config.path.web_dir}/image-{move_to_store.move}.jpg', move_to_store.img)
+        if config.development.recording and dev_img is not None:
+            save_image(f'{config.path.web_dir}/image-{move_to_store.move}-camera.jpg', dev_img)
             write_dev_log_entry()
 
         json_content = game.json_str(move_to_store.move)
-        write_json_file(f'{config.web_dir}/data-{move_to_store.move}.json', json_content)
+        write_json_file(f'{config.path.web_dir}/data-{move_to_store.move}.json', json_content)
         if move_to_store.move == game.moves[-1].move:
-            write_json_file(f'{config.web_dir}/status.json', json_content)
-        if config.upload_server:
+            write_json_file(f'{config.path.web_dir}/status.json', json_content)
+        if config.output.upload_server:
             upload_impl.last_future = pool.submit(upload.upload_move, upload_impl.last_future, move_to_store.move)
     else:
         json_content = game.json_str()
-        write_json_file(f'{config.web_dir}/status.json', json_content)
-        if config.upload_server:
+        write_json_file(f'{config.path.web_dir}/status.json', json_content)
+        if config.output.upload_server:
             upload_impl.last_future = pool.submit(upload.upload_status, upload_impl.last_future)
 
 
@@ -958,19 +962,19 @@ def store_zip_from_game(game: Game):  # pragma: no cover
         game.gamestart = datetime.now()
     game_id = game.gamestart.strftime('%y%j-%H%M%S')
     zip_filename = f'{game_id}-{str(uuid.uuid4())}'
-    with ZipFile(f'{config.web_dir}/{zip_filename}.zip', 'w') as _zip:
+    with ZipFile(f'{config.path.web_dir}/{zip_filename}.zip', 'w') as _zip:
         logging.info(f'create zip with {len(game.moves):d} files')
         for mov in game.moves:
-            if os.path.exists(f'{config.web_dir}/image-{mov.move}.jpg'):
-                _zip.write(f'{config.web_dir}/image-{mov.move}.jpg', arcname=f'image-{mov.move}.jpg')
-            if os.path.exists(f'{config.web_dir}/image-{mov.move}-camera.jpg'):
-                _zip.write(f'{config.web_dir}/image-{mov.move}-camera.jpg', arcname=f'image-{mov.move}-camera.jpg')
-            if os.path.exists(f'{config.web_dir}/data-{mov.move}.json'):
-                _zip.write(f'{config.web_dir}/data-{mov.move}.json', arcname=f'data-{mov.move}.json')
-        if os.path.exists(f'{config.log_dir}/messages.log'):
-            _zip.write(f'{config.log_dir}/messages.log', arcname='messages.log')
-        if os.path.exists(f'{config.log_dir}/gameRecording.log'):
-            _zip.write(f'{config.log_dir}/gameRecording.log', arcname='gameRecording.log')
+            if os.path.exists(f'{config.path.web_dir}/image-{mov.move}.jpg'):
+                _zip.write(f'{config.path.web_dir}/image-{mov.move}.jpg', arcname=f'image-{mov.move}.jpg')
+            if os.path.exists(f'{config.path.web_dir}/image-{mov.move}-camera.jpg'):
+                _zip.write(f'{config.path.web_dir}/image-{mov.move}-camera.jpg', arcname=f'image-{mov.move}-camera.jpg')
+            if os.path.exists(f'{config.path.web_dir}/data-{mov.move}.json'):
+                _zip.write(f'{config.path.web_dir}/data-{mov.move}.json', arcname=f'data-{mov.move}.json')
+        if os.path.exists(f'{config.path.log_dir}/messages.log'):
+            _zip.write(f'{config.path.log_dir}/messages.log', arcname='messages.log')
+        if os.path.exists(f'{config.path.log_dir}/gameRecording.log'):
+            _zip.write(f'{config.path.log_dir}/gameRecording.log', arcname='gameRecording.log')
 
-    if config.upload_server:
+    if config.output.upload_server:
         upload_impl.last_future = pool.submit(upload.zip_files, upload_impl.last_future, f'{zip_filename}')

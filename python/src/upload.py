@@ -23,13 +23,13 @@ from upload_impl import Upload, UploadFtp, UploadHttp
 
 upload_implementations = {'https': UploadHttp, 'http': UploadHttp, 'ftp': UploadFtp}
 
-upload: Upload = upload_implementations[config.upload_modus]()
+upload: Upload = upload_implementations[config.output.upload_modus]()
 
 
 def update_upload_mode() -> bool:
     """set new upload mode"""
     global upload  # pylint: disable=global-statement
-    mode = config.upload_modus.lower()
+    mode = config.output.upload_modus.lower()
     if mode in upload_implementations:
         upload = upload_implementations[mode]()
         return True

@@ -275,14 +275,14 @@ class Game:
                 {
                     'api': API_VERSION,
                     'commit': version.git_commit,
-                    'layout': config.board_layout,
-                    'tournament': config.tournament,
+                    'layout': config.board.layout,
+                    'tournament': config.scrabble.tournament,
                     'time': str(self.gamestart),
                     'move': 0,
                     'score1': 0,
                     'score2': 0,
-                    'time1': config.max_time,
-                    'time2': config.max_time,
+                    'time1': config.scrabble.max_time,
+                    'time2': config.scrabble.max_time,
                     'name1': name1,
                     'name2': name2,
                     'onmove': name1,
@@ -309,14 +309,14 @@ class Game:
             {
                 'api': API_VERSION,
                 'commit': version.git_commit,
-                'layout': config.board_layout,
-                'tournament': config.tournament,
+                'layout': config.board.layout,
+                'tournament': config.scrabble.tournament,
                 'time': self.moves[move_index].time,
                 'move': self.moves[move_index].move,
                 'score1': self.moves[move_index].score[0],
                 'score2': self.moves[move_index].score[1],
-                'time1': config.max_time - self.moves[move_index].played_time[0],
-                'time2': config.max_time - self.moves[move_index].played_time[1],
+                'time1': config.scrabble.max_time - self.moves[move_index].played_time[0],
+                'time2': config.scrabble.max_time - self.moves[move_index].played_time[1],
                 'name1': name1,
                 'name2': name2,
                 'onmove': self.nicknames[self.moves[move_index].player],
@@ -335,19 +335,19 @@ class Game:
         out_str = (
             f'game: {game_id}\ngame.ini\n'
             '[default]\n'
-            f'warp = {config.video_warp}\n'
+            f'warp = {config.video.warp}\n'
             f'name1 = {self.nicknames[0]}\n'
             f'name2 = {self.nicknames[1]}\n'
             f'formatter = {game_id}-{{:d}}.jpg\n'
-            f'layout = {config.board_layout}\n'
+            f'layout = {config.board.layout}\n'
         )
         if self.moves:
             if self.moves[0].player == 0:
                 out_str += 'start = Red\n'  # first move: green
             else:
                 out_str += 'start = Green\n'
-        if config.video_warp_coordinates:
-            out_str += f'warp-coord = {config.video_warp_coordinates}\n'
+        if config.video.warp_coordinates:
+            out_str += f'warp-coord = {config.video.warp_coordinates}\n'
 
         out_str += '\ngame.csv\n'
         out_str += 'Move, Button, State, Coord, Word, Points, Score1, Score2\n'
@@ -500,7 +500,7 @@ class Game:
         logging.debug('scrabble: create move invalid challenge')
         move = copy.deepcopy(last_move)
         move.type = MoveType.CHALLENGE_BONUS
-        move.points = config.malus_doubt * -1
+        move.points = config.scrabble.malus_doubt * -1
         move.player = player
         move.word = ''
         move.removed_tiles = {}
@@ -508,9 +508,9 @@ class Game:
         move.modification_cache = {}
         move.played_time = played_time
         move.score = (
-            (move.score[0] - config.malus_doubt, move.score[1])
+            (move.score[0] - config.scrabble.malus_doubt, move.score[1])
             if player == 0
-            else (move.score[0], move.score[1] - config.malus_doubt)
+            else (move.score[0], move.score[1] - config.scrabble.malus_doubt)
         )
         self.moves.append(move)
         move.move = len(self.moves)  # set move number

@@ -56,7 +56,7 @@ class Display:
         if self.game and self.game.moves:
             for i in range(2):
                 nickname = self.game.nicknames[i][:10]
-                minutes, seconds = divmod(abs(config.max_time - self.game.moves[-1].played_time[i]), 60)
+                minutes, seconds = divmod(abs(config.scrabble.max_time - self.game.moves[-1].played_time[i]), 60)
                 score = self.game.moves[-1].score[i]
                 logging.debug(f'{nickname} {score} {minutes:02d}:{seconds:02d}')
 
@@ -70,7 +70,7 @@ class Display:
         """
         logging.debug('Pause message')
         msg = 'Pause'
-        if config.show_score and self.game and len(self.game.moves):
+        if config.scrabble.show_score and self.game and len(self.game.moves):
             msg = f'P {self.game.moves[-1].score[player]:3d}'
         self.render_display(player, played_time, current, msg)
 
@@ -131,8 +131,12 @@ class Display:
             current(tuple[int, int]): time for current move
             info(str): additional string to display
         """
-        minutes, seconds = divmod(abs(config.max_time - played_time[player]), 60)
-        text = f'-{minutes:1d}:{seconds:02d}' if config.max_time - played_time[player] < 0 else f'{minutes:02d}:{seconds:02d}'
+        minutes, seconds = divmod(abs(config.scrabble.max_time - played_time[player]), 60)
+        text = (
+            f'-{minutes:1d}:{seconds:02d}'
+            if config.scrabble.max_time - played_time[player] < 0
+            else f'{minutes:02d}:{seconds:02d}'
+        )
         # log message only if player changed
         if info or self.lastplayer != player:
             logging.debug(f'render_display {player}: {text} ({current}/{info})')

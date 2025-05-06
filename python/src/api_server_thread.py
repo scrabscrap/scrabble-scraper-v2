@@ -96,7 +96,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 else:
                     logging.warning(f'can not set: {request.form.get("player1")}/{request.form.get("player2")}')
             elif request.form.get('btntournament'):
-                if (tournament := request.form.get('tournament')) is not None and (tournament != config.tournament):
+                if (tournament := request.form.get('tournament')) is not None and (tournament != config.scrabble.tournament):
                     if 'scrabble' not in config.config.sections():
                         config.config.add_section('scrabble')
                     config.config.set('scrabble', 'tournament', str(tournament))
@@ -106,7 +106,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     logging.warning(f'can not set: {tournament=}')
             return redirect('/index')
         (player1, player2) = State.game.nicknames
-        tournament = config.tournament
+        tournament = config.scrabble.tournament
         # fall through: request.method == 'GET':
         return render_template('index.html', apiserver=ApiServer, player1=player1, player2=player2, tournament=tournament)
 
@@ -132,7 +132,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             rect = get_last_warp()
             if rect is None:
                 rect = np.array(
-                    [[0, 0], [config.video_width, 0], [config.video_width, config.video_height], [0, config.video_height]],
+                    [[0, 0], [config.video.width, 0], [config.video.width, config.video.height], [0, config.video.height]],
                     dtype='float32',
                 )
             if col < 200 and row < 200:
@@ -149,7 +149,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 'warp_coordinates',
                 np.array2string(rect, formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=','),
             )
-        warp_coord_cnf = str(config.video_warp_coordinates)
+        warp_coord_cnf = str(config.video.warp_coordinates)
         img = camera.cam.read()
         if img is not None:
             _, im_buf_arr = cv2.imencode('.jpg', img)
@@ -190,16 +190,16 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         logging.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
                         root_logger.setLevel(new_level)
                         log_config = configparser.ConfigParser()
-                        with open(f'{config.work_dir}/log.conf', 'r', encoding='UTF-8') as config_file:
+                        with open(f'{config.path.work_dir}/log.conf', 'r', encoding='UTF-8') as config_file:
                             log_config.read_file(config_file)
                             if 'logger_root' not in log_config.sections():
                                 log_config.add_section('logger_root')
                             log_config.set('logger_root', 'level', logging.getLevelName(new_level))
-                        with open(f'{config.work_dir}/log.conf', 'w', encoding='UTF-8') as config_file:
+                        with open(f'{config.path.work_dir}/log.conf', 'w', encoding='UTF-8') as config_file:
                             log_config.write(config_file)
 
                 recording = 'recording' in request.form
-                if config.development_recording != recording:
+                if config.development.recording != recording:
                     logging.info(f'development.recording changed to {recording}')
                     if 'development' not in config.config.sections():
                         config.config.add_section('development')
@@ -212,7 +212,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         # fall through: request.method == 'GET':
         loglevel = logging.getLogger('root').getEffectiveLevel()
         return render_template(
-            'loglevel.html', apiserver=ApiServer, recording=f'{config.development_recording}', loglevel=f'{loglevel}'
+            'loglevel.html', apiserver=ApiServer, recording=f'{config.development.recording}', loglevel=f'{loglevel}'
         )
 
     @staticmethod
@@ -584,8 +584,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """delete message logs"""
         import glob
 
-        ignore_list = [f'{config.log_dir}/messages.log', f'{config.log_dir}/game.log']
-        file_list = glob.glob(f'{config.log_dir}/*')
+        ignore_list = [f'{config.path.log_dir}/messages.log', f'{config.path.log_dir}/game.log']
+        file_list = glob.glob(f'{config.path.log_dir}/*')
         file_list = [f for f in file_list if f not in ignore_list]
         # Iterate over the list of filepaths & remove each file.
         logging.info('delete logs')
@@ -605,9 +605,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """delete recording(s)"""
         import glob
 
-        logging.debug(f'path {config.work_dir}/recording')
-        ignore_list = [f'{config.work_dir}/recording/gameRecording.log']
-        file_list = glob.glob(f'{config.work_dir}/recording/*')
+        logging.debug(f'path {config.path.work_dir}/recording')
+        ignore_list = [f'{config.path.work_dir}/recording/gameRecording.log']
+        file_list = glob.glob(f'{config.path.work_dir}/recording/*')
         file_list = [f for f in file_list if f not in ignore_list]
         # Iterate over the list of filepaths & remove each file.
         logging.info('delete recording')
@@ -616,7 +616,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 os.remove(file_path)
             except OSError:
                 logging.error(f'error: {file_path}')
-        with open(f'{config.work_dir}/recording/gameRecording.log', 'w', encoding='UTF-8'):
+        with open(f'{config.path.work_dir}/recording/gameRecording.log', 'w', encoding='UTF-8'):
             pass  # empty log file
         return redirect(url_for('route_index'))
 
@@ -625,7 +625,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/download_games/<path:req_path>')
     def do_download_games(req_path):
         """download files from web folder"""
-        base_path = config.web_dir
+        base_path = config.path.web_dir
         fullpath = os.path.normpath(os.path.join(base_path, req_path))
         # validate path
         if not fullpath.startswith(base_path):
@@ -647,12 +647,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """download message logs"""
         from zipfile import ZipFile
 
-        with ZipFile(f'{config.log_dir}/log.zip', 'w') as _zip:
+        with ZipFile(f'{config.path.log_dir}/log.zip', 'w') as _zip:
             files = ['game.log', 'messages.log']
             for filename in files:
-                if os.path.exists(f'{config.log_dir}/{filename}'):
-                    _zip.write(f'{config.log_dir}/{filename}')
-        return send_from_directory(f'{config.log_dir}', 'log.zip', as_attachment=True)
+                if os.path.exists(f'{config.path.log_dir}/{filename}'):
+                    _zip.write(f'{config.path.log_dir}/{filename}')
+        return send_from_directory(f'{config.path.log_dir}', 'log.zip', as_attachment=True)
 
     @staticmethod
     @app.route('/download_recording', methods=['POST', 'GET'])
@@ -661,13 +661,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         import glob
         from zipfile import ZipFile
 
-        with ZipFile(f'{config.work_dir}/recording/recording.zip', 'w') as _zip:
-            ignore_list = [f'{config.work_dir}/recording/recording.zip']
-            file_list = glob.glob(f'{config.work_dir}/recording/*')
+        with ZipFile(f'{config.path.work_dir}/recording/recording.zip', 'w') as _zip:
+            ignore_list = [f'{config.path.work_dir}/recording/recording.zip']
+            file_list = glob.glob(f'{config.path.work_dir}/recording/*')
             file_list = [f for f in file_list if f not in ignore_list]
             for filename in file_list:
                 _zip.write(f'{filename}')
-        return send_from_directory(f'{config.work_dir}/recording', 'recording.zip', as_attachment=True)
+        return send_from_directory(f'{config.path.work_dir}/recording', 'recording.zip', as_attachment=True)
 
     @staticmethod
     @app.route('/restart', methods=['POST', 'GET'])
@@ -755,7 +755,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             logging.info(f'\n{board_to_string(board)}')
             # find log
             process = subprocess.run(
-                ['tail', '-300', f'{config.log_dir}/messages.log'],
+                ['tail', '-300', f'{config.path.log_dir}/messages.log'],
                 check=False,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -841,7 +841,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             'uninstall': 'UNINSTALL',
         }
         if op in ops:  # pylint: disable=consider-iterating-dictionary
-            cmd = f'{config.src_dir}/../../scripts/tailscale.sh {ops[op]} | tee -a {config.log_dir}/messages.log &'
+            cmd = f'{config.path.src_dir}/../../scripts/tailscale.sh {ops[op]} | tee -a {config.path.log_dir}/messages.log &'
             _ = subprocess.run(['bash', '-c', cmd], check=False)
         else:
             logging.warning('invalid operation for vpn')
@@ -858,7 +858,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             LED.blink_on({LEDEnum.yellow})
             ScrabbleWatch.display.show_ready(('Update...', 'pls wait'))
             os.system(
-                f'{config.src_dir}/../../scripts/upgrade.sh {config.system_gitbranch} | tee -a {config.log_dir}/messages.log &'
+                f'{config.path.src_dir}/../../scripts/upgrade.sh {config.system.gitbranch} '
+                f'| tee -a {config.path.log_dir}/messages.log &'
             )
             return redirect(url_for('route_index'))
         logging.warning('not in State START')
@@ -869,7 +870,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """websocket for logging"""
         import html
 
-        f = open(f'{config.log_dir}/messages.log', 'r', encoding='utf-8')  # pylint: disable=consider-using-with
+        f = open(f'{config.path.log_dir}/messages.log', 'r', encoding='utf-8')  # pylint: disable=consider-using-with
         # with will close at eof
         tmp = '\n' + ''.join(f.readlines()[-600:])  # first read last 600 lines
         tmp = html.escape(tmp)
@@ -901,8 +902,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             if State.op_event.is_set():
                 State.op_event.clear()
             _, (clock1, clock2), _ = ScrabbleWatch.status()
-            clock1 = config.max_time - clock1
-            clock2 = config.max_time - clock2
+            clock1 = config.scrabble.max_time - clock1
+            clock2 = config.scrabble.max_time - clock2
             jsonstr = State.game.json_str()
             # logging.debug(f'send socket {State.current_state} clock1 {clock1} clock2: {clock2}')
             try:
@@ -936,7 +937,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         branch = '' if version.git_branch == 'main' else version.git_branch
         ApiServer.scrabscrap_version = f'{branch} {version_flag}{version.git_version}'
 
-        if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
+        if os.path.exists(f'{config.path.src_dir}/static/webapp/index.html'):
             ApiServer.local_webapp = True
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
@@ -965,7 +966,7 @@ def main():
     from hardware.camera import switch_camera
 
     logging.config.fileConfig(
-        fname=f'{config.work_dir}/log.conf',
+        fname=f'{config.path.work_dir}/log.conf',
         disable_existing_loggers=False,
         defaults={'level': 'DEBUG', 'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'},
     )

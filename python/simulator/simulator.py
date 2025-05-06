@@ -127,7 +127,7 @@ def open_folder():
     """select folder for images"""
     folder = request.args.get('folder')
     logging.debug(f'try to open {folder}')
-    ini_file = os.path.abspath(f'{config.src_dir}/../test/{folder}/scrabble.ini')
+    ini_file = os.path.abspath(f'{config.path.src_dir}/../test/{folder}/scrabble.ini')
     if os.path.exists(ini_file):
         config.reload(ini_file=ini_file)
         camera.cam.counter = 1  # type: ignore
@@ -193,7 +193,7 @@ def main():
         sys.__excepthook__(exctype, value, tb)  # calls default excepthook
 
     logging.config.fileConfig(
-        fname=config.work_dir + '/log.conf',
+        fname=config.path.work_dir + '/log.conf',
         disable_existing_loggers=False,
         defaults={'level': 'DEBUG', 'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'},
     )
@@ -214,8 +214,8 @@ def main():
     # get simulate folders
     list_of_dir = [
         f
-        for f in os.listdir(f'{config.src_dir}/../test')
-        if os.path.isdir(f'{config.src_dir}/../test/{f}') and f.startswith('game')
+        for f in os.listdir(f'{config.path.src_dir}/../test')
+        if os.path.isdir(f'{config.path.src_dir}/../test/{f}') and f.startswith('game')
     ]
     list_of_dir.sort()
 
@@ -247,7 +247,7 @@ def main():
 
     # start State-Machine
     State.do_new_game()
-    logging.debug(f'#### workdir {config.work_dir}')
+    logging.debug(f'#### workdir {config.path.work_dir}')
     logging.info('####################################################################')
 
     api.start_server(port=5050, simulator=True)

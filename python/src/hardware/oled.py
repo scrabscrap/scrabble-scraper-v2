@@ -42,7 +42,7 @@ try:
     )
     DEVICE: tuple[ssd1306, ssd1306] = (ssd1306(SERIAL[0]), ssd1306(SERIAL[1]))
 except (OSError, DeviceNotFoundError) as e:
-    logging.basicConfig(filename=f'{config.work_dir}/log/messages.log', level=logging.INFO, force=True)
+    logging.basicConfig(filename=f'{config.path.log_dir}/messages.log', level=logging.INFO, force=True)
     logging.error(f'error opening OLED 1 / OLED 2 {type(e).__name__}: {e}')
     raise RuntimeError('Error: OLED 1 / OLED 2 not available') from e
 
@@ -84,7 +84,7 @@ class OLEDDisplay(Display):
                     nickname = self.game.nicknames[i][:10]
                     draw.text((2, 5), f'{nickname}', font=FONT1, fill=WHITE)
                     if self.game.moves:
-                        minutes, seconds = divmod(abs(config.max_time - self.game.moves[-1].played_time[i]), 60)
+                        minutes, seconds = divmod(abs(config.scrabble.max_time - self.game.moves[-1].played_time[i]), 60)
                         score = self.game.moves[-1].score[i]
                         draw.text((2, 30), f'{minutes:02d}:{seconds:02d}  {score:3d}', font=FONT1, fill=WHITE)
 
@@ -92,7 +92,7 @@ class OLEDDisplay(Display):
         self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: Optional[str] = None
     ) -> None:
         def _format_time(played: int) -> str:
-            delta = config.max_time - played
+            delta = config.scrabble.max_time - played
             minutes, seconds = divmod(abs(delta), 60)
             return f'-{minutes:1d}:{seconds:02d}' if delta < 0 else f'{minutes:02d}:{seconds:02d}'
 
@@ -109,12 +109,12 @@ class OLEDDisplay(Display):
                 if info:
                     draw.text((20, 1), info, font=FONT1, fill=color)
                 if i == player:
-                    if 0 < current[player] <= config.doubt_timeout:
+                    if 0 < current[player] <= config.scrabble.doubt_timeout:
                         draw.text((1, 1), '\u2049', font=FONT1, fill=color)  # alternative \u2718
                     if current[player] != 0:
                         draw.text((90, 1), f'{current[player]:3d}', font=FONT1, fill=color)
                 if self.game and not info:
-                    if config.show_score:
+                    if config.scrabble.show_score:
                         nickname = _shorten_nickname(self.game.nicknames[i])
                         score = self.game.moves[-1].score[i] if len(self.game.moves) else 0
                         draw.text((20, 1), f'{nickname}{score:3d}', font=FONT2, fill=color)

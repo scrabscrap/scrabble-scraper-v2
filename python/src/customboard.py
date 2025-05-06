@@ -126,7 +126,7 @@ class CustomBoard:
         mask_saturation = cv2.inRange(hsv, np.array(cls.SATURATION[0]), np.array(cls.SATURATION[1]))
         mask_color = filter_color(hsv)
 
-        if config.board_dynamic_threshold:
+        if config.board.dynamic_threshold:
             mask_result = mask_color | dynamic_threshold(color)
         else:
             mask_result = mask_saturation | mask_color
@@ -141,7 +141,7 @@ class CustomBoard:
                 segment = mask_result[px_col + 2 : px_col + GRID_H - 2, px_row + 2 : px_row + GRID_W - 2]
                 number_of_not_black_pix: int = np.sum(segment > 10)
                 filtered_pixels[(col, row)] = number_of_not_black_pix
-                if number_of_not_black_pix > config.board_tiles_threshold:
+                if number_of_not_black_pix > config.board.tiles_threshold:
                     candidates.add((col, row))
         result = None
         if logging.getLogger().isEnabledFor(logging.DEBUG):
@@ -219,8 +219,8 @@ class CustomBoard:
     @staticmethod
     def find_board(image) -> TWarp:
         """try to find the game board border"""
-        if config.video_warp_coordinates is not None:
-            rect = np.array(config.video_warp_coordinates, dtype='float32')
+        if config.video.warp_coordinates is not None:
+            rect = np.array(config.video.warp_coordinates, dtype='float32')
         else:
             # based on: https://www.pyimagesearch.com/2014/08/25/4-point-opencv-getperspective-transform-example/
             (blue, _, _) = cv2.split(image.copy())
