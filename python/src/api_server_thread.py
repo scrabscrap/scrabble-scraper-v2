@@ -41,7 +41,7 @@ from flask_sock import ConnectionClosed, Sock
 from werkzeug.serving import make_server
 
 import upload
-from config import config
+from config import config, version
 from display import Display
 from game_board.board import overlay_grid
 from hardware import camera
@@ -931,9 +931,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         ApiServer.simulator = simulator
         ApiServer.tailscale = os.path.isfile('/usr/bin/tailscale')
 
-        version_flag: str = '\u2757' if config.git_dirty else ''
-        branch = '' if config.git_branch == 'main' else config.git_branch
-        ApiServer.scrabscrap_version = f'{branch} {version_flag}{config.git_version}'
+        version_flag: str = '\u2757' if version.git_dirty else ''
+        branch = '' if version.git_branch == 'main' else version.git_branch
+        ApiServer.scrabscrap_version = f'{branch} {version_flag}{version.git_version}'
 
         if os.path.exists(f'{config.src_dir}/static/webapp/index.html'):
             ApiServer.local_webapp = True

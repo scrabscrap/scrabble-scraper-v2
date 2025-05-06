@@ -31,7 +31,7 @@ from signal import pause
 from threading import Event
 
 from api_server_thread import ApiServer
-from config import config
+from config import config, version
 from hardware import camera
 from state import State
 from threadpool import pool
@@ -80,9 +80,9 @@ def main() -> None:
     logging.info('## ScrabScrap loading ...                                         ##')
     logging.info('####################################################################')
 
-    logging.info(f'Version: {config.git_version}')
-    logging.info(f'Git branch: {config.git_branch}')
-    logging.info(f'Git commit: {config.git_commit}')
+    logging.info(f'Version: {version.git_version}')
+    logging.info(f'Git branch: {version.git_branch}')
+    logging.info(f'Git commit: {version.git_commit}')
 
     signal.signal(signal.SIGALRM, signal_alarm)
     atexit.register(_cleanup)

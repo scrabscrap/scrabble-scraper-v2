@@ -29,7 +29,7 @@ from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
 from api_server_thread import ApiServer
-from config import config
+from config import config, version
 from hardware import camera
 from hardware.led import LEDEnum
 from scrabblewatch import ScrabbleWatch
@@ -207,9 +207,9 @@ def main():
     logging.info('## Simulator loading ...                                          ##')
     logging.info('####################################################################')
 
-    logging.info(f'Version: {config.git_version}')
-    logging.info(f'Git branch: {config.git_branch}')
-    logging.info(f'Git commit: {config.git_commit}')
+    logging.info(f'Version: {version.git_version}')
+    logging.info(f'Git branch: {version.git_branch}')
+    logging.info(f'Git commit: {version.git_commit}')
 
     # get simulate folders
     list_of_dir = [

@@ -58,26 +58,6 @@ class Config:  # pylint: disable=too-many-public-methods
         self.ini_path: str = ini_file if ini_file is not None else f'{self.work_dir}/scrabble.ini'
         self.reload(ini_file=ini_file, clean=False)
         self.is_testing: bool = False
-        version_info = subprocess.run(
-            ['git', 'rev-parse', '--short', 'HEAD'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
-        )
-        self._git_commit = version_info.stdout.strip() if version_info.returncode == 0 else 'n/a'
-        branch_info = subprocess.run(
-            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-        )
-        self._git_branch = branch_info.stdout.strip() if branch_info.returncode == 0 else 'n/a'
-        version_info = subprocess.run(
-            ['git', 'describe', '--tags', '--dirty', '--abbrev=4', '--always'],
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-        )
-        self._git_version = version_info.stdout.strip() if version_info.returncode == 0 else 'n/a'
 
     def reload(self, ini_file=None, clean=True) -> None:
         """reload configuration from file"""
@@ -301,6 +281,32 @@ class Config:  # pylint: disable=too-many-public-methods
         """git tag or branch to use for updates"""
         return self.config.get('system', 'gitbranch', fallback=self.defaults['system.gitbranch']).replace('"', '')  # type: ignore
 
+
+class VersionInfo:
+    """version information"""
+
+    def __init__(self) -> None:
+        version_info = subprocess.run(
+            ['git', 'rev-parse', '--short', 'HEAD'], check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+        )
+        self._git_commit = version_info.stdout.strip() if version_info.returncode == 0 else 'n/a'
+        branch_info = subprocess.run(
+            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        self._git_branch = branch_info.stdout.strip() if branch_info.returncode == 0 else 'n/a'
+        version_info = subprocess.run(
+            ['git', 'describe', '--tags', '--dirty', '--abbrev=4', '--always'],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        self._git_version = version_info.stdout.strip() if version_info.returncode == 0 else 'n/a'
+
     @property
     def git_commit(self) -> str:
         """git commit hash"""
@@ -323,3 +329,4 @@ class Config:  # pylint: disable=too-many-public-methods
 
 
 config = Config()
+version = VersionInfo()
