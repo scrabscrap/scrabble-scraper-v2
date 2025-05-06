@@ -24,7 +24,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional, Tuple
 
-from config import config
+from config import config, version
 from game_board.board import DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER, TRIPLE_WORDS
 from game_board.tiles import bag_as_list, scores
 
@@ -274,7 +274,7 @@ class Game:
             return json.dumps(
                 {
                     'api': API_VERSION,
-                    'commit': config.git_commit,
+                    'commit': version.git_commit,
                     'layout': config.board_layout,
                     'tournament': config.tournament,
                     'time': str(self.gamestart),
@@ -308,7 +308,7 @@ class Game:
         return json.dumps(
             {
                 'api': API_VERSION,
-                'commit': config.git_commit,
+                'commit': version.git_commit,
                 'layout': config.board_layout,
                 'tournament': config.tournament,
                 'time': self.moves[move_index].time,
