@@ -95,97 +95,97 @@ class Config:  # pylint: disable=too-many-public-methods
 
     @property
     def src_dir(self) -> str:
-        """get src dir"""
+        """Get source directory"""
         return os.path.abspath(self.config.get('path', 'src_dir', fallback=os.path.dirname(__file__) or '.'))
 
     @property
     def work_dir(self) -> str:
-        """get work dir"""
+        """Get working directory"""
         return os.path.abspath(self.config.get('path', 'work_dir', fallback=f'{self.src_dir}/../work'))
 
     @property
     def log_dir(self) -> str:
-        """ "get logging dir"""
+        """Get log directory"""
         return os.path.abspath(self.config.get('path', 'log_dir', fallback=f'{self.src_dir}/../work/log'))
 
     @property
     def web_dir(self) -> str:
-        """get web folder"""
+        """Get web output directory"""
         return os.path.abspath(self.config.get('path', 'web_dir', fallback=f'{self.src_dir}/../work/web'))
 
     @property
     def simulate(self) -> bool:
-        """should scrabscrap be simuated"""
+        """Should Scrabscrap be simulated?"""
         return self.config.getboolean('development', 'simulate', fallback=False)
 
     @property
     def simulate_path(self) -> str:
-        """folder for the simulation pictures"""
+        """Path pattern for simulation images"""
         return self.config.get('development', 'simulate_path', fallback=self.src_dir + '/../test/game01/image-{:d}.jpg')
 
     @property
     def development_recording(self) -> bool:
-        """record images in hires and moves to disk"""
+        """Record high-resolution images and save them to disk"""
         return self.config.getboolean('development', 'recording', fallback=self.defaults['development.recording'])  # type: ignore
 
     @property
     def tournament(self) -> str:
-        """tournament"""
+        """Tournament name"""
         return self.config.get('scrabble', 'tournament', fallback=self.defaults['scrabble.tournament'])  # type: ignore
 
     @property
     def malus_doubt(self) -> int:
-        """malus for wrong doubt"""
+        """Penalty points for incorrect doubts"""
         return self.config.getint('scrabble', 'malus_doubt', fallback=self.defaults['scrabble.malus_doubt'])  # type: ignore
 
     @property
     def max_time(self) -> int:
-        """maximum play time"""
+        """Maximum allowed time (in seconds)"""
         return self.config.getint('scrabble', 'max_time', fallback=self.defaults['scrabble.max_time'])  # type: ignore
 
     @property
     def min_time(self) -> int:
-        """maximum overtime"""
+        """Maximum overtime allowed (in seconds, negative)"""
         return self.config.getint('scrabble', 'min_time', fallback=self.defaults['scrabble.min_time'])  # type: ignore
 
     @property
     def doubt_timeout(self) -> int:
-        """how long is doubt possible"""
+        """Time window to raise a doubt (in seconds)"""
         return self.config.getint('scrabble', 'doubt_timeout', fallback=self.defaults['scrabble.doubt_timeout'])  # type: ignore
 
     @property
     def timeout_malus(self) -> int:
-        """how long is doubt possible"""
+        """Penalty points for timeout"""
         return self.config.getint('scrabble', 'timeout_malus', fallback=self.defaults['scrabble.timeout_malus'])  # type: ignore
 
     @property
     def scrabble_verify_moves(self) -> int:
-        """moves to look back for tiles corrections"""
+        """Number of previous moves to check for tile corrections"""
         return self.config.getint('scrabble', 'verify_moves', fallback=self.defaults['scrabble.verify_moves'])  # type: ignore
 
     @property
     def show_score(self) -> bool:
-        """should the display show current score"""
+        """Should the display show the current score?"""
         return self.config.getboolean('scrabble', 'show_score', fallback=self.defaults['scrabble.show_score'])  # type: ignore
 
     @property
     def upload_server(self) -> bool:
-        """should ftp upload used"""
+        """Should results be uploaded to a server?"""
         return self.config.getboolean('output', 'upload_server', fallback=self.defaults['output.upload_server'])  # type: ignore
 
     @property
     def upload_modus(self) -> str:
-        """should ftp upload used"""
+        """Upload mode (e.g., FTP, HTTP)"""
         return self.config.get('output', 'upload_modus', fallback=self.defaults['output.upload_modus']).replace('"', '')  # type: ignore
 
     @property
     def video_warp(self) -> bool:
-        """should warp performed"""
+        """Should video be warped (perspective correction)?"""
         return self.config.getboolean('video', 'warp', fallback=self.defaults['video.warp'])  # type: ignore
 
     @property
     def video_warp_coordinates(self) -> Optional[list]:
-        """stored warp coordinates"""
+        """Stored warp coordinates for perspective transformation"""
         warp_coordinates_as_string = self.config.get('video', 'warp_coordinates', fallback=None)
         if warp_coordinates_as_string is None or len(warp_coordinates_as_string) <= 0:
             return None
@@ -198,42 +198,42 @@ class Config:  # pylint: disable=too-many-public-methods
 
     @property
     def video_height(self) -> int:
-        """used image height"""
+        """Video frame height"""
         return self.config.getint('video', 'height', fallback=self.defaults['video.height'])  # type: ignore
 
     @property
     def video_fps(self) -> int:
-        """used fps on camera monitoring"""
+        """Frames per second used for video capture"""
         return self.config.getint('video', 'fps', fallback=self.defaults['video.fps'])  # type: ignore
 
     @property
     def video_rotate(self) -> bool:
-        """should the images rotated by 180°"""
+        """Should the image be rotated by 180°?"""
         return self.config.getboolean('video', 'rotate', fallback=self.defaults['video.rotate'])  # type: ignore
 
     @property
     def board_layout(self) -> str:
-        """which board layout should be used"""
+        """Board layout configuration"""
         return self.config.get('board', 'layout', fallback=self.defaults['board.layout']).replace('"', '')  # type: ignore
 
     @property
     def board_tiles_threshold(self) -> int:
-        """count of non black pixel to recognize a tile"""
+        """Pixel count threshold to detect tiles"""
         return self.config.getint('board', 'tiles_threshold', fallback=self.defaults['board.tiles_threshold'])  # type: ignore
 
     @property
     def board_min_tiles_rate(self) -> int:
-        """Recognition rate in percent for template matching"""
+        """Minimum recognition rate (percentage) for template matching"""
         return self.config.getint('board', 'min_tiles_rate', fallback=self.defaults['board.min_tiles_rate'])  # type: ignore
 
     @property
     def board_dynamic_threshold(self) -> int:
-        """use dynamic threshold for color filtering"""
+        """Use dynamic image thresholding?"""
         return self.config.getboolean('board', 'dynamic_threshold', fallback=self.defaults['board.dynamic_threshold'])  # type: ignore
 
     @property
     def tiles_language(self) -> str:
-        """used language for the tiles"""
+        """Language of the tiles (default: German)"""
         # use german language as default
         return self.config.get('tiles', 'language', fallback=self.defaults['tiles.language']).replace('"', '')  # type: ignore
 
@@ -273,12 +273,12 @@ class Config:  # pylint: disable=too-many-public-methods
 
     @property
     def system_quit(self) -> str:
-        """on reboot button: should the app just stop (no reboot)"""
+        """Quit behavior (e.g., 'shutdown' or 'exit')"""
         return self.config.get('system', 'quit', fallback=self.defaults['system.quit']).replace('"', '')  # type: ignore
 
     @property
     def system_gitbranch(self) -> str:
-        """git tag or branch to use for updates"""
+        """Git branch or tag used for updates"""
         return self.config.get('system', 'gitbranch', fallback=self.defaults['system.gitbranch']).replace('"', '')  # type: ignore
 
 
