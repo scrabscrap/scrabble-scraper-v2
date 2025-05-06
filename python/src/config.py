@@ -238,40 +238,6 @@ class Config:  # pylint: disable=too-many-public-methods
         return self.config.get('tiles', 'language', fallback=self.defaults['tiles.language']).replace('"', '')  # type: ignore
 
     @property
-    def tiles_image_path(self) -> str:
-        """where to find the images for the tiles"""
-        # use builtin path as default
-        return self.config.get('tiles', 'image_path', fallback=f'{self.src_dir}/game_board/img/default')
-
-    @property
-    def tiles_bag(self) -> dict:
-        """how many tiles are in the bag"""
-        # use german tiles as default
-        bag_as_str = self.config.get(
-            self.tiles_language,
-            'bag',
-            fallback='{"A": 5, "B": 2, "C": 2, "D": 4, "E": 15, "F": 2, "G": 3, "H": 4, "I": 6, '
-            '"J": 1, "K": 2, "L": 3, "M": 4, "N": 9, "O": 3, "P": 1, "Q": 1, "R": 6, "S": 7, '
-            '"T": 6, "U": 6, "V": 1, "W": 1, "X": 1, "Y": 1, "Z": 1, '
-            '"\u00c4": 1, "\u00d6": 1, "\u00dc": 1, "_": 2}',
-        )
-        return json.loads(bag_as_str)
-
-    @property
-    def tiles_scores(self) -> dict:
-        """ "scores for the tiles"""
-        # use german tiles as default
-        bag_as_str = self.config.get(
-            self.tiles_language,
-            'scores',
-            fallback='{"A": 1, "B": 3, "C": 4, "D": 1, "E": 1, "F": 4, "G": 2, "H": 2, "I": 1,'
-            '"J": 6, "K": 4, "L": 2, "M": 3, "N": 1, "O": 2, "P": 4, "Q": 10, "R": 1,'
-            '"S": 1, "T": 1, "U": 1, "V": 6, "W": 3, "X": 8, "Y": 10, "Z": 3,'
-            '"\u00c4": 6, "\u00d6": 8, "\u00dc": 6, "_": 0}',
-        )
-        return json.loads(bag_as_str)
-
-    @property
     def system_quit(self) -> str:
         """Quit behavior (e.g., 'shutdown' or 'exit')"""
         return self.config.get('system', 'quit', fallback=self.defaults['system.quit']).replace('"', '')  # type: ignore

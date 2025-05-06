@@ -57,25 +57,6 @@ class ConfigTestCase(unittest.TestCase):
         self.assertFalse(config.video_rotate)
         self.assertEqual(config.board_layout, 'custom2012')
         self.assertEqual(config.tiles_language, 'de')
-        self.assertEqual(config.tiles_image_path, os.path.abspath(config.src_dir + '/game_board/img/default'))
-        self.assertDictEqual(
-            config.tiles_bag,
-            json.loads(
-                '{"A": 5, "B": 2, "C": 2, "D": 4, "E": 15, "F": 2, "G": 3, "H": 4, "I": 6, '
-                '"J": 1, "K": 2, "L": 3, "M": 4, "N": 9, "O": 3, "P": 1, "Q": 1, "R": 6, "S": 7, '
-                '"T": 6, "U": 6, "V": 1, "W": 1, "X": 1, "Y": 1, "Z": 1, '
-                '"\u00c4": 1, "\u00d6": 1, "\u00dc": 1, "_": 2}'
-            ),
-        )
-        self.assertDictEqual(
-            config.tiles_scores,
-            json.loads(
-                '{"A": 1, "B": 3, "C": 4, "D": 1, "E": 1, "F": 4, "G": 2, "H": 2, "I": 1,'
-                '"J": 6, "K": 4, "L": 2, "M": 3, "N": 1, "O": 2, "P": 4, "Q": 10, "R": 1,'
-                '"S": 1, "T": 1, "U": 1, "V": 6, "W": 3, "X": 8, "Y": 10, "Z": 3,'
-                '"\u00c4": 6, "\u00d6": 8, "\u00dc": 6, "_": 0}'
-            ),
-        )
         self.assertEqual(config.system_quit, 'shutdown')
         self.assertEqual(config.system_gitbranch, 'main')
         config.reload()
