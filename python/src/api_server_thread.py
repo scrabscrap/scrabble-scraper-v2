@@ -41,7 +41,7 @@ from flask_sock import ConnectionClosed, Sock
 from werkzeug.serving import make_server
 
 import upload
-from config import config, version
+from config import config, version  # type: ignore # pylance error
 from display import Display
 from game_board.board import overlay_grid
 from hardware import camera
@@ -448,10 +448,10 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
         def config_dict() -> dict:
             result = {}
-            for each_key, each_val in config.defaults.items():
+            for each_key, each_val in config.config.items():
                 result[each_key] = str(each_val)
             for each_section in config.config.sections():
-                for each_key, each_val in config.config.items(each_section):
+                for each_key, each_val in config.config.items(each_section):  # type: ignore
                     if each_key not in ('defaults') and each_section not in ('path', 'de', 'en', 'fr'):
                         result[f'{each_section}.{each_key}'] = str(each_val)
             return result
@@ -461,6 +461,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         if request.method == 'POST' and request.form.get('btnsave'):
             dirty = False
             for key, cval in current_config.items():
+                if '.' not in key:
+                    continue
                 section, option = key.split('.')
                 if cval in ('True', 'False'):
                     nval = str(key in request.form)
@@ -469,7 +471,6 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 if nval and cval != nval:
                     dirty = True
                     config.config.set(section, option, str(nval))
-                    logging.debug(f'>>> set {key}: {cval} => {nval}')
             if dirty:
                 config.save()
                 current_config = config_dict()
