@@ -38,7 +38,7 @@ from threadpool import pool
 from timer_thread import RepeatedTimer
 
 logging.config.fileConfig(
-    fname=f'{config.work_dir}/log.conf',
+    fname=f'{config.path.work_dir}/log.conf',
     disable_existing_loggers=True,
     defaults={'level': 'DEBUG', 'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'},
 )
@@ -67,11 +67,11 @@ def main() -> None:
         logging.debug(f'Alarm handler called with signal {signum}')
         signal.alarm(0)
         _cleanup()
-        if config.system_quit in ('reboot'):
+        if config.system.quit in ('reboot'):
             os.system('sudo shutdown -r now')
-        elif config.system_quit in ('shutdown'):
+        elif config.system.quit in ('shutdown'):
             os.system('sudo shutdown now')
-        elif config.system_quit in ('restart'):
+        elif config.system.quit in ('restart'):
             sys.exit(4)
         sys.exit(0)
 

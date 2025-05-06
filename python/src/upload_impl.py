@@ -49,11 +49,11 @@ class Upload(Protocol):
     def upload_move(self, waitfor: Optional[Future], move: int) -> bool:
         """upload one move"""
         files = {
-            f'image-{move}.jpg': f'{config.web_dir}/image-{move}.jpg',
-            f'data-{move}.json': f'{config.web_dir}/data-{move}.json',
-            'status.json': f'{config.web_dir}/status.json',
-            'messages.log': f'{config.log_dir}/messages.log',
-            f'image-{move}-camera.jpg': f'{config.web_dir}/image-{move}-camera.jpg',
+            f'image-{move}.jpg': f'{config.path.web_dir}/image-{move}.jpg',
+            f'data-{move}.json': f'{config.path.web_dir}/data-{move}.json',
+            'status.json': f'{config.path.web_dir}/status.json',
+            'messages.log': f'{config.path.log_dir}/messages.log',
+            f'image-{move}-camera.jpg': f'{config.path.web_dir}/image-{move}-camera.jpg',
         }
         self.waitfor_future(waitfor)
         try:
@@ -70,7 +70,7 @@ class Upload(Protocol):
     def upload_status(self, waitfor: Optional[Future]) -> bool:
         """upload status"""
         logging.debug('start transfer status file status.json')
-        files = {'status.json': f'{config.web_dir}/status.json', 'messages.log': f'{config.log_dir}/messages.log'}
+        files = {'status.json': f'{config.path.web_dir}/status.json', 'messages.log': f'{config.path.log_dir}/messages.log'}
         self.waitfor_future(waitfor)
         try:
             upload_files = {}
@@ -167,7 +167,7 @@ class UploadFtp(Upload):  # pragma: no cover
         self.waitfor_future(waitfor)
         logging.debug('ftp: upload zip file')
         try:
-            files = {f'{filename}.zip': open(f'{config.web_dir}/{filename}.zip', 'rb')}  # pylint: disable=R1732
+            files = {f'{filename}.zip': open(f'{config.path.web_dir}/{filename}.zip', 'rb')}  # pylint: disable=R1732
             return self.upload(files=files)
         except IOError as oops:
             logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
@@ -178,7 +178,7 @@ class UploadConfig:
     """read upload configuration"""
 
     SECTION = 'upload'
-    INIFILE = f'{config.work_dir}/upload-secret.ini'
+    INIFILE = f'{config.path.work_dir}/upload-secret.ini'
 
     def __init__(self) -> None:
         self.parser = configparser.ConfigParser()

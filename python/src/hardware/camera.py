@@ -32,7 +32,7 @@ from config import config
 from util import runtime_measure
 
 camera_dict: dict = {}
-logging.basicConfig(filename=f'{config.work_dir}/log/messages.log', level=logging.INFO, force=True)
+logging.basicConfig(filename=f'{config.path.work_dir}/log/messages.log', level=logging.INFO, force=True)
 
 
 class Camera(Protocol):
@@ -64,14 +64,14 @@ if importlib.util.find_spec('picamera2'):
         def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
             """init/config cam"""
             logging.info('### init CameraRPI64')
-            self.resolution = resolution or (config.video_width, config.video_height)
-            self.framerate = framerate or config.video_fps
+            self.resolution = resolution or (config.video.width, config.video.height)
+            self.framerate = framerate or config.video.fps
             self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
             self.event: Optional[Event] = None
             self.camera = Picamera2()
             logging.info(f'open CameraRPI64: {self.resolution=} {self.framerate=}')
             cfg = self.camera.create_still_configuration(main={'format': 'RGB888', 'size': self.resolution})
-            if config.video_rotate:
+            if config.video.rotate:
                 cfg['transform'] = libcamera.Transform(hflip=1, vflip=1)  # self.camera.rotation = 180
             self.camera.configure(cfg)
             self.camera.start()
@@ -128,10 +128,10 @@ class CameraFile(Camera):
 
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
         logging.info('### init CameraFile')
-        self.resolution = resolution or (config.video_width, config.video_height)
-        self.framerate = framerate or config.video_fps
+        self.resolution = resolution or (config.video.width, config.video.height)
+        self.framerate = framerate or config.video.fps
         self._counter = 1
-        self._formatter = config.simulate_path
+        self._formatter = config.development.simulate_path
         self._resize = True
         self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
 
@@ -189,8 +189,8 @@ class CameraOpenCV(Camera):
 
     def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
         logging.info('### init CameraOpenCV')
-        self.resolution = resolution or (config.video_width, config.video_height)
-        self.framerate = framerate or config.video_fps
+        self.resolution = resolution or (config.video.width, config.video.height)
+        self.framerate = framerate or config.video.fps
         self.wait = round(1 / self.framerate, 2)
         # self.stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
         self.stream = cv2.VideoCapture(0)
@@ -224,7 +224,7 @@ class CameraOpenCV(Camera):
             valid, self.frame = self.stream.read()
             if not valid:
                 logging.warning('CameraOpenCV: frame not valid')
-            if config.video_rotate:
+            if config.video.rotate:
                 self.frame = cv2.rotate(self.frame, cv2.ROTATE_180)
             if event.is_set():
                 break
