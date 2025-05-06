@@ -736,16 +736,12 @@ def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tu
                 logging.warning(f'could not correct move #{_move.move}')
 
     ignore_coords = set()
-    if len(game.moves) > config.scrabble_verify_moves:
+    if len(game.moves) > config.verify_moves:
         # if opponents move has a valid challenge
-        if game.moves[-1 * config.scrabble_verify_moves + 1].type in (MoveType.PASS_TURN, MoveType.EXCHANGE, MoveType.WITHDRAW):
-            ignore_coords = set(
-                {i: i for i in game.moves[-1 * config.scrabble_verify_moves + 1].board if i in game.moves[-1].board}
-            )
+        if game.moves[-1 * config.verify_moves + 1].type in (MoveType.PASS_TURN, MoveType.EXCHANGE, MoveType.WITHDRAW):
+            ignore_coords = set({i: i for i in game.moves[-1 * config.verify_moves + 1].board if i in game.moves[-1].board})
         else:
-            ignore_coords = set(
-                {i: i for i in game.moves[-1 * config.scrabble_verify_moves].board if i in game.moves[-1].board}
-            )
+            ignore_coords = set({i: i for i in game.moves[-1 * config.verify_moves].board if i in game.moves[-1].board})
     tiles_candidates |= ignore_coords  # tiles_candidates must contain ignored_coords
     tiles_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
     logging.debug(f'filtered_candidates {tiles_candidates}')
@@ -869,7 +865,7 @@ def _recalculate_score_on_tiles_change(game: Game, board: dict, changed: dict):
     """
 
     logging.info(f'changed tiles: {changed}')
-    to_inspect = min(config.scrabble_verify_moves, len(game.moves)) * -1
+    to_inspect = min(config.verify_moves, len(game.moves)) * -1
     prev_score = game.moves[to_inspect - 1].score if len(game.moves) > abs(to_inspect - 1) else (0, 0)
     must_recalculate = False
     for mov in game.moves[to_inspect:]:

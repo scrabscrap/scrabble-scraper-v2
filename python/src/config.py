@@ -23,35 +23,39 @@ import os
 import subprocess
 from typing import Optional
 
+DEFAULT = {
+    'path': {
+        'src_dir': os.path.dirname(__file__) or '.',
+        'work_dir': '%(src_dir)s/../work',
+        'log_dir': '%(src_dir)s/../work/log',
+        'web_dir': '%(src_dir)s/../work/web',
+    },
+    'development': {'simulate': 'False', 'simulate_path': 'test/game01/image-{:d}.jpg', 'recording': 'False'},
+    'scrabble': {
+        'tournament': 'SCRABBLE SCRAPER',
+        'malus_doubt': '10',
+        'max_time': '1800',
+        'min_time': '-300',
+        'doubt_timeout': '20',
+        'timeout_malus': '10',
+        'verify_moves': '3',
+        'show_score': 'False',
+    },
+    'output': {'upload_server': 'False', 'upload_modus': 'http'},
+    'video': {'warp': 'True', 'width': '976', 'height': '976', 'fps': '25', 'rotate': 'True'},
+    'board': {
+        'layout': 'custom2012',
+        'tiles_threshold': '800',
+        'min_tiles_rate': '96',
+        'dynamic_threshold': 'True',
+        'language': 'de',
+    },
+    'system': {'quit': 'shutdown', 'gitbranch': 'main'},
+}
+
 
 class Config:  # pylint: disable=too-many-public-methods
     """access to application configuration"""
-
-    defaults = {
-        'development.recording': False,
-        'scrabble.tournament': 'SCRABBLE SCRAPER',
-        'scrabble.malus_doubt': 10,
-        'scrabble.max_time': 1800,
-        'scrabble.min_time': -300,
-        'scrabble.doubt_timeout': 20,
-        'scrabble.timeout_malus': 10,
-        'scrabble.verify_moves': 3,
-        'scrabble.show_score': False,
-        'output.upload_server': False,
-        'output.upload_modus': 'http',
-        'video.warp': True,
-        'video.width': 928,
-        'video.height': 912,
-        'video.fps': 30,
-        'video.rotate': False,
-        'board.layout': 'custom2012',
-        'board.tiles_threshold': 800,
-        'board.min_tiles_rate': 96,
-        'board.dynamic_threshold': True,
-        'system.quit': 'shutdown',
-        'system.gitbranch': 'main',
-        'tiles.language': 'de',
-    }
 
     def __init__(self, ini_file=None) -> None:
         self.config = configparser.ConfigParser()
@@ -60,32 +64,28 @@ class Config:  # pylint: disable=too-many-public-methods
         self.is_testing: bool = False
 
     def reload(self, ini_file=None, clean=True) -> None:
-        """reload configuration from file"""
+        """reload configuration"""
         if clean:
             self.config.clear()
+        self.config.read_dict(DEFAULT)
         try:
-            self.config['path'] = {'src_dir': os.path.dirname(__file__) or '.'}
             self.ini_path = ini_file or self.ini_path
             logging.info(f'reload {self.ini_path}')
             with open(self.ini_path, 'r', encoding='UTF-8') as config_file:
                 self.config.read_file(config_file)
         except OSError as oops:
-            logging.error(f'can not read INI-File: error({oops.errno}): {oops.strerror}')
+            logging.error(f'can not read INI-File {self.ini_path}: error({oops.errno}): {oops.strerror}')
 
     def save(self) -> None:  # pragma: no cover
-        """save configuration to file"""
+        """save configuration"""
         with open(self.ini_path, 'w', encoding='UTF-8') as config_file:
-            val = self.config['path']['src_dir']
-            if self.config.has_section('git'):  # cleanup old configs
-                if self.config.has_option('git', 'commit'):
-                    self.config.remove_option('git', 'commit')
-                self.config.remove_section('git')
-            if val == (os.path.dirname(__file__) or '.'):
-                self.config.remove_option('path', 'src_dir')
-                self.config.write(config_file)
-                self.config['path']['src_dir'] = val
-            else:
-                self.config.write(config_file)
+            config_save = configparser.ConfigParser()  # store only changed settings
+            for section in self.config.sections():
+                config_save.add_section(section=section)
+                for option in self.config.options(section=section):
+                    if self.config.get(section, option) != DEFAULT[section][option] and section not in ('DEFAULT', 'path'):
+                        config_save.set(section, option, self.config.get(section, option))
+            config_save.write(config_file)
 
     # unused:
     # @property
@@ -121,67 +121,67 @@ class Config:  # pylint: disable=too-many-public-methods
     @property
     def simulate_path(self) -> str:
         """Path pattern for simulation images"""
-        return self.config.get('development', 'simulate_path', fallback=self.src_dir + '/../test/game01/image-{:d}.jpg')
+        return self.config.get('development', 'simulate_path', fallback='test/game01/image-{:d}.jpg')
 
     @property
     def development_recording(self) -> bool:
         """Record high-resolution images and save them to disk"""
-        return self.config.getboolean('development', 'recording', fallback=self.defaults['development.recording'])  # type: ignore
+        return self.config.getboolean('development', 'recording', fallback=bool(DEFAULT['development']['recording']))
 
     @property
     def tournament(self) -> str:
         """Tournament name"""
-        return self.config.get('scrabble', 'tournament', fallback=self.defaults['scrabble.tournament'])  # type: ignore
+        return self.config.get('scrabble', 'tournament', fallback=DEFAULT['scrabble']['tournament'])
 
     @property
     def malus_doubt(self) -> int:
         """Penalty points for incorrect doubts"""
-        return self.config.getint('scrabble', 'malus_doubt', fallback=self.defaults['scrabble.malus_doubt'])  # type: ignore
+        return self.config.getint('scrabble', 'malus_doubt', fallback=int(DEFAULT['scrabble']['malus_doubt']))
 
     @property
     def max_time(self) -> int:
         """Maximum allowed time (in seconds)"""
-        return self.config.getint('scrabble', 'max_time', fallback=self.defaults['scrabble.max_time'])  # type: ignore
+        return self.config.getint('scrabble', 'max_time', fallback=int(DEFAULT['scrabble']['max_time']))
 
     @property
     def min_time(self) -> int:
         """Maximum overtime allowed (in seconds, negative)"""
-        return self.config.getint('scrabble', 'min_time', fallback=self.defaults['scrabble.min_time'])  # type: ignore
+        return self.config.getint('scrabble', 'min_time', fallback=int(DEFAULT['scrabble']['min_time']))
 
     @property
     def doubt_timeout(self) -> int:
         """Time window to raise a doubt (in seconds)"""
-        return self.config.getint('scrabble', 'doubt_timeout', fallback=self.defaults['scrabble.doubt_timeout'])  # type: ignore
+        return self.config.getint('scrabble', 'doubt_timeout', fallback=int(DEFAULT['scrabble']['doubt_timeout']))
 
     @property
     def timeout_malus(self) -> int:
         """Penalty points for timeout"""
-        return self.config.getint('scrabble', 'timeout_malus', fallback=self.defaults['scrabble.timeout_malus'])  # type: ignore
+        return self.config.getint('scrabble', 'timeout_malus', fallback=int(DEFAULT['scrabble']['timeout_malus']))
 
     @property
-    def scrabble_verify_moves(self) -> int:
+    def verify_moves(self) -> int:
         """Number of previous moves to check for tile corrections"""
-        return self.config.getint('scrabble', 'verify_moves', fallback=self.defaults['scrabble.verify_moves'])  # type: ignore
+        return self.config.getint('scrabble', 'verify_moves', fallback=int(DEFAULT['scrabble']['verify_moves']))
 
     @property
     def show_score(self) -> bool:
         """Should the display show the current score?"""
-        return self.config.getboolean('scrabble', 'show_score', fallback=self.defaults['scrabble.show_score'])  # type: ignore
+        return self.config.getboolean('scrabble', 'show_score', fallback=bool(DEFAULT['scrabble']['show_score']))
 
     @property
     def upload_server(self) -> bool:
         """Should results be uploaded to a server?"""
-        return self.config.getboolean('output', 'upload_server', fallback=self.defaults['output.upload_server'])  # type: ignore
+        return self.config.getboolean('output', 'upload_server', fallback=bool(DEFAULT['output']['upload_server']))
 
     @property
     def upload_modus(self) -> str:
         """Upload mode (e.g., FTP, HTTP)"""
-        return self.config.get('output', 'upload_modus', fallback=self.defaults['output.upload_modus']).replace('"', '')  # type: ignore
+        return self.config.get('output', 'upload_modus', fallback=DEFAULT['output']['upload_modus']).replace('"', '')
 
     @property
     def video_warp(self) -> bool:
         """Should video be warped (perspective correction)?"""
-        return self.config.getboolean('video', 'warp', fallback=self.defaults['video.warp'])  # type: ignore
+        return self.config.getboolean('video', 'warp', fallback=bool(DEFAULT['video']['warp']))
 
     @property
     def video_warp_coordinates(self) -> Optional[list]:
@@ -194,58 +194,58 @@ class Config:  # pylint: disable=too-many-public-methods
     @property
     def video_width(self) -> int:
         """used image width"""
-        return self.config.getint('video', 'width', fallback=self.defaults['video.width'])  # type: ignore
+        return self.config.getint('video', 'width', fallback=int(DEFAULT['video']['width']))
 
     @property
     def video_height(self) -> int:
         """Video frame height"""
-        return self.config.getint('video', 'height', fallback=self.defaults['video.height'])  # type: ignore
+        return self.config.getint('video', 'height', fallback=int(DEFAULT['video']['height']))
 
     @property
     def video_fps(self) -> int:
         """Frames per second used for video capture"""
-        return self.config.getint('video', 'fps', fallback=self.defaults['video.fps'])  # type: ignore
+        return self.config.getint('video', 'fps', fallback=int(DEFAULT['video']['fps']))
 
     @property
     def video_rotate(self) -> bool:
         """Should the image be rotated by 180°?"""
-        return self.config.getboolean('video', 'rotate', fallback=self.defaults['video.rotate'])  # type: ignore
+        return self.config.getboolean('video', 'rotate', fallback=bool(DEFAULT['video']['rotate']))
 
     @property
     def board_layout(self) -> str:
         """Board layout configuration"""
-        return self.config.get('board', 'layout', fallback=self.defaults['board.layout']).replace('"', '')  # type: ignore
+        return self.config.get('board', 'layout', fallback=DEFAULT['board']['layout']).replace('"', '')
 
     @property
     def board_tiles_threshold(self) -> int:
         """Pixel count threshold to detect tiles"""
-        return self.config.getint('board', 'tiles_threshold', fallback=self.defaults['board.tiles_threshold'])  # type: ignore
+        return self.config.getint('board', 'tiles_threshold', fallback=int(DEFAULT['board']['tiles_threshold']))
 
     @property
     def board_min_tiles_rate(self) -> int:
         """Minimum recognition rate (percentage) for template matching"""
-        return self.config.getint('board', 'min_tiles_rate', fallback=self.defaults['board.min_tiles_rate'])  # type: ignore
+        return self.config.getint('board', 'min_tiles_rate', fallback=int(DEFAULT['board']['min_tiles_rate']))
 
     @property
     def board_dynamic_threshold(self) -> int:
         """Use dynamic image thresholding?"""
-        return self.config.getboolean('board', 'dynamic_threshold', fallback=self.defaults['board.dynamic_threshold'])  # type: ignore
+        return self.config.getboolean('board', 'dynamic_threshold', fallback=bool(DEFAULT['board']['dynamic_threshold']))
 
     @property
-    def tiles_language(self) -> str:
+    def board_language(self) -> str:
         """Language of the tiles (default: German)"""
         # use german language as default
-        return self.config.get('tiles', 'language', fallback=self.defaults['tiles.language']).replace('"', '')  # type: ignore
+        return self.config.get('board', 'language', fallback=DEFAULT['board']['language']).replace('"', '')
 
     @property
     def system_quit(self) -> str:
         """Quit behavior (e.g., 'shutdown' or 'exit')"""
-        return self.config.get('system', 'quit', fallback=self.defaults['system.quit']).replace('"', '')  # type: ignore
+        return self.config.get('system', 'quit', fallback=DEFAULT['system']['quit']).replace('"', '')
 
     @property
     def system_gitbranch(self) -> str:
         """Git branch or tag used for updates"""
-        return self.config.get('system', 'gitbranch', fallback=self.defaults['system.gitbranch']).replace('"', '')  # type: ignore
+        return self.config.get('system', 'gitbranch', fallback=DEFAULT['system']['gitbranch']).replace('"', '')
 
 
 class VersionInfo:
