@@ -94,7 +94,7 @@ def main() -> None:
     # create Timer
     ScrabbleWatch.display.show_boot()  # Boot Message
     timer = RepeatedTimer(1, ScrabbleWatch.tick)
-    _ = pool.submit(timer.tick, Event())
+    timer.start()
 
     # start api server
     api = ApiServer()

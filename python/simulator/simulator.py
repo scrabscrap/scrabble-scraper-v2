@@ -228,7 +228,7 @@ def main():
     # set Watch
     ScrabbleWatch.display = Display()
     timer = RepeatedTimer(1, ScrabbleWatch.tick)
-    _ = pool.submit(timer.tick, Event())
+    timer.start()
 
     api = ApiServer()
 
