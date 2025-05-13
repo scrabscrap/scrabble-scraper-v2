@@ -45,10 +45,22 @@ from config import config, version  # type: ignore # pylance error
 from display import Display
 from game_board.board import overlay_grid
 from hardware import camera
-from processing import get_last_warp, warp_image
+from processing import (
+    admin_change_move,
+    admin_change_score,
+    admin_del_challenge,
+    admin_ins_challenge,
+    admin_insert_moves,
+    admin_toggle_challenge_type,
+    get_last_warp,
+    remove_blanko,
+    set_blankos,
+    warp_image,
+)
+from scrabble import MoveType
 from scrabblewatch import ScrabbleWatch
 from state import EOG, START, State
-from threadpool import pool
+from threadpool import command_queue, pool
 from upload_impl import upload_config
 
 
@@ -336,7 +348,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     char = char.lower()
                     ApiServer.last_msg = f'set blanko: {coord} = {char}'
                     logging.info(ApiServer.last_msg)
-                    State.do_set_blankos(coord, char)
+                    command_queue.put(set_blankos(State.game, coord, char, State.op_event))
                 else:
                     ApiServer.last_msg = 'invalid character for blanko'
                     logging.warning(ApiServer.last_msg)
@@ -344,32 +356,32 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 if coord := request.form.get('coord'):
                     ApiServer.last_msg = f'delete blanko: {coord}'
                     logging.info(ApiServer.last_msg)
-                    State.do_remove_blanko(coord)
+                    command_queue.put(remove_blanko(State.game, coord, State.op_event))
             elif request.form.get('btninsmoves'):
                 logging.debug('in btninsmove')
                 if move_number and (0 < move_number <= len(game.moves)):
                     ApiServer.last_msg = f'insert two exchanges before move# {move_number}'
                     logging.info(ApiServer.last_msg)
-                    State.do_insert_moves(move_number)
+                    command_queue.put(admin_insert_moves(State.game, move_number, State.op_event))
                 else:
                     ApiServer.last_msg = f'invalid move {move_number}'
                     logging.warning(ApiServer.last_msg)
             elif request.form.get('btndelchallenge') and move_number:
                 ApiServer.last_msg = f'delete challenge {move_number=}'
                 logging.info(ApiServer.last_msg)
-                State.do_del_challenge(move_number)
+                command_queue.put(admin_del_challenge(State.game, move_number, State.op_event))
             elif request.form.get('btntogglechallenge') and move_number:
                 ApiServer.last_msg = f'toggle challenge type on move {move_number}'
                 logging.info(ApiServer.last_msg)
-                State.do_toggle_challenge_type(move_number=move_number)
+                command_queue.put(admin_toggle_challenge_type(State.game, move_number, State.op_event))
             elif request.form.get('btninswithdraw') and move_number:
                 ApiServer.last_msg = f'insert withdraw for move {move_number}'
                 logging.info(ApiServer.last_msg)
-                State.do_ins_withdraw(move_number=move_number)
+                command_queue.put(admin_ins_challenge(State.game, move_number, MoveType.WITHDRAW, State.op_event))
             elif request.form.get('btninschallenge') and move_number:
                 ApiServer.last_msg = f'insert invalid challenge for move {move_number}'
                 logging.info(ApiServer.last_msg)
-                State.do_ins_challenge(move_number=move_number)
+                command_queue.put(admin_ins_challenge(State.game, move_number, MoveType.CHALLENGE_BONUS, State.op_event))
             elif request.form.get('btnmove'):
                 if move_number and (0 < move_number <= len(game.moves)):
                     score0 = request.form.get('move.score0', type=int)
@@ -385,13 +397,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     if score0 and score1 and move.score != (score0, score1):
                         ApiServer.last_msg = f'update score move# {move_number}: {move.score} => {(score0, score1)}'
                         logging.info(ApiServer.last_msg)
-                        State.do_change_score(move_number, (score0, score1))
+                        command_queue.put(admin_change_score(State.game, move_number, (score0, score1), State.op_event))
 
                     # changes on move
                     if (move_type == 'EXCHANGE') and (move.type.name != move_type):
                         ApiServer.last_msg = f'edit move #{move_number}: {move.type.name} => {move_type}'
                         logging.info(ApiServer.last_msg)
-                        State.do_edit_move(int(move_number), (0, 0), True, '')
+                        command_queue.put(admin_change_move(State.game, int(move_number), (0, 0), True, '', State.op_event))
                     else:
                         if coord:
                             vert, col, row = move.calc_coord(coord)
@@ -407,7 +419,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                                         f'{move.word} => {coord} {word}'
                                     )
                                     logging.info(ApiServer.last_msg)
-                                    State.do_edit_move(int(move_number), (col, row), vert, word)
+                                    command_queue.put(
+                                        admin_change_move(State.game, int(move_number), (col, row), vert, word, State.op_event)
+                                    )
                                 else:
                                     ApiServer.last_msg = f'invalid character in word {word}'
                                     logging.info(ApiServer.last_msg)

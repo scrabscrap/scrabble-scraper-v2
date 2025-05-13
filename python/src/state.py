@@ -22,32 +22,24 @@ import logging
 import threading
 from signal import alarm
 from time import sleep
-from typing import Callable, Tuple
+from typing import Callable
 
 from config import config
 from hardware import camera
 from hardware.button import Button
 from hardware.led import LED, LEDEnum
 from processing import (
-    admin_change_move,
-    admin_change_score,
-    admin_del_challenge,
-    admin_ins_challenge,
-    admin_insert_moves,
-    admin_toggle_challenge_type,
     check_resume,
     end_of_game,
     event_set,
     invalid_challenge,
     move,
-    remove_blanko,
-    set_blankos,
     start_of_game,
     store_zip_from_game,
     valid_challenge,
     write_files,
 )
-from scrabble import Game, MoveType
+from scrabble import Game
 from scrabblewatch import ScrabbleWatch
 from threadpool import command_queue
 from util import Static
@@ -197,51 +189,6 @@ class State(Static):
             write_files(cls.game)
             cls.do_ready()
         event_set(cls.op_event)
-
-    @classmethod
-    def do_set_blankos(cls, coord: str, value: str):
-        """set char for blanko"""
-        command_queue.put(set_blankos(cls.game, coord, value, cls.op_event))
-
-    @classmethod
-    def do_remove_blanko(cls, coord: str):
-        """remove blanko"""
-        command_queue.put(remove_blanko(cls.game, coord, cls.op_event))
-
-    @classmethod
-    def do_insert_moves(cls, move_number: int):
-        """insert two exchange move before move number via api"""
-        command_queue.put(admin_insert_moves(cls.game, move_number, cls.op_event))
-
-    @classmethod
-    def do_edit_move(cls, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str):
-        """change move via api"""
-        command_queue.put(admin_change_move(cls.game, move_number, coord, isvertical, word, cls.op_event))
-
-    @classmethod
-    def do_change_score(cls, move_number: int, score: Tuple[int, int]):
-        """change scoring value"""
-        command_queue.put(admin_change_score(cls.game, move_number, score, cls.op_event))
-
-    @classmethod
-    def do_del_challenge(cls, move_number: int):
-        """delete challenge with move number via api"""
-        command_queue.put(admin_del_challenge(cls.game, move_number, cls.op_event))
-
-    @classmethod
-    def do_toggle_challenge_type(cls, move_number: int):
-        """delete challenge with move number via api"""
-        command_queue.put(admin_toggle_challenge_type(cls.game, move_number, cls.op_event))
-
-    @classmethod
-    def do_ins_challenge(cls, move_number: int):
-        """insert invalid challenge for move_number via api"""
-        command_queue.put(admin_ins_challenge(cls.game, move_number, MoveType.CHALLENGE_BONUS, cls.op_event))
-
-    @classmethod
-    def do_ins_withdraw(cls, move_number: int):
-        """insert withdraw for move_number via api"""
-        command_queue.put(admin_ins_challenge(cls.game, move_number, MoveType.WITHDRAW, cls.op_event))
 
     @classmethod
     def do_new_game(cls) -> str:
