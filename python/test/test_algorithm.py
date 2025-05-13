@@ -2149,7 +2149,7 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 7
         row = 7
-        admin_change_move(None, game, int(move_number), (col, row), False, word='RNS')
+        admin_change_move(game, int(move_number), (col, row), False, word='RNS')
         self.assertEqual((6, 0), game.moves[-1].score, 'invalid scores')
 
     def test_142(self):
@@ -2215,7 +2215,7 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 4
         row = 7
-        admin_change_move(None, game, int(move_number), (col, row), False, word='IRNS')
+        admin_change_move(game, int(move_number), (col, row), False, word='IRNS')
         self.assertEqual((8, 18), game.moves[-1].score, 'invalid scores')
         logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
@@ -2281,7 +2281,7 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 2
         col = 4
         row = 7
-        admin_change_move(None, game, int(move_number), (col, row), True, word='ITEN')
+        admin_change_move(game, int(move_number), (col, row), True, word='ITEN')
         self.assertEqual((24, 8), game.moves[-1].score, 'invalid scores')
         logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
@@ -2347,7 +2347,7 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 3
         row = 7
-        admin_change_move(None, game, int(move_number), (col, row), False, word='FIRNS')
+        admin_change_move(game, int(move_number), (col, row), False, word='FIRNS')
         self.assertEqual((24, 18), game.moves[-1].score, 'invalid scores')
         logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
@@ -2381,7 +2381,7 @@ class AlgorithmTestCase(unittest.TestCase):
         move_number = 1
         col = 0
         row = 0
-        admin_change_move(None, game, int(move_number), (col, row), True, word='')
+        admin_change_move(game, int(move_number), (col, row), True, word='')
         self.assertEqual((0, 0), game.moves[-1].score, 'invalid scores')
 
     def test_146(self):
@@ -2564,7 +2564,7 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_move(move)
         score = game.moves[-1].score
         self.assertEqual((24, 0), score, 'score FIRNS')
-        end_of_game(None, game, None)
+        end_of_game(game, None)
         score = game.moves[-1].score
         self.assertEqual((4, -40), score, 'score for overtime expected')
 
@@ -2651,15 +2651,15 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_move(move)
         score1 = game.moves[-1].score
 
-        admin_insert_moves(None, game, 3, None)
+        admin_insert_moves(game, 3, None)
         assert 5 == len(game.moves), f'invalid count of moves: {len(game.moves)}'
         # score (24,0) => (18,0)
         # score (24,18) => (18,18)
         # score (43,18) => (36,18)
-        admin_change_score(None, game, 1, (18, 0), None)
+        admin_change_score(game, 1, (18, 0), None)
         assert game.moves[-1].score == (37, 18), f'score {game.moves[-1].score} == 37,18'
 
-        admin_change_score(None, game, 2, (18, 9), None)
+        admin_change_score(game, 2, (18, 9), None)
         assert game.moves[-1].score == (37, 9), f'score {game.moves[-1].score} == 37,9'
 
     def test_remove_blanko(self):
@@ -2745,10 +2745,10 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_move(move)
         score1 = game.moves[-1].score
 
-        admin_insert_moves(None, game, 3, None)
+        admin_insert_moves(game, 3, None)
         assert 5 == len(game.moves), 'invalid count of moves'
 
-        remove_blanko(None, game, '5K', None)
+        remove_blanko(game, '5K', None)
 
         assert game.moves[-1].score == (43, 9), f'score {game.moves[-1].score} == 43,9'
         self.assertEqual(
@@ -2792,7 +2792,7 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_move(move)
         score1 = game.moves[-1].score
         prop = move.new_tiles[(4, 7)][1]
-        set_blankos(None, game, 'H5', 'i')
+        set_blankos(game, 'H5', 'i')
         assert game.moves[-1].board[(4, 7)] == ('i', prop), f'invalid board {game.moves[-1].board}'
 
 

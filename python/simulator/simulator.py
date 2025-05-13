@@ -63,9 +63,7 @@ def green():
 
     current_counter = camera.cam.counter  # type: ignore
     State.press_button('GREEN')
-    if State.last_submit is not None:
-        while not State.last_submit.done():  # type: ignore
-            sleep(0.01)
+    sleep(0.01)
     return redirect(url_for('simulator'))
 
 
@@ -75,9 +73,7 @@ def red():
 
     current_counter = camera.cam.counter  # type: ignore
     State.press_button('RED')
-    if State.last_submit is not None:
-        while not State.last_submit.done():  # type: ignore
-            sleep(0.01)
+    sleep(0.01)
     return redirect(url_for('simulator'))
 
 

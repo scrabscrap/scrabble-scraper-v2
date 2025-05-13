@@ -17,11 +17,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import unittest
-from threading import Event
 from time import sleep
 
 from config import config
-from threadpool import pool
 from timer_thread import RepeatedTimer
 
 

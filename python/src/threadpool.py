@@ -16,16 +16,49 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+import logging
+import queue
+import threading
 from concurrent.futures import ThreadPoolExecutor
 
-# the number of threads depends on the hardware (8 for RPI 3)
-# reserved threads are
-# 1) Camera for continuous capture
-# 2) RepeatedTimer for one tick every second
-#
-# additional threads will be started on demand
-# *  Move, Invalid Challenge, Valid Challenge, FTP Upload
-#
-# Move will additionally start 2 picture analyze threads
-# Move, Invalid Challenge, Valid Challenge, End of Game will start a FTP Upload
+
+class Command:  # pylint: disable=too-few-public-methods
+    """Command class for sequential execution of asynchronous tasks"""
+
+    def __init__(self, func, *args, **kwargs):
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    def execute(self):
+        """run queued command"""
+        self.func(*self.args, **self.kwargs)
+
+
+class CommandWorker(threading.Thread):
+    """Worker Thread for commands"""
+
+    def __init__(self, cmd_queue):
+        super().__init__(daemon=True, name='CommandWorker')
+        self.command_queue = cmd_queue
+
+    def run(self):
+        """Run worker thread"""
+        while True:
+            logging.warning('CommandWorker started')
+            try:
+                command = self.command_queue.get()  # wait for next command
+                if command is None:
+                    break  # None to end worker thread
+                command.execute()
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                logging.exception(f'Exception in CommandWorker {e}')
+            finally:
+                self.command_queue.task_done()
+
+
+command_queue: queue.Queue = queue.Queue()
+worker = CommandWorker(cmd_queue=command_queue)
+worker.start()
+
 pool = ThreadPoolExecutor()
