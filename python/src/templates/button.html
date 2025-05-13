@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="py-2">
+            <div class="card">
+                <div class="card-header">
+                    ScrabScrap
+                </div>
+                <div class="card-body">
+                    <form action="/button" method="post">
+                        <div class="row py-2">
+                            <div class="col-2 text-center">
+                                <button type="submit" class="btn btn-success btn-circle btn-sm" data-toggle="tooltip"
+                                    data-placement="top" title="doubt green" name="DOUBT0" value="DOUBT0"></button>
+                            </div>
+                            <div class="col"> </div>
+                            <div class="col-3 text-center">
+                                <button type="submit" class="btn btn-secondary btn-circle btn-sm" data-toggle="tooltip"
+                                    data-placement="top" title="end" name="RESET" value="RESET"></button>
+                                <button type="submit" class="btn btn-secondary btn-circle btn-sm" data-toggle="tooltip"
+                                    data-placement="top" title="reboot" name="REBOOT" value="REBOOT"></button>
+                            </div>
+                            <div class="col"> </div>
+                            <div class="col-2 text-center">
+                                <button type="submit" class="btn btn-danger btn-circle btn-sm" data-toggle="tooltip"
+                                    data-placement="top" title="doubt red" name="DOUBT1" value="DOUBT1"></button>
+                            </div>
+                        </div>
+                        <div class="row py-2">
+                            <div class="col-2 text-center">
+                                <button type="submit" class="btn btn-success mb-3 btn-circle btn-md"
+                                    data-toggle="tooltip" data-placement="top" title="move green" name="GREEN"
+                                    value="GREEN">
+                                    {% if state in ('S0', 'START') %}<i class="bi-brightness-high-fill"></i>{% endif %}
+                                </button>
+                            </div>
+                            <div class="col"> </div>
+                            <div class="col-2 text-center">
+                                <button type="submit" class="btn btn-warning mb-3 btn-circle btn-md"
+                                    data-toggle="tooltip" data-placement="top" title="pause" name="YELLOW"
+                                    value="YELLOW">
+                                    {% if state in ('P0', 'P1', 'EOG') %}<i class="bi-brightness-high-fill"></i>{% endif
+                                    %}
+                                </button>
+                            </div>
+                            <div class="col"> </div>
+                            <div class="col-2 text-center">
+                                <button type="submit" class="btn btn-danger mb-3 btn-circle btn-md"
+                                    data-toggle="tooltip" data-placement="top" title="move red" name="RED" value="RED">
+                                    {% if state in ('S1', 'START') %}<i class="bi-brightness-high-fill"></i>{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row py-2 px-2">
+                            <div class="col py-2 border border-secondary text-center">{{ left }}</div>
+                            <div class="col-2"> </div>
+                            <div class="col py-2 border border-secondary text-center">{{ right }}</div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
