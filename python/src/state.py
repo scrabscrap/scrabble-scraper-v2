@@ -20,10 +20,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import gc
 import logging
 import threading
-from concurrent.futures import Future
 from signal import alarm
 from time import sleep
-from typing import Callable, Optional, Tuple
+from typing import Callable, Tuple
 
 from config import config
 from hardware import camera
@@ -46,12 +45,11 @@ from processing import (
     start_of_game,
     store_zip_from_game,
     valid_challenge,
-    waitfor_future,
     write_files,
 )
 from scrabble import Game, MoveType
 from scrabblewatch import ScrabbleWatch
-from threadpool import pool
+from threadpool import command_queue
 from util import Static
 
 # states
@@ -79,7 +77,6 @@ class State(Static):
 
     current_state: str = START
     button_handler = Button
-    last_submit: Optional[Future] = None  # last submit to thread pool; waiting for processing of the last move
     game: Game = Game(None)
     picture = None
     op_event = threading.Event()
@@ -133,7 +130,9 @@ class State(Static):
         ScrabbleWatch.start(next_player)
         LED.switch_on(next_led)  # turn on next player LED
         cls.picture = camera.cam.read().copy()
-        cls.last_submit = pool.submit(move, cls.last_submit, cls.game, cls.picture, player, (time0, time1), cls.op_event)
+        logging.warning(f'do_move {player} before put queue')
+        command_queue.put(move(cls.game, cls.picture, player, (time0, time1), cls.op_event))
+        logging.warning(f'do_move {player} after put queue')
         return next_state
 
     @classmethod
@@ -157,9 +156,7 @@ class State(Static):
         ScrabbleWatch.resume()
         LED.switch_on(next_led)  # turn on player LED
         cls.picture = camera.cam.read(peek=True).copy()
-        cls.last_submit = pool.submit(
-            check_resume, cls.last_submit, cls.game, cls.picture, player, (time0, time1), current_time, cls.op_event
-        )
+        command_queue.put(check_resume(cls.game, cls.picture, player, (time0, time1), current_time, cls.op_event))
         return next_state
 
     @classmethod
@@ -172,9 +169,7 @@ class State(Static):
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.warning(f'valid challenge after timeout {current[0]}')
         ScrabbleWatch.display.add_remove_tiles(player, played_time, current)  # player 1 has to remove the last move
-        cls.last_submit = pool.submit(
-            valid_challenge, cls.last_submit, cls.game, player, (played_time[0], played_time[1]), cls.op_event
-        )
+        command_queue.put(valid_challenge(cls.game, player, (played_time[0], played_time[1]), cls.op_event))
         LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
         LED.blink_on(({LEDEnum.green}, {LEDEnum.red})[player], switch_off=False)
         return next_state
@@ -189,9 +184,7 @@ class State(Static):
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.warning(f'invalid challenge after timeout {current[player]}')
         ScrabbleWatch.display.add_malus(player, played_time, current)  # player 0 gets a malus
-        cls.last_submit = pool.submit(
-            invalid_challenge, cls.last_submit, cls.game, player, (played_time[0], played_time[1]), cls.op_event
-        )
+        command_queue.put(invalid_challenge(cls.game, player, (played_time[0], played_time[1]), cls.op_event))
         LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
         LED.blink_on(({LEDEnum.green}, {LEDEnum.red})[player], switch_off=False)
         return next_state
@@ -208,62 +201,47 @@ class State(Static):
     @classmethod
     def do_set_blankos(cls, coord: str, value: str):
         """set char for blanko"""
-        cls.last_submit = pool.submit(set_blankos, cls.last_submit, cls.game, coord, value, cls.op_event)
-        waitfor_future(cls.last_submit)
+        command_queue.put(set_blankos(cls.game, coord, value, cls.op_event))
 
     @classmethod
     def do_remove_blanko(cls, coord: str):
         """remove blanko"""
-        cls.last_submit = pool.submit(remove_blanko, cls.last_submit, cls.game, coord, cls.op_event)
-        waitfor_future(cls.last_submit)
+        command_queue.put(remove_blanko(cls.game, coord, cls.op_event))
 
     @classmethod
     def do_insert_moves(cls, move_number: int):
         """insert two exchange move before move number via api"""
-        cls.last_submit = pool.submit(admin_insert_moves, cls.last_submit, cls.game, move_number, cls.op_event)
-        waitfor_future(cls.last_submit)
+        command_queue.put(admin_insert_moves(cls.game, move_number, cls.op_event))
 
     @classmethod
     def do_edit_move(cls, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str):
         """change move via api"""
-        cls.last_submit = pool.submit(
-            admin_change_move, cls.last_submit, cls.game, move_number, coord, isvertical, word, cls.op_event
-        )
-        waitfor_future(cls.last_submit)
+        command_queue.put(admin_change_move(cls.game, move_number, coord, isvertical, word, cls.op_event))
 
     @classmethod
     def do_change_score(cls, move_number: int, score: Tuple[int, int]):
         """change scoring value"""
-        cls.last_submit = pool.submit(admin_change_score, cls.last_submit, cls.game, move_number, score, cls.op_event)
-        waitfor_future(cls.last_submit)
+        command_queue.put(admin_change_score(cls.game, move_number, score, cls.op_event))
 
     @classmethod
     def do_del_challenge(cls, move_number: int):
         """delete challenge with move number via api"""
-        cls.last_submit = pool.submit(admin_del_challenge, cls.last_submit, cls.game, move_number, cls.op_event)
-        waitfor_future(cls.last_submit)
+        command_queue.put(admin_del_challenge(cls.game, move_number, cls.op_event))
 
     @classmethod
     def do_toggle_challenge_type(cls, move_number: int):
         """delete challenge with move number via api"""
-        cls.last_submit = pool.submit(admin_toggle_challenge_type, cls.last_submit, cls.game, move_number, cls.op_event)
-        waitfor_future(cls.last_submit)
+        command_queue.put(admin_toggle_challenge_type(cls.game, move_number, cls.op_event))
 
     @classmethod
     def do_ins_challenge(cls, move_number: int):
         """insert invalid challenge for move_number via api"""
-        cls.last_submit = pool.submit(
-            admin_ins_challenge, cls.last_submit, cls.game, move_number, MoveType.CHALLENGE_BONUS, cls.op_event
-        )
-        waitfor_future(cls.last_submit)
+        command_queue.put(admin_ins_challenge(cls.game, move_number, MoveType.CHALLENGE_BONUS, cls.op_event))
 
     @classmethod
     def do_ins_withdraw(cls, move_number: int):
         """insert withdraw for move_number via api"""
-        cls.last_submit = pool.submit(
-            admin_ins_challenge, cls.last_submit, cls.game, move_number, MoveType.WITHDRAW, cls.op_event
-        )
-        waitfor_future(cls.last_submit)
+        command_queue.put(admin_ins_challenge(cls.game, move_number, MoveType.WITHDRAW, cls.op_event))
 
     @classmethod
     def do_new_game(cls) -> str:
@@ -292,9 +270,11 @@ class State(Static):
         LED.switch_on(set())
         ScrabbleWatch.display.show_ready(('end of', 'game'))
         with suppress(Exception):
-            end_of_game(None, cls.game, cls.op_event)
+            command_queue.put(end_of_game(cls.game))
         with suppress(Exception):
             store_zip_from_game(cls.game)
+        # command_queue.put(None)
+        # command_queue.join()
         with suppress(Exception):
             ScrabbleWatch.display.show_end_of_game()
         LED.blink_on({LEDEnum.yellow})
@@ -311,7 +291,7 @@ class State(Static):
         with suppress(Exception):
             ScrabbleWatch.display.show_boot()  # Display message REBOOT
             LED.switch_on(set())
-            end_of_game(cls.last_submit, cls.game)
+            end_of_game(cls.game)
         with suppress(Exception):
             store_zip_from_game(cls.game)
         ScrabbleWatch.display.stop()

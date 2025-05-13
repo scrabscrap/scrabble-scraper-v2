@@ -30,6 +30,7 @@ from time import sleep
 
 from config import config
 from hardware import camera
+from threadpool import command_queue, worker
 
 PROFILE = False
 TEST_DIR = os.path.dirname(__file__)
@@ -189,9 +190,7 @@ class GameRunnerTestCase(unittest.TestCase):
                 logging.info(f'TEST: {row}')
                 camera.cam.counter = int(row['Move'])  # type: ignore
                 State.press_button(row['Button'].upper())
-                if State.last_submit is not None:
-                    while not State.last_submit.done():  # type: ignore
-                        sleep(0.01)
+                sleep(0.01)
 
                 self.assertEqual(
                     row['State'].upper(), State.current_state, f'invalid state {State.current_state} at move {int(row["Move"])}'
@@ -217,6 +216,7 @@ class GameRunnerTestCase(unittest.TestCase):
                         State.game.moves[-1].word,
                         f'invalid word {State.game.moves[-1].word} at move {int(row["Move"])}',
                     )
+                logging.warning(f'qsize={command_queue.qsize()}')
             if State.current_state not in ('EOG'):
                 State.do_end_of_game()
         logging.info(f'### end of tests {file} ###')

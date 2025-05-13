@@ -20,7 +20,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import copy
 import logging
 from concurrent import futures
-from concurrent.futures import Future
 from datetime import datetime
 from typing import List, Optional, Tuple
 
@@ -72,14 +71,6 @@ def warp_image(img: MatLike) -> tuple[MatLike, MatLike]:
 def filter_image(img: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disable=too-many-return-statements
     """Delegates the image filter of the ``img`` according to the configured board style"""
     return BOARD_CLASSES.get(config.board.layout, Custom2012Board).filter_image(img)
-
-
-def waitfor_future(waitfor: Optional[Future]):
-    """wait for future and skips wait if waitfor is None"""
-    if waitfor is not None:
-        _, not_done = futures.wait({waitfor})
-        if len(not_done) != 0:
-            logging.error(f'error while waiting for future - lenght of not_done: {len(not_done)}')
 
 
 def event_set(event):
@@ -172,7 +163,7 @@ def analyze_threads(warped_gray: MatLike, board: dict, candidates: set[tuple[int
     return board
 
 
-def remove_blanko(waitfor: Optional[Future], game: Game, gcg_coord: str, event=None):
+def remove_blanko(game: Game, gcg_coord: str, event=None):
     """remove blank
 
     Args:
@@ -180,7 +171,6 @@ def remove_blanko(waitfor: Optional[Future], game: Game, gcg_coord: str, event=N
     coord: coord of blank
     event: event to inform webservice
     """
-    waitfor_future(waitfor)
     logging.info(f'remove blanko {gcg_coord}')
     if game.moves:
         _, col, row = game.moves[-1].calc_coord(gcg_coord)
@@ -204,7 +194,7 @@ def remove_blanko(waitfor: Optional[Future], game: Game, gcg_coord: str, event=N
     event_set(event)
 
 
-def set_blankos(waitfor: Optional[Future], game: Game, gcg_coord: str, value: str, event=None):
+def set_blankos(game: Game, gcg_coord: str, value: str, event=None):
     """set char for blanko
 
     Args:
@@ -213,7 +203,6 @@ def set_blankos(waitfor: Optional[Future], game: Game, gcg_coord: str, value: st
     value: char for blank
     event: event to inform webservice
     """
-    waitfor_future(waitfor)
     logging.info(f'set blanko {gcg_coord} to {value}')
     if game.moves:
         _, col, row = game.moves[-1].calc_coord(gcg_coord)
@@ -229,9 +218,9 @@ def set_blankos(waitfor: Optional[Future], game: Game, gcg_coord: str, value: st
     event_set(event)
 
 
-def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, event=None):  # pylint: disable=too-many-locals
+def admin_insert_moves(game: Game, move_number: int, event=None):  # pylint: disable=too-many-locals
     """insert two exchange moves before move number"""
-    waitfor_future(waitfor)
+
     if move_number <= 0 or move_number > len(game.moves):
         raise ValueError('invalid move number {move_number}')
 
@@ -269,9 +258,9 @@ def admin_insert_moves(waitfor: Optional[Future], game: Game, move_number: int, 
     event_set(event)
 
 
-def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, new_score: Tuple[int, int], event=None):
+def admin_change_score(game: Game, move_number: int, new_score: Tuple[int, int], event=None):
     """fix scores (direct call from admin)"""
-    waitfor_future(waitfor)
+
     if move_number <= 0 or move_number > len(game.moves):
         raise ValueError('invalid move number {move_number}')
     move_index = move_number - 1
@@ -287,9 +276,7 @@ def admin_change_score(waitfor: Optional[Future], game: Game, move_number: int, 
     event_set(event)
 
 
-def admin_change_move(
-    waitfor: Optional[Future], game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str, event=None
-):
+def admin_change_move(game: Game, move_number: int, coord: Tuple[int, int], isvertical: bool, word: str, event=None):
     # pylint: disable=too-many-arguments, too-many-locals,too-many-branches,too-many-statements, too-many-positional-arguments
     """fix move(direct call from admin)
 
@@ -304,7 +291,7 @@ def admin_change_move(
         word: the new word valid chars(A - Z._) crossing chars will replaced with '.'
         event: event to infom webservice
     """
-    waitfor_future(waitfor)
+
     moves = game.moves
     if move_number < 1 or move_number > len(game.moves):
         raise ValueError('invalid move number ({move_number=})')
@@ -393,9 +380,8 @@ def admin_recalc_moves(
         logging.debug(f'\n{game.board_str(i)}')
 
 
-def admin_del_challenge(waitfor: Optional[Future], game: Game, move_number: int, event=None):
+def admin_del_challenge(game: Game, move_number: int, event=None):
     """delete challenge move number"""
-    waitfor_future(waitfor)
     if move_number < 1 or move_number > len(game.moves):
         raise ValueError(f'invalid move number for delete challenge {move_number=}')
 
@@ -420,9 +406,9 @@ def admin_del_challenge(waitfor: Optional[Future], game: Game, move_number: int,
     event_set(event)
 
 
-def admin_toggle_challenge_type(waitfor: Optional[Future], game: Game, move_number: int, event=None):
+def admin_toggle_challenge_type(game: Game, move_number: int, event=None):
     """toggle challenge type on move number"""
-    waitfor_future(waitfor)
+
     if move_number < 1 or move_number > len(game.moves):
         raise ValueError(f'invalid move number ({move_number=})')
 
@@ -459,9 +445,9 @@ def admin_toggle_challenge_type(waitfor: Optional[Future], game: Game, move_numb
     event_set(event)
 
 
-def admin_ins_challenge(waitfor: Optional[Future], game: Game, move_number: int, move_type: MoveType, event=None):
+def admin_ins_challenge(game: Game, move_number: int, move_type: MoveType, event=None):
     """insert invalid challenge or withdraw for move number"""
-    waitfor_future(waitfor)
+
     if move_number < 1 or move_number > len(game.moves):
         raise ValueError(f'invalid move number ({move_number=})')
 
@@ -503,11 +489,11 @@ def admin_ins_challenge(waitfor: Optional[Future], game: Game, move_number: int,
     event_set(event)
 
 
-@trace
-def move(waitfor: Optional[Future], game: Game, img: MatLike, player: int, played_time: Tuple[int, int], event=None):
+# @trace
+def move(game: Game, img: MatLike, player: int, played_time: Tuple[int, int], event=None):
     # pylint: disable=too-many-arguments, too-many-positional-arguments
     """Process a move"""
-    warped, board = _image_processing(waitfor, game, img)
+    warped, board = _image_processing(game, img)
 
     previous_board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # get previous board information
     previous_score = game.moves[-1].score if len(game.moves) > 0 else (0, 0)
@@ -528,16 +514,10 @@ def move(waitfor: Optional[Future], game: Game, img: MatLike, player: int, playe
 
 @trace
 def check_resume(
-    waitfor: Optional[Future],
-    game: Game,
-    image: MatLike,
-    player: int,
-    played_time: Tuple[int, int],
-    current_time: Tuple[int, int],
-    event=None,
+    game: Game, image: MatLike, player: int, played_time: Tuple[int, int], current_time: Tuple[int, int], event=None
 ):  # pylint: disable=too-many-arguments,too-many-positional-arguments
     """check resume"""
-    waitfor_future(waitfor)
+
     last_move = game.moves[-1] if game.moves else None
     if last_move is not None and last_move.type == MoveType.REGULAR:  # only check regular moves
         if not last_move.new_tiles:  # no new tiles in last move
@@ -546,17 +526,17 @@ def check_resume(
         _, tiles_candidates = filter_image(warped)
         intersection = set(last_move.new_tiles.keys()) & set(tiles_candidates)
         if intersection == set():  #  empty set => tiles are removed
-            valid_challenge(waitfor, game, player, played_time, event)
+            valid_challenge(game, player, played_time, event)
             logging.info(f'automatic valid challenge (move time {current_time[player]} sec)')
         # else: # uncomment if you want a invalid challenges as default on resume
-        #     invalid_challenge(waitfor, game, player, played_time, event)
+        #     invalid_challenge(game, player, played_time, event)
         #     logging.info(f'automatic invalid challenge (move time {current_time[player]} sec)')
 
 
 @trace
-def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int], event=None):
+def valid_challenge(game: Game, player: int, played_time: Tuple[int, int], event=None):
     """Process a valid challenge"""
-    waitfor_future(waitfor)
+
     try:
         game.add_valid_challenge(player, played_time)
         event_set(event)
@@ -569,9 +549,9 @@ def valid_challenge(waitfor: Optional[Future], game: Game, player: int, played_t
 
 
 @trace
-def invalid_challenge(waitfor: Optional[Future], game: Game, player: int, played_time: Tuple[int, int], event=None):
+def invalid_challenge(game: Game, player: int, played_time: Tuple[int, int], event=None):
     """Process an invalid challenge"""
-    waitfor_future(waitfor)
+
     try:
         game.add_invalid_challenge(player, played_time)  # 9. add move
         event_set(event)
@@ -607,7 +587,7 @@ def start_of_game(game: Game):
 
 
 @trace
-def end_of_game(waitfor: Optional[Future], game: Game, event=None):
+def end_of_game(game: Game, event=None):
     # pragma: no cover #pylint: disable=too-many-locals # no ftp upload on tests
     """Process end of game"""
     from contextlib import suppress
@@ -644,10 +624,10 @@ def end_of_game(waitfor: Optional[Future], game: Game, event=None):
                 return (points, -points) if rack[0] == 0 else (-points, points), ''.join(sorted(bag))
         return (0, 0), '?'
 
-    waitfor_future(waitfor)
     if game.moves:
         # calculate overtime malus
         t = (config.scrabble.max_time - game.moves[-1].played_time[0], config.scrabble.max_time - game.moves[-1].played_time[1])
+        logging.debug(f'overtime {t=}')
         for player in range(2):
             if t[player] < 0:  # in overtime
                 malus = (t[player] // 60) * config.scrabble.timeout_malus  # config.timeout_malus per minute
@@ -707,10 +687,9 @@ def _find_word(board: dict, changed: List) -> Tuple[bool, Tuple[int, int], str]:
 
 
 @runtime_measure
-def _image_processing(waitfor: Optional[Future], game: Game, img: MatLike) -> Tuple[MatLike, dict]:
+def _image_processing(game: Game, img: MatLike) -> Tuple[MatLike, dict]:
     # pylint: disable=too-many-locals
 
-    waitfor_future(waitfor)
     warped, warped_gray = warp_image(img)  # 1. warp image if necessary
     _, tiles_candidates = filter_image(warped)  # 3. find potential tiles on board
 
