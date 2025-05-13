@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+# pylint: disable=too-many-lines
 import base64
 import binascii
 import configparser
@@ -438,6 +439,27 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         return render_template(
             'moves.html', apiserver=ApiServer, player1=player1, player2=player2, move_list=game.moves, blanko_list=blankos
         )
+
+    @staticmethod
+    @app.route('/button', methods=['POST', 'GET'])
+    def do_buttons():
+        """button control"""
+        if request.method == 'POST':  # pylint: disable=too-many-nested-blocks
+            if request.form.get('GREEN'):
+                State.press_button('GREEN')
+            elif request.form.get('RED'):
+                State.press_button('RED')
+            elif request.form.get('YELLOW'):
+                State.press_button('YELLOW')
+            elif request.form.get('RESET'):
+                State.press_button('RESET')
+            return redirect('/button')
+        _, (time0, time1), _ = ScrabbleWatch.status()  # pylint: disable=duplicate-code
+        minutes, seconds = divmod(abs(1800 - time0), 60)
+        left = f'-{minutes:1d}:{seconds:02d}' if 1800 - time0 < 0 else f'{minutes:02d}:{seconds:02d}'
+        minutes, seconds = divmod(abs(1800 - time1), 60)
+        right = f'-{minutes:1d}:{seconds:02d}' if 1800 - time1 < 0 else f'{minutes:02d}:{seconds:02d}'
+        return render_template('button.html', apiserver=ApiServer, state=State.current_state, left=left, right=right)
 
     @staticmethod
     @app.route('/end_game', methods=['POST', 'GET'])
