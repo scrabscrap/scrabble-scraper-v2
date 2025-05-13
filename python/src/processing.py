@@ -145,21 +145,22 @@ def analyze(warped_gray: MatLike, board: dict, coord_list: set[tuple[int, int]])
 
 def analyze_threads(warped_gray: MatLike, board: dict, candidates: set[tuple[int, int]]):
     """start threads for analyze"""
+    from concurrent.futures import ThreadPoolExecutor
 
     def chunkify(lst, chunks):
         return [lst[i::chunks] for i in range(chunks)]
 
     chunks = chunkify(list(candidates), ANALYZE_THREADS)  # chunks for picture analysis
     analyze_futures = []
-    for i in range(ANALYZE_THREADS):
-        board_chunk = {key: board[key] for key in chunks[i] if key in board}
-        future = pool.submit(analyze, warped_gray, board_chunk, set(chunks[i]))
-        analyze_futures.append(future)
-    done, not_done = futures.wait(analyze_futures)  # blocking wait
-    for f in done:
-        board.update(f.result())
-    for e in not_done:
-        logging.error(f'Error during analyze future: {e.exception}')
+    with ThreadPoolExecutor(max_workers=ANALYZE_THREADS, thread_name_prefix='analyze') as executor:
+        for i in range(ANALYZE_THREADS):
+            board_chunk = {key: board[key] for key in chunks[i] if key in board}
+            analyze_futures.append(executor.submit(analyze, warped_gray, board_chunk, set(chunks[i])))
+        done, not_done = futures.wait(analyze_futures)  # blocking wait
+        for f in done:
+            board.update(f.result())
+        for e in not_done:
+            logging.error(f'Error during analyze future: {e.exception}')
     return board
 
 
