@@ -91,18 +91,17 @@ class State(Static):
         cls.do_new_game()
 
     @classmethod
-    def do_ready(cls) -> str:
+    def do_ready(cls, next_state: str = START) -> str:
         """Game can be started"""
         logging.debug(f'{cls.game.nicknames}')
         ScrabbleWatch.display.show_ready(cls.game.nicknames)
         ScrabbleWatch.display.set_game(cls.game)
-        cls.current_state = START
+        cls.current_state = next_state
         return cls.current_state
 
     @classmethod
-    def do_start(cls, player: int) -> str:
+    def do_start(cls, player: int, next_state: str) -> str:
         """Start playing with player 0/1"""
-        next_state = (S0, S1)[player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
         logging.info(f'{cls.current_state} - (start) -> {next_state}')
         ScrabbleWatch.start(player)
@@ -112,36 +111,29 @@ class State(Static):
         return next_state
 
     @classmethod
-    def do_move(cls, player: int) -> str:
+    def do_move(cls, player: int, next_state: str) -> str:
         """analyze players 0/1 move"""
         next_player = abs(player - 1)
-        next_state = (S0, S1)[next_player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[next_player]
         logging.info(f'{cls.current_state} - (move) -> {next_state}')
         _, (time0, time1), _ = ScrabbleWatch.status()
         ScrabbleWatch.start(next_player)
         LED.switch_on(next_led)  # turn on next player LED
         cls.picture = camera.cam.read().copy()
-        logging.warning(f'do_move {player} before put queue')
         command_queue.put(move(cls.game, cls.picture, player, (time0, time1), cls.op_event))
-        logging.warning(f'do_move {player} after put queue')
         return next_state
 
     @classmethod
-    def do_pause(cls, player: int) -> str:
+    def do_pause(cls, next_state: str) -> str:
         """pause pressed while player 0 is active"""
-        next_state = (P0, P1)[player]
-        # next_led = ({LEDEnum.green, LEDEnum.yellow}, {LEDEnum.red, LEDEnum.yellow})[player]
-        next_led = {LEDEnum.yellow}
         logging.info(f'{cls.current_state} - (pause) -> {next_state}')
         ScrabbleWatch.pause()
-        LED.switch_on(next_led)  # turn on player pause LED
+        LED.switch_on({LEDEnum.yellow})  # turn on player pause LED
         return next_state
 
     @classmethod
-    def do_resume(cls, player: int) -> str:
+    def do_resume(cls, player: int, next_state: str) -> str:
         """resume from pause while player 0 is active"""
-        next_state = (S0, S1)[player]
         next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
         logging.info(f'{cls.current_state} - (resume) -> {next_state}')
         _, (time0, time1), current_time = ScrabbleWatch.status()
@@ -152,9 +144,8 @@ class State(Static):
         return next_state
 
     @classmethod
-    def do_valid_challenge(cls, player: int) -> str:
+    def do_valid_challenge(cls, player: int, next_state: str) -> str:
         """player 0/1 has a valid challenge for the last move from player 1/0"""
-        next_state = (P0, P1)[player]
         logging.info(f'{cls.current_state} - (valid challenge) -> {next_state}')
         _, played_time, current = ScrabbleWatch.status()
         if current[player] > config.scrabble.doubt_timeout:
@@ -167,9 +158,8 @@ class State(Static):
         return next_state
 
     @classmethod
-    def do_invalid_challenge(cls, player: int) -> str:
+    def do_invalid_challenge(cls, player: int, next_state: str) -> str:
         """player 0/1 has an invalid challenge for the last move from player 1/0"""
-        next_state = (P0, P1)[player]
         logging.info(f'{cls.current_state} - (invalid challenge) -> {next_state} (-{config.scrabble.malus_doubt:2d})')  # -10
         _, played_time, current = ScrabbleWatch.status()
         if current[player] > config.scrabble.doubt_timeout:
@@ -183,15 +173,15 @@ class State(Static):
 
     @classmethod
     def do_new_player_names(cls, name1: str, name2: str) -> None:
-        """set new player names and upload status, if state is START"""
+        """set new player names"""
         cls.game.nicknames = (name1, name2)
         if cls.current_state == START:
-            write_files(cls.game)
             cls.do_ready()
+        write_files(cls.game)
         event_set(cls.op_event)
 
     @classmethod
-    def do_new_game(cls) -> str:
+    def do_new_game(cls, next_state: str = START) -> str:
         """Starts a new game"""
         from contextlib import suppress
 
@@ -205,14 +195,14 @@ class State(Static):
 
         start_of_game(cls.game)
         event_set(cls.op_event)
-        return cls.do_ready()
+        return cls.do_ready(next_state=next_state)
 
     @classmethod
-    def do_end_of_game(cls) -> str:
+    def do_end_of_game(cls, next_state: str = EOG) -> str:
         """Resets state and game to default"""
         from contextlib import suppress
 
-        logging.info(f'{cls.current_state} - (reset) -> {START}')
+        logging.info(f'{cls.current_state} - (reset) -> {next_state}')
         cls.current_state = BLOCKING
         LED.switch_on(set())
         ScrabbleWatch.display.show_ready(('end of', 'game'))
@@ -225,8 +215,9 @@ class State(Static):
         with suppress(Exception):
             ScrabbleWatch.display.show_end_of_game()
         LED.blink_on({LEDEnum.yellow})
-        cls.current_state = EOG
-        return EOG
+        event_set(cls.op_event)
+        cls.current_state = next_state
+        return cls.current_state
 
     @classmethod
     def do_reboot(cls) -> str:  # pragma: no cover
@@ -242,13 +233,13 @@ class State(Static):
         with suppress(Exception):
             store_zip_from_game(cls.game)
         ScrabbleWatch.display.stop()
-        current_state = START
+        cls.current_state = START
         alarm(1)  # raise alarm for reboot
-        return current_state
+        return cls.current_state
 
     # pylint: disable=duplicate-code
     @classmethod
-    def do_accesspoint(cls) -> str:  # pragma: no cover
+    def do_accesspoint(cls, next_state: str = START) -> str:  # pragma: no cover
         """Switch to AP Mode"""
         import subprocess
 
@@ -267,9 +258,8 @@ class State(Static):
                 sleep(5)
                 LED.switch_on({LEDEnum.green, LEDEnum.red})
                 ScrabbleWatch.display.show_ready()
-
-        current_state = START
-        return current_state
+        cls.current_state = next_state
+        return cls.current_state
 
     @classmethod
     def press_button(cls, button: str) -> None:
@@ -298,32 +288,30 @@ class State(Static):
     # START, pause => not supported
     # pylint: disable=unnecessary-lambda
     state: dict[tuple[str, str], Callable] = {
-        (START, GREEN): lambda: State.do_start(1),
-        (START, RED): lambda: State.do_start(0),
-        (START, RESET): lambda: State.do_new_game(),
+        (START, GREEN): lambda: State.do_start(player=1, next_state=S1),
+        (START, RED): lambda: State.do_start(player=0, next_state=S0),
+        (START, RESET): lambda: State.do_new_game(next_state=START),
         (START, REBOOT): lambda: State.do_reboot(),
-        (START, AP): lambda: State.do_accesspoint(),
-        (S0, GREEN): lambda: State.do_move(0),
-        (S0, YELLOW): lambda: State.do_pause(0),
-        (P0, RED): lambda: State.do_resume(0),
-        (P0, YELLOW): lambda: State.do_resume(0),
-        (P0, DOUBT0): lambda: State.do_valid_challenge(0),
-        (P0, DOUBT1): lambda: State.do_invalid_challenge(0),
-        (P0, RESET): lambda: State.do_end_of_game(),
+        (START, AP): lambda: State.do_accesspoint(next_state=START),
+        (S0, GREEN): lambda: State.do_move(player=0, next_state=S1),
+        (S0, YELLOW): lambda: State.do_pause(next_state=P0),
+        (P0, RED): lambda: State.do_resume(player=0, next_state=S0),
+        (P0, YELLOW): lambda: State.do_resume(player=0, next_state=S0),
+        (P0, DOUBT0): lambda: State.do_valid_challenge(player=0, next_state=P0),
+        (P0, DOUBT1): lambda: State.do_invalid_challenge(player=0, next_state=P0),
+        (P0, RESET): lambda: State.do_end_of_game(next_state=EOG),
         (P0, REBOOT): lambda: State.do_reboot(),
-        (P0, AP): lambda: State.do_accesspoint(),
-        (S1, RED): lambda: State.do_move(1),
-        (S1, YELLOW): lambda: State.do_pause(1),
-        (P1, GREEN): lambda: State.do_resume(1),
-        (P1, YELLOW): lambda: State.do_resume(1),
-        (P1, DOUBT1): lambda: State.do_valid_challenge(1),
-        (P1, DOUBT0): lambda: State.do_invalid_challenge(1),
-        (P1, RESET): lambda: State.do_end_of_game(),
+        (S1, RED): lambda: State.do_move(player=1, next_state=S0),
+        (S1, YELLOW): lambda: State.do_pause(next_state=P1),
+        (P1, GREEN): lambda: State.do_resume(player=1, next_state=S1),
+        (P1, YELLOW): lambda: State.do_resume(player=1, next_state=S1),
+        (P1, DOUBT1): lambda: State.do_valid_challenge(player=1, next_state=P1),
+        (P1, DOUBT0): lambda: State.do_invalid_challenge(player=1, next_state=P1),
+        (P1, RESET): lambda: State.do_end_of_game(next_state=EOG),
         (P1, REBOOT): lambda: State.do_reboot(),
-        (P1, AP): lambda: State.do_accesspoint(),
-        (EOG, GREEN): lambda: State.do_new_game(),
-        (EOG, RED): lambda: State.do_new_game(),
-        (EOG, YELLOW): lambda: State.do_new_game(),
+        (EOG, GREEN): lambda: State.do_new_game(next_state=START),
+        (EOG, RED): lambda: State.do_new_game(next_state=START),
+        (EOG, YELLOW): lambda: State.do_new_game(next_state=START),
         (EOG, REBOOT): lambda: State.do_reboot(),
-        (EOG, AP): lambda: State.do_accesspoint(),
+        (EOG, AP): lambda: State.do_accesspoint(next_state=START),
     }
