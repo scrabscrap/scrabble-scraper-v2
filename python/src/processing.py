@@ -529,6 +529,7 @@ def check_resume(
         if intersection == set():  #  empty set => tiles are removed
             valid_challenge(game, player, played_time, event)
             logging.info(f'automatic valid challenge (move time {current_time[player]} sec)')
+            event_set(event=event)
         # else: # uncomment if you want a invalid challenges as default on resume
         #     invalid_challenge(game, player, played_time, event)
         #     logging.info(f'automatic invalid challenge (move time {current_time[player]} sec)')
