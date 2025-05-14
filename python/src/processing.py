@@ -589,7 +589,7 @@ def start_of_game(game: Game):
 
 
 @trace
-def end_of_game(game: Game, event=None):
+def end_of_game(game: Game, image: Optional[MatLike] = None, player: int = -1, event=None):
     # pragma: no cover #pylint: disable=too-many-locals # no ftp upload on tests
     """Process end of game"""
     from contextlib import suppress
@@ -597,9 +597,9 @@ def end_of_game(game: Game, event=None):
     def calculate_rack(game: Game) -> Tuple[Tuple[int, int], str]:
         from game_board.tiles import bag_as_list, scores
 
+        rack = [7, 7]
         with suppress(Exception):  # possible exception, if bag is invalid because of wrong recognition
             bag = bag_as_list.copy()
-            rack = [7, 7]
             bag_len = len(bag) - 14  # both rack are filled wit 7 tiles
             for mov in game.moves:
                 if mov.type == MoveType.WITHDRAW:
@@ -627,17 +627,31 @@ def end_of_game(game: Game, event=None):
         return (0, 0), '?'
 
     if game.moves:
-        # calculate overtime malus
-        t = (config.scrabble.max_time - game.moves[-1].played_time[0], config.scrabble.max_time - game.moves[-1].played_time[1])
-        logging.debug(f'overtime {t=}')
-        for player in range(2):
-            if t[player] < 0:  # in overtime
-                malus = (t[player] // 60) * config.scrabble.timeout_malus  # config.timeout_malus per minute
-                game.add_timout_malus(player, malus)  # add as move
+        # check for a last move on end of game
+        score, rackstr = calculate_rack(game)
+        if image is not None and score == (0, 0):  # we have an image and both racks have tiles
+            last_move = game.moves[-1]
+            warped, _ = warp_image(image)
+            _, tiles_candidates = filter_image(warped)
+            if set(last_move.board.keys()) != set(tiles_candidates):  #  candidates differ from last image
+                logging.info(f'automatic move (player {player})')
+                move(game, image, player, last_move.played_time, event)
+                score, rackstr = calculate_rack(game)  # rack may have been changed
 
+        # calculate overtime malus
+        overtime = (
+            config.scrabble.max_time - game.moves[-1].played_time[0],
+            config.scrabble.max_time - game.moves[-1].played_time[1],
+        )
+        logging.debug(f'overtime {overtime=}')
+        for player_index in range(2):
+            if overtime[player_index] < 0:  # in overtime
+                malus = (overtime[player_index] // 60) * config.scrabble.timeout_malus  # config.timeout_malus per minute
+                game.add_timout_malus(player_index, malus)  # add as move
+
+        # calculate last rack
         with suppress(Exception):
-            points, rackstr = calculate_rack(game)
-            game.add_last_rack(points, rackstr)
+            game.add_last_rack(score, rackstr)
             write_files(game, game.moves[-2])
             write_files(game, game.moves[-1])
 

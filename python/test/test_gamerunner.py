@@ -105,6 +105,14 @@ class GameRunnerTestCase(unittest.TestCase):
         self.run_game(file=f'{TEST_DIR}/game14/game.ini')
 
     def test_game15(self):
+        # test: wrong end of game
+        # move 39 Green exchange
+        # YELLOW - EOG => must insert move 40
+        # correct flow:
+        # move 39, "Green", "S1", "-", , 0, 329, 336
+        # move 40, "Red", "S0", "5D", ".I.", 12, 329, 348
+        # YELLOW - EOG
+        # check log output !
         self.run_game(file=f'{TEST_DIR}/game15/game.ini')
 
     def test_game16(self):

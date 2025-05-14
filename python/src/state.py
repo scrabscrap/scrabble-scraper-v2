@@ -203,11 +203,16 @@ class State(Static):
         from contextlib import suppress
 
         logging.info(f'{cls.current_state} - (reset) -> {next_state}')
+
         cls.current_state = BLOCKING
         LED.switch_on(set())
         ScrabbleWatch.display.show_ready(('end of', 'game'))
+        player, _, _ = ScrabbleWatch.status()
+        picture = None
         with suppress(Exception):
-            command_queue.put(end_of_game(cls.game))
+            picture = camera.cam.read(peek=True).copy()
+        with suppress(Exception):
+            command_queue.put(end_of_game(game=cls.game, image=picture, player=player, event=cls.op_event))
         with suppress(Exception):
             store_zip_from_game(cls.game)
         # command_queue.put(None)
