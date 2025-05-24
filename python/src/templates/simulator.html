@@ -14,29 +14,8 @@
                         <div class="card-body">
                             <div class="row py-2">
                                 <div class="col-2 text-center">
-                                    <button type="submit" class="btn btn-success btn-circle btn-sm"
-                                        data-toggle="tooltip" data-placement="top" title="doubt green"
-                                        onclick="location.href='/simulator/doubt0'"></button>
-                                </div>
-                                <div class="col"> </div>
-                                <div class="col-3 text-center">
-                                    <button type="submit" class="btn btn-secondary btn-circle btn-sm"
-                                        data-toggle="tooltip" data-placement="top" title="end"
-                                        onclick="location.href='/simulator/reset'"></button>
-                                    <button type="submit" class="btn btn-secondary btn-circle btn-sm"
-                                        data-toggle="tooltip" data-placement="top" title="reboot"></button>
-                                </div>
-                                <div class="col"> </div>
-                                <div class="col-2 text-center">
-                                    <button type="submit" class="btn btn-danger btn-circle btn-sm" data-toggle="tooltip"
-                                        data-placement="top" title="doubt red"
-                                        onclick="location.href='/simulator/doubt1'"></button>
-                                </div>
-                            </div>
-                            <div class="row py-2">
-                                <div class="col-2 text-center">
                                     <button type="submit" class="btn btn-success mb-3 btn-circle btn-md"
-                                        data-toggle="tooltip" data-placement="top" title="move green"
+                                        data-toggle="tooltip" data-placement="top" title="Move Green"
                                         onclick="location.href='/simulator/green'">
                                         {% if green == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
                                     </button>
@@ -44,7 +23,7 @@
                                 <div class="col"> </div>
                                 <div class="col-2 text-center">
                                     <button type="submit" class="btn btn-warning mb-3 btn-circle btn-md"
-                                        data-toggle="tooltip" data-placement="top" title="pause"
+                                        data-toggle="tooltip" data-placement="top" title="Pause"
                                         onclick="location.href='/simulator/yellow'">
                                         {% if yellow == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
                                     </button>
@@ -52,17 +31,41 @@
                                 <div class="col"> </div>
                                 <div class="col-2 text-center">
                                     <button type="submit" class="btn btn-danger mb-3 btn-circle btn-md"
-                                        data-toggle="tooltip" data-placement="top" title="move red"
+                                        data-toggle="tooltip" data-placement="top" title="Move Red"
                                         onclick="location.href='/simulator/red'">
                                         {% if red == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
                                     </button>
                                 </div>
                             </div>
                             <div class="row py-2 px-2">
-                                <div class="col py-2 border border-secondary text-center">{{ left }}</div>
+                                <div class="col"> </div>
+                                <div class="col-3 py-2 border border-secondary text-center"
+                                    style="color: white; background-color: black;">{{ left }}</div>
                                 <div class="col-2"> </div>
-                                <div class="col py-2 border border-secondary text-center">{{ right }}</div>
+                                <div class="col-3 py-2 border border-secondary text-center"
+                                    style="color: white; background-color: black;">{{ right }}</div>
+                                <div class="col"> </div>
                             </div>
+                            <div class="row py-2">
+                                <div class="col"> </div>
+                                <div class="col-2 text-center">
+                                    <button type="submit" class="btn btn-outline-success btn-circle btn-sm"
+                                        data-toggle="tooltip" data-placement="top" title="Doubt Green"
+                                        onclick="location.href='/simulator/doubt0'"></button>
+                                </div>
+                                <div class="col-1 text-center">
+                                    <button type="submit" class="btn btn-outline-warning btn-circle btn-sm"
+                                        data-toggle="tooltip" data-placement="top" title="End of Game"
+                                        onclick="location.href='/simulator/reset'"></button>
+                                </div>
+                                <div class="col-2 text-center">
+                                    <button type="submit" class="btn btn-outline-danger btn-circle btn-sm"
+                                        data-toggle="tooltip" data-placement="top" title="Doubt Red"
+                                        onclick="location.href='/simulator/doubt1'"></button>
+                                </div>
+                                <div class="col"> </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
