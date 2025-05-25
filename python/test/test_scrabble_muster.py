@@ -26,6 +26,7 @@ import cv2
 
 from config import config
 from processing import analyze, filter_candidates, filter_image, warp_image
+from scrabble import board_to_string
 
 TEST_DIR = os.path.dirname(__file__)
 
@@ -46,28 +47,6 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             config.config.set(section, option, str(value))
         else:
             config.config.remove_option(section, option)
-
-    def print_board(self, board: dict) -> str:
-        """print out Scrabble board dictionary"""
-        result = '  |'
-        for i in range(15):
-            result += f'{(i + 1):2d} '
-        result += ' | '
-        for i in range(15):
-            result += f'{(i + 1):2d} '
-        result += '\n'
-        for row in range(15):
-            result += f'{chr(ord("A") + row)} |'
-            for col in range(15):
-                if (col, row) in board:
-                    result += f' {board[(col, row)][0]} '
-                else:
-                    result += ' · '
-            result += ' | '
-            for col in range(15):
-                result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' · '
-            result += ' | \n'
-        return result
 
     def setUp(self):
         from processing import clear_last_warp
@@ -115,10 +94,10 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = tiles_candidates
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{self.print_board(new_board)}')
+            logging.debug(f'new board= \n{board_to_string(new_board)}')
 
             keys = [(x, y) for (x, y) in new_board.keys()]
-            values = [t for (t, p) in new_board.values()]
+            values = [tile.letter for tile in new_board.values()]
             self.assertEqual(dict(zip(*[keys, values])), expected, 'Test')
 
     def test_board2012_chars(self):
@@ -138,7 +117,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{self.print_board(new_board)}')
+            logging.debug(f'new board= \n{board_to_string(new_board)}')
             # last_board = ret  # falls der Test vorige Boards berücksichtigen soll
             res = {
                 (8, 8): 'W',
@@ -175,7 +154,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             keys = new_board.keys()
             values = new_board.values()
             keys1 = [(x, y) for (x, y) in keys]
-            values1 = [t for (t, p) in values]
+            values1 = [tile.letter for tile in values]
             self.assertEqual(dict(zip(*[keys1, values1])), res, f'Test error: {file}')
 
     def test_board2012_err(self):
@@ -220,7 +199,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{self.print_board(new_board)}')
+            logging.debug(f'new board= \n{board_to_string(new_board)}')
             # last_board = ret  # falls der Test vorige Boards berücksichtigen soll
             res = {
                 (4, 11): 'G',
@@ -244,7 +223,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             keys = new_board.keys()
             values = new_board.values()
             keys1 = [(x, y) for (x, y) in keys]
-            values1 = [t for (t, p) in values]
+            values1 = [tile.letter for tile in values]
             self.assertEqual(dict(zip(*[keys1, values1])), res, f'Test error: {file}')
 
     def test_board2012(self):
@@ -294,10 +273,10 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = tiles_candidates
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{self.print_board(new_board)}')
+            logging.debug(f'new board= \n{board_to_string(new_board)}')
 
             keys = [(x, y) for (x, y) in new_board.keys()]
-            values = [t for (t, p) in new_board.values()]
+            values = [tile.letter for tile in new_board.values()]
             self.assertEqual(dict(zip(*[keys, values])), expected, f'Test error: {file}')
 
     def test_board2020(self):
@@ -386,10 +365,10 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = tiles_candidates
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{self.print_board(new_board)}')
+            logging.debug(f'new board= \n{board_to_string(new_board)}')
 
             keys = [(x, y) for (x, y) in new_board.keys()]
-            values = [t for (t, p) in new_board.values()]
+            values = [tile.letter for tile in new_board.values()]
             self.assertEqual(dict(zip(*[keys, values])), expected, f'Test error: {file}')
 
     def test_board2012_weak_tiles(self):
@@ -460,10 +439,10 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = tiles_candidates
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{self.print_board(new_board)}')
+            logging.debug(f'new board= \n{board_to_string(new_board)}')
 
             keys = [(x, y) for (x, y) in new_board.keys()]
-            values = [t for (t, p) in new_board.values()]
+            values = [tile.letter for tile in new_board.values()]
             self.assertEqual(dict(zip(*[keys, values])), expected, f'Test error: {file}')
 
 

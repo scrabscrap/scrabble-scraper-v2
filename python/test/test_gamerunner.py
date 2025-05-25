@@ -30,7 +30,8 @@ from time import sleep
 
 from config import config
 from hardware import camera
-from threadpool import command_queue, worker
+from scrabble import MoveRegular
+from threadpool import command_queue
 
 PROFILE = False
 TEST_DIR = os.path.dirname(__file__)
@@ -204,6 +205,7 @@ class GameRunnerTestCase(unittest.TestCase):
                     row['State'].upper(), State.current_state, f'invalid state {State.current_state} at move {int(row["Move"])}'
                 )
                 if State.current_state not in ('P0', 'P1'):
+                    command_queue.join()
                     self.assertEqual(
                         int(row['Points']),
                         State.game.moves[-1].points,
@@ -219,11 +221,12 @@ class GameRunnerTestCase(unittest.TestCase):
                         State.game.moves[-1].score[1],
                         f'invalid score 2 {State.game.moves[-1].score[1]} at move {int(row["Move"])}',
                     )
-                    self.assertEqual(
-                        row['Word'],
-                        State.game.moves[-1].word,
-                        f'invalid word {State.game.moves[-1].word} at move {int(row["Move"])}',
-                    )
+                    if isinstance(State.game.moves[-1], (MoveRegular)):
+                        self.assertEqual(
+                            row['Word'],
+                            State.game.moves[-1].word,
+                            f'invalid word {State.game.moves[-1].word} at move {int(row["Move"])}',
+                        )
                 logging.warning(f'qsize={command_queue.qsize()}')
             if State.current_state not in ('EOG'):
                 State.do_end_of_game()

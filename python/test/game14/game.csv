@@ -35,4 +35,4 @@ Move, Button, State, Coord, Word, Points, Score1, Score2
 31, "Green", "S1", "O12", "EY", 26, 376, 316
 32, "Red", "S0", "1E", "EHE.", 5, 376, 321
 33, "YELLOW", "P0", "1E", "EHE.", 5, 376, 321
-34, "RESET", "EOG", "", "D", 1, 375, 322
+34, "RESET", "EOG", "", "D", -1, 375, 322

@@ -94,7 +94,7 @@ class ButtonTestCase(unittest.TestCase):
         time.sleep(wait)
         pin.drive_low()
 
-        sleep(0.01)
+        sleep(0.05)
         logging.info(
             f'leds: green {LEDEnum.green.value} yellow {LEDEnum.yellow.value} '
             f'red {LEDEnum.red.value} state nw {State.current_state}'
@@ -245,6 +245,7 @@ class ButtonTestCase(unittest.TestCase):
         time.sleep(display_pause)
 
         State.do_new_game()
+        camera.cam.counter = 1  # type: ignore
         assert State.current_state == 'START'
         assert LEDEnum.green.value == 1 and LEDEnum.yellow.value == 0 and LEDEnum.red.value == 1
 

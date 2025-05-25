@@ -17,31 +17,21 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 # pylint: disable=too-many-public-methods
 
-import gc
 import logging
 import threading
 from signal import alarm
 from time import sleep
 from typing import Callable
 
+
 from config import config
 from hardware import camera
 from hardware.button import Button
 from hardware.led import LED, LEDEnum
-from processing import (
-    check_resume,
-    end_of_game,
-    event_set,
-    invalid_challenge,
-    move,
-    start_of_game,
-    store_zip_from_game,
-    valid_challenge,
-    write_files,
-)
+from processing import check_resume, end_of_game, event_set, invalid_challenge, move, new_game, valid_challenge
 from scrabble import Game
 from scrabblewatch import ScrabbleWatch
-from threadpool import command_queue
+from threadpool import Command, command_queue
 from util import Static
 
 # states
@@ -69,7 +59,7 @@ class State(Static):
 
     current_state: str = START
     button_handler = Button
-    game: Game = Game(None)
+    game: Game = Game()
     picture = None
     op_event = threading.Event()
     ap_mode = False
@@ -120,7 +110,10 @@ class State(Static):
         ScrabbleWatch.start(next_player)
         LED.switch_on(next_led)  # turn on next player LED
         cls.picture = camera.cam.read().copy()
-        command_queue.put(move(cls.game, cls.picture, player, (time0, time1), cls.op_event))
+        try:
+            command_queue.put_nowait(Command(move, cls.game, cls.picture, player, (time0, time1), cls.op_event))
+        except Exception as oops:  # pylint: disable=broad-exception-caught
+            logging.debug(f'ignoring exception {oops}')
         return next_state
 
     @classmethod
@@ -136,11 +129,10 @@ class State(Static):
         """resume from pause while player 0 is active"""
         next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
         logging.info(f'{cls.current_state} - (resume) -> {next_state}')
-        _, (time0, time1), current_time = ScrabbleWatch.status()
         ScrabbleWatch.resume()
         LED.switch_on(next_led)  # turn on player LED
         cls.picture = camera.cam.read(peek=True).copy()
-        command_queue.put(check_resume(cls.game, cls.picture, player, (time0, time1), current_time, cls.op_event))
+        command_queue.put_nowait(Command(check_resume, cls.game, cls.picture, cls.op_event))
         return next_state
 
     @classmethod
@@ -152,7 +144,7 @@ class State(Static):
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.warning(f'valid challenge after timeout {current[0]}')
         ScrabbleWatch.display.add_remove_tiles(player, played_time, current)  # player 1 has to remove the last move
-        command_queue.put(valid_challenge(cls.game, player, (played_time[0], played_time[1]), cls.op_event))
+        command_queue.put_nowait(Command(valid_challenge, cls.game, cls.op_event))
         LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
         LED.blink_on(({LEDEnum.green}, {LEDEnum.red})[player], switch_off=False)
         return next_state
@@ -166,19 +158,10 @@ class State(Static):
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.warning(f'invalid challenge after timeout {current[player]}')
         ScrabbleWatch.display.add_malus(player, played_time, current)  # player 0 gets a malus
-        command_queue.put(invalid_challenge(cls.game, player, (played_time[0], played_time[1]), cls.op_event))
+        command_queue.put_nowait(Command(invalid_challenge, cls.game, cls.op_event))
         LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
         LED.blink_on(({LEDEnum.green}, {LEDEnum.red})[player], switch_off=False)
         return next_state
-
-    @classmethod
-    def do_new_player_names(cls, name1: str, name2: str) -> None:
-        """set new player names"""
-        cls.game.nicknames = (name1, name2)
-        if cls.current_state == START:
-            cls.do_ready()
-        write_files(cls.game)
-        event_set(cls.op_event)
 
     @classmethod
     def do_new_game(cls, next_state: str = START) -> str:
@@ -190,12 +173,10 @@ class State(Static):
             LED.switch_on({LEDEnum.green, LEDEnum.red})
             cls.picture = None
             ScrabbleWatch.reset()
-            cls.game.new_game()
-            gc.collect()
-
-        start_of_game(cls.game)
-        event_set(cls.op_event)
-        return cls.do_ready(next_state=next_state)
+            new_game(cls.game, cls.op_event)
+            ScrabbleWatch.display.show_ready(cls.game.nicknames)
+        cls.current_state = next_state
+        return cls.current_state
 
     @classmethod
     def do_end_of_game(cls, next_state: str = EOG) -> str:
@@ -212,11 +193,9 @@ class State(Static):
         with suppress(Exception):
             picture = camera.cam.read(peek=True).copy()
         with suppress(Exception):
-            command_queue.put(end_of_game(game=cls.game, image=picture, player=player, event=cls.op_event))
-        with suppress(Exception):
-            store_zip_from_game(cls.game)
-        # command_queue.put(None)
-        # command_queue.join()
+            command_queue.put_nowait(Command(end_of_game, game=cls.game, image=picture, player=player, event=cls.op_event))
+
+        command_queue.join()  # wait for finishing tasks
         with suppress(Exception):
             ScrabbleWatch.display.show_end_of_game()
         LED.blink_on({LEDEnum.yellow})
@@ -235,8 +214,6 @@ class State(Static):
             ScrabbleWatch.display.show_boot()  # Display message REBOOT
             LED.switch_on(set())
             end_of_game(cls.game)
-        with suppress(Exception):
-            store_zip_from_game(cls.game)
         ScrabbleWatch.display.stop()
         cls.current_state = START
         alarm(1)  # raise alarm for reboot

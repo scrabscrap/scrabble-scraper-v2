@@ -54,13 +54,8 @@
                                         <td style="text-align: right;">
                                             <div class="py-2">{{ move.points }}</div>
                                         </td>
-                                        <td><input type="text" class="form-control" name="move.score0" size="3"
-                                                value="{{ move.score[0] }}" {% if move.type.name=='WITHDRAW' or
-                                                move.type.name=='CHALLENGE_BONUS' %}readonly{% endif %}>
-                                        </td>
-                                        <td><input type="text" class="form-control" name="move.score1" size="3"
-                                                value="{{ move.score[1] }}" {% if move.type.name=='WITHDRAW' or
-                                                move.type.name=='CHALLENGE_BONUS' %}readonly{% endif %}>
+                                        <td>
+                                            <div class="py-2">{{ move.score }}</div>
                                         </td>
                                         <td>
                                             <select class="form-select" aria-label="Type of move" name="move.type">
@@ -73,9 +68,9 @@
                                                 <option {% if move.type.name=="PASS_TURN" %}selected{% endif %} disabled
                                                     value="PASS_TURN">Pass turn</option>
                                                 <option {% if move.type.name=="WITHDRAW" %}selected{% endif %} disabled
-                                                    value="WITHDRAW">Remove Tiles</option>
+                                                    value="WITHDRAW">Withdraw</option>
                                                 <option {% if move.type.name=="CHALLENGE_BONUS" %}selected{% endif %}
-                                                    disabled value="CHALLENGE_BONUS">Doubt Malus</option>
+                                                    disabled value="CHALLENGE_BONUS">Challenge</option>
                                                 <option {% if move.type.name=="LAST_RACK_BONUS" %}selected{% endif %}
                                                     disabled value="LAST_RACK_BONUS">Last Rack Bonus</option>
                                                 <option {% if move.type.name=="LAST_RACK_MALUS" %}selected{% endif %}
@@ -95,7 +90,7 @@
                                                 value="--" readonly>
                                             {% else %}
                                             <input type="text" class="form-control" name="move.coord" size="3"
-                                                value="{{ move.get_coord() }}">
+                                                value="{{ move.gcg_coord }}">
                                             {% endif %}
                                         </td>
                                         <td> <input type="text" class="form-control" name="move.word"
@@ -185,7 +180,7 @@
                                                         </div>
                                                         <div class="modal-body">
                                                             insert challenge for move #{{move.move}}
-                                                            {{move.get_coord()}} {{move.word}}
+                                                            {{move.gcg_coord}} {{move.word}}
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary"
@@ -223,14 +218,14 @@
                 <div class="card-body">
                     <table class="table table-striped">
                         <tbody>
-                            {% for val in blanko_list %}
+                            {% for (coord, tile) in blanko_list %}
                             <tr>
                                 <form action="/moves" method="post">
                                     <td> <input type="text" class="form-control" name="coord" readonly size="3" value={{
-                                            val[0] }}>
+                                            coord }}>
                                     </td>
                                     <td> <input type="text" class="form-control" name="char" size="1"
-                                            value="{{ val[1] }}">
+                                            value="{{ tile.letter }}">
                                     </td>
                                     <td>
                                         <div class="py-1"><button type="submit"

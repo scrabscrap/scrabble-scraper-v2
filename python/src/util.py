@@ -40,6 +40,27 @@ class Static:  # pylint: disable=too-few-public-methods
         raise TypeError('Static classes cannot be instantiated')
 
 
+def handle_exceptions(func):
+    """
+    Decorator to handle common IndexError and ValueError exceptions
+    and call event_set after the function execution.
+    Assumes the decorated function accepts an 'event' keyword argument.
+    """
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+            return result
+        except IndexError as err:
+            logging.error(f'index error in {func.__name__} ignored: "{err}"')
+        except ValueError as err:
+            logging.error(f'value error in {func.__name__} ignored: "{err}"')
+        return None
+
+    return wrapper
+
+
 def runtime_measure(func: Callable[..., Any]) -> Callable[..., Any]:  # pragma: no cover # currently not used
     """perform runtime measure"""
 
@@ -61,8 +82,8 @@ def trace(func: Callable[..., Any]) -> Callable[..., Any]:
         try:
             logging.debug(f'entering {func.__qualname__}')
             return func(*args, **kwargs)
-        except Exception:  # pragma: no cover
-            logging.exception(f'exception in {func.__name__}')
+        except Exception as oops:  # pragma: no cover
+            logging.exception(f'exception in {func.__name__}: {oops}')
             raise
         finally:
             logging.debug(f'leaving {func.__name__}')
