@@ -145,7 +145,7 @@ class AlgorithmTestCase(unittest.TestCase):
         from processing import _move_processing
         from scrabble import board_to_string
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
         score = (0, 0)
 
@@ -264,7 +264,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_101(self):
         """Test 101 - Algorithm: empty board with tiles exchange"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # empty
@@ -285,7 +285,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_102(self):
         """Test 102 - Algorithm: first move"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -307,7 +307,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_103(self):
         """Test 103 - Algorithm: crossed move"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -346,7 +346,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_104(self):
         """Test 104 - Algorithm: move at top (horizontal)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 TURNeNS
@@ -425,7 +425,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_105(self):
         """Test 105 - Algorithm: move at top (vertical)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 TURNeNS
@@ -480,7 +480,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_106(self):
         """Test 106 - Algorithm: move at bottom (horizontal)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H2 TURNeNS
@@ -560,7 +560,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_107(self):
         """Test 107 - Algorithm: move at bottom (vertical)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H2 TURNeNS
@@ -614,7 +614,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_108(self):
         """Test 108 - Algorithm: move at left border (horizontal)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # 8D TURNeNS
@@ -669,7 +669,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_109(self):
         """Test 109 - Algorithm: move at left border (vertical)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # 8D TURNeNS
@@ -749,7 +749,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_110(self):
         """Test 110 - Algorithm: move at right border (horizontal)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # 8B TURNeNS
@@ -803,7 +803,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_111(self):
         """Test 111 - Algorithm: move at right border (vertical)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # 8B TURNeNS
@@ -883,7 +883,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_112(self):
         """Test 112 - Algorithm: challenge without move"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
         try:
             game.add_challenge_for()
@@ -895,7 +895,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_113(self):
         """Test 113 - Algorithm: not enough point for a challenge"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
         # H4 FIRNS
         board = {
@@ -918,7 +918,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_114(self):
         """Test 114 - Algorithm: valid challenge"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -943,7 +943,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_115(self):
         """Test 115 - Algorithm: invalid challenge"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -990,7 +990,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_117(self):
         """Test 117 - Algorithm: extend a word"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H5 TEST
@@ -1021,7 +1021,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_118(self):
         """Test 118 - Algorithm: word between two word"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H5 TEST
@@ -1085,7 +1085,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_119(self):
         """Test 119 - Algorithm: calculation double letter"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -1107,7 +1107,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_120(self):
         """Test 120 - Algorithm: calculation triple letter"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 TURNeNS
@@ -1161,7 +1161,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_121(self):
         """Test 121 - Algorithm: calculation double word"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -1201,7 +1201,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_122(self):
         """Test 122 - Algorithm: calculation triple word"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 TURNeNS
@@ -1255,7 +1255,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_123(self):
         """Test 123 - Algorithm: calculation double letter (blank on double letter field)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 fIRNS
@@ -1277,7 +1277,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_124(self):
         """Test 124 - Algorithm: calculation triple letter (blank on double letter field)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 TURNENS
@@ -1332,7 +1332,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_125(self):
         """Test 125 - Algorithm: calculation double word (blank on double letter field)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -1372,7 +1372,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_126(self):
         """Test 126 - Algorithm: calculation triple word (blank on double letter field)"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 TURNeNS
@@ -1435,7 +1435,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_129(self):
         """Test 129 - Algorithm: space between new tiles"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 F RNS
@@ -1451,7 +1451,7 @@ class AlgorithmTestCase(unittest.TestCase):
         """Test 130 - Algorithm: changed tile with higher propability"""
         from processing import _recalculate_score_on_tiles_change  # type: ignore
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FJRNS
@@ -1497,7 +1497,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_131(self):
         """Test 131 - Algorithm: correct letter to blank"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -1530,7 +1530,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_132(self):
         """Test 132 - Algorithm: new tile with lower propability"""
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -1564,7 +1564,7 @@ class AlgorithmTestCase(unittest.TestCase):
         """Test 141 - Algorithm: change tile via admin call - first move"""
         from processing import admin_change_move
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -1590,7 +1590,7 @@ class AlgorithmTestCase(unittest.TestCase):
         """Test 142 - Algorithm: 2 moves on board correct first move"""
         from processing import admin_change_move
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -1638,7 +1638,7 @@ class AlgorithmTestCase(unittest.TestCase):
         """Test 143 - Algorithm: 2 moves on board correct second move"""
         from processing import admin_change_move
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -1685,7 +1685,7 @@ class AlgorithmTestCase(unittest.TestCase):
         """Test 144 - Algorithm: 2 moves on board correct first move"""
         from processing import admin_change_move
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -1732,7 +1732,7 @@ class AlgorithmTestCase(unittest.TestCase):
         """Test 145 - Algorithm: change tile to exchange via admin call - first move"""
         from processing import admin_change_move
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 FIRNS
@@ -1756,7 +1756,7 @@ class AlgorithmTestCase(unittest.TestCase):
 
     def test_146(self):
         """replace blanko with lower character"""
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         # H4 TURNeNS
@@ -1789,7 +1789,7 @@ class AlgorithmTestCase(unittest.TestCase):
 
     def test_147(self):
         """replace blanko with lower character"""
-        game = State.game
+        game = State.ctx.game
 
         game.new_game()
         # H4 FIRNS
@@ -1851,7 +1851,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_150(self):
         from processing import end_of_game
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         board = {
@@ -1873,7 +1873,7 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_remove_blanko(self):
         from processing import remove_blanko, admin_insert_moves
 
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         board = {
@@ -1946,7 +1946,7 @@ class AlgorithmTestCase(unittest.TestCase):
         )
 
     def test_set_blanko(self):
-        game = State.game
+        game = State.ctx.game
         game.new_game()
 
         board: BoardType = {

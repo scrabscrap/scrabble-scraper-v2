@@ -20,6 +20,8 @@ import logging
 import unittest
 from signal import pause
 
+from hardware.button import ButtonEnum
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 
 # ruff: noqa: E402
@@ -28,7 +30,7 @@ from display import Display
 from hardware import camera
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
-from state import AP, DOUBT0, DOUBT1, GREEN, REBOOT, RED, RESET, YELLOW, State
+from state import GameState, State
 
 
 class SimulateState(State):
@@ -45,28 +47,28 @@ class SimulateState(State):
 
         before sending the next event, press button will wait for self.bounce
         """
-        if button == GREEN:
+        if button == ButtonEnum.GREEN.name:
             logging.info('pressed green')
             LED.switch_on({LEDEnum.green})
-        elif button == RED:
+        elif button == ButtonEnum.RED.name:
             logging.info('pressed red')
             LED.switch_on({LEDEnum.red})
-        elif button == YELLOW:
+        elif button == ButtonEnum.YELLOW.name:
             logging.info('pressed yellow')
             LED.switch_on({LEDEnum.yellow})
-        elif button == DOUBT0:
+        elif button == ButtonEnum.DOUBT0.name:
             logging.info('pressed doubt0 (switch green)')
             LED.blink_on({LEDEnum.green})
-        elif button == DOUBT1:
+        elif button == ButtonEnum.DOUBT1.name:
             logging.info('pressed doubt1 (switch red)')
             LED.blink_on({LEDEnum.red})
-        elif button == RESET:
+        elif button == ButtonEnum.RESET.name:
             logging.info('pressed end')
             LED.blink_on({LEDEnum.green, LEDEnum.yellow})
-        elif button == REBOOT:
+        elif button == ButtonEnum.REBOOT.name:
             logging.info('pressed reboot')
             LED.blink_on({LEDEnum.yellow, LEDEnum.red})
-        elif button == AP:
+        elif button == ButtonEnum.AP.name:
             logging.info('pressed ap')
             LED.blink_on({LEDEnum.green, LEDEnum.red})
 

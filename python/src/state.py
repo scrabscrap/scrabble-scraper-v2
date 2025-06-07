@@ -19,14 +19,16 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
 import threading
+from contextlib import suppress
+from dataclasses import dataclass
+from enum import Enum, auto
 from signal import alarm
 from time import sleep
 from typing import Callable
 
-
 from config import config
 from hardware import camera
-from hardware.button import Button
+from hardware.button import Button, ButtonEnum
 from hardware.led import LED, LEDEnum
 from processing import check_resume, end_of_game, event_set, invalid_challenge, move, new_game, valid_challenge
 from scrabble import Game
@@ -34,45 +36,38 @@ from scrabblewatch import ScrabbleWatch
 from threadpool import Command, command_queue
 from util import Static
 
-# states
-START = 'START'
-S0 = 'S0'
-S1 = 'S1'
-P0 = 'P0'
-P1 = 'P1'
-EOG = 'EOG'  # end of game
-BLOCKING = 'BLOCK'  # ignore button press
 
-# buttons
-GREEN = 'GREEN'
-YELLOW = 'YELLOW'
-RED = 'RED'
-DOUBT0 = 'DOUBT0'
-DOUBT1 = 'DOUBT1'
-RESET = 'RESET'
-REBOOT = 'REBOOT'
-AP = 'AP'
+class GameState(Enum):
+    """Allowed States"""
+
+    START = auto()
+    S0 = auto()
+    S1 = auto()
+    P0 = auto()
+    P1 = auto()
+    EOG = auto()
+    BLOCKING = auto()
+
+
+PLAYER_LEDS: dict[int, set] = {0: {LEDEnum.green}, 1: {LEDEnum.red}}
+
+
+@dataclass
+class GameContext:
+    """State Context"""
+
+    game: Game
+    picture: object = None
+    ap_mode: bool = False
+    op_event = threading.Event()
+    current_state: GameState = GameState.START
 
 
 class State(Static):
     """State machine of the scrabble game"""
 
-    current_state: str = START
+    ctx: GameContext = GameContext(game=Game())
     button_handler = Button
-    game: Game = Game()
-    picture = None
-    op_event = threading.Event()
-    ap_mode = False
-
-    # def __init__(self, cam=None, watch: Optional[ScrabbleWatch] = None, button_handler: Optional[Button] = None) -> None:
-    #     self.current_state: str = START
-    #     self.watch: ScrabbleWatch = watch if watch else ScrabbleWatch()
-    #     self.button_handler: Button = button_handler if button_handler else Button()
-    #     self.cam = cam
-    #     self.last_submit: Optional[Future] = None  # last submit to thread pool; waiting for processing of the last move
-    #     self.game: Game = Game(None)
-    #     self.picture = None
-    #     self.op_event = threading.Event()
 
     @classmethod
     def init(cls) -> None:
@@ -81,183 +76,170 @@ class State(Static):
         cls.do_new_game()
 
     @classmethod
-    def do_ready(cls, next_state: str = START) -> str:
+    def do_ready(cls, next_state: GameState = GameState.START) -> GameState:
         """Game can be started"""
-        logging.debug(f'{cls.game.nicknames}')
-        ScrabbleWatch.display.show_ready(cls.game.nicknames)
-        ScrabbleWatch.display.set_game(cls.game)
-        cls.current_state = next_state
-        return cls.current_state
+        logging.debug(f'{cls.ctx.game.nicknames}')
+        ScrabbleWatch.display.show_ready(cls.ctx.game.nicknames)
+        ScrabbleWatch.display.set_game(cls.ctx.game)
+        return next_state
 
     @classmethod
-    def do_start(cls, player: int, next_state: str) -> str:
+    def do_start(cls, player: int, next_state: GameState) -> GameState:
         """Start playing with player 0/1"""
-        next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
-        logging.info(f'{cls.current_state} - (start) -> {next_state}')
         ScrabbleWatch.start(player)
-        LED.switch_on(next_led)  # turn on LED red
+        LED.switch(on=PLAYER_LEDS[player])
         ScrabbleWatch.display.render_display(0, (0, 0), (0, 0))
         ScrabbleWatch.display.render_display(1, (0, 0), (0, 0))
         return next_state
 
     @classmethod
-    def do_move(cls, player: int, next_state: str) -> str:
+    def do_move(cls, player: int, next_state: GameState) -> GameState:
         """analyze players 0/1 move"""
         next_player = abs(player - 1)
-        next_led = ({LEDEnum.green}, {LEDEnum.red})[next_player]
-        logging.info(f'{cls.current_state} - (move) -> {next_state}')
-        _, (time0, time1), _ = ScrabbleWatch.status()
+        _, played_time, _ = ScrabbleWatch.status()
         ScrabbleWatch.start(next_player)
-        LED.switch_on(next_led)  # turn on next player LED
-        cls.picture = camera.cam.read().copy()
-        try:
-            command_queue.put_nowait(Command(move, cls.game, cls.picture, player, (time0, time1), cls.op_event))
-        except Exception as oops:  # pylint: disable=broad-exception-caught
-            logging.debug(f'ignoring exception {oops}')
+        LED.switch(on=PLAYER_LEDS[next_player])
+        cls.ctx.picture = camera.cam.read().copy()
+        with suppress(Exception):
+            command_queue.put_nowait(Command(move, cls.ctx.game, cls.ctx.picture, player, played_time, cls.ctx.op_event))
         return next_state
 
     @classmethod
-    def do_pause(cls, next_state: str) -> str:
+    def do_pause(cls, next_state: GameState) -> GameState:
         """pause pressed while player 0 is active"""
-        logging.info(f'{cls.current_state} - (pause) -> {next_state}')
         ScrabbleWatch.pause()
-        LED.switch_on({LEDEnum.yellow})  # turn on player pause LED
+        LED.switch(on={LEDEnum.yellow})
         return next_state
 
     @classmethod
-    def do_resume(cls, player: int, next_state: str) -> str:
+    def do_resume(cls, player: int, next_state: GameState) -> GameState:
         """resume from pause while player 0 is active"""
-        next_led = ({LEDEnum.green}, {LEDEnum.red})[player]
-        logging.info(f'{cls.current_state} - (resume) -> {next_state}')
         ScrabbleWatch.resume()
-        LED.switch_on(next_led)  # turn on player LED
-        cls.picture = camera.cam.read(peek=True).copy()
-        command_queue.put_nowait(Command(check_resume, cls.game, cls.picture, cls.op_event))
+        LED.switch(on=PLAYER_LEDS[player])
+        with suppress(Exception):
+            cls.ctx.picture = camera.cam.read(peek=True).copy()
+            command_queue.put_nowait(Command(check_resume, cls.ctx.game, cls.ctx.picture, cls.ctx.op_event))
         return next_state
 
     @classmethod
-    def do_valid_challenge(cls, player: int, next_state: str) -> str:
+    def do_valid_challenge(cls, player: int, next_state: GameState) -> GameState:
         """player 0/1 has a valid challenge for the last move from player 1/0"""
-        logging.info(f'{cls.current_state} - (valid challenge) -> {next_state}')
         _, played_time, current = ScrabbleWatch.status()
         if current[player] > config.scrabble.doubt_timeout:
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.warning(f'valid challenge after timeout {current[0]}')
         ScrabbleWatch.display.add_remove_tiles(player, played_time, current)  # player 1 has to remove the last move
-        command_queue.put_nowait(Command(valid_challenge, cls.game, cls.op_event))
-        LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
-        LED.blink_on(({LEDEnum.green}, {LEDEnum.red})[player], switch_off=False)
+        with suppress(Exception):
+            command_queue.put_nowait(Command(valid_challenge, cls.ctx.game, cls.ctx.op_event))
+        LED.switch(on={LEDEnum.yellow}, blink=PLAYER_LEDS[player])
         return next_state
 
     @classmethod
-    def do_invalid_challenge(cls, player: int, next_state: str) -> str:
+    def do_invalid_challenge(cls, player: int, next_state: GameState) -> GameState:
         """player 0/1 has an invalid challenge for the last move from player 1/0"""
-        logging.info(f'{cls.current_state} - (invalid challenge) -> {next_state} (-{config.scrabble.malus_doubt:2d})')  # -10
         _, played_time, current = ScrabbleWatch.status()
         if current[player] > config.scrabble.doubt_timeout:
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
             logging.warning(f'invalid challenge after timeout {current[player]}')
         ScrabbleWatch.display.add_malus(player, played_time, current)  # player 0 gets a malus
-        command_queue.put_nowait(Command(invalid_challenge, cls.game, cls.op_event))
-        LED.switch_on({LEDEnum.yellow})  # turn on player LED (blink), yellow
-        LED.blink_on(({LEDEnum.green}, {LEDEnum.red})[player], switch_off=False)
+        with suppress(Exception):
+            command_queue.put_nowait(Command(invalid_challenge, cls.ctx.game, cls.ctx.op_event))
+        LED.switch(on={LEDEnum.yellow}, blink=PLAYER_LEDS[player])
         return next_state
 
     @classmethod
-    def do_new_game(cls, next_state: str = START) -> str:
+    def do_new_game(cls) -> GameState:
         """Starts a new game"""
-        from contextlib import suppress
-
+        cls.ctx.current_state = GameState.BLOCKING
+        LED.switch(on={LEDEnum.green, LEDEnum.red})
+        cls.ctx.picture = None
+        ScrabbleWatch.reset()
         with suppress(Exception):
-            cls.current_state = BLOCKING
-            LED.switch_on({LEDEnum.green, LEDEnum.red})
-            cls.picture = None
-            ScrabbleWatch.reset()
-            new_game(cls.game, cls.op_event)
-            ScrabbleWatch.display.show_ready(cls.game.nicknames)
-        cls.current_state = next_state
-        return cls.current_state
+            new_game(cls.ctx.game, cls.ctx.op_event)
+        ScrabbleWatch.display.show_ready(cls.ctx.game.nicknames)
+        cls.ctx.current_state = GameState.START  # method called from outside (api_server)
+        return cls.ctx.current_state
 
     @classmethod
-    def do_end_of_game(cls, next_state: str = EOG) -> str:
+    def do_end_of_game(cls) -> GameState:
         """Resets state and game to default"""
-        from contextlib import suppress
-
-        logging.info(f'{cls.current_state} - (reset) -> {next_state}')
-
-        cls.current_state = BLOCKING
-        LED.switch_on(set())
+        cls.ctx.current_state = GameState.BLOCKING
+        LED.switch()
         ScrabbleWatch.display.show_ready(('end of', 'game'))
         player, _, _ = ScrabbleWatch.status()
         picture = None
         with suppress(Exception):
             picture = camera.cam.read(peek=True).copy()
         with suppress(Exception):
-            command_queue.put_nowait(Command(end_of_game, game=cls.game, image=picture, player=player, event=cls.op_event))
-
+            command_queue.put_nowait(
+                Command(end_of_game, game=cls.ctx.game, image=picture, player=player, event=cls.ctx.op_event)
+            )
         command_queue.join()  # wait for finishing tasks
-        with suppress(Exception):
-            ScrabbleWatch.display.show_end_of_game()
-        LED.blink_on({LEDEnum.yellow})
-        event_set(cls.op_event)
-        cls.current_state = next_state
-        return cls.current_state
+        ScrabbleWatch.display.show_end_of_game()
+        LED.switch(blink={LEDEnum.yellow})
+        event_set(cls.ctx.op_event)
+        cls.ctx.current_state = GameState.EOG  # method called from outside (api_server)
+        return cls.ctx.current_state
 
     @classmethod
-    def do_reboot(cls) -> str:  # pragma: no cover
+    def do_reboot(cls) -> GameState:  # pragma: no cover
         """Perform a reboot"""
-        from contextlib import suppress
-
-        logging.info(f'{cls.current_state} - (reboot) -> {START}')
-        cls.current_state = BLOCKING
+        cls.ctx.current_state = GameState.BLOCKING
+        ScrabbleWatch.display.show_boot()
+        LED.switch()
         with suppress(Exception):
-            ScrabbleWatch.display.show_boot()  # Display message REBOOT
-            LED.switch_on(set())
-            end_of_game(cls.game)
+            end_of_game(cls.ctx.game)
         ScrabbleWatch.display.stop()
-        cls.current_state = START
+        cls.ctx.current_state = GameState.START  # method called from outside (api_server)
         alarm(1)  # raise alarm for reboot
-        return cls.current_state
+        return cls.ctx.current_state
 
-    # pylint: disable=duplicate-code
     @classmethod
-    def do_accesspoint(cls, next_state: str = START) -> str:  # pragma: no cover
+    def do_accesspoint(cls) -> GameState:  # pragma: no cover
         """Switch to AP Mode"""
         import subprocess
 
         ScrabbleWatch.display.show_ready(('switch', 'AP'))
-        cls.ap_mode = not cls.ap_mode
-        logging.info(f'{cls.current_state} - (switch to AP Mode) -> {AP}')
-        cmd = ['sudo', '-n', '/usr/bin/nmcli', 'connection', 'up' if cls.ap_mode else 'down', 'ScrabScrap']
+        cls.ctx.ap_mode = not cls.ctx.ap_mode
+        cmd = ['sudo', '-n', '/usr/bin/nmcli', 'connection', 'up' if cls.ctx.ap_mode else 'down', 'ScrabScrap']
         logging.debug(f'switch to AP {cmd=}')
         ret = subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if ret.returncode == 0:
-            if cls.ap_mode:
-                LED.switch_on(set())
+            if cls.ctx.ap_mode:
+                LED.switch()
                 sleep(5)
-                ScrabbleWatch.display.show_accesspoint()  # Display message AP Mode
+                ScrabbleWatch.display.show_accesspoint()
             else:
                 sleep(5)
-                LED.switch_on({LEDEnum.green, LEDEnum.red})
+                LED.switch(on={LEDEnum.green, LEDEnum.red})
                 ScrabbleWatch.display.show_ready()
-        cls.current_state = next_state
-        return cls.current_state
+        cls.ctx.current_state = GameState.START  # method called from outside (api_server)
+        return cls.ctx.current_state
 
     @classmethod
     def press_button(cls, button: str) -> None:
-        """process button press
+        """Process button press
 
-        before sending the next event, press button will wait for self.bounce
+        Args:
+            button: Button identifier that was pressed
         """
         try:
-            try:
-                cls.current_state = cls.state[(cls.current_state, button)]()
-            except Exception as oops:  # pylint: disable=broad-exception-caught
-                logging.warning(f'ignore invalid exception on button handling {oops}')
-            event_set(cls.op_event)
-            logging.info(f'{button}')
+            logging.debug(f'-> button {button} pressed at {cls.ctx.current_state}')
+            # Get state transitions for current state
+            state_transitions = cls.transitions.get(cls.ctx.current_state, {})
+            # Get specific transition for button
+            transition_func = state_transitions.get(ButtonEnum[button])
+            if transition_func is None:
+                logging.warning(f'Invalid transition: {button} at {cls.ctx.current_state}')
+                return
+            # Execute transition function and update state
+            cls.ctx.current_state = transition_func()
+            logging.debug(f'-> new {cls.ctx.current_state}')
         except KeyError:
-            logging.warning('Key Error - ignore')
+            logging.warning(f'Key Error: {button} at {cls.ctx.current_state} - ignored')
+        except Exception as oops:  # pylint: disable=broad-exception-caught
+            logging.warning(f'ignore invalid exception on button handling {oops}')
+        event_set(cls.ctx.op_event)
 
     # unused:
     # @classmethod
@@ -269,31 +251,43 @@ class State(Static):
 
     # START, pause => not supported
     # pylint: disable=unnecessary-lambda
-    state: dict[tuple[str, str], Callable] = {
-        (START, GREEN): lambda: State.do_start(player=1, next_state=S1),
-        (START, RED): lambda: State.do_start(player=0, next_state=S0),
-        (START, RESET): lambda: State.do_new_game(next_state=START),
-        (START, REBOOT): lambda: State.do_reboot(),
-        (START, AP): lambda: State.do_accesspoint(next_state=START),
-        (S0, GREEN): lambda: State.do_move(player=0, next_state=S1),
-        (S0, YELLOW): lambda: State.do_pause(next_state=P0),
-        (P0, RED): lambda: State.do_resume(player=0, next_state=S0),
-        (P0, YELLOW): lambda: State.do_resume(player=0, next_state=S0),
-        (P0, DOUBT0): lambda: State.do_valid_challenge(player=0, next_state=P0),
-        (P0, DOUBT1): lambda: State.do_invalid_challenge(player=0, next_state=P0),
-        (P0, RESET): lambda: State.do_end_of_game(next_state=EOG),
-        (P0, REBOOT): lambda: State.do_reboot(),
-        (S1, RED): lambda: State.do_move(player=1, next_state=S0),
-        (S1, YELLOW): lambda: State.do_pause(next_state=P1),
-        (P1, GREEN): lambda: State.do_resume(player=1, next_state=S1),
-        (P1, YELLOW): lambda: State.do_resume(player=1, next_state=S1),
-        (P1, DOUBT1): lambda: State.do_valid_challenge(player=1, next_state=P1),
-        (P1, DOUBT0): lambda: State.do_invalid_challenge(player=1, next_state=P1),
-        (P1, RESET): lambda: State.do_end_of_game(next_state=EOG),
-        (P1, REBOOT): lambda: State.do_reboot(),
-        (EOG, GREEN): lambda: State.do_new_game(next_state=START),
-        (EOG, RED): lambda: State.do_new_game(next_state=START),
-        (EOG, YELLOW): lambda: State.do_new_game(next_state=START),
-        (EOG, REBOOT): lambda: State.do_reboot(),
-        (EOG, AP): lambda: State.do_accesspoint(next_state=START),
+    transitions: dict[GameState, dict[ButtonEnum, Callable]] = {
+        GameState.START: {
+            ButtonEnum.GREEN: lambda: State.do_start(player=1, next_state=GameState.S1),
+            ButtonEnum.RED: lambda: State.do_start(player=0, next_state=GameState.S0),
+            ButtonEnum.RESET: lambda: State.do_new_game(),
+            ButtonEnum.REBOOT: lambda: State.do_reboot(),
+            ButtonEnum.AP: lambda: State.do_accesspoint(),
+        },
+        GameState.S0: {
+            ButtonEnum.GREEN: lambda: State.do_move(player=0, next_state=GameState.S1),
+            ButtonEnum.YELLOW: lambda: State.do_pause(next_state=GameState.P0),
+        },
+        GameState.P0: {
+            ButtonEnum.RED: lambda: State.do_resume(player=0, next_state=GameState.S0),
+            ButtonEnum.YELLOW: lambda: State.do_resume(player=0, next_state=GameState.S0),
+            ButtonEnum.DOUBT0: lambda: State.do_valid_challenge(player=0, next_state=GameState.P0),
+            ButtonEnum.DOUBT1: lambda: State.do_invalid_challenge(player=0, next_state=GameState.P0),
+            ButtonEnum.RESET: lambda: State.do_end_of_game(),
+            ButtonEnum.REBOOT: lambda: State.do_reboot(),
+        },
+        GameState.S1: {
+            ButtonEnum.RED: lambda: State.do_move(player=1, next_state=GameState.S0),
+            ButtonEnum.YELLOW: lambda: State.do_pause(next_state=GameState.P1),
+        },
+        GameState.P1: {
+            ButtonEnum.GREEN: lambda: State.do_resume(player=1, next_state=GameState.S1),
+            ButtonEnum.YELLOW: lambda: State.do_resume(player=1, next_state=GameState.S1),
+            ButtonEnum.DOUBT0: lambda: State.do_invalid_challenge(player=1, next_state=GameState.P1),
+            ButtonEnum.DOUBT1: lambda: State.do_valid_challenge(player=1, next_state=GameState.P1),
+            ButtonEnum.RESET: lambda: State.do_end_of_game(),
+            ButtonEnum.REBOOT: lambda: State.do_reboot(),
+        },
+        GameState.EOG: {
+            ButtonEnum.GREEN: lambda: State.do_new_game(),
+            ButtonEnum.RED: lambda: State.do_new_game(),
+            ButtonEnum.YELLOW: lambda: State.do_new_game(),
+            ButtonEnum.REBOOT: lambda: State.do_reboot(),
+            ButtonEnum.AP: lambda: State.do_accesspoint(),
+        },
     }

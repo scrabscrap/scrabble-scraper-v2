@@ -60,7 +60,7 @@ from processing import (
 )
 from scrabble import MoveType
 from scrabblewatch import ScrabbleWatch
-from state import EOG, START, State
+from state import GameState, State
 from threadpool import Command, command_queue, pool
 from upload_impl import upload_config
 
@@ -105,8 +105,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     and (player1.casefold() != player2.casefold())
                 ):
                     logging.info(f'set {player1=} / {player2=}')
-                    State.game.set_player_names(player1, player2)
-                    event_set(State.op_event)
+                    State.ctx.game.set_player_names(player1, player2)
+                    event_set(State.ctx.op_event)
                 else:
                     logging.warning(f'can not set: {request.form.get("player1")}/{request.form.get("player2")}')
             elif request.form.get('btntournament'):
@@ -119,7 +119,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 else:
                     logging.warning(f'can not set: {tournament=}')
             return redirect('/index')
-        (player1, player2) = State.game.nicknames
+        (player1, player2) = State.ctx.game.nicknames
         tournament = config.scrabble.tournament
         # fall through: request.method == 'GET':
         return render_template('index.html', apiserver=ApiServer, player1=player1, player2=player2, tournament=tournament)
@@ -342,7 +342,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             return str(_col + 1) + chr(ord('A') + _row) if is_vertical else chr(ord('A') + _row) + str(_col + 1)
 
         ApiServer._clear_message()
-        game = State.game
+        game = State.ctx.game
         move_number = request.form.get('move.move', type=int)
         if request.method == 'POST':  # pylint: disable=too-many-nested-blocks
             if request.form.get('btnblanko'):
@@ -354,7 +354,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     char = char.lower()
                     ApiServer.last_msg = f'set blanko: {coord} = {char}'
                     logging.info(ApiServer.last_msg)
-                    command_queue.put_nowait(Command(set_blankos, State.game, coord, char, State.op_event))
+                    command_queue.put_nowait(Command(set_blankos, State.ctx.game, coord, char, State.ctx.op_event))
                 else:
                     ApiServer.last_msg = 'invalid character for blanko'
                     logging.warning(ApiServer.last_msg)
@@ -362,35 +362,35 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 if coord := request.form.get('coord'):
                     ApiServer.last_msg = f'delete blanko: {coord}'
                     logging.info(ApiServer.last_msg)
-                    command_queue.put_nowait(Command(remove_blanko, State.game, coord, State.op_event))
+                    command_queue.put_nowait(Command(remove_blanko, State.ctx.game, coord, State.ctx.op_event))
             elif request.form.get('btninsmoves'):
                 logging.debug('in btninsmove')
                 if move_number and (0 < move_number <= len(game.moves)):
                     ApiServer.last_msg = f'insert two exchanges before move# {move_number}'
                     logging.info(ApiServer.last_msg)
-                    command_queue.put_nowait(Command(admin_insert_moves, State.game, move_number, State.op_event))
+                    command_queue.put_nowait(Command(admin_insert_moves, State.ctx.game, move_number, State.ctx.op_event))
                 else:
                     ApiServer.last_msg = f'invalid move {move_number}'
                     logging.warning(ApiServer.last_msg)
             elif request.form.get('btndelchallenge') and move_number:
                 ApiServer.last_msg = f'delete challenge {move_number=}'
                 logging.info(ApiServer.last_msg)
-                command_queue.put_nowait(Command(admin_del_challenge, State.game, move_number, State.op_event))
+                command_queue.put_nowait(Command(admin_del_challenge, State.ctx.game, move_number, State.ctx.op_event))
             elif request.form.get('btntogglechallenge') and move_number:
                 ApiServer.last_msg = f'toggle challenge type on move {move_number}'
                 logging.info(ApiServer.last_msg)
-                command_queue.put_nowait(Command(admin_toggle_challenge_type, State.game, move_number, State.op_event))
+                command_queue.put_nowait(Command(admin_toggle_challenge_type, State.ctx.game, move_number, State.ctx.op_event))
             elif request.form.get('btninswithdraw') and move_number:
                 ApiServer.last_msg = f'insert withdraw for move {move_number}'
                 logging.info(ApiServer.last_msg)
                 command_queue.put_nowait(
-                    Command(admin_ins_challenge, State.game, move_number, MoveType.WITHDRAW, State.op_event)
+                    Command(admin_ins_challenge, State.ctx.game, move_number, MoveType.WITHDRAW, State.ctx.op_event)
                 )
             elif request.form.get('btninschallenge') and move_number:
                 ApiServer.last_msg = f'insert invalid challenge for move {move_number}'
                 logging.info(ApiServer.last_msg)
                 command_queue.put_nowait(
-                    Command(admin_ins_challenge, State.game, move_number, MoveType.CHALLENGE_BONUS, State.op_event)
+                    Command(admin_ins_challenge, State.ctx.game, move_number, MoveType.CHALLENGE_BONUS, State.ctx.op_event)
                 )
             elif request.form.get('btnmove'):
                 if move_number and (0 < move_number <= len(game.moves)):
@@ -405,7 +405,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         vert, (col, row) = move.calc_coord(coord)
                         if re.compile('[A-ZÜÄÖ_\\.]+').fullmatch(word):  # valide word
                             command_queue.put_nowait( Command( admin_change_move,
-                                    State.game, move_number, MoveType.REGULAR, (col, row), vert, word, State.op_event
+                                    State.ctx.game, move_number, MoveType.REGULAR, (col, row), vert, word, State.ctx.op_event
                                 ))  # fmt: off
                             ApiServer.last_msg = f'edit move #{move_number}: {move.type.name} => {move_type}'
                             logging.info(ApiServer.last_msg)
@@ -414,7 +414,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                             logging.info(ApiServer.last_msg)
                     elif move_type == MoveType.EXCHANGE.name:
                         command_queue.put_nowait(
-                            Command(admin_change_move, State.game, move_number, MoveType.EXCHANGE, event=State.op_event)
+                            Command(admin_change_move, State.ctx.game, move_number, MoveType.EXCHANGE, event=State.ctx.op_event)
                         )
                         ApiServer.last_msg = f'change move {move_number} to exchange'
                         logging.info(ApiServer.last_msg)
@@ -458,7 +458,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         left = f'-{minutes:1d}:{seconds:02d}' if 1800 - time0 < 0 else f'{minutes:02d}:{seconds:02d}'
         minutes, seconds = divmod(abs(1800 - time1), 60)
         right = f'-{minutes:1d}:{seconds:02d}' if 1800 - time1 < 0 else f'{minutes:02d}:{seconds:02d}'
-        return render_template('button.html', apiserver=ApiServer, state=State.current_state, left=left, right=right)
+        return render_template('button.html', apiserver=ApiServer, state=State.ctx.current_state, left=left, right=right)
 
     @staticmethod
     @app.route('/end_game', methods=['POST', 'GET'])
@@ -471,7 +471,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/new_game', methods=['POST', 'GET'])
     def do_new_game():
         """start new game game"""
-        if State.current_state not in (EOG, START):
+        if State.ctx.current_state not in (GameState.EOG, GameState.START):
             State.do_end_of_game()
         State.do_new_game()
         return redirect('/index')
@@ -747,7 +747,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def do_test_display():
         """start simple display test"""
 
-        if State.current_state == 'START':
+        if State.ctx.current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
             logging.debug('run display test')
             ScrabbleWatch.display.show_boot()
@@ -771,7 +771,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         from processing import ANALYZE_THREADS, analyze_threads, filter_image
         from scrabble import board_to_string
 
-        if State.current_state in ('START', 'EOG', 'P0', 'P1'):
+        if State.ctx.current_state in (GameState.START, GameState.EOG, GameState.P0, GameState.P1):
             log_message = 'run analyze test'
 
             ApiServer.flask_shutdown_blocked = True
@@ -836,7 +836,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """start simple led test"""
         from hardware.led import LED, LEDEnum
 
-        if State.current_state == 'START':
+        if State.ctx.current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
             logging.debug('run LED test')
             LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
@@ -889,7 +889,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """start scrabscrap upgrade"""
         from hardware.led import LED, LEDEnum
 
-        if State.current_state == 'START':
+        if State.ctx.current_state == 'START':
             LED.blink_on({LEDEnum.yellow})
             ScrabbleWatch.display.show_ready(('Update...', 'pls wait'))
             os.system(
@@ -927,37 +927,39 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/game_status', methods=['POST', 'GET'])
     def game_status():
         """get request to current game state"""
-        return State.game.json_str(), 201
+        return State.ctx.game.json_str(), 201
 
     @sock.route('/ws_status')
     def echo(sock):  # pylint: disable=no-self-argument
         """websocket endpoint"""
         logging.debug('call /ws_status')
         while True:
-            if State.op_event.is_set():
-                State.op_event.clear()
+            if State.ctx.op_event.is_set():
+                State.ctx.op_event.clear()
             _, (clock1, clock2), _ = ScrabbleWatch.status()
             clock1 = config.scrabble.max_time - clock1
             clock2 = config.scrabble.max_time - clock2
-            jsonstr = State.game.json_str()
-            # logging.debug(f'send socket {State.current_state} clock1 {clock1} clock2: {clock2}')
+            jsonstr = State.ctx.game.json_str()
+            # logging.debug(f'send socket {State.ctx.current_state} clock1 {clock1} clock2: {clock2}')
             try:
-                if (State.current_state in ['S0', 'S1', 'P0', 'P1']) and State.picture is not None:
-                    _, im_buf_arr = cv2.imencode('.jpg', State.picture)
+                if (
+                    State.ctx.current_state in [GameState.S0, GameState.S1, GameState.P0, GameState.P1]
+                ) and State.ctx.picture is not None:
+                    _, im_buf_arr = cv2.imencode('.jpg', State.ctx.picture)  # type: ignore
                     png_output = base64.b64encode(bytes(im_buf_arr))
                     # logging.debug('b64encode')
                     sock.send(  # type:ignore[no-member] # pylint: disable=no-member
-                        f'{{"op": "{State.current_state}", '
+                        f'{{"op": "{State.ctx.current_state}", '
                         f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}'
                     )
                 else:
                     sock.send(  # type: ignore[no-member] # pylint: disable=no-member
-                        f'{{"op": "{State.current_state}", "clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}'
+                        f'{{"op": "{State.ctx.current_state}", "clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}'
                     )
             except ConnectionClosed:
                 logging.debug('connection closed /ws_status')
                 return
-            State.op_event.wait()
+            State.ctx.op_event.wait()
 
     def start_server(self, host: str = '0.0.0.0', port=5050, simulator=False):
         """start flask server"""

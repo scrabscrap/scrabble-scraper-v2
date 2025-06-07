@@ -31,6 +31,7 @@ from time import sleep
 from config import config
 from hardware import camera
 from scrabble import MoveRegular
+from state import GameState
 from threadpool import command_queue
 
 PROFILE = False
@@ -188,7 +189,7 @@ class GameRunnerTestCase(unittest.TestCase):
         camera.cam.counter = 1  # type: ignore
         camera.cam.resize = False  # type: ignore
         State.do_new_game()
-        State.game.nicknames = (name1, name2)
+        State.ctx.game.nicknames = (name1, name2)
         State.press_button(start_button.upper())  # green begins
 
         # run test: loop csv
@@ -202,33 +203,35 @@ class GameRunnerTestCase(unittest.TestCase):
                 sleep(0.01)
 
                 self.assertEqual(
-                    row['State'].upper(), State.current_state, f'invalid state {State.current_state} at move {int(row["Move"])}'
+                    GameState[row['State'].upper()],
+                    State.ctx.current_state,
+                    f'invalid state {State.ctx.current_state} at move {int(row["Move"])}',
                 )
-                if State.current_state not in ('P0', 'P1'):
+                if State.ctx.current_state not in (GameState.P0, GameState.P1, GameState.EOG):
                     command_queue.join()
                     self.assertEqual(
                         int(row['Points']),
-                        State.game.moves[-1].points,
-                        f'invalid points {State.game.moves[-1].points} at move {int(row["Move"])}',
+                        State.ctx.game.moves[-1].points,
+                        f'invalid points {State.ctx.game.moves[-1].points} at move {int(row["Move"])}',
                     )
                     self.assertEqual(
                         int(row['Score1']),
-                        State.game.moves[-1].score[0],
-                        f'invalid score 1 {State.game.moves[-1].score[0]} at move {int(row["Move"])}',
+                        State.ctx.game.moves[-1].score[0],
+                        f'invalid score 1 {State.ctx.game.moves[-1].score[0]} at move {int(row["Move"])}',
                     )
                     self.assertEqual(
                         int(row['Score2']),
-                        State.game.moves[-1].score[1],
-                        f'invalid score 2 {State.game.moves[-1].score[1]} at move {int(row["Move"])}',
+                        State.ctx.game.moves[-1].score[1],
+                        f'invalid score 2 {State.ctx.game.moves[-1].score[1]} at move {int(row["Move"])}',
                     )
-                    if isinstance(State.game.moves[-1], (MoveRegular)):
+                    if isinstance(State.ctx.game.moves[-1], (MoveRegular)):
                         self.assertEqual(
                             row['Word'],
-                            State.game.moves[-1].word,
-                            f'invalid word {State.game.moves[-1].word} at move {int(row["Move"])}',
+                            State.ctx.game.moves[-1].word,
+                            f'invalid word {State.ctx.game.moves[-1].word} at move {int(row["Move"])}',
                         )
                 logging.warning(f'qsize={command_queue.qsize()}')
-            if State.current_state not in ('EOG'):
+            if State.ctx.current_state != GameState.EOG:
                 State.do_end_of_game()
         logging.info(f'### end of tests {file} ###')
         if PROFILE:

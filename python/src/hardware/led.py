@@ -18,7 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import atexit
 import platform
-from typing import Set
+from typing import Optional, Set
 
 from gpiozero import LED as GpioLED, Device
 
@@ -48,6 +48,17 @@ class LEDEnum:  # pylint: disable=too-few-public-methods
 
 class LED:
     """Implementation of LED access"""
+
+    @staticmethod
+    def switch(on: Optional[Set[GpioLED]] = None, blink: Optional[Set[GpioLED]] = None) -> None:
+        """switch leds on/off/blink"""
+        to_turn_off = LEDEnum.set() - (on or set()) - (blink or set())
+        for i in to_turn_off:
+            i.off()
+        for i in on or set():
+            i.on()
+        for i in blink or set():
+            i.blink(on_time=0.5, off_time=0.5)  # type: ignore # wrong in func definition
 
     @staticmethod
     def switch_on(leds: Set[GpioLED], switch_off: bool = True) -> None:

@@ -146,7 +146,7 @@ def simulator() -> str:
     right = f'-{minutes:1d}:{seconds:02d}' if 1800 - time1 < 0 else f'{minutes:02d}:{seconds:02d}'
     # get current picture
     png_current = None
-    game = State.game
+    game = State.ctx.game
     if (len(game.moves) > 0) and (game.moves[-1].img is not None):
         _, pic_buf_arr = cv2.imencode('.jpg', game.moves[-1].img)
         png_current = urllib.parse.quote(base64.b64encode(bytes(pic_buf_arr)))
