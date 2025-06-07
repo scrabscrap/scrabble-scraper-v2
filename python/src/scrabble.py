@@ -732,7 +732,7 @@ class Game:  # pylint: disable=too-many-public-methods
         """add exchange move at move index (index)"""
         if not self.valid_index(index=index):
             raise IndexError(f'add challenge at: invalid index {index}')
-        player1, player2 = (self.moves[index].player, (self.moves[index].player + 1) % 2)
+        player1, player2 = (self.moves[index].player, abs(self.moves[index].player - 1))
         played_time = self.moves[index - 1].played_time if index > 0 else (0, 0)
         img = self.moves[index].img.copy() if self.moves[index].img is not None else None  # type: ignore[attr-defined,union-attr]
         return self.insert_moves_at( index,
@@ -750,7 +750,7 @@ class Game:  # pylint: disable=too-many-public-methods
             logging.warning(f'(challenge not allowed: {str(move_to_challenge)}')
             return self
 
-        player = (move_to_challenge.player + 1) % 2
+        player = abs(move_to_challenge.player - 1)
         played_time = move_to_challenge.played_time
         m = MoveChallenge(game=self, player=player, played_time=played_time, previous_move=move_to_challenge)
         if index in (-1, len(self.moves) - 1):
@@ -777,7 +777,7 @@ class Game:  # pylint: disable=too-many-public-methods
     def toggle_challenge_type(self, index: int) -> Game:
         """toogle challenge"""
         to_change = self.moves[index]
-        player = (to_change.player + 1) % 2
+        player = abs(to_change.player - 1)
         if isinstance(to_change, MoveChallenge):
             self.moves[index] = MoveWithdraw(game=self, player=player, played_time=to_change.played_time,
                                         img=to_change.img, previous_move=to_change.previous_move)  # fmt:off
