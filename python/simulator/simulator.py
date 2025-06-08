@@ -21,7 +21,6 @@ import logging
 import logging.config
 import os
 import urllib.parse
-from time import sleep
 
 import cv2
 from flask import redirect, render_template, request, url_for
@@ -34,7 +33,7 @@ from hardware import camera
 from hardware.led import LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
-from threadpool import pool
+from threadpool import command_queue, pool
 from timer_thread import RepeatedTimer
 
 Device.pin_factory = MockFactory()
@@ -48,12 +47,14 @@ list_of_dir: list[str] = []
 def doubt0():
     """simulate doubt player 0"""
     State.press_button('DOUBT0')
+    command_queue.join()
     return redirect(url_for('simulator'))
 
 
 def doubt1():
     """simulate doubt player 1"""
     State.press_button('DOUBT1')
+    command_queue.join()
     return redirect(url_for('simulator'))
 
 
@@ -63,7 +64,7 @@ def green():
 
     current_counter = camera.cam.counter  # type: ignore
     State.press_button('GREEN')
-    sleep(0.01)
+    command_queue.join()
     return redirect(url_for('simulator'))
 
 
@@ -73,19 +74,21 @@ def red():
 
     current_counter = camera.cam.counter  # type: ignore
     State.press_button('RED')
-    sleep(0.01)
+    command_queue.join()
     return redirect(url_for('simulator'))
 
 
 def yellow():
     """simulate press yellow button"""
     State.press_button('YELLOW')
+    command_queue.join()
     return redirect(url_for('simulator'))
 
 
 def reset():
     """simulate press reset"""
     State.press_button('RESET')
+    command_queue.join()
     camera.cam.counter = 1  # type: ignore
     return redirect(url_for('simulator'))
 
