@@ -45,6 +45,8 @@ from util import TWarp
 
 THRESHOLD_MAX_DIFF = 70
 
+logger = logging.getLogger(__name__)
+
 
 class CustomBoard:
     """Implementation custom scrabble board analysis"""
@@ -115,7 +117,7 @@ class CustomBoard:
             alpha = min(diff / THRESHOLD_MAX_DIFF, 1.0)
             final_thresh = alpha * threshold_center + (1 - alpha) * threshold_board
 
-            logging.debug(f'{threshold_center=} {threshold_board=} use={int(final_thresh)}')
+            logger.debug(f'{threshold_center=} {threshold_board=} use={int(final_thresh)}')
             _, thresh = cv2.threshold(gray_blur, int(final_thresh), 255, cv2.THRESH_BINARY_INV)
             return thresh
 
@@ -145,9 +147,9 @@ class CustomBoard:
                 if number_of_not_black_pix > config.board.tiles_threshold:
                     candidates.add((col, row))
         result = None
-        if logging.getLogger().isEnabledFor(logging.DEBUG):
-            logging.debug(f'filtered pixels:\n{cls.log_pixels(filtered_pixels=filtered_pixels)}')
-            logging.debug(f'candidates:\n{cls.log_candidates(candidates=candidates)}')
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f'filtered pixels:\n{cls.log_pixels(filtered_pixels=filtered_pixels)}')
+            logger.debug(f'candidates:\n{cls.log_candidates(candidates=candidates)}')
         return result, candidates
 
     @staticmethod
@@ -300,9 +302,9 @@ def main():  # pragma: no cover # pylint: disable=too-many-locals
     ]
 
     config.config.set('development', 'recording', 'True')
-    logging.error('#####################################################')
-    logging.error('# err-11.jpg, err-dark-*.jpg recognised with errors #')
-    logging.error('#####################################################')
+    logger.error('#####################################################')
+    logger.error('# err-11.jpg, err-dark-*.jpg recognised with errors #')
+    logger.error('#####################################################')
     for fn in files:
         image = cv2.imread(fn)
         warped = CustomBoard.warp(image)

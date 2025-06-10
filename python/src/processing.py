@@ -51,6 +51,8 @@ THRESHOLD_UMLAUT_BONUS = 2
 UMLAUTS = ('Ä', 'Ü', 'Ö')
 ORD_A = ord('A')
 
+logger = logging.getLogger(__name__)
+
 
 def event_set(event: Event | None) -> None:
     """set event and skips set if event is None. Informs the webservice about the end of the task"""
@@ -111,14 +113,14 @@ def analyze(warped_gray: MatLike, board: BoardType, coord_list: set[tuple[int, i
             thresh = int(thresh * 100)
             if _tile.name in UMLAUTS and thresh > suggest_prop - THRESHOLD_UMLAUT_BONUS:
                 thresh = min(MAX_TILE_PROB, thresh + THRESHOLD_UMLAUT_BONUS)  # 2% Bonus for umlauts
-                logging.debug(f'{chr(ORD_A + row)}{col + 1:2} => ({_tile.name},{thresh}) increased prop')
+                logger.debug(f'{chr(ORD_A + row)}{col + 1:2} => ({_tile.name},{thresh}) increased prop')
             if thresh > suggest_prop:
                 suggest_tile, suggest_prop = _tile.name, thresh
         return Tile(letter=suggest_tile, prob=suggest_prop)
 
     def find_tile(gray: MatLike, tile: Tile) -> Tile:
         if tile.prob > THRESHOLD_PROP_BOARD:
-            logging.debug(f'{chr(ORD_A + row)}{col + 1:2}: {tile} ({tile.prob}) tile on board prop > {THRESHOLD_PROP_BOARD} ')
+            logger.debug(f'{chr(ORD_A + row)}{col + 1:2}: {tile} ({tile.prob}) tile on board prop > {THRESHOLD_PROP_BOARD} ')
             return tile
 
         for angle in MATCH_ROTATIONS:
@@ -133,7 +135,7 @@ def analyze(warped_gray: MatLike, board: BoardType, coord_list: set[tuple[int, i
         x, y = get_x_position(col), get_y_position(row)
         segment = warped_gray[y - 15 : y + GRID_H + 15, x - 15 : x + GRID_W + 15]
         board[coord] = find_tile(segment, board.get(coord, Tile('_', BLANK_PROP)))
-        logging.info(f'{chr(ORD_A + row)}{col + 1:2}: {board[coord]}) found')
+        logger.info(f'{chr(ORD_A + row)}{col + 1:2}: {board[coord]}) found')
     return board
 
 
@@ -154,7 +156,7 @@ def analyze_threads(warped_gray: MatLike, board: BoardType, candidates: set[tupl
         for f in done:
             board.update(f.result())
         for e in not_done:
-            logging.error(f'Error during analyze future: {e.exception}')
+            logger.error(f'Error during analyze future: {e.exception}')
     return board
 
 
@@ -162,7 +164,7 @@ def analyze_threads(warped_gray: MatLike, board: BoardType, candidates: set[tupl
 def remove_blanko(game: Game, gcg_coord: str, event: Event | None = None) -> None:
     """remove blank"""
 
-    logging.info(f'remove blanko {gcg_coord}')
+    logger.info(f'remove blanko {gcg_coord}')
     _, coord = gcg_to_coord(gcg_string=gcg_coord)
     game.remove_blank(coordinates=coord)
     event_set(event=event)
@@ -172,7 +174,7 @@ def remove_blanko(game: Game, gcg_coord: str, event: Event | None = None) -> Non
 def set_blankos(game: Game, gcg_coord: str, value: str, event: Event | None = None) -> None:
     """set (lower) char for blanko"""
 
-    logging.info(f'set blanko {gcg_coord} to {value}')
+    logger.info(f'set blanko {gcg_coord} to {value}')
     _, coord = gcg_to_coord(gcg_string=gcg_coord)
     game.replace_blank_with(coordinates=coord, char=value)
     event_set(event=event)
@@ -182,7 +184,7 @@ def set_blankos(game: Game, gcg_coord: str, value: str, event: Event | None = No
 def admin_insert_moves(game: Game, index: int, event: Event | None = None) -> None:
     """insert two exchange moves before move at index"""
 
-    logging.info(f'insert before move index {index}')
+    logger.info(f'insert before move index {index}')
     game.add_two_exchanges_at(index)
     event_set(event=event)
 
@@ -210,10 +212,10 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
             if coord not in previous_board:
                 new_tiles[coord] = Tile(ch, MAX_TILE_PROB)
             coord = (coord[0] + dcol, coord[1] + drow)
-        logging.debug(f'new tiles {index=} {new_tiles=}')
+        logger.debug(f'new tiles {index=} {new_tiles=}')
         game.change_move_at(index, movetype=movetype, new_tiles=new_tiles)
     elif movetype == MoveType.EXCHANGE:
-        logging.debug(f'exchange {index=}')
+        logger.debug(f'exchange {index=}')
         game.change_move_at(index=index, movetype=movetype)
     event_set(event=event)
 
@@ -222,7 +224,7 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
 def admin_del_challenge(game: Game, index: int, event: Event | None = None) -> None:
     """delete challenge move index (index)"""
 
-    logging.info(f'delete challenge at index {index}')
+    logger.info(f'delete challenge at index {index}')
     game.remove_move_at(index)
     event_set(event=event)
 
@@ -231,7 +233,7 @@ def admin_del_challenge(game: Game, index: int, event: Event | None = None) -> N
 def admin_toggle_challenge_type(game: Game, index: int, event: Event | None = None) -> None:
     """toggle challenge type on move number"""
 
-    logging.info(f'toggle challenge at index {index}')
+    logger.info(f'toggle challenge at index {index}')
     game.toggle_challenge_type(index)
     event_set(event=event)
 
@@ -240,7 +242,7 @@ def admin_toggle_challenge_type(game: Game, index: int, event: Event | None = No
 def admin_ins_challenge(game: Game, index: int, move_type: MoveType, event: Event | None = None) -> None:
     """insert invalid challenge or withdraw for move number"""
 
-    logging.info(f'insert challenge at index {index}')
+    logger.info(f'insert challenge at index {index}')
     previous_move = game.moves[index].previous_move
     if previous_move and move_type == MoveType.CHALLENGE_BONUS:
         game.add_challenge_for(index=index)
@@ -267,7 +269,7 @@ def _image_processing(game: Game, img: MatLike) -> tuple[MatLike, dict]:
         ignore_coords = set()
     tiles_candidates |= ignore_coords  # tiles_candidates must contain ignored_coords
     tiles_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)  # remove all tiles without path from (7,7)
-    logging.debug(f'filtered_candidates {tiles_candidates}')
+    logger.debug(f'filtered_candidates {tiles_candidates}')
 
     board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # copy board for analyze
     return warped, analyze_threads(warped_gray, board, tiles_candidates)  # analyze image
@@ -298,7 +300,7 @@ def _move_processing(board: BoardType, previous_board: BoardType) -> tuple[Board
             (min_col, max_col) = (min(set_of_cols), max(set_of_cols))
             (min_row, max_row) = (min(set_of_rows), max(set_of_rows))
             # either columns or rows
-            logging.debug(f'{set_of_cols=} {set_of_rows=} {blanks=} {min_row=} {max_row=} {min_col=} {max_col=}')
+            logger.debug(f'{set_of_cols=} {set_of_rows=} {blanks=} {min_row=} {max_row=} {min_col=} {max_col=}')
             if len(set_of_cols) == 1 and len(set_of_rows) == 1:  # only one tile: remove all blanks not in the column/row
                 new_tiles = {k: v for k, v in new_tiles.items() if k[0] in set_of_cols or k[1] in set_of_rows}
             elif len(set_of_cols) == 1:  # vertical: remove all blanks next to the column
@@ -324,7 +326,7 @@ def _move_processing(board: BoardType, previous_board: BoardType) -> tuple[Board
         for k in removed_tiles:
             del current_board[k]
         if removed_tiles:
-            logging.debug(f'new_tiles={previous_tiles} remaining {new_tiles=}')
+            logger.debug(f'new_tiles={previous_tiles} remaining {new_tiles=}')
         return current_board, new_tiles
 
     new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
@@ -335,7 +337,7 @@ def _move_processing(board: BoardType, previous_board: BoardType) -> tuple[Board
 def _recalculate_score_on_tiles_change(game: Game, changed: BoardType) -> None:
     """fix scores on changed tiles after recognition"""
 
-    logging.info(f'changed tiles: {changed}')
+    logger.info(f'changed tiles: {changed}')
     to_inspect = min(config.scrabble.verify_moves, len(game.moves))
     must_recalculate = False
     for mov in game.moves[-to_inspect:]:
@@ -346,7 +348,7 @@ def _recalculate_score_on_tiles_change(game: Game, changed: BoardType) -> None:
         if must_recalculate:
             mov.setup_board()
             mov.calculate_score()
-            logging.info(f'recalculated score: {str(mov)}')
+            logger.info(f'recalculated score: {str(mov)}')
 
 
 @trace
@@ -356,7 +358,7 @@ def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], ev
 
     def write_original_image(img: MatLike, index: int) -> None:
         image_path = config.path.web_dir / f'image-{index}-camera.jpg'
-        logging.debug(f'write image {image_path!s}')
+        logger.debug(f'write image {image_path!s}')
         with suppress(Exception):
             cv2.imwrite(str(image_path), img, [cv2.IMWRITE_JPEG_QUALITY, 100])  # type:ignore
 
@@ -378,11 +380,11 @@ def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], ev
     if config.development.recording:
         i = len(game.moves) - 1
         pool.submit(write_original_image, img, i)
-    logging.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
-    if logging.getLogger('root').isEnabledFor(logging.DEBUG):
+    logger.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
+    if logger.isEnabledFor(logging.DEBUG):
         msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in game.moves)
         json_str = game.json_str()
-        logging.debug(f'{msg}\napi: {json_str[: json_str.find("moves") + 7]}...\n')
+        logger.debug(f'{msg}\napi: {json_str[: json_str.find("moves") + 7]}...\n')
 
 
 @trace
@@ -398,11 +400,11 @@ def check_resume(game: Game, image: MatLike, event: Event | None = None) -> None
         intersection = set(last_move.new_tiles.keys()) & set(tiles_candidates)
         if intersection == set():  #  empty set => tiles are removed
             valid_challenge(game, event)
-            logging.info('automatic valid challenge after resume')
+            logger.info('automatic valid challenge after resume')
             event_set(event=event)
         # else: # uncomment if you want a invalid challenges as default on resume
         #     invalid_challenge(game, player, played_time, event)
-        #     logging.info(f'automatic invalid challenge (move time {current_time[player]} sec)')
+        #     logger.info(f'automatic invalid challenge (move time {current_time[player]} sec)')
 
 
 @trace
@@ -410,9 +412,9 @@ def check_resume(game: Game, image: MatLike, event: Event | None = None) -> None
 def valid_challenge(game: Game, event: Event | None = None) -> None:
     """Process a valid challenge"""
 
-    logging.info('add withdraw for last move')
+    logger.info('add withdraw for last move')
     game.add_withdraw_for(index=-1, img=game.moves[-1].img)  # type: ignore
-    logging.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
+    logger.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
     event_set(event=event)
 
 
@@ -421,9 +423,9 @@ def valid_challenge(game: Game, event: Event | None = None) -> None:
 def invalid_challenge(game: Game, event: Event | None = None) -> None:
     """Process an invalid challenge"""
 
-    logging.info('add challenge for last move')
+    logger.info('add challenge for last move')
     game.add_challenge_for()
-    logging.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
+    logger.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
     event_set(event=event)
 
 
@@ -460,19 +462,19 @@ def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, even
             warped, _ = warp_image(image)
             _, tiles_candidates = filter_image(warped)
             if set(last_move.board.keys()) != set(tiles_candidates):  #  candidates differ from last image
-                logging.info(f'automatic move (player {player})')
+                logger.info(f'automatic move (player {player})')
                 move(game, image, player, last_move.played_time, event)
 
         game.add_timeout_malus()  # add as move
         game.add_lastrack()
         event_set(event)
 
-        logging.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
-        if logging.getLogger('root').isEnabledFor(logging.DEBUG):
+        logger.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
+        if logger.isEnabledFor(logging.DEBUG):
             msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in game.moves)
             json_str = game.json_str()
-            logging.debug(f'{msg}\napi: {json_str[: json_str.find("moves") + 7]}...\n')
-        logging.info(game.dev_str())
+            logger.debug(f'{msg}\napi: {json_str[: json_str.find("moves") + 7]}...\n')
+        logger.info(game.dev_str())
         with suppress(Exception):
             store_zip_from_game(game)
 
@@ -483,14 +485,14 @@ def store_zip_from_game(game: Game) -> None:  # pragma: no cover
     from zipfile import ZipFile
 
     if config.is_testing:
-        logging.info('skip store because flag is_testing is set')
+        logger.info('skip store because flag is_testing is set')
         return
     game_id = game.gamestart.strftime('%y%j-%H%M%S')
     zip_filename = f'{game_id}-{str(uuid.uuid4())}'
     web_dir = config.path.web_dir
     log_dir = config.path.log_dir
     with ZipFile(web_dir / f'{zip_filename}.zip', 'w') as _zip:
-        logging.info(f'create zip with {len(game.moves):d} files')
+        logger.info(f'create zip with {len(game.moves):d} files')
         for mov in game.moves:
             for suffix in ['.jpg', '-camera.jpg', '.json']:
                 filename = f'{"image" if "jpg" in suffix else "data"}-{mov.move}{suffix}'

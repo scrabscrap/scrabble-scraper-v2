@@ -27,6 +27,8 @@ from gpiozero import Button as GpioButton
 
 from util import Static
 
+logger = logging.getLogger(__name__)
+
 
 class ButtonEnum(Enum):
     """Enumeration of supported Buttons"""
@@ -76,11 +78,11 @@ class Button(Static):
         # create Buttons and configure listener
         for button in ButtonEnum:
             if button in [ButtonEnum.GREEN, ButtonEnum.YELLOW, ButtonEnum.RED, ButtonEnum.DOUBT0, ButtonEnum.DOUBT1]:
-                logging.debug(f'Button {button.name}')
+                logger.debug(f'Button {button.name}')
                 input_button = GpioButton(button.value)
                 input_button.when_pressed = cls.button_pressed
             else:
-                logging.debug(f'Button {button.name} when held')
+                logger.debug(f'Button {button.name} when held')
                 input_button = GpioButton(button.value)
                 input_button.hold_time = 3
                 input_button.when_held = cls.button_pressed

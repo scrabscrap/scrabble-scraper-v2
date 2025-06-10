@@ -17,9 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import logging
-import logging.config
 import sys
-from types import new_class
 import unittest
 
 import numpy as np
@@ -27,21 +25,22 @@ import numpy as np
 from config import config
 from display import Display
 from processing import set_blankos
-from scrabble import BoardType, Move, MoveRegular, MoveType, MoveUnknown, NoMoveError, Tile
+from scrabble import BoardType, MoveType, NoMoveError, Tile
 from scrabblewatch import ScrabbleWatch
 from state import State
 
 logging.basicConfig(
     stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
 )
+logger = logging.getLogger(__name__)
 
 
 class AlgorithmTestCase(unittest.TestCase):
     """Test class for algorithm"""
 
     def setUp(self):
-        # logging.disable(logging.DEBUG)  # falls Info-Ausgaben erfolgen sollen
-        # logging.disable(logging.ERROR)
+        # logger.disable(logger.DEBUG)  # falls Info-Ausgaben erfolgen sollen
+        # logger.disable(logger.ERROR)
         ScrabbleWatch.display = Display  # type: ignore
         config.is_testing = True
         return super().setUp()
@@ -171,10 +170,10 @@ class AlgorithmTestCase(unittest.TestCase):
             (6, 6): Tile('_', 76),
             (3, 6): Tile('_', 76),
         }
-        logging.debug(f'previous board\n{board_to_string(board)}')
-        logging.debug(f'new board\n{board_to_string(new_board)}')
+        logger.debug(f'previous board\n{board_to_string(board)}')
+        logger.debug(f'new board\n{board_to_string(new_board)}')
         new_tiles, removed_tiles, changed_tiles = _move_processing(board=new_board, previous_board=board)
-        logging.debug(f'result\n{new_tiles=}')
+        logger.debug(f'result\n{new_tiles=}')
         self.assertDictEqual(
             new_tiles,
             {(4, 10): Tile('N', 75), (4, 9): Tile('E', 75), (4, 6): Tile('V', 75), (4, 8): Tile('T', 75)},
@@ -201,10 +200,10 @@ class AlgorithmTestCase(unittest.TestCase):
             (8, 8): Tile('_', 76),
             (7, 10): Tile('_', 76),
         }
-        logging.debug(f'previous board\n{board_to_string(board)}')
-        logging.debug(f'new board\n{board_to_string(new_board)}')
+        logger.debug(f'previous board\n{board_to_string(board)}')
+        logger.debug(f'new board\n{board_to_string(new_board)}')
         new_tiles, removed_tiles, changed_tiles = _move_processing(board=new_board, previous_board=board)
-        logging.debug(f'result\n{new_tiles=}')
+        logger.debug(f'result\n{new_tiles=}')
         self.assertDictEqual(new_tiles, {(7, 10): Tile('_', 76), (7, 9): Tile('N', 75), (7, 8): Tile('A', 75)}, 'invalid tiles')
 
         new_board = {
@@ -226,10 +225,10 @@ class AlgorithmTestCase(unittest.TestCase):
             (7, 11): Tile('_', 76),
             (7, 10): Tile('_', 76),
         }
-        logging.debug(f'previous board\n{board_to_string(board)}')
-        logging.debug(f'new board\n{board_to_string(new_board)}')
+        logger.debug(f'previous board\n{board_to_string(board)}')
+        logger.debug(f'new board\n{board_to_string(new_board)}')
         new_tiles, removed_tiles, changed_tiles = _move_processing(board=new_board, previous_board=board)
-        logging.debug(f'result\n{new_tiles=}')
+        logger.debug(f'result\n{new_tiles=}')
         self.assertDictEqual(
             new_tiles,
             {(7, 11): Tile('_', 76), (7, 10): Tile('_', 76), (7, 9): Tile('N', 75), (7, 8): Tile('A', 75)},
@@ -251,10 +250,10 @@ class AlgorithmTestCase(unittest.TestCase):
             (7, 11): Tile('_', 76),
             (7, 10): Tile('_', 76),
         }
-        logging.debug(f'previous board\n{board_to_string(board)}')
-        logging.debug(f'new board\n{board_to_string(new_board)}')
+        logger.debug(f'previous board\n{board_to_string(board)}')
+        logger.debug(f'new board\n{board_to_string(new_board)}')
         new_tiles, removed_tiles, changed_tiles = _move_processing(board=new_board, previous_board=board)
-        logging.debug(f'result\n{new_tiles}')
+        logger.debug(f'result\n{new_tiles}')
         self.assertDictEqual(
             new_tiles,
             {(7, 11): Tile('_', 76), (7, 10): Tile('_', 76), (7, 9): Tile('N', 75), (7, 8): Tile('A', 75)},
@@ -276,7 +275,7 @@ class AlgorithmTestCase(unittest.TestCase):
             pass
         game.add_exchange(player=0, played_time=(1, 0), img=np.zeros((1, 1)))
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(1, len(game.moves), 'invalid count of moves')
         self.assertEqual((0, 0), game.moves[-1].score, 'invalid scores')
@@ -298,7 +297,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(1, len(game.moves), 'invalid count of moves')
         self.assertEqual((24, 0), game.moves[-1].score, 'invalid scores')
@@ -320,7 +319,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 5G V.TEN
         board = {
@@ -337,7 +336,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = {(4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('N', 75)}
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((24, 20), game.moves[-1].score, 'invalid scores')
@@ -361,7 +360,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
         # 8A SAUNIER.
         board = {
             (3, 7): Tile('T', 75),
@@ -390,7 +389,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
         # A8 .UPER
         board = {
             (3, 7): Tile('T', 75),
@@ -416,7 +415,7 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_regular(player=0, played_time=(2, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
 
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(3, len(game.moves), 'invalid count of moves')
         self.assertEqual((73, 74), game.moves[-1].score, 'invalid scores')
@@ -440,7 +439,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 8A SAUNIER.
         board = {
@@ -471,7 +470,7 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
 
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((64, 74), game.moves[-1].score, 'invalid scores')
@@ -495,7 +494,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 8H .AUNIERE
         board = {
@@ -525,7 +524,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # O5 SUP.R
         board = {
@@ -551,7 +550,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = {(4, 14): Tile('S', 75), (5, 14): Tile('U', 75), (6, 14): Tile('P', 75), (8, 14): Tile('R', 75)}
         game.add_regular(player=0, played_time=(2, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(3, len(game.moves), 'invalid count of moves')
         self.assertEqual((72, 77), game.moves[-1].score, 'invalid scores')
@@ -575,7 +574,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 8H .AUNIERE
         board = {
@@ -605,7 +604,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((64, 77), game.moves[-1].score, 'invalid scores')
@@ -629,7 +628,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # H1 SAUNIER.
         board = {
@@ -660,7 +659,7 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
 
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((64, 74), game.moves[-1].score, 'invalid scores')
@@ -684,7 +683,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # H1 SAUNIER.
         board = {
@@ -714,7 +713,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 1H .UPER
         board = {
@@ -740,7 +739,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = {(0, 8): Tile('U', 75), (0, 9): Tile('P', 75), (0, 10): Tile('E', 75), (0, 11): Tile('R', 75)}
         game.add_regular(player=0, played_time=(2, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(3, len(game.moves), 'invalid count of moves')
         self.assertEqual((73, 74), game.moves[-1].score, 'invalid scores')
@@ -764,7 +763,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # H8 .AUNIERE
         board = {
@@ -794,7 +793,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((64, 77), game.moves[-1].score, 'invalid scores')
@@ -818,7 +817,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # H8 .AUNIERE
         board = {
@@ -848,7 +847,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 15E SUP.R
         board = {
@@ -874,7 +873,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = {(14, 4): Tile('S', 75), (14, 5): Tile('U', 75), (14, 6): Tile('P', 75), (14, 8): Tile('R', 75)}
         game.add_regular(player=0, played_time=(2, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(3, len(game.moves), 'invalid count of moves')
         self.assertEqual((72, 77), game.moves[-1].score, 'invalid scores')
@@ -907,7 +906,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         game.add_challenge_for()
 
@@ -931,7 +930,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         board = {}
         game.add_withdraw_for(index=-1, img=np.zeros((1, 1)))
@@ -956,7 +955,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 5G V.TEN
         board = {
@@ -974,7 +973,7 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
 
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         game.add_challenge_for()
 
@@ -997,7 +996,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(4, 7): Tile('T', 75), (5, 7): Tile('E', 75), (6, 7): Tile('S', 75), (7, 7): Tile('T', 75)}
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # H5 ....ER
         board = {
@@ -1012,7 +1011,7 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
 
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((8, 6), game.moves[-1].score, 'invalid scores')
@@ -1028,7 +1027,7 @@ class AlgorithmTestCase(unittest.TestCase):
         board = {(4, 7): Tile('T', 75), (5, 7): Tile('E', 75), (6, 7): Tile('S', 75), (7, 7): Tile('T', 75)}
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 5H .AT
         board = {
@@ -1042,7 +1041,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = {(4, 8): Tile('A', 75), (4, 9): Tile('T', 75)}
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 8H .UT
         board = {
@@ -1058,7 +1057,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = {(7, 8): Tile('U', 75), (7, 9): Tile('T', 75)}
         game.add_regular(player=0, played_time=(2, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # J5 .ES.
         board = {
@@ -1076,7 +1075,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = {(5, 9): Tile('E', 75), (6, 9): Tile('S', 75)}
         game.add_regular(player=1, played_time=(2, 2), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(4, len(game.moves), 'invalid count of moves')
         self.assertEqual((11, 9), game.moves[-1].score, 'invalid scores')
@@ -1098,7 +1097,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(1, len(game.moves), 'invalid count of moves')
         self.assertEqual((24, 0), game.moves[-1].score, 'invalid scores')
@@ -1122,7 +1121,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 6B SAUNIE.E
         board = {
@@ -1152,7 +1151,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((64, 62), game.moves[-1].score, 'invalid scores')
@@ -1174,7 +1173,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 5G V.TEN
         board = {
@@ -1192,7 +1191,7 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
 
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((24, 20), game.moves[-1].score, 'invalid scores')
@@ -1216,7 +1215,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 8A SAUNIER.
         board = {
@@ -1246,7 +1245,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((64, 74), game.moves[-1].score, 'invalid scores')
@@ -1268,7 +1267,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(1, len(game.moves), 'invalid count of moves')
         self.assertEqual((8, 0), game.moves[-1].score, 'invalid scores')
@@ -1292,7 +1291,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 6B sAUNiE.E
         board = {
@@ -1323,7 +1322,7 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
 
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((66, 56), game.moves[-1].score, 'invalid scores')
@@ -1345,7 +1344,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 5G V.TEn
         board = {
@@ -1363,7 +1362,7 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
 
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((24, 18), game.moves[-1].score, 'invalid scores')
@@ -1387,7 +1386,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 8A sAUNIER.
         board = {
@@ -1418,7 +1417,7 @@ class AlgorithmTestCase(unittest.TestCase):
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
 
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((64, 71), game.moves[-1].score, 'invalid scores')
@@ -1465,7 +1464,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = board.copy()
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
         self.assertEqual((34, 0), game.moves[-1].score)
 
         # 5G V.TEn
@@ -1490,7 +1489,7 @@ class AlgorithmTestCase(unittest.TestCase):
         # next move
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
         # score changed from 34 to 24
         self.assertEqual((24, 18), game.moves[-1].score)
 
@@ -1510,7 +1509,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
         self.assertEqual((24, 0), game.moves[-1].score)
 
         # TODO: process changed tiles in processing.py
@@ -1521,7 +1520,7 @@ class AlgorithmTestCase(unittest.TestCase):
         #             removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         # game.add_move(move)
         # score = game.moves[-1].score
-        # logging.debug(f'score {score} / moves {len(game.moves)}')
+        # logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # self.assertEqual(2, len(game.moves), 'invalid count of moves')
         # self.assertEqual((22, 0), game.moves[-1].score, 'invalid scores')
@@ -1543,7 +1542,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
         self.assertEqual((24, 0), game.moves[-1].score)
 
         # TODO: process changed tiles in processing.py
@@ -1554,7 +1553,7 @@ class AlgorithmTestCase(unittest.TestCase):
         #             removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
         # game.add_move(move)
         # score = game.moves[-1].score
-        # logging.debug(f'score {score} / moves {len(game.moves)}')
+        # logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # self.assertEqual(2, len(game.moves), 'invalid count of moves')
         # self.assertEqual((22, 0), game.moves[-1].score, 'invalid scores')
@@ -1577,7 +1576,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         prev_score = game.moves[-1].score
-        logging.debug(f'score {prev_score} / moves {len(game.moves)}')
+        logger.debug(f'score {prev_score} / moves {len(game.moves)}')
 
         # admin call
         move_number = 0
@@ -1603,7 +1602,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         score = game.moves[-1].score
-        logging.debug(f'score {score} / moves {len(game.moves)}')
+        logger.debug(f'score {score} / moves {len(game.moves)}')
 
         # 5G V.TEn
         board = {
@@ -1620,7 +1619,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = {(4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('_', 75)}
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'before score {score} / moves {len(game.moves)}')
+        logger.debug(f'before score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((24, 18), game.moves[-1].score, 'invalid scores')
@@ -1632,7 +1631,7 @@ class AlgorithmTestCase(unittest.TestCase):
         row = 7
         admin_change_move(game, move_number, MoveType.REGULAR, (col, row), False, word='IRNS')
         self.assertEqual((8, 18), game.moves[-1].score, 'invalid scores')
-        logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
+        logger.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
     def test_143(self):
         """Test 143 - Algorithm: 2 moves on board correct second move"""
@@ -1667,7 +1666,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = {(4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('_', 75)}
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'before score {score} / moves {len(game.moves)}')
+        logger.debug(f'before score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((24, 18), game.moves[-1].score, 'invalid scores')
@@ -1679,7 +1678,7 @@ class AlgorithmTestCase(unittest.TestCase):
         row = 7
         admin_change_move(game, move_number, MoveType.REGULAR, (col, row), True, word='ITEN')
         self.assertEqual((24, 8), game.moves[-1].score, 'invalid scores')
-        logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
+        logger.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
     def test_144(self):
         """Test 144 - Algorithm: 2 moves on board correct first move"""
@@ -1714,7 +1713,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = {(4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('_', 75)}
         game.add_regular(player=1, played_time=(1, 1), img=np.zeros((1, 1)), new_tiles=new_tiles)
         score = game.moves[-1].score
-        logging.debug(f'before score {score} / moves {len(game.moves)}')
+        logger.debug(f'before score {score} / moves {len(game.moves)}')
 
         self.assertEqual(2, len(game.moves), 'invalid count of moves')
         self.assertEqual((38, 32), game.moves[-1].score, 'invalid scores')
@@ -1726,7 +1725,7 @@ class AlgorithmTestCase(unittest.TestCase):
         row = 7
         admin_change_move(game, move_number, MoveType.REGULAR, (col, row), False, word='FIRNS')
         self.assertEqual((24, 18), game.moves[-1].score, 'invalid scores')
-        logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
+        logger.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
 
     def test_145(self):
         """Test 145 - Algorithm: change tile to exchange via admin call - first move"""
@@ -1745,7 +1744,7 @@ class AlgorithmTestCase(unittest.TestCase):
         }
         game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
         prev_score = game.moves[-1].score
-        logging.debug(f'score {prev_score} / moves {len(game.moves)}')
+        logger.debug(f'score {prev_score} / moves {len(game.moves)}')
 
         # admin call
         move_number = 0
@@ -1871,7 +1870,7 @@ class AlgorithmTestCase(unittest.TestCase):
         self.assertEqual((4, -40), score, 'score for overtime expected')
 
     def test_remove_blanko(self):
-        from processing import remove_blanko, admin_insert_moves
+        from processing import admin_insert_moves, remove_blanko
 
         game = State.ctx.game
         game.new_game()

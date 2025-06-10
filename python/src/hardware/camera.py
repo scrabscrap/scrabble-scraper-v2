@@ -35,6 +35,7 @@ from util import runtime_measure
 
 camera_dict: dict = {}
 logging.basicConfig(filename=f'{config.path.work_dir}/log/messages.log', level=logging.INFO, force=True)
+logger = logging.getLogger(__name__)
 
 
 class Camera(Protocol):
@@ -65,13 +66,13 @@ if importlib.util.find_spec('picamera2'):
 
         def __init__(self, src: int = 0, resolution: tuple[int, int] | None = None, framerate: int | None = None):
             """init/config cam"""
-            logging.info('### init CameraRPI64')
+            logger.info('### init CameraRPI64')
             self.resolution = resolution or (config.video.width, config.video.height)
             self.framerate = framerate or config.video.fps
             self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
             self.event: Event | None = None
             self.camera = Picamera2()
-            logging.info(f'open CameraRPI64: {self.resolution=} {self.framerate=}')
+            logger.info(f'open CameraRPI64: {self.resolution=} {self.framerate=}')
             cfg = self.camera.create_still_configuration(main={'format': 'RGB888', 'size': self.resolution})
             if config.video.rotate:
                 cfg['transform'] = libcamera.Transform(hflip=1, vflip=1)  # self.camera.rotation = 180
@@ -83,12 +84,12 @@ if importlib.util.find_spec('picamera2'):
             atexit.register(self._atexit)
 
         def log_camera_info(self) -> None:
-            logging.info('using camera CameraRPI64')
-            logging.info(f'{self.resolution=} {self.framerate=}')
-            logging.info(f'{self.camera.camera_configuration()}')
+            logger.info('using camera CameraRPI64')
+            logger.info(f'{self.resolution=} {self.framerate=}')
+            logger.info(f'{self.camera.camera_configuration()}')
 
         def _atexit(self) -> None:
-            logging.debug('rpi 64: camera close')
+            logger.debug('rpi 64: camera close')
             atexit.unregister(self._atexit)
             if self.camera is not None:
                 self.camera.close()
@@ -120,16 +121,16 @@ if importlib.util.find_spec('picamera2'):
         camera_dict.update({'picamera': CameraRPI64})
         camera_dict.update({'picamera2': CameraRPI64})
         camera_dict.update({'picamera-still': CameraRPI64})
-        logging.info('picamera2 added')
+        logger.info('picamera2 added')
     else:
-        logging.error('picamera2 not detected')
+        logger.error('picamera2 not detected')
 
 
 class CameraFile(Camera):
     """Implementation for file access"""
 
     def __init__(self, src: int = 0, resolution: tuple[int, int] | None = None, framerate: int | None = None):
-        logging.info('### init CameraFile')
+        logger.info('### init CameraFile')
         self.resolution = resolution or (config.video.width, config.video.height)
         self.framerate = framerate or config.video.fps
         self._counter = 1
@@ -138,9 +139,9 @@ class CameraFile(Camera):
         self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
 
     def log_camera_info(self) -> None:
-        logging.info('using camera CameraFile')
-        logging.info(f'{self.resolution=} {self.framerate=}')
-        logging.info(f'{self._counter=} {self._formatter=}')
+        logger.info('using camera CameraFile')
+        logger.info(f'{self.resolution=} {self.framerate=}')
+        logger.info(f'{self._counter=} {self._formatter=}')
 
     @property
     def resize(self) -> bool:
@@ -171,7 +172,7 @@ class CameraFile(Camera):
 
     @runtime_measure
     def read(self, peek: bool = False) -> MatLike:
-        logging.debug(f'CameraFile read: {self._formatter.format(self._counter)}')
+        logger.debug(f'CameraFile read: {self._formatter.format(self._counter)}')
         img = cv2.imread(self._formatter.format(self._counter))
         if not peek:
             self._counter += 1 if Path(self._formatter.format(self._counter + 1)).is_file() else 0
@@ -190,14 +191,14 @@ class CameraOpenCV(Camera):
     """camera implementation for OpenCV"""
 
     def __init__(self, src: int = 0, resolution: tuple[int, int] | None = None, framerate: int | None = None):
-        logging.info('### init CameraOpenCV')
+        logger.info('### init CameraOpenCV')
         self.resolution = resolution or (config.video.width, config.video.height)
         self.framerate = framerate or config.video.fps
         self.wait = round(1 / self.framerate, 2)
         # self.stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
         self.stream = cv2.VideoCapture(0)
         if not self.stream.isOpened():
-            logging.error('CameraOpenCV can not open camera')
+            logger.error('CameraOpenCV can not open camera')
         else:
             self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.resolution[0])
             self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
@@ -208,8 +209,8 @@ class CameraOpenCV(Camera):
         atexit.register(self._atexit)  # cleanup on exit
 
     def log_camera_info(self) -> None:
-        logging.info('using camera CameraOpenCV')
-        logging.info(f'{self.resolution=} {self.framerate=}')
+        logger.info('using camera CameraOpenCV')
+        logger.info(f'{self.resolution=} {self.framerate=}')
 
     def _atexit(self) -> None:
         atexit.unregister(self._atexit)
@@ -225,7 +226,7 @@ class CameraOpenCV(Camera):
         while True:
             valid, self.frame = self.stream.read()
             if not valid:
-                logging.warning('CameraOpenCV: frame not valid')
+                logger.warning('CameraOpenCV: frame not valid')
             if config.video.rotate:
                 self.frame = cv2.rotate(self.frame, cv2.ROTATE_180)
             if event.is_set():
@@ -257,13 +258,13 @@ def switch_camera(camera: str) -> Camera:
     from threadpool import pool
 
     if not camera and cam:
-        logging.info('restart camera')
+        logger.info('restart camera')
         clazz = cam.__class__
     elif camera.lower() in camera_dict:
-        logging.info(f'switch camera to {camera}')
+        logger.info(f'switch camera to {camera}')
         clazz = camera_dict[camera]
     else:
-        logging.error(f'invalid camera selected: {camera}')
+        logger.error(f'invalid camera selected: {camera}')
         raise ValueError(f'invalid camera selected: {camera}')
 
     if cam and cam.__class__.__name__ != 'CameraFile':
@@ -289,29 +290,29 @@ def main() -> None:
         format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s',
     )
 
-    logging.info(f'>> config {camera_dict}')
+    logger.info(f'>> config {camera_dict}')
     switch_camera('file')
-    logging.info(f'cam type: {type(cam)}')
+    logger.info(f'cam type: {type(cam)}')
     cam.log_camera_info()
     sleep(5)
 
     switch_camera('opencv')
-    logging.info(f'cam type: {type(cam)}')
+    logger.info(f'cam type: {type(cam)}')
     cam.log_camera_info()
     sleep(5)
 
     switch_camera('')
-    logging.info(f'cam type: {type(cam)}')
+    logger.info(f'cam type: {type(cam)}')
     sleep(5)
     cam.log_camera_info()
 
     try:
         switch_camera('picamera')
-        logging.info(f'cam type: {type(cam)}')
+        logger.info(f'cam type: {type(cam)}')
         cam.log_camera_info()
         sleep(5)
     except ValueError as oops:
-        logging.error(f'{oops}')
+        logger.error(f'{oops}')
     cam.cancel()
 
 

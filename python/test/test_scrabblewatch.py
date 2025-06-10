@@ -30,6 +30,7 @@ from scrabblewatch import ScrabbleWatch
 logging.basicConfig(
     stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
 )
+logger = logging.getLogger(__name__)
 
 
 # noinspection PyMethodMayBeStatic
@@ -50,7 +51,7 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         LED.switch_on({})  # type: ignore
         for thread in threading.enumerate():
             if not thread.name.startswith('Main'):
-                logging.debug(f'tread-name: {thread.name}')
+                logger.debug(f'tread-name: {thread.name}')
 
     # @mock.patch('camera.cam', mock.MagicMock(return_value=mockcamera.MockCamera()))
     def test_timer(self):
@@ -58,7 +59,7 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         display_pause = 0.1
 
         ScrabbleWatch.display = Display()
-        logging.info('without start')
+        logger.info('without start')
         ScrabbleWatch.display.show_boot()
         time.sleep(display_pause)
         ScrabbleWatch.display.show_cam_err()
@@ -67,30 +68,30 @@ class ScrabbleWatchTestCase(unittest.TestCase):
         time.sleep(display_pause)
         ScrabbleWatch.display.show_ready()
         time.sleep(display_pause)
-        logging.info('start player 0')
+        logger.info('start player 0')
         ScrabbleWatch.start(0)
         time.sleep(display_pause)
-        logging.info('pause')
+        logger.info('pause')
         ScrabbleWatch.pause()
         time.sleep(display_pause)
-        logging.info('pause mit malus')
+        logger.info('pause mit malus')
         ScrabbleWatch.display.add_malus(0, (100, 100), (10, 10))
         ScrabbleWatch.pause()
         time.sleep(display_pause)
-        logging.info('pause mit remove')
+        logger.info('pause mit remove')
         ScrabbleWatch.display.add_remove_tiles(1, (100, 100), (10, 10))
         ScrabbleWatch.pause()
         time.sleep(display_pause)
-        logging.info('resume')
+        logger.info('resume')
         ScrabbleWatch.resume()
         time.sleep(0.5)
-        logging.info('start player 1')
+        logger.info('start player 1')
         ScrabbleWatch.start(1)
         time.sleep(0.5)
-        logging.info('set time to 1798')
+        logger.info('set time to 1798')
         ScrabbleWatch.time = (ScrabbleWatch.time[0], 1798)
         time.sleep(1)
-        logging.info('end of sleep')
+        logger.info('end of sleep')
         # watch.display.stop()
         # timer.cancel()
         # cam.cancel()

@@ -24,8 +24,8 @@ from config import config
 from upload_impl import Upload, UploadFtp, UploadHttp
 
 upload_implementations = {'https': UploadHttp, 'http': UploadHttp, 'ftp': UploadFtp}
-
 upload: Upload = upload_implementations[config.output.upload_modus]()
+logger = logging.getLogger(__name__)
 
 
 def update_upload_mode() -> bool:
@@ -35,5 +35,5 @@ def update_upload_mode() -> bool:
     if mode in upload_implementations:
         upload = upload_implementations[mode]()
         return True
-    logging.warning(f"invalid upload mode '{mode}'")
+    logger.warning(f"invalid upload mode '{mode}'")
     return False

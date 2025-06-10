@@ -55,6 +55,8 @@ DEFAULT = {
     'system': {'quit': 'shutdown', 'gitbranch': 'main'},
 }
 
+logger = logging.getLogger(__name__)
+
 
 def as_bool(string: str) -> bool:
     """convert boolean string to boolean value"""
@@ -296,11 +298,11 @@ class Config:  # pylint: disable=too-many-instance-attributes
         self.config.read_dict(DEFAULT)
         try:
             self.ini_path = Path(ini_file) if ini_file else self.ini_path
-            logging.info(f'reload {self.ini_path}')
+            logger.info(f'reload {self.ini_path}')
             with self.ini_path.open(encoding='UTF-8') as config_file:
                 self.config.read_file(config_file)
         except OSError as oops:
-            logging.error(f'can not read INI-File {self.ini_path}: error({oops.errno}): {oops.strerror}')
+            logger.error(f'can not read INI-File {self.ini_path}: error({oops.errno}): {oops.strerror}')
 
     def save(self) -> None:  # pragma: no cover
         """save configuration"""

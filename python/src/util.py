@@ -27,6 +27,7 @@ from typing import Any, Callable
 import numpy as np
 
 TWarp = np.ndarray[Any, np.dtype[np.float32]]
+logger = logging.getLogger(__name__)
 
 # def onexit(f):
 #     # see: https://peps.python.org/pep-0318/#examples
@@ -54,9 +55,9 @@ def handle_exceptions(func):
         try:
             return func(*args, **kwargs)
         except IndexError as err:
-            logging.error(f'index error in {func.__name__} ignored: "{err}"')
+            logger.error(f'index error in {func.__name__} ignored: "{err}"')
         except ValueError as err:
-            logging.error(f'value error in {func.__name__} ignored: "{err}"')
+            logger.error(f'value error in {func.__name__} ignored: "{err}"')
         return None
 
     return wrapper
@@ -69,7 +70,7 @@ def runtime_measure(func: Callable[..., Any]) -> Callable[..., Any]:  # pragma: 
     def runtime(*args: Any, **kwargs: Any) -> Any:
         start = time.perf_counter()
         result = func(*args, **kwargs)
-        logging.info(f'{func.__name__} took {(time.perf_counter() - start):.4f} sec(s).')
+        logger.info(f'{func.__name__} took {(time.perf_counter() - start):.4f} sec(s).')
         return result
 
     return runtime
@@ -81,13 +82,13 @@ def trace(func: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(func)
     def do_trace(*args: Any, **kwargs: Any) -> Any:
         try:
-            logging.debug(f'entering {func.__qualname__}')
+            logger.debug(f'entering {func.__qualname__}')
             return func(*args, **kwargs)
         except Exception as oops:  # pragma: no cover
-            logging.exception(f'exception in {func.__name__}: {oops}')
+            logger.exception(f'exception in {func.__name__}: {oops}')
             raise
         finally:
-            logging.debug(f'leaving {func.__name__}')
+            logger.debug(f'leaving {func.__name__}')
 
     return do_trace
 

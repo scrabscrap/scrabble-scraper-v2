@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import logging
-import logging.config
 import signal
 import sys
 from concurrent import futures
@@ -26,14 +25,15 @@ from time import sleep
 
 import cv2
 
-from hardware import camera
 from game_board.board import overlay_grid, overlay_tiles
+from hardware import camera
 from processing import analyze, filter_candidates, filter_image, warp_image
 from threadpool import pool
 
 logging.basicConfig(
     stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
 )
+logger = logging.getLogger(__name__)
 
 
 def print_board(board: dict) -> str:
@@ -63,7 +63,7 @@ def main() -> None:
     """main entry for starting"""
 
     def main_cleanup(signum, _) -> None:
-        logging.debug(f'Signal handler called with signal {signum}')
+        logger.debug(f'Signal handler called with signal {signum}')
         camera.cam.cancel()
         # reset alarm
         signal.alarm(0)
@@ -87,10 +87,10 @@ def main() -> None:
     cv2.imwrite('log/warped_gray.jpg', warped_gray)
 
     _, tiles_candidates = filter_image(warped)  # find potential tiles on board
-    logging.debug(f'tiles candidated: {tiles_candidates}')
+    logger.debug(f'tiles candidated: {tiles_candidates}')
     ignore_coords = set()  # only analyze tiles from last 3 moves
     filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
-    logging.debug(f'filtered candidated: {filtered_candidates}')
+    logger.debug(f'filtered candidated: {filtered_candidates}')
 
     # previous board information
     board = {}
@@ -106,7 +106,7 @@ def main() -> None:
     done, _ = futures.wait({future1, future2})  # blocking wait
     assert len(done) == 2, 'error on wait to futures'
 
-    logging.debug(f'board: \n{print_board(board)}')
+    logger.debug(f'board: \n{print_board(board)}')
 
     overlay = overlay_grid(warped)
     overlay = overlay_tiles(overlay, board)

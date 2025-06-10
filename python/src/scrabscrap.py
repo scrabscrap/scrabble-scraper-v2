@@ -43,6 +43,8 @@ logging.config.fileConfig(
     defaults={'level': 'DEBUG', 'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'},
 )
 
+logger = logging.getLogger(__name__)
+
 
 def main() -> None:
     """entry point for scrabscrap"""
@@ -50,12 +52,12 @@ def main() -> None:
     def log_exception_handler(exctype, value, tb):
         import traceback
 
-        logging.exception(''.join(traceback.format_exception(exctype, value, tb)))
+        logger.exception(''.join(traceback.format_exception(exctype, value, tb)))
         sys.__excepthook__(exctype, value, tb)  # calls default excepthook
 
     def _cleanup():
         atexit.unregister(_cleanup)
-        logging.debug('main-_atexit')
+        logger.debug('main-_atexit')
         api.stop_server()
         timer.cancel()
         camera.cam.cancel()
@@ -64,7 +66,7 @@ def main() -> None:
     def signal_alarm(signum, _) -> None:
         import os
 
-        logging.debug(f'Alarm handler called with signal {signum}')
+        logger.debug(f'Alarm handler called with signal {signum}')
         signal.alarm(0)
         _cleanup()
         if config.system.quit in ('reboot'):
@@ -76,13 +78,13 @@ def main() -> None:
         sys.exit(0)
 
     sys.excepthook = log_exception_handler
-    logging.info('####################################################################')
-    logging.info('## ScrabScrap loading ...                                         ##')
-    logging.info('####################################################################')
+    logger.info('####################################################################')
+    logger.info('## ScrabScrap loading ...                                         ##')
+    logger.info('####################################################################')
 
-    logging.info(f'Version: {version.git_version}')
-    logging.info(f'Git branch: {version.git_branch}')
-    logging.info(f'Git commit: {version.git_commit}')
+    logger.info(f'Version: {version.git_version}')
+    logger.info(f'Git branch: {version.git_branch}')
+    logger.info(f'Git commit: {version.git_commit}')
 
     signal.signal(signal.SIGALRM, signal_alarm)
     atexit.register(_cleanup)
@@ -103,9 +105,9 @@ def main() -> None:
     # init State Machine
     State.init()
 
-    logging.info('####################################################################')
-    logging.info('## ScrabScrap ready                                               ##')
-    logging.info('####################################################################')
+    logger.info('####################################################################')
+    logger.info('## ScrabScrap ready                                               ##')
+    logger.info('####################################################################')
 
     # Run until Exit with alarm(1)
     pause()

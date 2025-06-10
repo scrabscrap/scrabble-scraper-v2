@@ -66,6 +66,8 @@ from state import GameState, State
 from threadpool import Command, command_queue, pool
 from upload_impl import upload_config
 
+logger = logging.getLogger(__name__)
+
 
 class ApiServer:  # pylint: disable=too-many-public-methods
     """definition of flask server"""
@@ -106,20 +108,20 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     and (player2 := request.form.get('player2'))
                     and (player1.casefold() != player2.casefold())
                 ):
-                    logging.info(f'set {player1=} / {player2=}')
+                    logger.info(f'set {player1=} / {player2=}')
                     State.ctx.game.set_player_names(player1, player2)
                     event_set(State.ctx.op_event)
                 else:
-                    logging.warning(f'can not set: {request.form.get("player1")}/{request.form.get("player2")}')
+                    logger.warning(f'can not set: {request.form.get("player1")}/{request.form.get("player2")}')
             elif request.form.get('btntournament'):
                 if (tournament := request.form.get('tournament')) is not None and (tournament != config.scrabble.tournament):
                     if 'scrabble' not in config.config.sections():
                         config.config.add_section('scrabble')
                     config.config.set('scrabble', 'tournament', str(tournament))
                     config.save()
-                    logging.info(f'set {tournament=}')
+                    logger.info(f'set {tournament=}')
                 else:
-                    logging.warning(f'can not set: {tournament=}')
+                    logger.warning(f'can not set: {tournament=}')
             return redirect('/index')
         (player1, player2) = State.ctx.game.nicknames
         tournament = config.scrabble.tournament
@@ -144,7 +146,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             coord = list(request.args.keys())[0]
             col: int = int(coord.split(',')[0])
             row: int = int(coord.split(',')[1])
-            logging.debug(f'coord x:{col} y:{row}')
+            logger.debug(f'coord x:{col} y:{row}')
             rect = get_last_warp()
             if rect is None:
                 rect = np.array(
@@ -159,7 +161,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 rect[3] = (col, row)
             else:
                 rect[2] = (col, row)
-            logging.debug(f'new warp: {np.array2string(rect, formatter={"float_kind": lambda x: f"{x:.1f}"}, separator=", ")}')
+            logger.debug(f'new warp: {np.array2string(rect, formatter={"float_kind": lambda x: f"{x:.1f}"}, separator=", ")}')
             config.config.set(
                 'video',
                 'warp_coordinates',
@@ -203,7 +205,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     root_logger = logging.getLogger('root')
                     prev_level = root_logger.getEffectiveLevel()
                     if new_level != prev_level:
-                        logging.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
+                        logger.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
                         root_logger.setLevel(new_level)
                         log_config = configparser.ConfigParser()
                         with (config.path.work_dir / 'log.conf').open(encoding='UTF-8') as config_file:
@@ -216,13 +218,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
                 recording = 'recording' in request.form
                 if config.development.recording != recording:
-                    logging.info(f'development.recording changed to {recording}')
+                    logger.info(f'development.recording changed to {recording}')
                     if 'development' not in config.config.sections():
                         config.config.add_section('development')
                     config.config.set('development', 'recording', str(recording))
                     config.save()
             except OSError as oops:
-                logging.error(f'I/O error({oops.errno}): {oops.strerror}')
+                logger.error(f'I/O error({oops.errno}): {oops.strerror}')
                 return redirect('/index')
             return redirect('/loglevel')
         # fall through: request.method == 'GET':
@@ -258,74 +260,74 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     return f'{value:.1f}{s}'
             return f'{n}B'
 
-        logging.info(f'{"=" * 40} System Information {"=" * 40}')
+        logger.info(f'{"=" * 40} System Information {"=" * 40}')
         uname = platform.uname()
-        logging.info(f'System: {uname.system}')
-        logging.info(f'Node Name: {uname.node}')
-        logging.info(f'Release: {uname.release}')
-        logging.info(f'Version: {uname.version}')
-        logging.info(f'Machine: {uname.machine}')
-        logging.info(f'Processor: {uname.processor}')
+        logger.info(f'System: {uname.system}')
+        logger.info(f'Node Name: {uname.node}')
+        logger.info(f'Release: {uname.release}')
+        logger.info(f'Version: {uname.version}')
+        logger.info(f'Machine: {uname.machine}')
+        logger.info(f'Processor: {uname.processor}')
 
-        logging.info(f'{"=" * 40} Boot Time {"=" * 40}')
+        logger.info(f'{"=" * 40} Boot Time {"=" * 40}')
         boot_time_timestamp = psutil.boot_time()
         bt = datetime.fromtimestamp(boot_time_timestamp)
-        logging.info(f'Boot Time: {bt.year}/{bt.month}/{bt.day} {bt.hour}:{bt.minute}:{bt.second}')
+        logger.info(f'Boot Time: {bt.year}/{bt.month}/{bt.day} {bt.hour}:{bt.minute}:{bt.second}')
 
-        logging.info(f'{"=" * 40} CPU Info {"=" * 40}')
-        logging.info(f'Physical cores: {psutil.cpu_count(logical=False)}')
-        logging.info(f'Total cores: {psutil.cpu_count(logical=True)}')
+        logger.info(f'{"=" * 40} CPU Info {"=" * 40}')
+        logger.info(f'Physical cores: {psutil.cpu_count(logical=False)}')
+        logger.info(f'Total cores: {psutil.cpu_count(logical=True)}')
         cpufreq = psutil.cpu_freq()
-        logging.info(f'Max Frequency: {cpufreq.max:.2f}Mhz')
-        logging.info(f'Min Frequency: {cpufreq.min:.2f}Mhz')
-        logging.info(f'Current Frequency: {cpufreq.current:.2f}Mhz')
-        logging.info('CPU Usage Per Core:')
+        logger.info(f'Max Frequency: {cpufreq.max:.2f}Mhz')
+        logger.info(f'Min Frequency: {cpufreq.min:.2f}Mhz')
+        logger.info(f'Current Frequency: {cpufreq.current:.2f}Mhz')
+        logger.info('CPU Usage Per Core:')
         for i, percentage in enumerate(psutil.cpu_percent(percpu=True, interval=1)):
-            logging.info(f'  Core {i}: {percentage}%')
-        logging.info(f'Total CPU Usage: {psutil.cpu_percent()}%')
+            logger.info(f'  Core {i}: {percentage}%')
+        logger.info(f'Total CPU Usage: {psutil.cpu_percent()}%')
         load_avg_1, load_avg_5, load_avg_15 = psutil.getloadavg()
-        logging.info(f'Load: {load_avg_1:.2f} {load_avg_5:.2f} {load_avg_15:.2f}')
+        logger.info(f'Load: {load_avg_1:.2f} {load_avg_5:.2f} {load_avg_15:.2f}')
 
-        logging.info(f'{"=" * 40} Memory Information {"=" * 40}')
+        logger.info(f'{"=" * 40} Memory Information {"=" * 40}')
         svmem = psutil.virtual_memory()
-        logging.info(f'Total: {bytes2human(svmem.total)}')
-        logging.info(f'Available: {bytes2human(svmem.available)}')
-        logging.info(f'Used: {bytes2human(svmem.used)}')
-        logging.info(f'Percentage: {svmem.percent}%')
+        logger.info(f'Total: {bytes2human(svmem.total)}')
+        logger.info(f'Available: {bytes2human(svmem.available)}')
+        logger.info(f'Used: {bytes2human(svmem.used)}')
+        logger.info(f'Percentage: {svmem.percent}%')
 
-        logging.info(f'{"=" * 40} SWAP {"=" * 40}')
+        logger.info(f'{"=" * 40} SWAP {"=" * 40}')
         swap = psutil.swap_memory()
-        logging.info(f'Total: {bytes2human(swap.total)}')
-        logging.info(f'Free: {bytes2human(swap.free)}')
-        logging.info(f'Used: {bytes2human(swap.used)}')
-        logging.info(f'Percentage: {swap.percent}%')
+        logger.info(f'Total: {bytes2human(swap.total)}')
+        logger.info(f'Free: {bytes2human(swap.free)}')
+        logger.info(f'Used: {bytes2human(swap.used)}')
+        logger.info(f'Percentage: {swap.percent}%')
 
-        logging.info(f'{"=" * 40} Disk Information {"=" * 40}')
-        logging.info('Partitions and Usage:')
+        logger.info(f'{"=" * 40} Disk Information {"=" * 40}')
+        logger.info('Partitions and Usage:')
         partitions = psutil.disk_partitions()
         for partition in partitions:
-            logging.info(f'=== Device: {partition.device} ===')
-            logging.info(f'  Mountpoint: {partition.mountpoint}')
-            logging.info(f'  File system type: {partition.fstype}')
+            logger.info(f'=== Device: {partition.device} ===')
+            logger.info(f'  Mountpoint: {partition.mountpoint}')
+            logger.info(f'  File system type: {partition.fstype}')
             try:
                 partition_usage = psutil.disk_usage(partition.mountpoint)
             except PermissionError:
                 continue
-            logging.info(f'  Total Size: {bytes2human(partition_usage.total)}')
-            logging.info(f'  Used: {bytes2human(partition_usage.used)}')
-            logging.info(f'  Free: {bytes2human(partition_usage.free)}')
-            logging.info(f'  Percentage: {partition_usage.percent}%')
+            logger.info(f'  Total Size: {bytes2human(partition_usage.total)}')
+            logger.info(f'  Used: {bytes2human(partition_usage.used)}')
+            logger.info(f'  Free: {bytes2human(partition_usage.free)}')
+            logger.info(f'  Percentage: {partition_usage.percent}%')
         # get IO statistics since boot
         disk_io = psutil.disk_io_counters()
         if disk_io:
-            logging.info(f'Total read: {bytes2human(disk_io.read_bytes)}')
-            logging.info(f'Total write: {bytes2human(disk_io.write_bytes)}')
+            logger.info(f'Total read: {bytes2human(disk_io.read_bytes)}')
+            logger.info(f'Total write: {bytes2human(disk_io.write_bytes)}')
 
-        logging.info(f'{"=" * 40} Process Info {"=" * 40}')
+        logger.info(f'{"=" * 40} Process Info {"=" * 40}')
         for process in psutil.process_iter(['pid', 'name', 'memory_percent', 'cpu_percent']):
             try:
                 if 'python' in process.info['name'].lower():
-                    logging.info(
+                    logger.info(
                         f'{process.info["pid"]:6} {process.info["name"]} '
                         f'mem:{process.info["memory_percent"]:.2f}% cpu:{process.info["cpu_percent"]:.2f}%'
                     )
@@ -355,42 +357,42 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 ):
                     char = char.lower()
                     ApiServer.last_msg = f'set blanko: {coord} = {char}'
-                    logging.info(ApiServer.last_msg)
+                    logger.info(ApiServer.last_msg)
                     command_queue.put_nowait(Command(set_blankos, State.ctx.game, coord, char, State.ctx.op_event))
                 else:
                     ApiServer.last_msg = 'invalid character for blanko'
-                    logging.warning(ApiServer.last_msg)
+                    logger.warning(ApiServer.last_msg)
             elif request.form.get('btnblankodelete'):
                 if coord := request.form.get('coord'):
                     ApiServer.last_msg = f'delete blanko: {coord}'
-                    logging.info(ApiServer.last_msg)
+                    logger.info(ApiServer.last_msg)
                     command_queue.put_nowait(Command(remove_blanko, State.ctx.game, coord, State.ctx.op_event))
             elif request.form.get('btninsmoves'):
-                logging.debug('in btninsmove')
+                logger.debug('in btninsmove')
                 if move_number and (0 < move_number <= len(game.moves)):
                     ApiServer.last_msg = f'insert two exchanges before move# {move_number}'
-                    logging.info(ApiServer.last_msg)
+                    logger.info(ApiServer.last_msg)
                     command_queue.put_nowait(Command(admin_insert_moves, State.ctx.game, move_number, State.ctx.op_event))
                 else:
                     ApiServer.last_msg = f'invalid move {move_number}'
-                    logging.warning(ApiServer.last_msg)
+                    logger.warning(ApiServer.last_msg)
             elif request.form.get('btndelchallenge') and move_number:
                 ApiServer.last_msg = f'delete challenge {move_number=}'
-                logging.info(ApiServer.last_msg)
+                logger.info(ApiServer.last_msg)
                 command_queue.put_nowait(Command(admin_del_challenge, State.ctx.game, move_number, State.ctx.op_event))
             elif request.form.get('btntogglechallenge') and move_number:
                 ApiServer.last_msg = f'toggle challenge type on move {move_number}'
-                logging.info(ApiServer.last_msg)
+                logger.info(ApiServer.last_msg)
                 command_queue.put_nowait(Command(admin_toggle_challenge_type, State.ctx.game, move_number, State.ctx.op_event))
             elif request.form.get('btninswithdraw') and move_number:
                 ApiServer.last_msg = f'insert withdraw for move {move_number}'
-                logging.info(ApiServer.last_msg)
+                logger.info(ApiServer.last_msg)
                 command_queue.put_nowait(
                     Command(admin_ins_challenge, State.ctx.game, move_number, MoveType.WITHDRAW, State.ctx.op_event)
                 )
             elif request.form.get('btninschallenge') and move_number:
                 ApiServer.last_msg = f'insert invalid challenge for move {move_number}'
-                logging.info(ApiServer.last_msg)
+                logger.info(ApiServer.last_msg)
                 command_queue.put_nowait(
                     Command(admin_ins_challenge, State.ctx.game, move_number, MoveType.CHALLENGE_BONUS, State.ctx.op_event)
                 )
@@ -400,7 +402,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                     coord = request.form.get('move.coord')
                     word = request.form.get('move.word')
                     word = word.upper().replace(' ', '_') if word else ''
-                    logging.debug(f'{move_type=} {coord=} {word=}')
+                    logger.debug(f'{move_type=} {coord=} {word=}')
 
                     move = game.moves[move_number]
                     if move_type == MoveType.REGULAR.name and coord is not None and word is not None:
@@ -410,21 +412,21 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                                     State.ctx.game, move_number, MoveType.REGULAR, (col, row), vert, word, State.ctx.op_event
                                 ))  # fmt: off
                             ApiServer.last_msg = f'edit move #{move_number}: {move.type.name} => {move_type}'
-                            logging.info(ApiServer.last_msg)
+                            logger.info(ApiServer.last_msg)
                         else:
                             ApiServer.last_msg = f'invalid character in word {word}'
-                            logging.info(ApiServer.last_msg)
+                            logger.info(ApiServer.last_msg)
                     elif move_type == MoveType.EXCHANGE.name:
                         command_queue.put_nowait(
                             Command(admin_change_move, State.ctx.game, move_number, MoveType.EXCHANGE, event=State.ctx.op_event)
                         )
                         ApiServer.last_msg = f'change move {move_number} to exchange'
-                        logging.info(ApiServer.last_msg)
+                        logger.info(ApiServer.last_msg)
                     else:
                         ApiServer.last_msg = f'change move {move_number} missing parameter {move_type=} {coord=} {word=}'
-                        logging.info(ApiServer.last_msg)
+                        logger.info(ApiServer.last_msg)
                 else:
-                    logging.warning(f'invalid move number {move_number}')
+                    logger.warning(f'invalid move number {move_number}')
             return redirect('/moves')
         # fall through: request.method == 'GET':
         (player1, player2) = game.nicknames
@@ -518,22 +520,22 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             if nval and nval != upload_config.server:
                 dirty = True
                 upload_config.server = nval
-                logging.debug(f'server = {nval}')
+                logger.debug(f'server = {nval}')
             nval = request.form.get('user', default='')
             if nval and nval != upload_config.user:
                 dirty = True
                 upload_config.user = nval
-                logging.debug(f'user = {nval}')
+                logger.debug(f'user = {nval}')
             nval = request.form.get('password', default='')
             if nval and nval != upload_config.password:
                 dirty = True
                 upload_config.password = nval
-                logging.debug('password changed')
+                logger.debug('password changed')
             if dirty:
                 upload_config.store()
                 save_message = 'settings saved'
             if save_message:
-                logging.debug('saved settings')
+                logger.debug('saved settings')
 
         return render_template(
             'settings.html',
@@ -554,13 +556,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             return binascii.hexlify(dk)[0:64].decode('utf8')
 
         def run_cmd(cmd: list, log_len=None) -> tuple[int, list]:
-            logging.debug(f'{cmd[log_len]=}' if log_len else f'{cmd=}')
+            logger.debug(f'{cmd[log_len]=}' if log_len else f'{cmd=}')
             process = subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             return process.returncode, process.stdout.splitlines()
 
         ApiServer._clear_message()
         if request.method == 'POST':
-            logging.debug(f'request.form: {request.form.keys()}')
+            logger.debug(f'request.form: {request.form.keys()}')
             if request.form.get('btnadd'):
                 if (ssid := request.form.get('ssid')) and (key := request.form.get('psk')):
                     hashed = wpa_psk(ssid, key)
@@ -586,7 +588,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 ApiServer.last_msg = 'scan wifi'
             elif request.form.get('btnhotspot'):
                 State.do_accesspoint()
-            logging.info(f'{ApiServer.last_msg}')
+            logger.info(f'{ApiServer.last_msg}')
             return redirect('/wifi')
 
         # fall through: request.method == 'GET':
@@ -598,7 +600,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             wifi_configured = [[n, t, d] for n, (t, d) in unique_wifi.items()]
         else:
             wifi_configured = []
-        logging.debug(f'{wifi_configured=}')
+        logger.debug(f'{wifi_configured=}')
 
         cmd = ['sudo', '-n', '/usr/bin/nmcli', '-t', '-f', 'IN-USE,SSID', 'device', 'wifi', 'list', '--rescan', 'yes']
         ret, output = run_cmd(cmd)  # available wifi
@@ -611,7 +613,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             filtered_wifi_list = [[in_use, ssid] for ssid, in_use in unique_wifi.items()]
         else:
             filtered_wifi_list = []
-        logging.debug(f'{filtered_wifi_list=}')
+        logger.debug(f'{filtered_wifi_list=}')
 
         return render_template('wifi.html', apiserver=ApiServer, wifi_list=filtered_wifi_list, wifi_configured=wifi_configured)
 
@@ -623,12 +625,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         file_list = list(config.path.log_dir.glob('*'))
         file_list = [f for f in file_list if f not in ignore_list]
         # Iterate over the list of filepaths & remove each file.
-        logging.info('delete logs')
+        logger.info('delete logs')
         for file_path in file_list:
             try:
                 file_path.unlink()
             except OSError:
-                logging.error(f'error: {file_path}')
+                logger.error(f'error: {file_path}')
         for filename in ignore_list:
             with filename.open('w', encoding='UTF-8'):
                 pass  # empty log file
@@ -639,13 +641,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def do_delete_recording():
         """delete recording(s)"""
 
-        logging.info('delete recordings')
+        logger.info('delete recordings')
         file_list = list((config.path.work_dir).glob('*-camera.jpg'))
         for file_path in file_list:
             try:
                 file_path.unlink()
             except OSError:
-                logging.error(f'error: {file_path}')
+                logger.error(f'error: {file_path}')
         return redirect(url_for('route_index'))
 
     @staticmethod
@@ -685,7 +687,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/restart', methods=['POST', 'GET'])
     def do_restart():
         """restart app"""
-        logging.info('**** Restart application ****')
+        logger.info('**** Restart application ****')
         config.config.set('system', 'quit', 'restart')  # set temporary restart app
         alarm(1)
         return redirect(url_for('route_index'))
@@ -694,7 +696,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/end', methods=['POST', 'GET'])
     def do_end():
         """end app"""
-        logging.info('**** Exit application ****')
+        logger.info('**** Exit application ****')
         config.config.set('system', 'quit', 'end')  # set temporary end app
         alarm(1)
         return redirect(url_for('route_index'))
@@ -703,7 +705,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/reboot', methods=['POST', 'GET'])
     def do_reboot():
         """process reboot"""
-        logging.info('**** System reboot ****')
+        logger.info('**** System reboot ****')
         config.config.set('system', 'quit', 'reboot')  # set temporary reboot
         State.do_reboot()
         alarm(2)
@@ -713,7 +715,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/shutdown', methods=['POST', 'GET'])
     def do_shutdown():
         """process reboot"""
-        logging.info('**** System shutdown ****')
+        logger.info('**** System shutdown ****')
         config.config.set('system', 'quit', 'shutdown')  # set temporary shutdown
         State.do_reboot()
         alarm(2)
@@ -726,7 +728,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
         if State.ctx.current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
-            logging.debug('run display test')
+            logger.debug('run display test')
             ScrabbleWatch.display.show_boot()
             sleep(0.5)
             ScrabbleWatch.display.show_cam_err()
@@ -736,9 +738,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             ScrabbleWatch.display.show_ready()
             sleep(0.5)
             ApiServer.flask_shutdown_blocked = False
-            logging.info('>>> display_test ended')
+            logger.info('>>> display_test ended')
         else:
-            logging.warning('>>> not in State START')
+            logger.warning('>>> not in State START')
         return redirect(url_for('route_index'))
 
     @staticmethod
@@ -752,7 +754,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             log_message = 'run analyze test'
 
             ApiServer.flask_shutdown_blocked = True
-            logging.info(log_message)
+            logger.info(log_message)
 
             img = camera.cam.read(peek=True)
 
@@ -762,9 +764,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
             board = {}
             board = analyze_threads(warped_gray, board, tiles_candidates)
-            logging.info(f'analyze took {(perf_counter() - start):.4f} sec(s). ({ANALYZE_THREADS} threads)')
+            logger.info(f'analyze took {(perf_counter() - start):.4f} sec(s). ({ANALYZE_THREADS} threads)')
 
-            logging.info(f'\n{board_to_string(board)}')
+            logger.info(f'\n{board_to_string(board)}')
             # find log
             process = subprocess.run(
                 ['tail', '-300', f'{config.path.log_dir}/messages.log'],
@@ -782,7 +784,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
             ApiServer.flask_shutdown_blocked = False
             return render_template('analyze.html', apiserver=ApiServer, log=log_out, img_data=urllib.parse.quote(png_overlay))
-        logging.warning('not in State START, EOG, P0, P1')
+        logger.warning('not in State START, EOG, P0, P1')
         return redirect(url_for('route_index'))
 
     @staticmethod
@@ -790,21 +792,21 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def do_test_upload():
         """is ftp accessible"""
 
-        logging.info('test upload config entries')
+        logger.info('test upload config entries')
         if upload_config.server is None:
-            logging.info('  no server entry found')
+            logger.info('  no server entry found')
         if upload_config.user in (None, ''):
-            logging.info('  no user entry found')
+            logger.info('  no user entry found')
         if upload_config.password in (None, ''):
-            logging.info('  no password entry found')
+            logger.info('  no password entry found')
 
         try:
             if upload.upload.upload_status(waitfor=None):
-                logging.info('upload success')
+                logger.info('upload success')
             else:
-                logging.warning('upload = False')
+                logger.warning('upload = False')
         except OSError as oops:
-            logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
+            logger.error(f'http: I/O error({oops.errno}): {oops.strerror}')
         return redirect(url_for('route_index'))
 
     @staticmethod
@@ -815,7 +817,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
         if State.ctx.current_state == 'START':
             ApiServer.flask_shutdown_blocked = True
-            logging.debug('run LED test')
+            logger.debug('run LED test')
             LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
             sleep(1)
             LED.blink_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
@@ -834,9 +836,9 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             sleep(1)
             LED.switch_on(set())
             ApiServer.flask_shutdown_blocked = False
-            logging.info('led_test ended')
+            logger.info('led_test ended')
         else:
-            logging.info('not in State START')
+            logger.info('not in State START')
         return redirect(url_for('route_index'))
 
     @staticmethod
@@ -858,7 +860,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             cmd = f'{tailscale_cmd} {ops[op]} | tee -a {log_file} &'
             _ = subprocess.run(['bash', '-c', cmd], check=False)
         else:
-            logging.warning('invalid operation for vpn')
+            logger.warning('invalid operation for vpn')
         ApiServer.tailscale = Path('/usr/bin/tailscale').is_file()
         return redirect(url_for('route_index'))
 
@@ -875,7 +877,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             log_file = str(config.path.log_dir / 'messages.log')
             os.system(f'{upgrade_cmd} {config.system.gitbranch} | tee -a {log_file} &')
             return redirect(url_for('route_index'))
-        logging.warning('not in State START')
+        logger.warning('not in State START')
         return redirect(url_for('route_index'))
 
     @sock.route('/ws_log')
@@ -910,7 +912,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @sock.route('/ws_status')
     def echo(sock):  # pylint: disable=no-self-argument
         """websocket endpoint"""
-        logging.debug('call /ws_status')
+        logger.debug('call /ws_status')
         while True:
             if State.ctx.op_event.is_set():
                 State.ctx.op_event.clear()
@@ -918,14 +920,14 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             clock1 = config.scrabble.max_time - clock1
             clock2 = config.scrabble.max_time - clock2
             jsonstr = State.ctx.game.json_str()
-            # logging.debug(f'send socket {State.ctx.current_state} clock1 {clock1} clock2: {clock2}')
+            # logger.debug(f'send socket {State.ctx.current_state} clock1 {clock1} clock2: {clock2}')
             try:
                 if (
                     State.ctx.current_state in [GameState.S0, GameState.S1, GameState.P0, GameState.P1]
                 ) and State.ctx.picture is not None:
                     _, im_buf_arr = cv2.imencode('.jpg', State.ctx.picture)  # type: ignore
                     png_output = base64.b64encode(bytes(im_buf_arr))
-                    # logging.debug('b64encode')
+                    # logger.debug('b64encode')
                     sock.send(  # type:ignore[no-member] # pylint: disable=no-member
                         f'{{"op": "{State.ctx.current_state}", '
                         f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}'
@@ -935,13 +937,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         f'{{"op": "{State.ctx.current_state}", "clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}'
                     )
             except ConnectionClosed:
-                logging.debug('connection closed /ws_status')
+                logger.debug('connection closed /ws_status')
                 return
             State.ctx.op_event.wait()
 
     def start_server(self, host: str = '0.0.0.0', port=5050, simulator=False):
         """start flask server"""
-        logging.info('start api server')
+        logger.info('start api server')
         # flask log only error
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
@@ -963,13 +965,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
     def stop_server(self):
         """stop flask server"""
-        logging.info(f'server shutdown blocked: {ApiServer.flask_shutdown_blocked} ... waiting')
+        logger.info(f'server shutdown blocked: {ApiServer.flask_shutdown_blocked} ... waiting')
         for _ in range(50):  # wait max 5s
             if not ApiServer.flask_shutdown_blocked:
                 self.server.shutdown()
                 return
             sleep(0.1)
-        logging.warning('flask_shutdown_blocked: shutdown timeout')
+        logger.warning('flask_shutdown_blocked: shutdown timeout')
         self.server.shutdown()
 
 

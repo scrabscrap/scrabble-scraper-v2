@@ -23,6 +23,8 @@ import logging
 from config import config
 from scrabble import Game
 
+logger = logging.getLogger(__name__)
+
 
 class Display:
     """Display to show timer and events"""
@@ -33,7 +35,7 @@ class Display:
 
     def stop(self) -> None:
         """Poweroff display"""
-        logging.debug('display stop')
+        logger.debug('display stop')
 
     def show_boot(self) -> None:
         """show boot message"""
@@ -49,17 +51,17 @@ class Display:
         Parameters:
             msg(tuple[str, str]): message to show - default=('Ready', 'Ready')
         """
-        logging.debug(f'Ready message: {msg}')
+        logger.debug(f'Ready message: {msg}')
 
     def show_end_of_game(self) -> None:
         """show ready message"""
-        logging.debug('end of game message')
+        logger.debug('end of game message')
         if self.game and self.game.moves:
             for i in range(2):
                 nickname = self.game.nicknames[i][:10]
                 minutes, seconds = divmod(abs(config.scrabble.max_time - self.game.moves[-1].played_time[i]), 60)
                 score = self.game.moves[-1].score[i]
-                logging.debug(f'{nickname} {score} {minutes:02d}:{seconds:02d}')
+                logger.debug(f'{nickname} {score} {minutes:02d}:{seconds:02d}')
 
     def show_pause(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
         """show pause hint
@@ -69,7 +71,7 @@ class Display:
             played_time(tuple[int, int]): played time to display
             current(tuple[int, int]): time for current move
         """
-        logging.debug('Pause message')
+        logger.debug('Pause message')
         msg = 'Pause'
         if config.scrabble.show_score and self.game and len(self.game.moves):
             msg = f'P {self.game.moves[-1].score[player]:3d}'
@@ -140,5 +142,5 @@ class Display:
         )
         # log message only if player changed
         if info or self.lastplayer != player:
-            logging.debug(f'render_display {player}: {text} ({current}/{info})')
+            logger.debug(f'render_display {player}: {text} ({current}/{info})')
             self.lastplayer = player

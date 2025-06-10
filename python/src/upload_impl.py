@@ -32,6 +32,7 @@ from requests.auth import HTTPBasicAuth
 from config import config
 
 last_future: Future | None = None
+logger = logging.getLogger(__name__)
 
 
 class Upload(Protocol):
@@ -42,7 +43,7 @@ class Upload(Protocol):
         if waitfor is not None:
             _, not_done = futures.wait({waitfor})
             if len(not_done) != 0:
-                logging.error(f'error while waiting for future - lenght of not_done: {len(not_done)}')
+                logger.error(f'error while waiting for future - lenght of not_done: {len(not_done)}')
 
     def upload(self, data: dict | None = None, files: dict | None = None) -> bool:
         """do upload/delete operation"""
@@ -67,12 +68,12 @@ class Upload(Protocol):
             if upload_files:
                 return self.upload(files=upload_files)
         except OSError as oops:
-            logging.error(f'upload I/O error({oops.errno}): {oops.strerror}')
+            logger.error(f'upload I/O error({oops.errno}): {oops.strerror}')
         return False
 
     def upload_status(self, waitfor: Future | None) -> bool:
         """upload status"""
-        logging.debug('start transfer status file status.json')
+        logger.debug('start transfer status file status.json')
         files = {
             'status.json': Path(config.path.web_dir) / 'status.json',
             'messages.log': Path(config.path.log_dir) / 'messages.log',
@@ -86,7 +87,7 @@ class Upload(Protocol):
             if upload_files:
                 return self.upload(files=upload_files)
         except OSError as oops:
-            logging.error(f'upload I/O error({oops.errno}): {oops.strerror}')
+            logger.error(f'upload I/O error({oops.errno}): {oops.strerror}')
         return False
 
     def delete_files(self, waitfor: Future | None) -> bool:
@@ -106,7 +107,7 @@ class UploadHttp(Upload):  # pragma: no cover
     def upload(self, data: dict | None = None, files: dict | None = None) -> bool:
         """do upload/delete operation"""
 
-        logging.debug(f'http: upload files {list(files.keys())}' if files else 'http: no files to upload')
+        logger.debug(f'http: upload files {list(files.keys())}' if files else 'http: no files to upload')
         if data is None:
             data = {'upload': 'true'}
         if (url := upload_config.server) is not None:
@@ -118,18 +119,18 @@ class UploadHttp(Upload):  # pragma: no cover
                 )
                 return ret.status_code == 200
             except requests.Timeout:
-                logging.error(f'http: error timeout url={url}')
+                logger.error(f'http: error timeout url={url}')
             except requests.ConnectionError:
-                logging.error(f'http: error connection error url={url}')
+                logger.error(f'http: error connection error url={url}')
         return False
 
     def delete_files(self, waitfor: Future | None) -> bool:
-        logging.debug('http: delete files')
+        logger.debug('http: delete files')
         self.waitfor_future(waitfor)
         return self.upload(data={'delete': 'true'})
 
     def zip_files(self, waitfor: Future | None, filename: str | None = None) -> bool:
-        logging.debug('http: zip files on server')
+        logger.debug('http: zip files on server')
         self.waitfor_future(waitfor)
         return self.upload(data={'zip': 'true'})
 
@@ -147,7 +148,7 @@ class UploadFtp(Upload):  # pragma: no cover
                             session.storbinary(f'STOR {key}', file)  # send the file
                 return True
             except OSError as oops:
-                logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
+                logger.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False
 
     def delete_files(self, waitfor: Future | None) -> bool:
@@ -155,28 +156,28 @@ class UploadFtp(Upload):  # pragma: no cover
         self.waitfor_future(waitfor)
         if (url := upload_config.server) is not None:
             try:
-                logging.debug('ftp: delete files')
+                logger.debug('ftp: delete files')
                 with ftplib.FTP_TLS(url, upload_config.user, upload_config.password) as session:
                     files = session.nlst()
                     for filename in files:
                         for prefix in ['image', 'data']:
                             if filename.startswith(prefix):
                                 session.delete(filename)
-                logging.info('ftp: end of delete')
+                logger.info('ftp: end of delete')
                 return True
             except OSError as oops:
-                logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
+                logger.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False
 
     def zip_files(self, waitfor: Future | None, filename: str | None = None) -> bool:
         """zip uploaded files"""
         self.waitfor_future(waitfor)
-        logging.debug('ftp: upload zip file')
+        logger.debug('ftp: upload zip file')
         try:
             files = {f'{filename}.zip': (config.path.web_dir / f'{filename}.zip').open('rb')}  # pylint: disable=R1732
             return self.upload(files=files)
         except OSError as oops:
-            logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
+            logger.error(f'http: I/O error({oops.errno}): {oops.strerror}')
         return False
 
 
@@ -200,7 +201,7 @@ class UploadConfig:
             with ini_path.open(encoding='utf-8') as config_file:
                 self.parser.read_file(config_file)
         except OSError as oops:
-            logging.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
+            logger.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
         if self.SECTION not in self.parser.sections():
             self.parser.add_section(self.SECTION)
             self.store()

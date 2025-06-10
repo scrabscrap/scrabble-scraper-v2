@@ -36,6 +36,8 @@ from scrabblewatch import ScrabbleWatch
 from threadpool import Command, command_queue
 from util import Static
 
+logger = logging.getLogger(__name__)
+
 
 class GameState(Enum):
     """Allowed States"""
@@ -78,7 +80,7 @@ class State(Static):
     @classmethod
     def do_ready(cls, next_state: GameState = GameState.START) -> GameState:
         """Game can be started"""
-        logging.debug(f'{cls.ctx.game.nicknames}')
+        logger.debug(f'{cls.ctx.game.nicknames}')
         ScrabbleWatch.display.show_ready(cls.ctx.game.nicknames)
         ScrabbleWatch.display.set_game(cls.ctx.game)
         return next_state
@@ -127,7 +129,7 @@ class State(Static):
         _, played_time, current = ScrabbleWatch.status()
         if current[player] > config.scrabble.doubt_timeout:
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
-            logging.warning(f'valid challenge after timeout {current[0]}')
+            logger.warning(f'valid challenge after timeout {current[0]}')
         ScrabbleWatch.display.add_remove_tiles(player, played_time, current)  # player 1 has to remove the last move
         with suppress(Exception):
             command_queue.put_nowait(Command(valid_challenge, cls.ctx.game, cls.ctx.op_event))
@@ -140,7 +142,7 @@ class State(Static):
         _, played_time, current = ScrabbleWatch.status()
         if current[player] > config.scrabble.doubt_timeout:
             ScrabbleWatch.display.add_doubt_timeout(player, played_time, current)
-            logging.warning(f'invalid challenge after timeout {current[player]}')
+            logger.warning(f'invalid challenge after timeout {current[player]}')
         ScrabbleWatch.display.add_malus(player, played_time, current)  # player 0 gets a malus
         with suppress(Exception):
             command_queue.put_nowait(Command(invalid_challenge, cls.ctx.game, cls.ctx.op_event))
@@ -202,7 +204,7 @@ class State(Static):
         ScrabbleWatch.display.show_ready(('switch', 'AP'))
         cls.ctx.ap_mode = not cls.ctx.ap_mode
         cmd = ['sudo', '-n', '/usr/bin/nmcli', 'connection', 'up' if cls.ctx.ap_mode else 'down', 'ScrabScrap']
-        logging.debug(f'switch to AP {cmd=}')
+        logger.debug(f'switch to AP {cmd=}')
         ret = subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if ret.returncode == 0:
             if cls.ctx.ap_mode:
@@ -224,21 +226,21 @@ class State(Static):
             button: Button identifier that was pressed
         """
         try:
-            logging.debug(f'-> button {button} pressed at {cls.ctx.current_state}')
+            logger.debug(f'-> button {button} pressed at {cls.ctx.current_state}')
             # Get state transitions for current state
             state_transitions = cls.transitions.get(cls.ctx.current_state, {})
             # Get specific transition for button
             transition_func = state_transitions.get(ButtonEnum[button])
             if transition_func is None:
-                logging.warning(f'Invalid transition: {button} at {cls.ctx.current_state}')
+                logger.warning(f'Invalid transition: {button} at {cls.ctx.current_state}')
                 return
             # Execute transition function and update state
             cls.ctx.current_state = transition_func()
-            logging.debug(f'-> new {cls.ctx.current_state}')
+            logger.debug(f'-> new {cls.ctx.current_state}')
         except KeyError:
-            logging.warning(f'Key Error: {button} at {cls.ctx.current_state} - ignored')
+            logger.warning(f'Key Error: {button} at {cls.ctx.current_state} - ignored')
         except Exception as oops:  # pylint: disable=broad-exception-caught
-            logging.warning(f'ignore invalid exception on button handling {oops}')
+            logger.warning(f'ignore invalid exception on button handling {oops}')
         event_set(cls.ctx.op_event)
 
     # unused:

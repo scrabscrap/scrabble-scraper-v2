@@ -33,6 +33,7 @@ TEST_DIR = os.path.dirname(__file__)
 logging.basicConfig(
     stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
 )
+logger = logging.getLogger(__name__)
 
 
 class ScrabbleMusterTestCase(unittest.TestCase):
@@ -84,7 +85,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
         for file, expected in files.items():
             img = cv2.imread(file)
-            logging.debug(f'file: {file}')
+            logger.debug(f'file: {file}')
 
             warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
@@ -94,7 +95,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = tiles_candidates
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{board_to_string(new_board)}')
+            logger.debug(f'new board= \n{board_to_string(new_board)}')
 
             keys = [(x, y) for (x, y) in new_board.keys()]
             values = [tile.letter for tile in new_board.values()]
@@ -109,7 +110,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         # error
         for file in files:
             img = cv2.imread(file)
-            logging.debug(f'file: {file}')
+            logger.debug(f'file: {file}')
 
             warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
@@ -117,7 +118,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{board_to_string(new_board)}')
+            logger.debug(f'new board= \n{board_to_string(new_board)}')
             # last_board = ret  # falls der Test vorige Boards berücksichtigen soll
             res = {
                 (8, 8): 'W',
@@ -191,7 +192,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         # error
         for file in files:
             img = cv2.imread(file)
-            logging.debug(f'file: {file}')
+            logger.debug(f'file: {file}')
 
             warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
@@ -199,7 +200,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{board_to_string(new_board)}')
+            logger.debug(f'new board= \n{board_to_string(new_board)}')
             # last_board = ret  # falls der Test vorige Boards berücksichtigen soll
             res = {
                 (4, 11): 'G',
@@ -273,7 +274,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = tiles_candidates
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{board_to_string(new_board)}')
+            logger.debug(f'new board= \n{board_to_string(new_board)}')
 
             keys = [(x, y) for (x, y) in new_board.keys()]
             values = [tile.letter for tile in new_board.values()]
@@ -355,7 +356,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         for file, expected in files.items():
             img = cv2.imread(file)
             self.config_setter('board', 'layout', 'custom2020light')
-            logging.debug(f'file: {file}')
+            logger.debug(f'file: {file}')
 
             warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
@@ -365,7 +366,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = tiles_candidates
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{board_to_string(new_board)}')
+            logger.debug(f'new board= \n{board_to_string(new_board)}')
 
             keys = [(x, y) for (x, y) in new_board.keys()]
             values = [tile.letter for tile in new_board.values()]
@@ -439,7 +440,7 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             filtered_candidates = tiles_candidates
             board = {}
             new_board = analyze(warped_gray, board, filtered_candidates)
-            logging.debug(f'new board= \n{board_to_string(new_board)}')
+            logger.debug(f'new board= \n{board_to_string(new_board)}')
 
             keys = [(x, y) for (x, y) in new_board.keys()]
             values = [tile.letter for tile in new_board.values()]

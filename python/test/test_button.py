@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import logging
-import logging.config
 import sys
 import time
 import unittest
@@ -37,6 +36,7 @@ from state import GameState, State
 logging.basicConfig(
     stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
 )
+logger = logging.getLogger(__name__)
 
 
 class ButtonTestCase(unittest.TestCase):
@@ -79,7 +79,7 @@ class ButtonTestCase(unittest.TestCase):
         config.is_testing = False
         # for thread in threading.enumerate():
         #    if not thread.name.startswith('Main'):
-        #        logging.debug(f'thread: {thread.name}')
+        #        logger.debug(f'thread: {thread.name}')
         # timer.cancel()
         return super().tearDown()
 
@@ -89,13 +89,13 @@ class ButtonTestCase(unittest.TestCase):
         pin: button pin to press
         wait: wait between press and release - should be greater than bounce time in state.press_button()
         """
-        logging.info(f'press button {pin}')
+        logger.info(f'press button {pin}')
         pin.drive_high()
         time.sleep(wait)
         pin.drive_low()
 
         sleep(0.05)
-        logging.info(
+        logger.info(
             f'leds: green {LEDEnum.green.value} yellow {LEDEnum.yellow.value} '
             f'red {LEDEnum.red.value} state nw {State.ctx.current_state}'
         )

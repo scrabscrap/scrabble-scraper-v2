@@ -30,7 +30,9 @@ from display import Display
 from hardware import camera
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
-from state import GameState, State
+from state import State
+
+logger = logging.getLogger(__name__)
 
 
 class SimulateState(State):
@@ -48,28 +50,28 @@ class SimulateState(State):
         before sending the next event, press button will wait for self.bounce
         """
         if button == ButtonEnum.GREEN.name:
-            logging.info('pressed green')
+            logger.info('pressed green')
             LED.switch_on({LEDEnum.green})
         elif button == ButtonEnum.RED.name:
-            logging.info('pressed red')
+            logger.info('pressed red')
             LED.switch_on({LEDEnum.red})
         elif button == ButtonEnum.YELLOW.name:
-            logging.info('pressed yellow')
+            logger.info('pressed yellow')
             LED.switch_on({LEDEnum.yellow})
         elif button == ButtonEnum.DOUBT0.name:
-            logging.info('pressed doubt0 (switch green)')
+            logger.info('pressed doubt0 (switch green)')
             LED.blink_on({LEDEnum.green})
         elif button == ButtonEnum.DOUBT1.name:
-            logging.info('pressed doubt1 (switch red)')
+            logger.info('pressed doubt1 (switch red)')
             LED.blink_on({LEDEnum.red})
         elif button == ButtonEnum.RESET.name:
-            logging.info('pressed end')
+            logger.info('pressed end')
             LED.blink_on({LEDEnum.green, LEDEnum.yellow})
         elif button == ButtonEnum.REBOOT.name:
-            logging.info('pressed reboot')
+            logger.info('pressed reboot')
             LED.blink_on({LEDEnum.yellow, LEDEnum.red})
         elif button == ButtonEnum.AP.name:
-            logging.info('pressed ap')
+            logger.info('pressed ap')
             LED.blink_on({LEDEnum.green, LEDEnum.red})
 
 

@@ -44,7 +44,7 @@ try:
     DEVICE: tuple[ssd1306, ssd1306] = (ssd1306(SERIAL[0]), ssd1306(SERIAL[1]))
 except (OSError, DeviceNotFoundError) as e:
     logging.basicConfig(filename=f'{config.path.log_dir}/messages.log', level=logging.INFO, force=True)
-    logging.error(f'error opening OLED 1 / OLED 2 {type(e).__name__}: {e}')
+    logging.getLogger(__name__).error(f'error opening OLED 1 / OLED 2 {type(e).__name__}: {e}')
     raise RuntimeError('Error: OLED 1 / OLED 2 not available') from e
 
 BLACK = 'black'
@@ -55,13 +55,14 @@ FONT_FAMILY = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
 FONT = ImageFont.truetype(FONT_FAMILY, 42)
 FONT1 = ImageFont.truetype(FONT_FAMILY, 20)
 FONT2 = ImageFont.truetype(FONT_FAMILY, 12)
+logger = logging.getLogger(__name__)
 
 
 class OLEDDisplay(Display):
     """Implementation of class Display with OLED"""
 
     def stop(self) -> None:
-        logging.debug('display stop')
+        logger.debug('display stop')
         for i in range(2):
             DEVICE[i].hide()
 
@@ -70,7 +71,7 @@ class OLEDDisplay(Display):
             ips = {adapter.name: ip.ip for adapter in ifaddr.get_adapters() for ip in adapter.ips if ip.is_IPv4}
             return (ips.get('wlan0', 'n/a'), ips.get('eth0', 'n/a'))
 
-        logging.debug(f'show message {msg}')
+        logger.debug(f'show message {msg}')
         title = get_ipv4_address()
         for i in range(2):
             with canvas(DEVICE[i]) as draw:

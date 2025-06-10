@@ -39,6 +39,7 @@ from timer_thread import RepeatedTimer
 Device.pin_factory = MockFactory()
 current_counter: int = 0
 list_of_dir: list[str] = []
+logger = logging.getLogger(__name__)
 
 # TEMPLATE_FOLDER = os.path.abspath(f'{os.path.dirname(__file__) or "."}/../src/templates')
 # STATIC_FOLDER = os.path.abspath(f'{os.path.dirname(__file__) or "."}/../src/static')
@@ -101,7 +102,7 @@ def cam_first():
 
 def cam_prev():
     """skip to previous image"""
-    logging.debug('prev')
+    logger.debug('prev')
     if camera.cam.counter > 1:  # type: ignore
         camera.cam.counter -= 1  # type: ignore
     return redirect(url_for('simulator'))
@@ -109,14 +110,14 @@ def cam_prev():
 
 def cam_next():
     """skip to next image"""
-    logging.debug('next')
+    logger.debug('next')
     camera.cam.counter += 1 if Path(camera.cam.formatter.format(camera.cam.counter + 1)).is_file() else 0  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_last():
     """skip to last image"""
-    logging.debug('last')
+    logger.debug('last')
     while Path(camera.cam.formatter.format(camera.cam.counter + 1)).is_file():  # type: ignore
         camera.cam.counter += 1  # type: ignore
     return redirect(url_for('simulator'))
@@ -125,7 +126,7 @@ def cam_last():
 def open_folder():
     """select folder for images"""
     folder = request.args.get('folder')
-    logging.debug(f'try to open {folder}')
+    logger.debug(f'try to open {folder}')
     if folder is not None:
         ini_file = (config.path.src_dir.parent / 'test' / folder / 'scrabble.ini').resolve()
         if ini_file.exists():
@@ -133,7 +134,7 @@ def open_folder():
             camera.cam.counter = 1  # type: ignore
             camera.cam.formatter = config.development.simulate_path  # type: ignore
         else:
-            logging.warning(f'INI File not found / invalid: {ini_file}')
+            logger.warning(f'INI File not found / invalid: {ini_file}')
     return redirect(url_for('simulator'))
 
 
@@ -189,7 +190,7 @@ def main():
     def log_exception_handler(exctype, value, tb):
         import traceback
 
-        logging.exception(''.join(traceback.format_exception(exctype, value, tb)))
+        logger.exception(''.join(traceback.format_exception(exctype, value, tb)))
         sys.__excepthook__(exctype, value, tb)  # calls default excepthook
 
     logging.config.fileConfig(
@@ -203,13 +204,13 @@ def main():
     log.setLevel(logging.ERROR)
 
     sys.excepthook = log_exception_handler
-    logging.info('####################################################################')
-    logging.info('## Simulator loading ...                                          ##')
-    logging.info('####################################################################')
+    logger.info('####################################################################')
+    logger.info('## Simulator loading ...                                          ##')
+    logger.info('####################################################################')
 
-    logging.info(f'Version: {version.git_version}')
-    logging.info(f'Git branch: {version.git_branch}')
-    logging.info(f'Git commit: {version.git_commit}')
+    logger.info(f'Version: {version.git_version}')
+    logger.info(f'Git branch: {version.git_branch}')
+    logger.info(f'Git commit: {version.git_commit}')
 
     # get simulate folders
     test_dir = Path(config.path.src_dir).resolve().parent / 'test'
@@ -242,8 +243,8 @@ def main():
 
     # start State-Machine
     State.do_new_game()
-    logging.debug(f'#### workdir {config.path.work_dir}')
-    logging.info('####################################################################')
+    logger.debug(f'#### workdir {config.path.work_dir}')
+    logger.info('####################################################################')
 
     api.start_server(port=5050, simulator=True)
 

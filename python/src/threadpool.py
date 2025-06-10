@@ -21,6 +21,8 @@ import queue
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
+logger = logging.getLogger(__name__)
+
 
 class Command:  # pylint: disable=too-few-public-methods
     """Command class for sequential execution of asynchronous tasks"""
@@ -44,21 +46,21 @@ class CommandWorker(threading.Thread):
 
     def run(self):
         """Run worker thread"""
-        logging.warning('CommandWorker started')
+        logger.warning('CommandWorker started')
         while True:
             try:
                 try:
                     command = self.command_queue.get()  # wait for next command
                     if command is None:
-                        logging.warning('CommandWorker received None, shutting down')  # Log shutdown
+                        logger.warning('CommandWorker received None, shutting down')  # Log shutdown
                         continue  # never end worker thread
                     command.execute()
-                    logging.debug(f'CommandWorker finished command: {command.func.__name__}')
+                    logger.debug(f'CommandWorker finished command: {command.func.__name__}')
                 except Exception as e:  # pylint: disable=broad-exception-caught
-                    logging.exception(f'unexpected exception in CommandWorker {e}')
+                    logger.exception(f'unexpected exception in CommandWorker {e}')
                 finally:
                     self.command_queue.task_done()
-                    logging.debug(
+                    logger.debug(
                         f'Queue size: {self.command_queue.qsize()}, Unfinished tasks: {self.command_queue.unfinished_tasks}'
                     )
             except queue.Empty:  # continue with next entry

@@ -37,6 +37,7 @@ from threadpool import command_queue
 PROFILE = False
 TEST_DIR = os.path.dirname(__file__)
 logging.config.fileConfig(fname=f'{os.path.dirname(os.path.abspath(__file__))}/test_log.conf', disable_existing_loggers=False)
+logger = logging.getLogger(__name__)
 
 
 class GameRunnerTestCase(unittest.TestCase):
@@ -168,7 +169,7 @@ class GameRunnerTestCase(unittest.TestCase):
             with open(f'{file}', 'r', encoding='UTF-8') as config_file:
                 test_config.read_file(config_file)
         except IOError as oops:
-            logging.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
+            logger.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
             self.fail(f'error reading ini-file {file}')
 
         name1 = test_config.get('default', 'name1', fallback='Name1')
@@ -183,7 +184,7 @@ class GameRunnerTestCase(unittest.TestCase):
         # set config
         self.config_setter('video', 'warp', warp)
         self.config_setter('video', 'warp_coordinates', coordstr)
-        logging.info(f'{config.video.warp}: {config.video.warp_coordinates}')
+        logger.info(f'{config.video.warp}: {config.video.warp_coordinates}')
         self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom'))
         camera.cam.formatter = formatter  # type: ignore
         camera.cam.counter = 1  # type: ignore
@@ -194,10 +195,10 @@ class GameRunnerTestCase(unittest.TestCase):
 
         # run test: loop csv
         with open(csvfile, mode='r') as csv_file:
-            logging.info(f'TESTFILE: {csvfile}')
+            logger.info(f'TESTFILE: {csvfile}')
             csv_reader = csv.DictReader(csv_file, skipinitialspace=True)
             for row in csv_reader:
-                logging.info(f'TEST: {row}')
+                logger.info(f'TEST: {row}')
                 camera.cam.counter = int(row['Move'])  # type: ignore
                 State.press_button(row['Button'].upper())
                 sleep(0.01)
@@ -230,10 +231,10 @@ class GameRunnerTestCase(unittest.TestCase):
                             State.ctx.game.moves[-1].word,
                             f'invalid word {State.ctx.game.moves[-1].word} at move {int(row["Move"])}',
                         )
-                logging.warning(f'qsize={command_queue.qsize()}')
+                logger.warning(f'qsize={command_queue.qsize()}')
             if State.ctx.current_state != GameState.EOG:
                 State.do_end_of_game()
-        logging.info(f'### end of tests {file} ###')
+        logger.info(f'### end of tests {file} ###')
         if PROFILE:
             snapshot = tracemalloc.take_snapshot()
             self.display_top(snapshot, limit=10)
