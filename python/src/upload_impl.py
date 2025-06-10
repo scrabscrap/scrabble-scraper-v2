@@ -84,7 +84,7 @@ class Upload(Protocol):
                 if path.is_file():
                     upload_files[key] = path.open('rb')
             if upload_files:
-                return self.upload(files=files)
+                return self.upload(files=upload_files)
         except OSError as oops:
             logging.error(f'upload I/O error({oops.errno}): {oops.strerror}')
         return False
