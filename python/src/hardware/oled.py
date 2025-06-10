@@ -43,8 +43,9 @@ try:
     )
     DEVICE: tuple[ssd1306, ssd1306] = (ssd1306(SERIAL[0]), ssd1306(SERIAL[1]))
 except (OSError, DeviceNotFoundError) as e:
-    logging.basicConfig(filename=f'{config.path.log_dir}/messages.log', level=logging.INFO, force=True)
-    logging.getLogger(__name__).error(f'error opening OLED 1 / OLED 2 {type(e).__name__}: {e}')
+    if not config.is_testing:  # skip if under test
+        logging.basicConfig(filename=f'{config.path.log_dir}/messages.log', level=logging.INFO, force=True)
+        logging.getLogger(__name__).error(f'error opening OLED 1 / OLED 2 {type(e).__name__}: {e}')
     raise RuntimeError('Error: OLED 1 / OLED 2 not available') from e
 
 BLACK = 'black'
