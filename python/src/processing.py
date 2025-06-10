@@ -19,7 +19,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import logging
 from concurrent import futures
 from contextlib import suppress
-from typing import Optional, Tuple
 
 import cv2
 import imutils
@@ -55,7 +54,7 @@ def event_set(event) -> None:
         event.set()
 
 
-def get_last_warp() -> Optional[TWarp]:
+def get_last_warp() -> TWarp | None:
     """Delegates the warp of the ``img`` according to the configured board style"""
     return BOARD_CLASSES.get(config.board.layout, Custom2012Board).last_warp
 
@@ -73,7 +72,7 @@ def warp_image(img: MatLike) -> tuple[MatLike, MatLike]:
 
 
 @runtime_measure
-def filter_image(img: MatLike) -> tuple[Optional[MatLike], set]:
+def filter_image(img: MatLike) -> tuple[MatLike | None, set]:
     """Delegates the image filter of the ``img`` according to the configured board style"""
     return BOARD_CLASSES.get(config.board.layout, Custom2012Board).filter_image(img)
 
@@ -189,9 +188,9 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
     game: Game,
     index: int,
     movetype: MoveType,
-    coord: Optional[Tuple[int, int]] = None,
-    isvertical: Optional[bool] = None,
-    word: Optional[str] = None,
+    coord: tuple[int, int] | None = None,
+    isvertical: bool | None = None,
+    word: str | None = None,
     event=None,
 ) -> None:
     """fix move(direct call from admin)
@@ -247,7 +246,7 @@ def admin_ins_challenge(game: Game, index: int, move_type: MoveType, event=None)
 
 
 @runtime_measure
-def _image_processing(game: Game, img: MatLike) -> Tuple[MatLike, dict]:
+def _image_processing(game: Game, img: MatLike) -> tuple[MatLike, dict]:
     warped, warped_gray = warp_image(img)  # warp image if necessary
     _, tiles_candidates = filter_image(warped)  # find potential tiles on board
 
@@ -270,7 +269,7 @@ def _image_processing(game: Game, img: MatLike) -> Tuple[MatLike, dict]:
     return warped, analyze_threads(warped_gray, board, tiles_candidates)  # analyze image
 
 
-def _changes(board: dict, previous_board: dict) -> Tuple[dict, dict, dict]:
+def _changes(board: dict, previous_board: dict) -> tuple[dict, dict, dict]:
     new_tiles = {i: board[i] for i in set(board.keys()).difference(previous_board)}
     removed_tiles = {i: previous_board[i] for i in set(previous_board.keys()).difference(board)}
     changed_tiles = {
@@ -348,7 +347,7 @@ def _recalculate_score_on_tiles_change(game: Game, changed: BoardType) -> None:
 
 @trace
 @handle_exceptions
-def move(game: Game, img: MatLike, player: int, played_time: Tuple[int, int], event=None) -> None:
+def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], event=None) -> None:
     """Process a move"""
 
     warped, board = _image_processing(game, img)
@@ -438,7 +437,7 @@ def new_game(game: Game, event=None) -> None:
 
 
 @trace
-def end_of_game(game: Game, image: Optional[MatLike] = None, player: int = -1, event=None) -> None:
+def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, event=None) -> None:
     # pragma: no cover
     """Process end of game"""
 

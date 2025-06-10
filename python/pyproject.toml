@@ -8,19 +8,72 @@ quote-style = "single"
 skip-magic-trailing-comma = true
 
 [tool.ruff.lint]
+# https://docs.astral.sh/ruff/rules/
 select = [
-  "E",   # pycodestyle (error)
-  "F",   # pyflakes
-  "B",   # bugbear
-  "B9",
-  "C4",  # flake8-comprehensions
-  # "SIM", # flake8-simplify
-  # "I",   # isort
-  # "UP",  # pyupgrade
-  # "PIE", # flake8-pie
-  # "PGH", # pygrep-hooks
-  "PYI", # flake8-pyi
-  # "RUF",
+# "AIR", # Airflow (AIR)
+# "ERA", # eradicate (ERA)
+# "FAST", # FastAPI (FAST)
+# "YTT", # flake8-2020 (YTT)
+# "ANN", # flake8-annotations (ANN)
+# "ASYNC", # flake8-async (ASYNC)
+# "S", # flake8-bandit (S)
+# "BLE", # flake8-blind-except (BLE)
+# "FBT", # flake8-boolean-trap (FBT)
+ "B", # flake8-bugbear (B)
+# "A", # flake8-builtins (A)
+# "COM", # flake8-commas (COM)
+ "C4", # flake8-comprehensions (C4)
+# "CPY", # flake8-copyright (CPY)
+# "DTZ", # flake8-datetimez (DTZ)
+# "T10", # flake8-debugger (T10)
+# "DJ", # flake8-django (DJ)
+# "EM", # flake8-errmsg (EM)
+# "EXE", # flake8-executable (EXE)
+# "FIX", # flake8-fixme (FIX)
+# "FA", # flake8-future-annotations (FA)
+# "INT", # flake8-gettext (INT)
+# "ISC", # flake8-implicit-str-concat (ISC)
+# "ICN", # flake8-import-conventions (ICN)
+# "LOG", # flake8-logging (LOG)
+# "G", # flake8-logging-format (G)
+# "INP", # flake8-no-pep420 (INP)
+# "PIE", # flake8-pie (PIE)
+# "T20", # flake8-print (T20)
+ "PYI", # flake8-pyi (PYI)
+# "PT", # flake8-pytest-style (PT)
+# "Q", # flake8-quotes (Q)
+# "RSE", # flake8-raise (RSE)
+# "RET", # flake8-return (RET)
+# "SLF", # flake8-self (SLF)
+# "SIM", # flake8-simplify (SIM)
+# "SLOT", # flake8-slots (SLOT)
+# "TID", # flake8-tidy-imports (TID)
+# "TD", # flake8-todos (TD)
+# "TC", # flake8-type-checking (TC)
+# "ARG", # flake8-unused-arguments (ARG)
+# "PTH", # flake8-use-pathlib (PTH)
+# "FLY", # flynt (FLY)
+# "I", # isort (I)
+# "C90", # mccabe (C90)
+# "NPY", # NumPy-specific rules (NPY)
+# "PD", # pandas-vet (PD)
+# "N", # pep8-naming (N)
+# "PERF", # Perflint (PERF)
+ "E", # Code Style Error (E)
+ "W", # Code Style Warning (W)
+# "DOC", # pydoclint (DOC)
+# "D", # pydocstyle (D)
+ "F", # Pyflakes (F)
+# "PGH", # pygrep-hooks (PGH)
+# "PL", # Pylint (PL)
+# "PLC", # Convention (PLC)
+# "PLE", # Error (PLE)
+# "PLR", # Refactor (PLR)
+# "PLW", #  Warning (PLW)
+ "UP", # pyupgrade (UP)
+# "FURB", # refurb (FURB)
+# "RUF", # Ruff-specific rules (RUF)
+# "TRY", # tryceratops (TRY)
 ]
 ignore = ["RUF012"]
 

@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import os
-from typing import List
 
 import cv2
 import numpy as np
@@ -89,7 +88,7 @@ class OneTile:  # pylint: disable=too-few-public-methods
 
 bag = BAGS[config.board.language]
 bag_as_list = [k for k, count in bag.items() for _ in range(count)]
-tiles: List[OneTile] = []
+tiles: list[OneTile] = []
 
 
 def scores(tile: str) -> int:
@@ -97,7 +96,7 @@ def scores(tile: str) -> int:
     return 0 if tile.islower() or tile == '_' else SCORES[config.board.language][tile]
 
 
-def load_tiles() -> List[OneTile]:
+def load_tiles() -> list[OneTile]:
     """load tile images from disk"""
 
     tiles.clear()

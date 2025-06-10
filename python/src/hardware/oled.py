@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import logging
-from typing import Optional
 
 import ifaddr
 from luma.core.error import DeviceNotFoundError
@@ -89,7 +88,7 @@ class OLEDDisplay(Display):
                         draw.text((2, 30), f'{minutes:02d}:{seconds:02d}  {score:3d}', font=FONT1, fill=WHITE)
 
     def render_display(
-        self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: Optional[str] = None
+        self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: str | None = None
     ) -> None:
         def _format_time(played: int) -> str:
             delta = config.scrabble.max_time - played

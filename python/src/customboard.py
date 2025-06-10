@@ -18,7 +18,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 # pylint: disable=duplicate-code
 
 import logging
-from typing import Optional
 
 import cv2
 import imutils
@@ -59,7 +58,7 @@ class CustomBoard:
 
     BOARD_MASK_BORDER = 5
     TWORD_MASK, DWORD_MASK, TLETTER_MASK, DLETTER_MASK, FIELD_MASK = None, None, None, None, None
-    last_warp: Optional[TWarp] = None
+    last_warp: TWarp | None = None
 
     @classmethod
     def warp(cls, image: MatLike) -> MatLike:  # pylint: disable=too-many-locals
@@ -78,7 +77,7 @@ class CustomBoard:
         return cv2.warpPerspective(image, matrix, (800, 800), flags=cv2.INTER_AREA)
 
     @classmethod
-    def filter_image(cls, color: MatLike) -> tuple[Optional[MatLike], set]:  # pylint: disable=too-many-locals
+    def filter_image(cls, color: MatLike) -> tuple[MatLike | None, set]:  # pylint: disable=too-many-locals
         """implement filter for game board"""
 
         def create_mask(hsv: MatLike, color_range, board_mask) -> np.ndarray:
@@ -145,7 +144,6 @@ class CustomBoard:
                     candidates.add((col, row))
         result = None
         if logging.getLogger().isEnabledFor(logging.DEBUG):
-            result = cv2.hconcat((mask_result))  # pylint: disable=C0301
             logging.debug(f'filtered pixels:\n{cls.log_pixels(filtered_pixels=filtered_pixels)}')
             logging.debug(f'candidates:\n{cls.log_candidates(candidates=candidates)}')
         return result, candidates

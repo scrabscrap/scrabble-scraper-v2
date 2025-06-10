@@ -18,7 +18,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import atexit
 import platform
-from typing import Optional, Set
 
 from gpiozero import LED as GpioLED, Device
 
@@ -50,7 +49,7 @@ class LED:
     """Implementation of LED access"""
 
     @staticmethod
-    def switch(on: Optional[Set[GpioLED]] = None, blink: Optional[Set[GpioLED]] = None) -> None:
+    def switch(on: set[GpioLED] | None = None, blink: set[GpioLED] | None = None) -> None:
         """switch leds on/off/blink"""
         to_turn_off = LEDEnum.set() - (on or set()) - (blink or set())
         for i in to_turn_off:
@@ -61,7 +60,7 @@ class LED:
             i.blink(on_time=0.5, off_time=0.5)  # type: ignore # wrong in func definition
 
     @staticmethod
-    def switch_on(leds: Set[GpioLED], switch_off: bool = True) -> None:
+    def switch_on(leds: set[GpioLED], switch_off: bool = True) -> None:
         """switch all leds on"""
         if switch_off:
             for i in LEDEnum.set().difference(leds):
@@ -70,7 +69,7 @@ class LED:
             i.on()
 
     @staticmethod
-    def blink_on(leds: Set[GpioLED], switch_off: bool = True) -> None:
+    def blink_on(leds: set[GpioLED], switch_off: bool = True) -> None:
         """set all leds to blink"""
         if switch_off:
             for i in LEDEnum.set().difference(leds):
@@ -79,7 +78,7 @@ class LED:
             i.blink(on_time=0.5, off_time=0.5)  # type: ignore # wrong in func definition
 
     @staticmethod
-    def switch_off(leds: Set[GpioLED]) -> None:
+    def switch_off(leds: set[GpioLED]) -> None:
         """switch all LEDs off"""
         for i in leds:
             i.off()

@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import logging
 import time
 from enum import Enum
-from typing import Callable, Optional
+from typing import Callable
 
 from gpiozero import Button as GpioButton
 
@@ -48,8 +48,8 @@ class Button(Static):
     """Handle button press and release"""
 
     bounce: dict = {}
-    func_pressed: Optional[Callable] = None
-    func_released: Optional[Callable] = None
+    func_pressed: Callable | None = None
+    func_released: Callable | None = None
 
     @classmethod
     def button_pressed(cls, button: GpioButton) -> None:  # callback
@@ -67,7 +67,7 @@ class Button(Static):
                 cls.func_released(ButtonEnum(button.pin.number).name)  # pylint: disable=not-callable
 
     @classmethod
-    def start(cls, func_pressed: Optional[Callable] = None, func_released: Optional[Callable] = None) -> None:
+    def start(cls, func_pressed: Callable | None = None, func_released: Callable | None = None) -> None:
         """initialize the button handler"""
         cls.func_pressed = func_pressed
         cls.func_released = func_released

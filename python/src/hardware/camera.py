@@ -22,7 +22,7 @@ import logging
 import os
 from threading import Event
 from time import sleep
-from typing import Optional, Protocol
+from typing import Protocol
 
 import cv2
 import numpy as np
@@ -38,7 +38,7 @@ logging.basicConfig(filename=f'{config.path.work_dir}/log/messages.log', level=l
 class Camera(Protocol):
     """Camera Protocol"""
 
-    def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
+    def __init__(self, src: int = 0, resolution: tuple[int, int] | None = None, framerate: int | None = None):
         """constructor"""
 
     def read(self, peek: bool = False) -> MatLike:  # type: ignore
@@ -61,13 +61,13 @@ if importlib.util.find_spec('picamera2'):
     class CameraRPI64(Camera):
         """uses RPI 64bit camera"""
 
-        def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
+        def __init__(self, src: int = 0, resolution: tuple[int, int] | None = None, framerate: int | None = None):
             """init/config cam"""
             logging.info('### init CameraRPI64')
             self.resolution = resolution or (config.video.width, config.video.height)
             self.framerate = framerate or config.video.fps
             self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
-            self.event: Optional[Event] = None
+            self.event: Event | None = None
             self.camera = Picamera2()
             logging.info(f'open CameraRPI64: {self.resolution=} {self.framerate=}')
             cfg = self.camera.create_still_configuration(main={'format': 'RGB888', 'size': self.resolution})
@@ -126,7 +126,7 @@ if importlib.util.find_spec('picamera2'):
 class CameraFile(Camera):
     """Implementation for file access"""
 
-    def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
+    def __init__(self, src: int = 0, resolution: tuple[int, int] | None = None, framerate: int | None = None):
         logging.info('### init CameraFile')
         self.resolution = resolution or (config.video.width, config.video.height)
         self.framerate = framerate or config.video.fps
@@ -187,7 +187,7 @@ class CameraFile(Camera):
 class CameraOpenCV(Camera):
     """camera implementation for OpenCV"""
 
-    def __init__(self, src: int = 0, resolution: Optional[tuple[int, int]] = None, framerate: Optional[int] = None):
+    def __init__(self, src: int = 0, resolution: tuple[int, int] | None = None, framerate: int | None = None):
         logging.info('### init CameraOpenCV')
         self.resolution = resolution or (config.video.width, config.video.height)
         self.framerate = framerate or config.video.fps
@@ -201,7 +201,7 @@ class CameraOpenCV(Camera):
             self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
             self.stream.set(cv2.CAP_PROP_FPS, self.framerate)
         self.frame = np.array([])
-        self.event: Optional[Event] = None
+        self.event: Event | None = None
         sleep(2)  # warm up camera
         atexit.register(self._atexit)  # cleanup on exit
 

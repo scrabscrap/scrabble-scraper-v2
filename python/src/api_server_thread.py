@@ -32,7 +32,6 @@ import urllib.parse
 from datetime import datetime
 from signal import alarm
 from time import perf_counter, sleep
-from typing import Tuple
 
 import cv2
 import numpy as np
@@ -204,7 +203,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                         logging.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
                         root_logger.setLevel(new_level)
                         log_config = configparser.ConfigParser()
-                        with open(f'{config.path.work_dir}/log.conf', 'r', encoding='UTF-8') as config_file:
+                        with open(f'{config.path.work_dir}/log.conf', encoding='UTF-8') as config_file:
                             log_config.read_file(config_file)
                             if 'logger_root' not in log_config.sections():
                                 log_config.add_section('logger_root')
@@ -551,7 +550,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             dk = hashlib.pbkdf2_hmac('sha1', str.encode(password), str.encode(ssid), 4096, 256)
             return binascii.hexlify(dk)[0:64].decode('utf8')
 
-        def run_cmd(cmd: list, log_len=None) -> Tuple[int, list]:
+        def run_cmd(cmd: list, log_len=None) -> tuple[int, list]:
             logging.debug(f'{cmd[log_len]=}' if log_len else f'{cmd=}')
             process = subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             return process.returncode, process.stdout.splitlines()
@@ -905,7 +904,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """websocket for logging"""
         import html
 
-        f = open(f'{config.path.log_dir}/messages.log', 'r', encoding='utf-8')  # pylint: disable=consider-using-with
+        f = open(f'{config.path.log_dir}/messages.log', encoding='utf-8')  # pylint: disable=consider-using-with
         # with will close at eof
         tmp = '\n' + ''.join(f.readlines()[-600:])  # first read last 600 lines
         tmp = html.escape(tmp)

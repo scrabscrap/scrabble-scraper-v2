@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import logging
-from typing import Optional
 
 from config import config
 from scrabble import Game
@@ -28,7 +27,7 @@ class Display:
 
     def __init__(self) -> None:
         self.lastplayer: int = -1
-        self.game: Optional[Game] = None
+        self.game: Game | None = None
 
     def stop(self) -> None:
         """Poweroff display"""
@@ -121,7 +120,7 @@ class Display:
         self.game = game
 
     def render_display(
-        self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: Optional[str] = None
+        self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: str | None = None
     ) -> None:
         """render display content
 

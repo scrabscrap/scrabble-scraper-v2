@@ -22,10 +22,10 @@ import json
 import logging
 import re
 from collections import Counter
+from collections.abc import Generator, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, auto
-from typing import Generator, List, Optional, Sequence, Tuple
 
 import cv2
 from cv2.typing import MatLike
@@ -54,7 +54,7 @@ def board_to_string(board: BoardType) -> str:
     return result
 
 
-def gcg_to_coord(gcg_string: str) -> Tuple[bool, Tuple[int, int]]:
+def gcg_to_coord(gcg_string: str) -> tuple[bool, tuple[int, int]]:
     """convert gcg coordinates to board coordinates"""
     gcg_coord_h = re.compile('([A-Oa-o])(\\d+)')
     gcg_coord_v = re.compile('(\\d+)([A-Oa-o])')
@@ -154,17 +154,17 @@ class Move:  # pylint: disable=too-many-instance-attributes
 
     move: int = field(default=0)
     player: int
-    played_time: Tuple[int, int] = (0, 0)
-    img: Optional[MatLike] = field(repr=False)
+    played_time: tuple[int, int] = (0, 0)
+    img: MatLike | None = field(repr=False)
     new_tiles: BoardType = field(default_factory=dict)
 
     points: int = 0
-    score: Tuple[int, int] = (0, 0)
+    score: tuple[int, int] = (0, 0)
     is_modified: bool = False
 
     board: BoardType = field(default_factory=dict)
     rack_size: tuple[int, int] = (7, 7)
-    previous_move: Optional[Move] = None
+    previous_move: Move | None = None
 
     def __post_init__(self) -> None:
         self.new_tiles = {}
@@ -185,17 +185,17 @@ class Move:  # pylint: disable=too-many-instance-attributes
             self.board = {}
         return self.board
 
-    def calculate_points(self) -> Tuple[int, bool]:
+    def calculate_points(self) -> tuple[int, bool]:
         """calculates and sets points and returns whether the move is a Scrabble"""
         self.points = 0
         return self.points, False
 
-    def calculate_rack_size(self) -> Tuple[int, int]:
+    def calculate_rack_size(self) -> tuple[int, int]:
         """calculates and sets racksize after this move"""
         self.rack_size = self.previous_move.rack_size if self.previous_move else (7, 7)
         return self.rack_size
 
-    def calculate_score(self) -> Tuple[int, Tuple[int, int]]:
+    def calculate_score(self) -> tuple[int, tuple[int, int]]:
         """calculates and sets score after move"""
         previous_score = self.previous_move.score if self.previous_move else (0, 0)
         self.calculate_rack_size()
@@ -254,7 +254,7 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
     """regular move"""
 
     type: MoveType = MoveType.REGULAR
-    coord: Tuple[int, int] = field(init=False)
+    coord: tuple[int, int] = field(init=False)
     is_vertical: bool = field(init=False)
     new_tiles: BoardType = field(default_factory=dict, init=True)
     is_scrabble: bool = field(default=False)
@@ -291,7 +291,7 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
         self.board.update(self.new_tiles)
         return self.board
 
-    def calculate_rack_size(self) -> Tuple[int, int]:
+    def calculate_rack_size(self) -> tuple[int, int]:
         (rack0, rack1) = self.previous_move.rack_size if self.previous_move else (7, 7)
         tiles_on_board: int = len(self.previous_move.board) if self.previous_move else 0
         take_tiles = len(self.new_tiles)
@@ -312,7 +312,7 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
             col, row = (col + d_col, row + d_row)
         return (col, row)
 
-    def calculate_points(self) -> Tuple[int, bool]:
+    def calculate_points(self) -> tuple[int, bool]:
         def get_letter_bonus(coord: CoordType) -> int:
             return 2 if coord in DOUBLE_LETTER else 3 if coord in TRIPLE_LETTER else 1
 
@@ -361,7 +361,7 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
             self.points += SCRABBLE_BONUS
         return self.points, self.is_scrabble
 
-    def calculate_coord(self) -> Tuple[bool, CoordType]:
+    def calculate_coord(self) -> tuple[bool, CoordType]:
         """find begin and orientation of new word"""
         # Determine direction
         if not self.new_tiles:
@@ -427,13 +427,13 @@ class MoveWithdraw(Move):
                 logging.debug(f'removed tile: {deleted}')
         return self.board
 
-    def calculate_rack_size(self) -> Tuple[int, int]:
+    def calculate_rack_size(self) -> tuple[int, int]:
         move_to_withdraw = self.previous_move if self.previous_move else None
         move_to_restore = move_to_withdraw.previous_move if move_to_withdraw else None
         self.rack_size = move_to_restore.rack_size if move_to_restore else (7, 7)
         return self.rack_size
 
-    def calculate_points(self) -> Tuple[int, bool]:
+    def calculate_points(self) -> tuple[int, bool]:
         self.points = -self.previous_move.points if self.previous_move else 0
         return self.points, False
 
@@ -453,14 +453,14 @@ class MoveChallenge(Move):
     """incorrect challenge move"""
 
     type: MoveType = MoveType.CHALLENGE_BONUS
-    img: Optional[MatLike] = field(repr=False, init=False)
+    img: MatLike | None = field(repr=False, init=False)
 
     def __post_init__(self) -> None:
         super().__post_init__()
         if self.previous_move:
             self.img = self.previous_move.img.copy() if self.previous_move.img is not None else None
 
-    def calculate_points(self) -> Tuple[int, bool]:
+    def calculate_points(self) -> tuple[int, bool]:
         self.points = -config.scrabble.malus_doubt
         return self.points, False
 
@@ -481,7 +481,7 @@ class MoveLastRackBonus(Move):
 
     type: MoveType = MoveType.LAST_RACK_BONUS
     rack: str = field(default='')
-    img: Optional[MatLike] = field(repr=False, init=False)
+    img: MatLike | None = field(repr=False, init=False)
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -489,7 +489,7 @@ class MoveLastRackBonus(Move):
             self.img = self.previous_move.img.copy() if self.previous_move.img is not None else None
             self.played_time = self.previous_move.played_time
 
-    def calculate_points(self) -> Tuple[int, bool]:
+    def calculate_points(self) -> tuple[int, bool]:
         self.points = 0 if self.rack == '?' else sum(scores(c) for c in self.rack)
         return self.points, False
 
@@ -500,7 +500,7 @@ class MoveLastRackMalus(Move):
 
     type: MoveType = MoveType.LAST_RACK_MALUS
     rack: str = field(default='')
-    img: Optional[MatLike] = field(repr=False, init=False)
+    img: MatLike | None = field(repr=False, init=False)
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -508,7 +508,7 @@ class MoveLastRackMalus(Move):
             self.img = self.previous_move.img.copy() if self.previous_move.img is not None else None
             self.played_time = self.previous_move.played_time
 
-    def calculate_points(self) -> Tuple[int, bool]:
+    def calculate_points(self) -> tuple[int, bool]:
         self.points = 0 if self.rack == '?' else -sum(scores(c) for c in self.rack)
         return self.points, False
 
@@ -518,7 +518,7 @@ class MoveTimeMalus(Move):
     """timeout malus"""
 
     type: MoveType = MoveType.TIME_MALUS
-    img: Optional[MatLike] = field(repr=False, init=False)
+    img: MatLike | None = field(repr=False, init=False)
 
     def __post_init__(self) -> None:
         if self.previous_move:
@@ -526,7 +526,7 @@ class MoveTimeMalus(Move):
             self.played_time = self.previous_move.played_time
         super().__post_init__()
 
-    def calculate_points(self) -> Tuple[int, bool]:
+    def calculate_points(self) -> tuple[int, bool]:
         self.points = 0
         if config.scrabble.max_time - self.player_time < 0:
             self.points = ((config.scrabble.max_time - self.player_time) // 60) * config.scrabble.timeout_malus
@@ -548,7 +548,7 @@ class Game:  # pylint: disable=too-many-public-methods
 
     nicknames: tuple[str, str] = ('Name1', 'Name2')
     gamestart: datetime = field(default_factory=datetime.now)
-    moves: List[Move] = field(default_factory=list)
+    moves: list[Move] = field(default_factory=list)
 
     def __str__(self) -> str:
         return self.json_str()
@@ -651,7 +651,7 @@ class Game:  # pylint: disable=too-many-public-methods
         self.add_lastrack()
         return self
 
-    def tiles_in_bag(self, index: int = -1) -> List[str]:
+    def tiles_in_bag(self, index: int = -1) -> list[str]:
         """returns list of tiles in bag"""
         tiles_on_board = self.moves[index].board.values() if self.moves else []
         values = ['_' if tile.letter.isalpha() and tile.letter.islower() else tile.letter for tile in tiles_on_board]
@@ -702,7 +702,7 @@ class Game:  # pylint: disable=too-many-public-methods
         # logging.debug(f'{self.json_str(index=index)[: self.json_str(index=index).find("moves") + 7]} ...')
         return self
 
-    def _add_move(self, move: Move, index: int = -1, recalc_from: Optional[int] = None) -> Game:
+    def _add_move(self, move: Move, index: int = -1, recalc_from: int | None = None) -> Game:
         if index == -1:
             self.moves.append(move)
         else:
@@ -714,7 +714,7 @@ class Game:  # pylint: disable=too-many-public-methods
         self._write_json_from(index=(index if index != -1 else len(self.moves) - 1), write_mode=['json', 'image'])
         return self
 
-    def add_regular(self, player: int, played_time: Tuple[int, int], img: MatLike, new_tiles: BoardType) -> Game:
+    def add_regular(self, player: int, played_time: tuple[int, int], img: MatLike, new_tiles: BoardType) -> Game:
         """add regular move"""
         prev_move = self.moves[-1] if self.moves else None
         m = MoveRegular(
@@ -722,7 +722,7 @@ class Game:  # pylint: disable=too-many-public-methods
         )
         return self._add_move(m)
 
-    def add_exchange(self, player: int, played_time: Tuple[int, int], img: MatLike) -> Game:
+    def add_exchange(self, player: int, played_time: tuple[int, int], img: MatLike) -> Game:
         """add exchange move"""
         prev_move = self.moves[-1] if self.moves else None
         m = MoveExchange(game=self, player=player, played_time=played_time, img=img, previous_move=prev_move)
@@ -793,7 +793,7 @@ class Game:  # pylint: disable=too-many-public-methods
         return self
 
     def add_unknown(  # pylint: disable=too-many-arguments,too-many-positional-arguments
-        self, player: int, played_time: Tuple[int, int], img: MatLike, new_tiles: BoardType, removed_tiles: BoardType
+        self, player: int, played_time: tuple[int, int], img: MatLike, new_tiles: BoardType, removed_tiles: BoardType
     ) -> Game:
         """add unknown move"""
         prev_move = self.moves[-1] if self.moves else None
@@ -876,7 +876,7 @@ class Game:  # pylint: disable=too-many-public-methods
         self._write_json_from(index=index, write_mode=['json', 'image'])
         return self
 
-    def change_move_at(self, index: int, movetype: MoveType, new_tiles: Optional[BoardType] = None) -> Game:
+    def change_move_at(self, index: int, movetype: MoveType, new_tiles: BoardType | None = None) -> Game:
         """change move before move at index (index)"""
         if not self.valid_index(index=index):
             raise IndexError(f'change move at: invalid index {index}')
@@ -915,7 +915,7 @@ class Game:  # pylint: disable=too-many-public-methods
         self._write_json_from(index=index, write_mode=['json', 'image'])
         return self
 
-    def insert_moves_at(self, index: Optional[int], moves_to_insert: Sequence[Move]) -> Game:
+    def insert_moves_at(self, index: int | None, moves_to_insert: Sequence[Move]) -> Game:
         """insert move before position at (index)
         if index is None, the moves are appended to the end"""
 

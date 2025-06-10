@@ -22,31 +22,31 @@ import logging
 from concurrent import futures
 from concurrent.futures import Future
 from pathlib import Path
-from typing import Optional, Protocol
+from typing import Protocol
 
 import requests
 from requests.auth import HTTPBasicAuth
 
 from config import config
 
-last_future: Optional[Future] = None
+last_future: Future | None = None
 
 
 class Upload(Protocol):
     """upload files"""
 
-    def waitfor_future(self, waitfor: Optional[Future]):
+    def waitfor_future(self, waitfor: Future | None):
         """wait for future and skips wait if waitfor is None"""
         if waitfor is not None:
             _, not_done = futures.wait({waitfor})
             if len(not_done) != 0:
                 logging.error(f'error while waiting for future - lenght of not_done: {len(not_done)}')
 
-    def upload(self, data: Optional[dict] = None, files: Optional[dict] = None) -> bool:
+    def upload(self, data: dict | None = None, files: dict | None = None) -> bool:
         """do upload/delete operation"""
         return False
 
-    def upload_move(self, waitfor: Optional[Future], move: int) -> bool:
+    def upload_move(self, waitfor: Future | None, move: int) -> bool:
         """upload one move"""
         files = {
             f'image-{move}.jpg': f'{config.path.web_dir}/image-{move}.jpg',
@@ -63,11 +63,11 @@ class Upload(Protocol):
                     upload_files.update({key: open(fname, 'rb')})  # pylint: disable=R1732
             if upload_files:
                 return self.upload(files=upload_files)
-        except IOError as oops:
+        except OSError as oops:
             logging.error(f'upload I/O error({oops.errno}): {oops.strerror}')
         return False
 
-    def upload_status(self, waitfor: Optional[Future]) -> bool:
+    def upload_status(self, waitfor: Future | None) -> bool:
         """upload status"""
         logging.debug('start transfer status file status.json')
         files = {'status.json': f'{config.path.web_dir}/status.json', 'messages.log': f'{config.path.log_dir}/messages.log'}
@@ -79,16 +79,16 @@ class Upload(Protocol):
                     upload_files.update({key: open(fname, 'rb')})  # pylint: disable=R1732
             if upload_files:
                 return self.upload(files=files)
-        except IOError as oops:
+        except OSError as oops:
             logging.error(f'upload I/O error({oops.errno}): {oops.strerror}')
         return False
 
-    def delete_files(self, waitfor: Optional[Future]) -> bool:
+    def delete_files(self, waitfor: Future | None) -> bool:
         """cleanup uploaded files"""
         self.waitfor_future(waitfor)
         return False
 
-    def zip_files(self, waitfor: Optional[Future], filename: Optional[str] = None) -> bool:
+    def zip_files(self, waitfor: Future | None, filename: str | None = None) -> bool:
         """zip uploaded files"""
         self.waitfor_future(waitfor)
         return False
@@ -97,7 +97,7 @@ class Upload(Protocol):
 class UploadHttp(Upload):  # pragma: no cover
     """http implementation"""
 
-    def upload(self, data: Optional[dict] = None, files: Optional[dict] = None) -> bool:
+    def upload(self, data: dict | None = None, files: dict | None = None) -> bool:
         """do upload/delete operation"""
 
         logging.debug(f'http: upload files {list(files.keys())}' if files else 'http: no files to upload')
@@ -117,12 +117,12 @@ class UploadHttp(Upload):  # pragma: no cover
                 logging.error(f'http: error connection error url={url}')
         return False
 
-    def delete_files(self, waitfor: Optional[Future]) -> bool:
+    def delete_files(self, waitfor: Future | None) -> bool:
         logging.debug('http: delete files')
         self.waitfor_future(waitfor)
         return self.upload(data={'delete': 'true'})
 
-    def zip_files(self, waitfor: Optional[Future], filename: Optional[str] = None) -> bool:
+    def zip_files(self, waitfor: Future | None, filename: str | None = None) -> bool:
         logging.debug('http: zip files on server')
         self.waitfor_future(waitfor)
         return self.upload(data={'zip': 'true'})
@@ -131,7 +131,7 @@ class UploadHttp(Upload):  # pragma: no cover
 class UploadFtp(Upload):  # pragma: no cover
     """ftp implementation"""
 
-    def upload(self, data: Optional[dict] = None, files: Optional[dict] = None) -> bool:
+    def upload(self, data: dict | None = None, files: dict | None = None) -> bool:
         """do upload/delete operation"""
         if (url := upload_config.server) is not None and files is not None:
             try:
@@ -140,11 +140,11 @@ class UploadFtp(Upload):  # pragma: no cover
                         with open(fname, 'rb') as file:
                             session.storbinary(f'STOR {key}', file)  # send the file
                 return True
-            except IOError as oops:
+            except OSError as oops:
                 logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False
 
-    def delete_files(self, waitfor: Optional[Future]) -> bool:
+    def delete_files(self, waitfor: Future | None) -> bool:
         """cleanup uploaded files"""
         self.waitfor_future(waitfor)
         if (url := upload_config.server) is not None:
@@ -158,18 +158,18 @@ class UploadFtp(Upload):  # pragma: no cover
                                 session.delete(filename)
                 logging.info('ftp: end of delete')
                 return True
-            except IOError as oops:
+            except OSError as oops:
                 logging.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False
 
-    def zip_files(self, waitfor: Optional[Future], filename: Optional[str] = None) -> bool:
+    def zip_files(self, waitfor: Future | None, filename: str | None = None) -> bool:
         """zip uploaded files"""
         self.waitfor_future(waitfor)
         logging.debug('ftp: upload zip file')
         try:
             files = {f'{filename}.zip': open(f'{config.path.web_dir}/{filename}.zip', 'rb')}  # pylint: disable=R1732
             return self.upload(files=files)
-        except IOError as oops:
+        except OSError as oops:
             logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
         return False
 
@@ -190,9 +190,9 @@ class UploadConfig:
         if clean:
             self.parser = configparser.ConfigParser()
         try:
-            with open(self.INIFILE, 'r', encoding='UTF-8') as config_file:
+            with open(self.INIFILE, encoding='UTF-8') as config_file:
                 self.parser.read_file(config_file)
-        except IOError as oops:
+        except OSError as oops:
             logging.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
         if self.SECTION not in self.parser.sections():
             self.parser.add_section(self.SECTION)

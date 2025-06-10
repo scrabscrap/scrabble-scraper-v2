@@ -296,7 +296,7 @@ class Config:  # pylint: disable=too-many-instance-attributes
         try:
             self.ini_path = ini_file or self.ini_path
             logging.info(f'reload {self.ini_path}')
-            with open(self.ini_path, 'r', encoding='UTF-8') as config_file:
+            with open(self.ini_path, encoding='UTF-8') as config_file:
                 self.config.read_file(config_file)
         except OSError as oops:
             logging.error(f'can not read INI-File {self.ini_path}: error({oops.errno}): {oops.strerror}')

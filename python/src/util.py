@@ -20,7 +20,7 @@ import functools
 import logging
 import time
 from logging.handlers import BaseRotatingHandler
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Union
 
 import numpy as np
 
@@ -50,8 +50,7 @@ def handle_exceptions(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            result = func(*args, **kwargs)
-            return result
+            return func(*args, **kwargs)
         except IndexError as err:
             logging.error(f'index error in {func.__name__} ignored: "{err}"')
         except ValueError as err:
@@ -91,7 +90,7 @@ def trace(func: Callable[..., Any]) -> Callable[..., Any]:
     return do_trace
 
 
-def rotate_logs(loggers: Optional[Union[str, list]] = None, delimiter: str = ','):  # pragma: no cover
+def rotate_logs(loggers: Union[str, list] | None = None, delimiter: str = ','):  # pragma: no cover
     """Rotate logs.
 
     Args:
