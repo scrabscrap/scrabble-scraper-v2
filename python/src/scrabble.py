@@ -422,7 +422,7 @@ class MoveWithdraw(Move):
 
     def setup_board(self) -> BoardType:
         super().setup_board()
-        for key in self.removed_tiles.keys():
+        for key in self.removed_tiles:
             if key in self.board:
                 deleted = self.board.pop(key, None)
                 logging.debug(f'removed tile: {deleted}')
@@ -577,7 +577,7 @@ class Game:  # pylint: disable=too-many-public-methods
         else:
             move_index = len(self.moves) + index if index < 0 else index
             move = self.moves[move_index]
-            keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in move.board.keys()]
+            keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in move.board]
             values1 = [tile.letter for tile in move.board.values()]
             prop1 = [tile.prob for tile in move.board.values()]
             gcg_moves = [self.moves[i].gcg_str for i in range(move_index + 1)]
