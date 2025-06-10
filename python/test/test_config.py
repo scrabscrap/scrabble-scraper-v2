@@ -18,6 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import json
 import os
+from pathlib import Path
 import unittest
 
 from config import config
@@ -34,10 +35,10 @@ class ConfigTestCase(unittest.TestCase):
     def test_default_values(self):
         config.reload(ini_file=EMPTY_CONFIG + '-invalid')  # only log output expected
         config.reload(ini_file=EMPTY_CONFIG, clean=True)
-        self.assertEqual(config.path.src_dir, os.path.abspath(os.path.dirname(__file__) + '/../src'))
-        self.assertEqual(config.path.work_dir, os.path.abspath(config.path.src_dir + '/../work'))
-        self.assertEqual(config.path.log_dir, os.path.abspath(config.path.src_dir + '/../work/log'))
-        self.assertEqual(config.path.web_dir, os.path.abspath(config.path.src_dir + '/../work/web'))
+        self.assertEqual(config.path.src_dir, Path(__file__).resolve().parent.parent / 'src')
+        self.assertEqual(config.path.work_dir, (config.path.src_dir.parent / 'work').resolve())
+        self.assertEqual(config.path.log_dir, (config.path.src_dir.parent / 'work' / 'log').resolve())
+        self.assertEqual(config.path.web_dir, (config.path.src_dir.parent / 'work' / 'web').resolve())
         self.assertFalse(config.development.simulate)
         # self.assertEqual(config.simulate_path, config.work_dir + '/simulate/image-{:d}.jpg')
         self.assertFalse(config.development.recording)

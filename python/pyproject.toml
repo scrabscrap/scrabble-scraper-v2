@@ -51,7 +51,7 @@ select = [
  "TD", # flake8-todos (TD)
 # "TC", # flake8-type-checking (TC)
 # "ARG", # flake8-unused-arguments (ARG)
-# "PTH", # flake8-use-pathlib (PTH)
+ "PTH", # flake8-use-pathlib (PTH)
 # "FLY", # flynt (FLY)
 # "I", # isort (I)
 # "C90", # mccabe (C90)

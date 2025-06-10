@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import logging
+from pathlib import Path
 import re
 from collections import Counter
 from collections.abc import Generator, Sequence
@@ -690,16 +691,23 @@ class Game:  # pylint: disable=too-many-public-methods
             logging.warning(f'invalid index {index} skipped')
             return self
 
+        web_dir = Path(config.path.web_dir)
         for i in range(index, len(self.moves)):  # write json and images
             if 'json' in write_mode:
-                with open(f'{config.path.web_dir}/data-{i}.json', 'w', encoding='utf-8') as json_file:
+                json_path = web_dir / f'data-{i}.json'
+                with json_path.open('w', encoding='utf-8') as json_file:
                     json.dump(self._get_json_data(index=i), json_file, indent=4)
+
             if 'image' in write_mode and self.moves[index].img is not None:
-                cv2.imwrite(f'{config.path.web_dir}/image-{i}.jpg', self.moves[index].img, [cv2.IMWRITE_JPEG_QUALITY, 100])  # type:ignore
+                image_path = web_dir / f'image-{i}.jpg'
+                cv2.imwrite(str(image_path), self.moves[index].img, [cv2.IMWRITE_JPEG_QUALITY, 100])  # type:ignore
+
             if i == len(self.moves) - 1:
-                with open(f'{config.path.web_dir}/status.json', 'w', encoding='utf-8') as json_file:
-                    json.dump(self._get_json_data(index=i), json_file, indent=4)
-        # logging.debug(f'{self.json_str(index=index)[: self.json_str(index=index).find("moves") + 7]} ...')
+                status_path = web_dir / 'status.json'
+                with status_path.open('w', encoding='utf-8') as json_file:
+                    json.dump(
+                        self._get_json_data(index=i), json_file, indent=4
+                    )  # logging.debug(f'{self.json_str(index=index)[: self.json_str(index=index).find("moves") + 7]} ...')
         return self
 
     def _add_move(self, move: Move, index: int = -1, recalc_from: int | None = None) -> Game:

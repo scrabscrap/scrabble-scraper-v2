@@ -21,7 +21,7 @@ from __future__ import annotations
 import atexit
 import importlib.util
 import logging
-import os
+from pathlib import Path
 from threading import Event
 from time import sleep
 from typing import Protocol
@@ -174,7 +174,7 @@ class CameraFile(Camera):
         logging.debug(f'CameraFile read: {self._formatter.format(self._counter)}')
         img = cv2.imread(self._formatter.format(self._counter))
         if not peek:
-            self._counter += 1 if os.path.isfile(self._formatter.format(self._counter + 1)) else 0
+            self._counter += 1 if Path(self._formatter.format(self._counter + 1)).is_file() else 0
         if img is not None and self._resize:
             img = cv2.resize(img, self.resolution)
         return img

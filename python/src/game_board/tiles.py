@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-import os
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -69,11 +69,12 @@ BAGS = {
             'V': 1, 'X': 1, 'Y': 1, 'Z': 1, '_': 2,
     },
 }
+BASE_IMG_DIR = Path(__file__).resolve().parent / "img"
 PATH_TILES_IMAGES = {
-    'de': f'{os.path.dirname(__file__)}/img/default',
-    'en': f'{os.path.dirname(__file__)}/img/en',
-    'fr': f'{os.path.dirname(__file__)}/img/fr',
-    'es': f'{os.path.dirname(__file__)}/img/es',
+    'de': BASE_IMG_DIR / 'default',
+    'en': BASE_IMG_DIR / 'en',
+    'fr': BASE_IMG_DIR / 'fr',
+    'es': BASE_IMG_DIR / 'es',
 }
 # fmt: on
 
@@ -98,14 +99,15 @@ def scores(tile: str) -> int:
 
 def load_tiles() -> list[OneTile]:
     """load tile images from disk"""
-
     tiles.clear()
     filepath = PATH_TILES_IMAGES[config.board.language]
-    # tile_list = [*SCORES[config.board_language]]
+
     tile_list = sorted(SCORES[config.board.language], key=lambda t: SCORES[config.board.language][t], reverse=True)
-    tile_list.remove('_')  # without blank
+    tile_list.remove('_')  # ohne Blanko-Stein
+
     for tile_name in tile_list:
-        image = cv2.imread(f'{filepath}/{tile_name}.png', cv2.IMREAD_GRAYSCALE)
+        image_path = filepath / f'{tile_name}.png'
+        image = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
         new_tile = OneTile()
         new_tile.name = tile_name
         new_tile.img = image.astype(np.uint8)

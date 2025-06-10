@@ -21,13 +21,13 @@ from __future__ import annotations
 import configparser
 import json
 import logging
-import os
 import subprocess
 from dataclasses import dataclass, field
+from pathlib import Path
 
 DEFAULT = {
     'path': {
-        'src_dir': os.path.dirname(__file__) or '.',
+        'src_dir': str(Path(__file__).resolve().parent),
         'work_dir': '%(src_dir)s/../work',
         'log_dir': '%(src_dir)s/../work/log',
         'web_dir': '%(src_dir)s/../work/web',
@@ -68,24 +68,24 @@ class PathConfig:
     config: configparser.ConfigParser
 
     @property
-    def src_dir(self) -> str:
+    def src_dir(self) -> Path:
         """Get source directory"""
-        return os.path.abspath(self.config.get('path', 'src_dir', fallback=os.path.dirname(__file__) or '.'))
+        return Path(self.config.get('path', 'src_dir', fallback=str(Path(__file__).resolve().parent))).resolve()
 
     @property
-    def work_dir(self) -> str:
+    def work_dir(self) -> Path:
         """Get working directory"""
-        return os.path.abspath(self.config.get('path', 'work_dir', fallback=f'{self.src_dir}/../work'))
+        return Path(self.config.get('path', 'work_dir', fallback=str(self.src_dir.parent / 'work'))).resolve()
 
     @property
-    def log_dir(self) -> str:
+    def log_dir(self) -> Path:
         """Get log directory"""
-        return os.path.abspath(self.config.get('path', 'log_dir', fallback=f'{self.src_dir}/../work/log'))
+        return Path(self.config.get('path', 'log_dir', fallback=str(self.src_dir.parent / 'work' / 'log'))).resolve()
 
     @property
-    def web_dir(self) -> str:
+    def web_dir(self) -> Path:
         """Get web output directory"""
-        return os.path.abspath(self.config.get('path', 'web_dir', fallback=f'{self.src_dir}/../work/web'))
+        return Path(self.config.get('path', 'web_dir', fallback=str(self.src_dir.parent / 'work' / 'web'))).resolve()
 
 
 @dataclass
@@ -278,8 +278,8 @@ class Config:  # pylint: disable=too-many-instance-attributes
 
     def __post_init__(self) -> None:
         self.config = configparser.ConfigParser()
-        self.ini_path: str = (os.path.dirname(__file__) or '.') + '/../work/scrabble.ini'
-        self.reload(ini_file=self.ini_path, clean=False)
+        self.ini_path: Path = (Path(__file__).resolve().parent / '..' / 'work' / 'scrabble.ini').resolve()
+        self.reload(ini_file=None, clean=False)
         self.is_testing: bool = False
         self.path = PathConfig(config=self.config)
         self.development = DevelopmentConfig(config=self.config)
@@ -289,22 +289,22 @@ class Config:  # pylint: disable=too-many-instance-attributes
         self.board = BoardConfig(config=self.config)
         self.system = SystemConfig(config=self.config)
 
-    def reload(self, ini_file=None, clean=True) -> None:
+    def reload(self, ini_file: str | None = None, clean: bool = True) -> None:
         """reload configuration"""
         if clean:
             self.config.clear()
         self.config.read_dict(DEFAULT)
         try:
-            self.ini_path = ini_file or self.ini_path
+            self.ini_path = Path(ini_file) if ini_file else self.ini_path
             logging.info(f'reload {self.ini_path}')
-            with open(self.ini_path, encoding='UTF-8') as config_file:
+            with self.ini_path.open(encoding='UTF-8') as config_file:
                 self.config.read_file(config_file)
         except OSError as oops:
             logging.error(f'can not read INI-File {self.ini_path}: error({oops.errno}): {oops.strerror}')
 
     def save(self) -> None:  # pragma: no cover
         """save configuration"""
-        with open(self.ini_path, 'w', encoding='UTF-8') as config_file:
+        with self.ini_path.open('w', encoding='UTF-8') as config_file:
             config_save = configparser.ConfigParser()  # store only changed settings
             for section in self.config.sections():
                 config_save.add_section(section=section)

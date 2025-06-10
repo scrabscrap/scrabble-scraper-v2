@@ -51,18 +51,19 @@ class Upload(Protocol):
     def upload_move(self, waitfor: Future | None, move: int) -> bool:
         """upload one move"""
         files = {
-            f'image-{move}.jpg': f'{config.path.web_dir}/image-{move}.jpg',
-            f'data-{move}.json': f'{config.path.web_dir}/data-{move}.json',
-            'status.json': f'{config.path.web_dir}/status.json',
-            'messages.log': f'{config.path.log_dir}/messages.log',
-            f'image-{move}-camera.jpg': f'{config.path.web_dir}/image-{move}-camera.jpg',
+            f'image-{move}.jpg': Path(config.path.web_dir) / f'image-{move}.jpg',
+            f'data-{move}.json': Path(config.path.web_dir) / f'data-{move}.json',
+            'status.json': Path(config.path.web_dir) / 'status.json',
+            'messages.log': Path(config.path.log_dir) / 'messages.log',
+            f'image-{move}-camera.jpg': Path(config.path.web_dir) / f'image-{move}-camera.jpg',
         }
+
         self.waitfor_future(waitfor)
         try:
             upload_files = {}
-            for key, fname in files.items():
-                if Path(fname).is_file():
-                    upload_files.update({key: open(fname, 'rb')})  # pylint: disable=R1732
+            for key, path in files.items():
+                if path.is_file():
+                    upload_files[key] = path.open('rb')
             if upload_files:
                 return self.upload(files=upload_files)
         except OSError as oops:
@@ -72,13 +73,16 @@ class Upload(Protocol):
     def upload_status(self, waitfor: Future | None) -> bool:
         """upload status"""
         logging.debug('start transfer status file status.json')
-        files = {'status.json': f'{config.path.web_dir}/status.json', 'messages.log': f'{config.path.log_dir}/messages.log'}
+        files = {
+            'status.json': Path(config.path.web_dir) / 'status.json',
+            'messages.log': Path(config.path.log_dir) / 'messages.log',
+        }
         self.waitfor_future(waitfor)
         try:
             upload_files = {}
-            for key, fname in files.items():
-                if Path(fname).is_file():
-                    upload_files.update({key: open(fname, 'rb')})  # pylint: disable=R1732
+            for key, path in files.items():
+                if path.is_file():
+                    upload_files[key] = path.open('rb')
             if upload_files:
                 return self.upload(files=files)
         except OSError as oops:
@@ -139,7 +143,7 @@ class UploadFtp(Upload):  # pragma: no cover
             try:
                 with ftplib.FTP_TLS(url, upload_config.user, upload_config.password) as session:
                     for key, fname in files.items():
-                        with open(fname, 'rb') as file:
+                        with Path(fname).open('rb') as file:
                             session.storbinary(f'STOR {key}', file)  # send the file
                 return True
             except OSError as oops:
@@ -169,7 +173,7 @@ class UploadFtp(Upload):  # pragma: no cover
         self.waitfor_future(waitfor)
         logging.debug('ftp: upload zip file')
         try:
-            files = {f'{filename}.zip': open(f'{config.path.web_dir}/{filename}.zip', 'rb')}  # pylint: disable=R1732
+            files = {f'{filename}.zip': (config.path.web_dir / f'{filename}.zip').open('rb')}  # pylint: disable=R1732
             return self.upload(files=files)
         except OSError as oops:
             logging.error(f'http: I/O error({oops.errno}): {oops.strerror}')
@@ -179,8 +183,8 @@ class UploadFtp(Upload):  # pragma: no cover
 class UploadConfig:
     """read upload configuration"""
 
-    SECTION = 'upload'
-    INIFILE = f'{config.path.work_dir}/upload-secret.ini'
+    SECTION: str = 'upload'
+    INIFILE: str = 'upload-secret.ini'
 
     def __init__(self) -> None:
         self.parser = configparser.ConfigParser()
@@ -192,7 +196,8 @@ class UploadConfig:
         if clean:
             self.parser = configparser.ConfigParser()
         try:
-            with open(self.INIFILE, encoding='UTF-8') as config_file:
+            ini_path = Path(config.path.work_dir) / self.INIFILE
+            with ini_path.open(encoding='utf-8') as config_file:
                 self.parser.read_file(config_file)
         except OSError as oops:
             logging.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
@@ -202,7 +207,8 @@ class UploadConfig:
 
     def store(self) -> bool:
         """save configuration to file"""
-        with open(self.INIFILE, 'w', encoding='UTF-8') as config_file:
+        ini_path = Path(config.path.work_dir) / self.INIFILE
+        with ini_path.open('w', encoding='UTF-8') as config_file:
             self.parser.write(config_file)
         return True
 

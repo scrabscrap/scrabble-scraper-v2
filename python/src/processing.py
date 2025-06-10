@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from concurrent import futures
 from contextlib import suppress
+from pathlib import Path
 from threading import Event
 
 import cv2
@@ -420,19 +421,16 @@ def invalid_challenge(game: Game, event: Event | None = None) -> None:
 @trace
 def new_game(game: Game, event: Event | None = None) -> None:
     """start of game"""
-    import glob
-    import os
-
     import util
 
     if not config.is_testing:
         # first delete images and data files on ftp server
         upload_impl.last_future = pool.submit(upload.delete_files, upload_impl.last_future)
         with suppress(OSError):
-            file_list = glob.glob(f'{config.path.web_dir}/image-*.jpg')
-            file_list += glob.glob(f'{config.path.web_dir}/data-*.json')
+            web_dir = Path(config.path.web_dir)
+            file_list = list(web_dir.glob('image-*.jpg')) + list(web_dir.glob('data-*.json'))
             for file_path in file_list:
-                os.remove(file_path)
+                file_path.unlink()
             if file_list:
                 util.rotate_logs()
     game.new_game()
@@ -473,7 +471,6 @@ def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, even
 def store_zip_from_game(game: Game) -> None:  # pragma: no cover
     """zip a game and upload to server"""
     import uuid
-    from pathlib import Path
     from zipfile import ZipFile
 
     if config.is_testing:
@@ -481,8 +478,8 @@ def store_zip_from_game(game: Game) -> None:  # pragma: no cover
         return
     game_id = game.gamestart.strftime('%y%j-%H%M%S')
     zip_filename = f'{game_id}-{str(uuid.uuid4())}'
-    web_dir = Path(config.path.web_dir)
-    log_dir = Path(config.path.log_dir)
+    web_dir = config.path.web_dir
+    log_dir = config.path.log_dir
     with ZipFile(web_dir / f'{zip_filename}.zip', 'w') as _zip:
         logging.info(f'create zip with {len(game.moves):d} files')
         for mov in game.moves:

@@ -19,8 +19,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import base64
 import logging
 import logging.config
-import os
 import urllib.parse
+from pathlib import Path
 
 import cv2
 from flask import redirect, render_template, request, url_for
@@ -110,14 +110,14 @@ def cam_prev():
 def cam_next():
     """skip to next image"""
     logging.debug('next')
-    camera.cam.counter += 1 if os.path.isfile(camera.cam.formatter.format(camera.cam.counter + 1)) else 0  # type: ignore
+    camera.cam.counter += 1 if Path(camera.cam.formatter.format(camera.cam.counter + 1)).is_file() else 0  # type: ignore
     return redirect(url_for('simulator'))
 
 
 def cam_last():
     """skip to last image"""
     logging.debug('last')
-    while os.path.isfile(camera.cam.formatter.format(camera.cam.counter + 1)):  # type: ignore
+    while Path(camera.cam.formatter.format(camera.cam.counter + 1)).is_file():  # type: ignore
         camera.cam.counter += 1  # type: ignore
     return redirect(url_for('simulator'))
 
@@ -126,13 +126,14 @@ def open_folder():
     """select folder for images"""
     folder = request.args.get('folder')
     logging.debug(f'try to open {folder}')
-    ini_file = os.path.abspath(f'{config.path.src_dir}/../test/{folder}/scrabble.ini')
-    if os.path.exists(ini_file):
-        config.reload(ini_file=ini_file)
-        camera.cam.counter = 1  # type: ignore
-        camera.cam.formatter = config.development.simulate_path  # type: ignore
-    else:
-        logging.warning(f'INI File not found / invalid: {ini_file}')
+    if folder is not None:
+        ini_file = (config.path.src_dir.parent / 'test' / folder / 'scrabble.ini').resolve()
+        if ini_file.exists():
+            config.reload(ini_file=str(ini_file))
+            camera.cam.counter = 1  # type: ignore
+            camera.cam.formatter = config.development.simulate_path  # type: ignore
+        else:
+            logging.warning(f'INI File not found / invalid: {ini_file}')
     return redirect(url_for('simulator'))
 
 
@@ -192,7 +193,7 @@ def main():
         sys.__excepthook__(exctype, value, tb)  # calls default excepthook
 
     logging.config.fileConfig(
-        fname=config.path.work_dir + '/log.conf',
+        fname=str(config.path.work_dir / 'log.conf'),
         disable_existing_loggers=False,
         defaults={'level': 'DEBUG', 'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'},
     )
@@ -211,13 +212,8 @@ def main():
     logging.info(f'Git commit: {version.git_commit}')
 
     # get simulate folders
-    list_of_dir = [
-        f
-        for f in os.listdir(f'{config.path.src_dir}/../test')
-        if os.path.isdir(f'{config.path.src_dir}/../test/{f}') and f.startswith('game')
-    ]
-    list_of_dir.sort()
-
+    test_dir = Path(config.path.src_dir).resolve().parent / 'test'
+    list_of_dir = sorted([f.name for f in test_dir.iterdir() if f.is_dir() and f.name.startswith('game')])
     # set Mock-Camera
     camera.switch_camera('file')
     _ = pool.submit(camera.cam.update, Event())
