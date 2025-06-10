@@ -16,11 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+from __future__ import annotations
+
 import functools
 import logging
 import time
 from logging.handlers import BaseRotatingHandler
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 import numpy as np
 
@@ -90,7 +92,7 @@ def trace(func: Callable[..., Any]) -> Callable[..., Any]:
     return do_trace
 
 
-def rotate_logs(loggers: Union[str, list] | None = None, delimiter: str = ','):  # pragma: no cover
+def rotate_logs(loggers: str | list | None = None, delimiter: str = ','):  # pragma: no cover
     """Rotate logs.
 
     Args:

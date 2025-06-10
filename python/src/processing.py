@@ -16,9 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+from __future__ import annotations
+
 import logging
 from concurrent import futures
 from contextlib import suppress
+from threading import Event
 
 import cv2
 import imutils
@@ -31,7 +34,7 @@ from custom2020board import Custom2020Board
 from custom2020light import Custom2020LightBoard
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from game_board.tiles import tiles
-from scrabble import BoardType, Game, InvalidMoveExeption, MoveType, NoMoveException, Tile, gcg_to_coord
+from scrabble import BoardType, Game, InvalidMoveError, MoveType, NoMoveError, Tile, gcg_to_coord
 from threadpool import pool
 from upload import upload
 from util import TWarp, handle_exceptions, runtime_measure, trace
@@ -48,7 +51,7 @@ UMLAUTS = ('Ä', 'Ü', 'Ö')
 ORD_A = ord('A')
 
 
-def event_set(event) -> None:
+def event_set(event: Event | None) -> None:
     """set event and skips set if event is None. Informs the webservice about the end of the task"""
     if event is not None:
         event.set()
@@ -155,7 +158,7 @@ def analyze_threads(warped_gray: MatLike, board: BoardType, candidates: set[tupl
 
 
 @handle_exceptions
-def remove_blanko(game: Game, gcg_coord: str, event=None) -> None:
+def remove_blanko(game: Game, gcg_coord: str, event: Event | None = None) -> None:
     """remove blank"""
 
     logging.info(f'remove blanko {gcg_coord}')
@@ -165,7 +168,7 @@ def remove_blanko(game: Game, gcg_coord: str, event=None) -> None:
 
 
 @handle_exceptions
-def set_blankos(game: Game, gcg_coord: str, value: str, event=None) -> None:
+def set_blankos(game: Game, gcg_coord: str, value: str, event: Event | None = None) -> None:
     """set (lower) char for blanko"""
 
     logging.info(f'set blanko {gcg_coord} to {value}')
@@ -175,7 +178,7 @@ def set_blankos(game: Game, gcg_coord: str, value: str, event=None) -> None:
 
 
 @handle_exceptions
-def admin_insert_moves(game: Game, index: int, event=None) -> None:
+def admin_insert_moves(game: Game, index: int, event: Event | None = None) -> None:
     """insert two exchange moves before move at index"""
 
     logging.info(f'insert before move index {index}')
@@ -191,7 +194,7 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
     coord: tuple[int, int] | None = None,
     isvertical: bool | None = None,
     word: str | None = None,
-    event=None,
+    event: Event | None = None,
 ) -> None:
     """fix move(direct call from admin)
     The provided tiles(word) will be set on the board with a probability of 99% (MAX_TILE_PROB)
@@ -215,7 +218,7 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
 
 
 @handle_exceptions
-def admin_del_challenge(game: Game, index: int, event=None) -> None:
+def admin_del_challenge(game: Game, index: int, event: Event | None = None) -> None:
     """delete challenge move index (index)"""
 
     logging.info(f'delete challenge at index {index}')
@@ -224,7 +227,7 @@ def admin_del_challenge(game: Game, index: int, event=None) -> None:
 
 
 @handle_exceptions
-def admin_toggle_challenge_type(game: Game, index: int, event=None) -> None:
+def admin_toggle_challenge_type(game: Game, index: int, event: Event | None = None) -> None:
     """toggle challenge type on move number"""
 
     logging.info(f'toggle challenge at index {index}')
@@ -233,7 +236,7 @@ def admin_toggle_challenge_type(game: Game, index: int, event=None) -> None:
 
 
 @handle_exceptions
-def admin_ins_challenge(game: Game, index: int, move_type: MoveType, event=None) -> None:
+def admin_ins_challenge(game: Game, index: int, move_type: MoveType, event: Event | None = None) -> None:
     """insert invalid challenge or withdraw for move number"""
 
     logging.info(f'insert challenge at index {index}')
@@ -347,7 +350,7 @@ def _recalculate_score_on_tiles_change(game: Game, changed: BoardType) -> None:
 
 @trace
 @handle_exceptions
-def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], event=None) -> None:
+def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], event: Event | None = None) -> None:
     """Process a move"""
 
     warped, board = _image_processing(game, img)
@@ -359,9 +362,9 @@ def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], ev
         _recalculate_score_on_tiles_change(game, changed_tiles)
     try:
         game.add_regular(player=player, played_time=played_time, img=warped, new_tiles=new_tiles)
-    except NoMoveException:
+    except NoMoveError:
         game.add_exchange(player=player, played_time=played_time, img=warped)
-    except InvalidMoveExeption:
+    except InvalidMoveError:
         game.add_unknown(player=player, played_time=played_time, img=warped, new_tiles=new_tiles, removed_tiles=removed_tiles)
     event_set(event)
 
@@ -373,7 +376,7 @@ def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], ev
 
 
 @trace
-def check_resume(game: Game, image: MatLike, event=None) -> None:
+def check_resume(game: Game, image: MatLike, event: Event | None = None) -> None:
     """check resume"""
 
     last_move = game.moves[-1] if game.moves else None
@@ -394,7 +397,7 @@ def check_resume(game: Game, image: MatLike, event=None) -> None:
 
 @trace
 @handle_exceptions
-def valid_challenge(game: Game, event=None) -> None:
+def valid_challenge(game: Game, event: Event | None = None) -> None:
     """Process a valid challenge"""
 
     logging.info('add withdraw for last move')
@@ -405,7 +408,7 @@ def valid_challenge(game: Game, event=None) -> None:
 
 @trace
 @handle_exceptions
-def invalid_challenge(game: Game, event=None) -> None:
+def invalid_challenge(game: Game, event: Event | None = None) -> None:
     """Process an invalid challenge"""
 
     logging.info('add challenge for last move')
@@ -415,7 +418,7 @@ def invalid_challenge(game: Game, event=None) -> None:
 
 
 @trace
-def new_game(game: Game, event=None) -> None:
+def new_game(game: Game, event: Event | None = None) -> None:
     """start of game"""
     import glob
     import os
@@ -437,7 +440,7 @@ def new_game(game: Game, event=None) -> None:
 
 
 @trace
-def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, event=None) -> None:
+def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, event: Event | None = None) -> None:
     # pragma: no cover
     """Process end of game"""
 

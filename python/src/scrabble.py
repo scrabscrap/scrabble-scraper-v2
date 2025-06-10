@@ -86,13 +86,13 @@ class MoveType(Enum):
     UNKNOWN = auto()
 
 
-class InvalidMoveExeption(Exception):
+class InvalidMoveError(Exception):
     """Exception for invalid moves"""
 
     pass
 
 
-class NoMoveException(Exception):
+class NoMoveError(Exception):
     """Exception for no move"""
 
     pass
@@ -262,7 +262,7 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
 
     def __post_init__(self) -> None:
         if not self.new_tiles:
-            raise NoMoveException
+            raise NoMoveError
         self.setup_board()
         self.calculate_coord()
         self.calculate_score()

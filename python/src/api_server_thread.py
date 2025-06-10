@@ -17,6 +17,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 # pylint: disable=too-many-lines
+from __future__ import annotations
+
 import base64
 import binascii
 import configparser
@@ -977,7 +979,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             ApiServer.local_webapp = True
         self.app.config['DEBUG'] = False
         self.app.config['TESTING'] = False
-        self.server = make_server(host=host, port=port, threaded=True, app=self.app)  # pylint: disable=attribute-defined-outside-init # noqa: E501
+        self.server = make_server(host=host, port=port, threaded=True, app=self.app)  # pylint: disable=attribute-defined-outside-init
         self.ctx = self.app.app_context()  # pylint: disable=attribute-defined-outside-init
         self.ctx.push()
         self.server.serve_forever()

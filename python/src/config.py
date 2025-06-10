@@ -16,13 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+from __future__ import annotations
+
 import configparser
 import json
 import logging
 import os
 import subprocess
 from dataclasses import dataclass, field
-from typing import Optional
 
 DEFAULT = {
     'path': {
@@ -185,7 +186,7 @@ class VideoConfig:
         return self.config.getboolean('video', 'warp', fallback=as_bool(DEFAULT['video']['warp']))
 
     @property
-    def warp_coordinates(self) -> Optional[list]:
+    def warp_coordinates(self) -> list | None:
         """Stored warp coordinates for perspective transformation"""
         warp_coordinates_as_string = self.config.get('video', 'warp_coordinates', fallback=None)
         if warp_coordinates_as_string is None or len(warp_coordinates_as_string) <= 0:

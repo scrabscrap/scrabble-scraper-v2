@@ -27,7 +27,7 @@ import numpy as np
 from config import config
 from display import Display
 from processing import set_blankos
-from scrabble import BoardType, Move, MoveRegular, MoveType, MoveUnknown, NoMoveException, Tile
+from scrabble import BoardType, Move, MoveRegular, MoveType, MoveUnknown, NoMoveError, Tile
 from scrabblewatch import ScrabbleWatch
 from state import State
 
@@ -272,7 +272,7 @@ class AlgorithmTestCase(unittest.TestCase):
         new_tiles = board.copy()
         try:
             game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles={})
-        except NoMoveException:
+        except NoMoveError:
             pass
         game.add_exchange(player=0, played_time=(1, 0), img=np.zeros((1, 1)))
         score = game.moves[-1].score
