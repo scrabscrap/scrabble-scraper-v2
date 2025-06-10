@@ -354,6 +354,12 @@ def _recalculate_score_on_tiles_change(game: Game, changed: BoardType) -> None:
 def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], event: Event | None = None) -> None:
     """Process a move"""
 
+    def write_original_image(img: MatLike, index: int) -> None:
+        image_path = config.path.web_dir / f'image-{index}-camera.jpg'
+        logging.debug(f'write image {image_path!s}')
+        with suppress(Exception):
+            cv2.imwrite(str(image_path), img, [cv2.IMWRITE_JPEG_QUALITY, 100])  # type:ignore
+
     warped, board = _image_processing(game, img)
 
     previous_board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # get previous board information
@@ -369,6 +375,9 @@ def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], ev
         game.add_unknown(player=player, played_time=played_time, img=warped, new_tiles=new_tiles, removed_tiles=removed_tiles)
     event_set(event)
 
+    if config.development.recording:
+        i = len(game.moves) - 1
+        pool.submit(write_original_image, img, i)
     logging.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
     if logging.getLogger('root').isEnabledFor(logging.DEBUG):
         msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in game.moves)
@@ -488,7 +497,7 @@ def store_zip_from_game(game: Game) -> None:  # pragma: no cover
                 filepath = web_dir / filename
                 if filepath.exists():
                     _zip.write(filepath, arcname=filename)
-        for log_file in ['messages.log', 'gameRecording.log']:
+        for log_file in ['game.log', 'messages.log']:
             log_path = log_dir / log_file
             if log_path.exists():
                 _zip.write(log_path, arcname=log_file)

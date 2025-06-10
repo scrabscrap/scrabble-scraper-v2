@@ -639,19 +639,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     def do_delete_recording():
         """delete recording(s)"""
 
-        logging.debug(f'path {config.path.work_dir}/recording')
-        ignore_list = [config.path.work_dir / 'recording' / 'gameRecording.log']
-        file_list = list((config.path.work_dir / 'recording').glob('*'))
-        file_list = [f for f in file_list if f not in ignore_list]
-        # Iterate over the list of filepaths & remove each file.
-        logging.info('delete recording')
+        logging.info('delete recordings')
+        file_list = list((config.path.work_dir).glob('*-camera.jpg'))
         for file_path in file_list:
             try:
                 file_path.unlink()
             except OSError:
                 logging.error(f'error: {file_path}')
-        with (config.path.work_dir / 'recording' / 'gameRecording.log').open('w', encoding='UTF-8'):
-            pass  # empty log file
         return redirect(url_for('route_index'))
 
     @staticmethod
