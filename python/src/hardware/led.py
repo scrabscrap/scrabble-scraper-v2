@@ -21,7 +21,7 @@ from __future__ import annotations
 import atexit
 import platform
 
-from gpiozero import LED as GpioLED, Device
+from gpiozero import LED as GpioLED, Device  # noqa: N811 # Constant `LED` imported as non-constant `GpioLED`
 
 if platform.machine() not in ('aarch64', 'armv7l', 'armv6l'):
     from gpiozero.pins.mock import MockFactory

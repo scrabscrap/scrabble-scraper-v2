@@ -881,6 +881,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         return redirect(url_for('route_index'))
 
     @sock.route('/ws_log')
+    @staticmethod
     def ws_log(sock):  # pylint: disable=no-self-argument
         """websocket for logging"""
         import html
@@ -910,6 +911,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         return State.ctx.game.json_str(), 201
 
     @sock.route('/ws_status')
+    @staticmethod
     def echo(sock):  # pylint: disable=no-self-argument
         """websocket endpoint"""
         logger.debug('call /ws_status')

@@ -57,7 +57,7 @@ select = [
 # "C90", # mccabe (C90)
 # "NPY", # NumPy-specific rules (NPY)
 # "PD", # pandas-vet (PD)
-# "N", # pep8-naming (N)
+ "N", # pep8-naming (N)
 # "PERF", # Perflint (PERF)
  "E", # Code Style Error (E)
  "W", # Code Style Warning (W)
