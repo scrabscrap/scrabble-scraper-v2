@@ -22,6 +22,7 @@ from __future__ import annotations
 import base64
 import binascii
 import configparser
+from contextlib import suppress
 import hashlib
 import json
 import logging
@@ -325,14 +326,12 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
         logger.info(f'{"=" * 40} Process Info {"=" * 40}')
         for process in psutil.process_iter(['pid', 'name', 'memory_percent', 'cpu_percent']):
-            try:
+            with suppress(psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 if 'python' in process.info['name'].lower():
                     logger.info(
                         f'{process.info["pid"]:6} {process.info["name"]} '
                         f'mem:{process.info["memory_percent"]:.2f}% cpu:{process.info["cpu_percent"]:.2f}%'
                     )
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
 
         return redirect('/logs')
 
@@ -629,7 +628,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         for file_path in file_list:
             try:
                 file_path.unlink()
-            except OSError:
+            except OSError:  # noqa: PERF203
                 logger.error(f'error: {file_path}')
         for filename in ignore_list:
             with filename.open('w', encoding='UTF-8'):
@@ -646,7 +645,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         for file_path in file_list:
             try:
                 file_path.unlink()
-            except OSError:
+            except OSError:  # noqa: PERF203
                 logger.error(f'error: {file_path}')
         return redirect(url_for('route_index'))
 
