@@ -92,13 +92,9 @@ class MoveType(Enum):
 class InvalidMoveError(Exception):
     """Exception for invalid moves"""
 
-    pass
-
 
 class NoMoveError(Exception):
     """Exception for no move"""
-
-    pass
 
 
 gcg_strings: dict = {
