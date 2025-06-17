@@ -34,6 +34,7 @@ from processing import check_resume, end_of_game, event_set, invalid_challenge, 
 from scrabble import Game
 from scrabblewatch import ScrabbleWatch
 from threadpool import Command, command_queue
+from upload import upload
 from util import Static
 
 logger = logging.getLogger(__name__)
@@ -177,6 +178,9 @@ class State(Static):
                 Command(end_of_game, game=cls.ctx.game, image=picture, player=player, event=cls.ctx.op_event)
             )
         command_queue.join()  # wait for finishing tasks
+        if config.output.upload_server:
+            upload.get_upload_queue().join()  # wait for finishing uploads
+
         ScrabbleWatch.display.show_end_of_game()
         LED.switch(blink={LEDEnum.yellow})
         event_set(cls.ctx.op_event)

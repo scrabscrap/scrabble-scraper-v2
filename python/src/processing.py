@@ -19,16 +19,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
 import logging
+import uuid
 from concurrent import futures
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from pathlib import Path
 from threading import Event
+from zipfile import ZipFile
 
 import cv2
 import imutils
 from cv2.typing import MatLike
 
-import upload_impl
 from config import config
 from custom2012board import Custom2012Board
 from custom2020board import Custom2020Board
@@ -36,9 +38,9 @@ from custom2020light import Custom2020LightBoard
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
 from game_board.tiles import tiles
 from scrabble import BoardType, Game, InvalidMoveError, MoveType, NoMoveError, Tile, gcg_to_coord
-from threadpool import pool
+from threadpool import Command, pool
 from upload import upload
-from util import TWarp, handle_exceptions, runtime_measure, trace
+from util import TWarp, handle_exceptions, rotate_logs, runtime_measure, trace
 
 ANALYZE_THREADS = 4
 BOARD_CLASSES = {'custom2012': Custom2012Board, 'custom2020': Custom2020Board, 'custom2020light': Custom2020LightBoard}
@@ -141,7 +143,6 @@ def analyze(warped_gray: MatLike, board: BoardType, coord_list: set[tuple[int, i
 
 def analyze_threads(warped_gray: MatLike, board: BoardType, candidates: set[tuple[int, int]]) -> BoardType:
     """start threads for analyze"""
-    from concurrent.futures import ThreadPoolExecutor
 
     def chunkify(lst, chunks):
         return [lst[i::chunks] for i in range(chunks)]
@@ -432,18 +433,18 @@ def invalid_challenge(game: Game, event: Event | None = None) -> None:
 @trace
 def new_game(game: Game, event: Event | None = None) -> None:
     """start of game"""
-    import util
 
     if not config.is_testing:
         # first delete images and data files on ftp server
-        upload_impl.last_future = pool.submit(upload.delete_files, upload_impl.last_future)
+        if config.output.upload_server:
+            upload.get_upload_queue().put_nowait(Command(upload.delete_files))
         with suppress(OSError):
             web_dir = Path(config.path.web_dir)
             file_list = list(web_dir.glob('image-*.jpg')) + list(web_dir.glob('data-*.json'))
             for file_path in file_list:
                 file_path.unlink()
             if file_list:
-                util.rotate_logs()
+                rotate_logs()
     game.new_game()
     event_set(event)
 
@@ -481,8 +482,6 @@ def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, even
 
 def store_zip_from_game(game: Game) -> None:  # pragma: no cover
     """zip a game and upload to server"""
-    import uuid
-    from zipfile import ZipFile
 
     if config.is_testing:
         logger.info('skip store because flag is_testing is set')
@@ -504,4 +503,4 @@ def store_zip_from_game(game: Game) -> None:  # pragma: no cover
             if log_path.exists():
                 _zip.write(log_path, arcname=log_file)
     if config.output.upload_server:
-        upload_impl.last_future = pool.submit(upload.zip_files, upload_impl.last_future, f'{zip_filename}')
+        upload.get_upload_queue().put_nowait(Command(upload.zip_files, f'{zip_filename}'))

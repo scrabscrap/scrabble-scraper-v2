@@ -75,7 +75,7 @@ select = [
 # "RUF", # Ruff-specific rules (RUF)
 # "TRY", # tryceratops (TRY)
 ]
-ignore = ["RUF012"]
+ignore = ["RUF012", "PLC0415"]
 
 [tool.ruff.lint.flake8-annotations]
 suppress-dummy-args = true

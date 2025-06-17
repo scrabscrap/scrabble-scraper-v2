@@ -34,6 +34,8 @@ from cv2.typing import MatLike
 from config import config, version
 from game_board.board import DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER, TRIPLE_WORDS
 from game_board.tiles import bag_as_list, scores
+from threadpool import Command
+from upload import upload
 
 API_VERSION = '1.3'
 SCRABBLE_BONUS = 50
@@ -706,6 +708,8 @@ class Game:  # pylint: disable=too-many-public-methods
                     json.dump(
                         self._get_json_data(index=i), json_file, indent=4
                     )  # logger.debug(f'{self.json_str(index=index)[: self.json_str(index=index).find("moves") + 7]} ...')
+            if config.output.upload_server:
+                upload.get_upload_queue().put_nowait(Command(upload.upload_move, index))
         return self
 
     def _add_move(self, move: Move, index: int = -1, recalc_from: int | None = None) -> Game:

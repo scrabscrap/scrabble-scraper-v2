@@ -800,7 +800,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             logger.info('  no password entry found')
 
         try:
-            if upload.upload.upload_status(waitfor=None):
+            if upload.upload.upload_status():
                 logger.info('upload success')
             else:
                 logger.warning('upload = False')

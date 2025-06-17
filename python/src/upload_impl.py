@@ -21,35 +21,38 @@ from __future__ import annotations
 import configparser
 import ftplib
 import logging
-from concurrent import futures
-from concurrent.futures import Future
+import queue
 from pathlib import Path
-from typing import Protocol
 
 import requests
 from requests.auth import HTTPBasicAuth
 
 from config import config
+from threadpool import CommandWorker
 
-last_future: Future | None = None
 logger = logging.getLogger(__name__)
 
 
-class Upload(Protocol):
+class Upload:
     """upload files"""
 
-    def waitfor_future(self, waitfor: Future | None):
-        """wait for future and skips wait if waitfor is None"""
-        if waitfor is not None:
-            _, not_done = futures.wait({waitfor})
-            if len(not_done) != 0:
-                logger.error(f'error while waiting for future - lenght of not_done: {len(not_done)}')
+    def __init__(self):
+        self.upload_queue: queue.Queue | None = None
+        self.upload_worker: CommandWorker | None = None
 
-    def upload(self, data: dict | None = None, files: dict | None = None) -> bool:
+    def get_upload_queue(self) -> queue.Queue:
+        """get upload command queue"""
+        if self.upload_queue is None:
+            self.upload_queue = queue.Queue()
+            self.upload_worker = CommandWorker(cmd_queue=self.upload_queue)
+            self.upload_worker.start()
+        return self.upload_queue  # type: ignore
+
+    def upload(self, data: dict | None = None, files: dict | None = None) -> bool:  # pylint: disable=unused-argument
         """do upload/delete operation"""
         return False
 
-    def upload_move(self, waitfor: Future | None, move: int) -> bool:
+    def upload_move(self, move: int) -> bool:
         """upload one move"""
         files = {
             f'image-{move}.jpg': Path(config.path.web_dir) / f'image-{move}.jpg',
@@ -58,8 +61,6 @@ class Upload(Protocol):
             'messages.log': Path(config.path.log_dir) / 'messages.log',
             f'image-{move}-camera.jpg': Path(config.path.web_dir) / f'image-{move}-camera.jpg',
         }
-
-        self.waitfor_future(waitfor)
         try:
             upload_files = {}
             for key, path in files.items():
@@ -71,14 +72,13 @@ class Upload(Protocol):
             logger.error(f'upload I/O error({oops.errno}): {oops.strerror}')
         return False
 
-    def upload_status(self, waitfor: Future | None) -> bool:
+    def upload_status(self) -> bool:
         """upload status"""
         logger.debug('start transfer status file status.json')
         files = {
             'status.json': Path(config.path.web_dir) / 'status.json',
             'messages.log': Path(config.path.log_dir) / 'messages.log',
         }
-        self.waitfor_future(waitfor)
         try:
             upload_files = {}
             for key, path in files.items():
@@ -90,14 +90,12 @@ class Upload(Protocol):
             logger.error(f'upload I/O error({oops.errno}): {oops.strerror}')
         return False
 
-    def delete_files(self, waitfor: Future | None) -> bool:
+    def delete_files(self) -> bool:
         """cleanup uploaded files"""
-        self.waitfor_future(waitfor)
         return False
 
-    def zip_files(self, waitfor: Future | None, filename: str | None = None) -> bool:
+    def zip_files(self, filename: str | None = None) -> bool:  # pylint: disable=unused-argument
         """zip uploaded files"""
-        self.waitfor_future(waitfor)
         return False
 
 
@@ -124,14 +122,12 @@ class UploadHttp(Upload):  # pragma: no cover
                 logger.error(f'http: error connection error url={url}')
         return False
 
-    def delete_files(self, waitfor: Future | None) -> bool:
+    def delete_files(self) -> bool:
         logger.debug('http: delete files')
-        self.waitfor_future(waitfor)
         return self.upload(data={'delete': 'true'})
 
-    def zip_files(self, waitfor: Future | None, filename: str | None = None) -> bool:
+    def zip_files(self, filename: str | None = None) -> bool:
         logger.debug('http: zip files on server')
-        self.waitfor_future(waitfor)
         return self.upload(data={'zip': 'true'})
 
 
@@ -151,9 +147,8 @@ class UploadFtp(Upload):  # pragma: no cover
                 logger.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False
 
-    def delete_files(self, waitfor: Future | None) -> bool:
+    def delete_files(self) -> bool:
         """cleanup uploaded files"""
-        self.waitfor_future(waitfor)
         if (url := upload_config.server) is not None:
             try:
                 logger.debug('ftp: delete files')
@@ -169,9 +164,8 @@ class UploadFtp(Upload):  # pragma: no cover
                 logger.error(f'ftp: I/O error({oops.errno}): {oops.strerror}')
         return False
 
-    def zip_files(self, waitfor: Future | None, filename: str | None = None) -> bool:
+    def zip_files(self, filename: str | None = None) -> bool:
         """zip uploaded files"""
-        self.waitfor_future(waitfor)
         logger.debug('ftp: upload zip file')
         try:
             files = {f'{filename}.zip': (config.path.web_dir / f'{filename}.zip').open('rb')}  # pylint: disable=R1732
