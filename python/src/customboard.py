@@ -26,8 +26,8 @@ import imutils
 import numpy as np
 from cv2.typing import MatLike
 
-from config import config
-from game_board.board import DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W, OFFSET, TRIPLE_LETTER, TRIPLE_WORDS
+from config import DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER, TRIPLE_WORDS, config
+from game_board.board import GRID_H, GRID_W, OFFSET
 from util import TWarp, runtime_measure
 
 # dimension board custom
@@ -153,7 +153,7 @@ class CustomBoard:
         return result, candidates
 
     @staticmethod
-    def log_pixels(filtered_pixels) -> str:
+    def log_pixels(filtered_pixels: dict) -> str:
         """Print candidates set"""
         board_size = 15
         tmp = '  |' + ''.join(f'{i + 1:5d} ' for i in range(board_size)) + '\n'
@@ -166,7 +166,7 @@ class CustomBoard:
         return tmp
 
     @staticmethod
-    def log_candidates(candidates) -> str:
+    def log_candidates(candidates: set) -> str:
         """Print candidates set"""
         board_size = 15
         tmp = '  |' + ''.join(f'{i + 1:2d} ' for i in range(board_size)) + '\n'
@@ -219,7 +219,7 @@ class CustomBoard:
         return tword, dword, tletter, dletter, field
 
     @staticmethod
-    def find_board(image) -> TWarp:
+    def find_board(image: MatLike) -> TWarp:
         """try to find the game board border"""
         if config.video.warp_coordinates is not None:
             rect = np.array(config.video.warp_coordinates, dtype='float32')

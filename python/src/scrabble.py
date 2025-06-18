@@ -20,20 +20,18 @@ from __future__ import annotations
 
 import json
 import logging
-from pathlib import Path
 import re
 from collections import Counter
 from collections.abc import Generator, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, auto
+from pathlib import Path
 
 import cv2
 from cv2.typing import MatLike
 
-from config import config, version
-from game_board.board import DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER, TRIPLE_WORDS
-from game_board.tiles import bag_as_list, scores
+from config import BAGS, DOUBLE_LETTER, DOUBLE_WORDS, SCORES, TRIPLE_LETTER, TRIPLE_WORDS, config, version
 from threadpool import Command
 from upload import upload
 
@@ -43,6 +41,13 @@ MAX_TILE_PROB = 99
 ORD_A = ord('A')
 
 logger = logging.getLogger(__name__)
+bag = BAGS[config.board.language]
+bag_as_list = [k for k, count in bag.items() for _ in range(count)]
+
+
+def scores(tile: str) -> int:
+    """returns 0 if  '_' or lower chars otherwise the scoring value"""
+    return 0 if tile.islower() or tile == '_' else SCORES[config.board.language][tile]
 
 
 def board_to_string(board: BoardType) -> str:
@@ -657,11 +662,11 @@ class Game:  # pylint: disable=too-many-public-methods
         tiles_on_board = self.moves[index].board.values() if self.moves else []
         values = ['_' if tile.letter.isalpha() and tile.letter.islower() else tile.letter for tile in tiles_on_board]
 
-        bag = bag_as_list.copy()
+        b = bag_as_list.copy()
         for i in values:
-            if i in bag:
-                bag.remove(i)
-        return bag
+            if i in b:
+                b.remove(i)
+        return b
 
     def _recalculate_from(self, index: int) -> Game:
         """recalculate all moves from index"""

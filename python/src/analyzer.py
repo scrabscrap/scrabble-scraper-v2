@@ -18,17 +18,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
 
+import logging
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
-import logging
+from dataclasses import dataclass, field
+from pathlib import Path
 
 import cv2
 import imutils
+import numpy as np
 from cv2.typing import MatLike
 
-from config import config
+from config import SCORES, config
 from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
-from game_board.tiles import tiles
 from scrabble import BoardType, Tile
 
 ANALYZE_THREADS = 4
@@ -41,8 +43,40 @@ THRESHOLD_UMLAUT_BONUS = 2
 UMLAUTS = ('Ä', 'Ü', 'Ö')
 ORD_A = ord('A')
 DIRECTIONS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+BASE_IMG_DIR = Path(__file__).resolve().parent / 'game_board' / 'img'
+PATH_TILES_IMAGES = {
+    'de': BASE_IMG_DIR / 'default',
+    'en': BASE_IMG_DIR / 'en',
+    'fr': BASE_IMG_DIR / 'fr',
+    'es': BASE_IMG_DIR / 'es',
+}
 
 logger = logging.getLogger(__name__)
+tiles_templates: list[TileTemplate] = []
+
+
+@dataclass(kw_only=True)
+class TileTemplate:  # pylint: disable=too-few-public-methods
+    """representation of a tile"""
+
+    name: str = 'Placeholder'
+    img: np.ndarray = field(default_factory=lambda: np.array([], dtype=np.uint8))
+
+
+def load_tiles_templates() -> list[TileTemplate]:
+    """load tile images from disk"""
+    tiles_templates.clear()
+    filepath = PATH_TILES_IMAGES[config.board.language]
+
+    tile_list = sorted(SCORES[config.board.language], key=lambda t: SCORES[config.board.language][t], reverse=True)
+    tile_list.remove('_')  # ohne Blanko-Stein
+
+    for tile_name in tile_list:
+        image_path = filepath / f'{tile_name}.png'
+        image = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
+        new_tile = TileTemplate(name=tile_name, img=image.astype(np.uint8))
+        tiles_templates.append(new_tile)
+    return tiles_templates
 
 
 def filter_candidates(
@@ -66,7 +100,7 @@ def analyze_chunk(warped_gray: MatLike, board: BoardType, coord_list: set[tuple[
     """find tiles on board"""
 
     def match_tile(img: MatLike, suggest_tile: str, suggest_prop: int) -> Tile:
-        for _tile in tiles:
+        for _tile in tiles_templates:
             res = cv2.matchTemplate(img, _tile.img, cv2.TM_CCOEFF_NORMED)
             _, thresh, _, _ = cv2.minMaxLoc(res)
             thresh = int(thresh * 100)
@@ -116,3 +150,6 @@ def analyze(warped_gray: MatLike, board: BoardType, candidates: set[tuple[int, i
         for e in not_done:
             logger.error(f'Error during analyze future: {e.exception}')
     return board
+
+
+load_tiles_templates()
