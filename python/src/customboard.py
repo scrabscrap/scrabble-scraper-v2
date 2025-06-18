@@ -28,7 +28,7 @@ from cv2.typing import MatLike
 
 from config import config
 from game_board.board import DOUBLE_LETTER, DOUBLE_WORDS, GRID_H, GRID_W, OFFSET, TRIPLE_LETTER, TRIPLE_WORDS
-from util import TWarp
+from util import TWarp, runtime_measure
 
 # dimension board custom
 # ----------------------
@@ -266,69 +266,68 @@ class CustomBoard:
         return rect
 
 
-# test and debug
-def main():  # pragma: no cover # pylint: disable=too-many-locals
-    """main function for test and debug"""
+class Custom2012Board(CustomBoard):
+    """Implementation custom 2012 scrabble board analysis"""
 
-    import sys
+    # layout 2012
+    # TLETTER = [[95, 80, 20], [130, 255, 255]]  # 205 => 102 (-7, +28)
+    # DLETTER = [[95, 60, 20], [130, 255, 255]]
+    # TWORD = [[145, 80, 10], [180, 255, 255], [0, 80, 10], [10, 255, 255]]  # 360 => 180 (-35, +10)
+    # DWORD = [[145, 50, 10], [180, 255, 255], [0, 80, 10], [10, 255, 255]]
+    # FIELD = [[30, 85, 20], [90, 255, 255]]  # 140 => 70  (-40, + 20)
 
-    from numpy import hstack, vstack
-
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.DEBUG,
-        force=True,
-        format='%(asctime)s [%(levelname)-1.1s] %(funcName)-15s: %(message)s',
-    )
-
-    files = [
-        'test/game01/image-21.jpg',
-        'test/game02/image-21.jpg',
-        'test/game03/image-21.jpg',
-        'test/game04/image-21.jpg',
-        'test/game05/image-21.jpg',
-        'test/game06/image-21.jpg',
-        'test/game06/image-24.jpg',
-        'test/game12/board-19.png',
-        'test/game13/23113-180628-30.jpg',
-        'test/game14/image-30.jpg',
-        'test/game2023DM-01/image-24.jpg',
-        'test/board2012/err-03.png',
-        'test/board2012/err-11.png',
-        'test/board2012/err-dark-01.jpg',
-        'test/board2012/err-dark-02.jpg',
-        'test/board2012/err-dark-03.jpg',
-        'test/board2012/err-dark-04.jpg',
-    ]
-
-    config.config.set('development', 'recording', 'True')
-    logger.error('#####################################################')
-    logger.error('# err-11.jpg, err-dark-*.jpg recognised with errors #')
-    logger.error('#####################################################')
-    for fn in files:
-        image = cv2.imread(fn)
-        warped = CustomBoard.warp(image)
-
-        result, tiles_candidates = CustomBoard.filter_image(color=warped.copy())
-        mask = np.zeros(warped.shape[:2], dtype='uint8')
-        for col, row in tiles_candidates:
-            px_col = int(OFFSET + (row * GRID_H))
-            px_row = int(OFFSET + (col * GRID_W))
-            mask[px_col : px_col + GRID_H, px_row : px_row + GRID_W] = 255
-
-        masked = cv2.bitwise_and(warped, warped, mask=mask)
-        blend = cv2.addWeighted(warped, 0.3, masked, 0.7, 0.0)
-        result1 = hstack([warped, blend, cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)])
-        if result is not None:
-            result2 = cv2.cvtColor(cv2.resize(result, (2400, 340)), cv2.COLOR_GRAY2BGR)
-            output = vstack([result1, result2])
-        else:
-            output = result1
-
-        cv2.imshow(f'{fn}', output)
-        cv2.waitKey()
-        cv2.destroyWindow(f'{fn}')
+    # SATURATION = [[0, 110, 0], [180, 255, 255]]
+    # TILES_THRESHOLD = config.board_tiles_threshold
 
 
-if __name__ == '__main__':
-    main()
+class Custom2020Board(CustomBoard):
+    """Implementation custom 2020 scrabble board analysis"""
+
+    # layout 2020 dark
+    TLETTER = [[160, 200, 100], [180, 255, 255]]
+    DLETTER = [[50, 40, 0], [140, 255, 180]]
+    TWORD = [[10, 120, 90], [50, 255, 200]]
+    DWORD = [[0, 200, 100], [40, 255, 255]]
+    FIELD = [[70, 0, 0], [110, 220, 200]]
+
+    BOARD_MASK_BORDER = 0
+
+
+class Custom2020LightBoard(CustomBoard):
+    """Implementation custom 2020 light scrabble board analysis"""
+
+    # layout 2020 light
+    TLETTER = [[160, 200, 100], [180, 255, 255]]
+    DLETTER = [[50, 40, 0], [140, 255, 180]]
+    TWORD = [[10, 80, 50], [50, 255, 255]]
+    DWORD = [[0, 160, 60], [40, 255, 255]]
+    FIELD = [[70, 0, 0], [110, 220, 200]]
+
+    BOARD_MASK_BORDER = 0
+
+
+## delegates
+BOARD_CLASSES = {'custom2012': Custom2012Board, 'custom2020': Custom2020Board, 'custom2020light': Custom2020LightBoard}
+
+
+def get_last_warp() -> TWarp | None:
+    """Delegates the warp of the ``img`` according to the configured board style"""
+    return BOARD_CLASSES.get(config.board.layout, Custom2012Board).last_warp
+
+
+def clear_last_warp() -> None:
+    """Delegates the last_warp according to the configured board style"""
+    BOARD_CLASSES.get(config.board.layout, Custom2012Board).last_warp = None
+
+
+@runtime_measure
+def warp_image(img: MatLike) -> tuple[MatLike, MatLike]:
+    """Delegates the warp of the ``img`` according to the configured board style"""
+    warped = BOARD_CLASSES.get(config.board.layout, Custom2012Board).warp(img) if config.video.warp else img
+    return warped, cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+
+
+@runtime_measure
+def filter_image(img: MatLike) -> tuple[MatLike | None, set]:
+    """Delegates the image filter of the ``img`` according to the configured board style"""
+    return BOARD_CLASSES.get(config.board.layout, Custom2012Board).filter_image(img)

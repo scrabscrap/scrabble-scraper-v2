@@ -22,18 +22,18 @@ from __future__ import annotations
 import base64
 import binascii
 import configparser
-from contextlib import suppress
 import hashlib
 import json
 import logging
 import logging.config
 import os
-from pathlib import Path
 import platform
 import re
 import subprocess
 import urllib.parse
+from contextlib import suppress
 from datetime import datetime
+from pathlib import Path
 from signal import alarm
 from time import perf_counter, sleep
 
@@ -46,6 +46,7 @@ from werkzeug.serving import make_server
 
 import upload
 from config import config, version  # type: ignore # pylance error
+from customboard import get_last_warp
 from display import Display
 from game_board.board import overlay_grid
 from hardware import camera
@@ -56,7 +57,6 @@ from processing import (
     admin_insert_moves,
     admin_toggle_challenge_type,
     event_set,
-    get_last_warp,
     remove_blanko,
     set_blankos,
     warp_image,
@@ -746,7 +746,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/test_analyze')
     def do_test_analyze():  # pylint: disable=too-many-locals
         """start simple analyze test"""
-        from processing import ANALYZE_THREADS, analyze_threads, filter_image
+        from analyzer import ANALYZE_THREADS, analyze
+        from customboard import filter_image
         from scrabble import board_to_string
 
         if State.ctx.current_state in (GameState.START, GameState.EOG, GameState.P0, GameState.P1):
@@ -762,7 +763,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             _, tiles_candidates = filter_image(warped)
 
             board = {}
-            board = analyze_threads(warped_gray, board, tiles_candidates)
+            board = analyze(warped_gray, board, tiles_candidates)
             logger.info(f'analyze took {(perf_counter() - start):.4f} sec(s). ({ANALYZE_THREADS} threads)')
 
             logger.info(f'\n{board_to_string(board)}')

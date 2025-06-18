@@ -20,38 +20,21 @@ from __future__ import annotations
 
 import logging
 import uuid
-from concurrent import futures
-from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from pathlib import Path
 from threading import Event
 from zipfile import ZipFile
 
 import cv2
-import imutils
 from cv2.typing import MatLike
 
+from analyzer import MAX_TILE_PROB, analyze, filter_candidates
 from config import config
-from custom2012board import Custom2012Board
-from custom2020board import Custom2020Board
-from custom2020light import Custom2020LightBoard
-from game_board.board import GRID_H, GRID_W, get_x_position, get_y_position
-from game_board.tiles import tiles
+from customboard import filter_image, warp_image
 from scrabble import BoardType, Game, InvalidMoveError, MoveType, NoMoveError, Tile, gcg_to_coord
 from threadpool import Command, pool
 from upload import upload
-from util import TWarp, handle_exceptions, rotate_logs, runtime_measure, trace
-
-ANALYZE_THREADS = 4
-BOARD_CLASSES = {'custom2012': Custom2012Board, 'custom2020': Custom2020Board, 'custom2020light': Custom2020LightBoard}
-BLANK_PROP = 76
-MAX_TILE_PROB = 99
-MATCH_ROTATIONS = [0, -5, 5, -10, 10, -15, 15]
-THRESHOLD_PROP_BOARD = 97
-THRESHOLD_PROP_TILE = 86
-THRESHOLD_UMLAUT_BONUS = 2
-UMLAUTS = ('Ä', 'Ü', 'Ö')
-ORD_A = ord('A')
+from util import handle_exceptions, rotate_logs, runtime_measure, trace
 
 logger = logging.getLogger(__name__)
 
@@ -60,105 +43,6 @@ def event_set(event: Event | None) -> None:
     """set event and skips set if event is None. Informs the webservice about the end of the task"""
     if event is not None:
         event.set()
-
-
-def get_last_warp() -> TWarp | None:
-    """Delegates the warp of the ``img`` according to the configured board style"""
-    return BOARD_CLASSES.get(config.board.layout, Custom2012Board).last_warp
-
-
-def clear_last_warp() -> None:
-    """Delegates the last_warp according to the configured board style"""
-    BOARD_CLASSES.get(config.board.layout, Custom2012Board).last_warp = None
-
-
-@runtime_measure
-def warp_image(img: MatLike) -> tuple[MatLike, MatLike]:
-    """Delegates the warp of the ``img`` according to the configured board style"""
-    warped = BOARD_CLASSES.get(config.board.layout, Custom2012Board).warp(img) if config.video.warp else img
-    return warped, cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
-
-
-@runtime_measure
-def filter_image(img: MatLike) -> tuple[MatLike | None, set]:
-    """Delegates the image filter of the ``img`` according to the configured board style"""
-    return BOARD_CLASSES.get(config.board.layout, Custom2012Board).filter_image(img)
-
-
-DIRECTIONS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-
-
-def filter_candidates(
-    coord: tuple[int, int], candidates: set[tuple[int, int]], ignore_set: set[tuple[int, int]]
-) -> set[tuple[int, int]]:
-    """allow only valid field for analysis"""
-    candidates = candidates.copy()
-    result = set()
-    stack = [coord]
-    while stack:
-        coordinates = stack.pop()
-        if coordinates in candidates:
-            candidates.remove(coordinates)
-            if coordinates not in ignore_set:
-                result.add(coordinates)
-            stack.extend([(coordinates[0] + dx, coordinates[1] + dy) for dx, dy in DIRECTIONS])
-    return result
-
-
-def analyze(warped_gray: MatLike, board: BoardType, coord_list: set[tuple[int, int]]) -> BoardType:
-    """find tiles on board"""
-
-    def match_tile(img: MatLike, suggest_tile: str, suggest_prop: int) -> Tile:
-        for _tile in tiles:
-            res = cv2.matchTemplate(img, _tile.img, cv2.TM_CCOEFF_NORMED)
-            _, thresh, _, _ = cv2.minMaxLoc(res)
-            thresh = int(thresh * 100)
-            if _tile.name in UMLAUTS and thresh > suggest_prop - THRESHOLD_UMLAUT_BONUS:
-                thresh = min(MAX_TILE_PROB, thresh + THRESHOLD_UMLAUT_BONUS)  # 2% Bonus for umlauts
-                logger.debug(f'{chr(ORD_A + row)}{col + 1:2} => ({_tile.name},{thresh}) increased prop')
-            if thresh > suggest_prop:
-                suggest_tile, suggest_prop = _tile.name, thresh
-        return Tile(letter=suggest_tile, prob=suggest_prop)
-
-    def find_tile(gray: MatLike, tile: Tile) -> Tile:
-        if tile.prob > THRESHOLD_PROP_BOARD:
-            logger.debug(f'{chr(ORD_A + row)}{col + 1:2}: {tile} ({tile.prob}) tile on board prop > {THRESHOLD_PROP_BOARD} ')
-            return tile
-
-        for angle in MATCH_ROTATIONS:
-            tile = match_tile(imutils.rotate(gray, angle), tile.letter, tile.prob)
-            if tile.prob >= config.board.min_tiles_rate:
-                break
-
-        return tile if tile is not None and tile.prob > THRESHOLD_PROP_TILE else Tile('_', BLANK_PROP)
-
-    for coord in coord_list:
-        (col, row) = coord
-        x, y = get_x_position(col), get_y_position(row)
-        segment = warped_gray[y - 15 : y + GRID_H + 15, x - 15 : x + GRID_W + 15]
-        board[coord] = find_tile(segment, board.get(coord, Tile('_', BLANK_PROP)))
-        logger.info(f'{chr(ORD_A + row)}{col + 1:2}: {board[coord]}) found')
-    return board
-
-
-def analyze_threads(warped_gray: MatLike, board: BoardType, candidates: set[tuple[int, int]]) -> BoardType:
-    """start threads for analyze"""
-
-    def chunkify(lst, chunks):
-        return [lst[i::chunks] for i in range(chunks)]
-
-    chunks = chunkify(list(candidates), ANALYZE_THREADS)  # chunks for picture analysis
-    analyze_futures = []
-    with ThreadPoolExecutor(max_workers=ANALYZE_THREADS, thread_name_prefix='analyze') as executor:
-        for i in range(ANALYZE_THREADS):
-            board_chunk = {key: board[key] for key in chunks[i] if key in board}
-            analyze_futures.append(executor.submit(analyze, warped_gray, board_chunk, set(chunks[i])))
-        done, not_done = futures.wait(analyze_futures)  # blocking wait
-        for f in done:
-            board.update(f.result())
-        for e in not_done:
-            logger.error(f'Error during analyze future: {e.exception}')
-    return board
 
 
 @handle_exceptions
@@ -273,7 +157,7 @@ def _image_processing(game: Game, img: MatLike) -> tuple[MatLike, dict]:
     logger.debug(f'filtered_candidates {tiles_candidates}')
 
     board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # copy board for analyze
-    return warped, analyze_threads(warped_gray, board, tiles_candidates)  # analyze image
+    return warped, analyze(warped_gray, board, tiles_candidates)  # analyze image
 
 
 def _changes(board: dict, previous_board: dict) -> tuple[dict, dict, dict]:

@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import logging
-import logging.config
 import os
 import sys
 import unittest
@@ -25,6 +24,7 @@ import unittest
 import cv2
 
 from config import config
+from customboard import clear_last_warp
 from processing import analyze, filter_candidates, filter_image, warp_image
 from scrabble import board_to_string
 
@@ -50,8 +50,6 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             config.config.remove_option(section, option)
 
     def setUp(self):
-        from processing import clear_last_warp
-
         config.is_testing = True
         clear_last_warp()
         self.config_setter('output', 'server_upload', False)

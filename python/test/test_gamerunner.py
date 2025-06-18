@@ -29,6 +29,7 @@ from pstats import Stats
 from time import sleep
 
 from config import config
+from customboard import clear_last_warp
 from hardware import camera
 from scrabble import MoveRegular
 from state import GameState
@@ -54,8 +55,6 @@ class GameRunnerTestCase(unittest.TestCase):
             config.config.remove_option(section, option)
 
     def setUp(self):
-        from processing import clear_last_warp
-
         config.is_testing = True
         clear_last_warp()
         self.config_setter('output', 'upload_server', False)
