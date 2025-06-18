@@ -362,6 +362,8 @@ def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, even
         logger.info(game.dev_str())
         with suppress(Exception):
             store_zip_from_game(game)
+        if config.output.upload_server:
+            upload.get_upload_queue().join()  # wait for finishing uploads
 
 
 def store_zip_from_game(game: Game) -> None:  # pragma: no cover
