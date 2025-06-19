@@ -82,12 +82,3 @@ def overlay_grid(image: ndarray) -> ndarray:  # pragma: no cover
         cv2.line(img, (x1, pos), (x2, pos), (0, 255, 0), 1)
     return img
 
-
-def overlay_tiles(image: ndarray, board: dict[tuple[int, int], tuple[str, int]]) -> ndarray:  # pragma: no cover
-    """returns an image with overlayed characters from the board dictionary"""
-    img = image.copy()
-    for (col, row), (value, _) in board.items():
-        cv2.putText(
-            img, value, (get_x_position(col) + 5, get_y_position(row) + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2
-        )
-    return img

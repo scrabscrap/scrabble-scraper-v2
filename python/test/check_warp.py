@@ -24,8 +24,9 @@ from threading import Event
 from time import sleep
 
 import cv2
+from numpy import ndarray
 
-from game_board.board import overlay_grid, overlay_tiles
+from game_board.board import get_x_position, get_y_position, overlay_grid
 from hardware import camera
 from processing import analyze, filter_candidates, filter_image, warp_image
 from threadpool import pool
@@ -57,6 +58,16 @@ def print_board(board: dict) -> str:
             result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' · '
         result += ' | \n'
     return result
+
+
+def overlay_tiles(image: ndarray, board: dict[tuple[int, int], tuple[str, int]]) -> ndarray:  # pragma: no cover
+    """returns an image with overlayed characters from the board dictionary"""
+    img = image.copy()
+    for (col, row), (value, _) in board.items():
+        cv2.putText(
+            img, value, (get_x_position(col) + 5, get_y_position(row) + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2
+        )
+    return img
 
 
 def main() -> None:
