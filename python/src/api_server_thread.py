@@ -65,7 +65,6 @@ from scrabble import MoveType
 from scrabblewatch import ScrabbleWatch
 from state import GameState, State
 from threadpool import Command, command_queue, pool
-from upload_impl import upload_config
 
 logger = logging.getLogger(__name__)
 
@@ -516,22 +515,22 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
             dirty = False
             nval = request.form.get('server', default='')
-            if nval and nval != upload_config.server:
+            if nval and nval != upload.upload_config.server:
                 dirty = True
-                upload_config.server = nval
+                upload.upload_config.server = nval
                 logger.debug(f'server = {nval}')
             nval = request.form.get('user', default='')
-            if nval and nval != upload_config.user:
+            if nval and nval != upload.upload_config.user:
                 dirty = True
-                upload_config.user = nval
+                upload.upload_config.user = nval
                 logger.debug(f'user = {nval}')
             nval = request.form.get('password', default='')
-            if nval and nval != upload_config.password:
+            if nval and nval != upload.upload_config.password:
                 dirty = True
-                upload_config.password = nval
+                upload.upload_config.password = nval
                 logger.debug('password changed')
             if dirty:
-                upload_config.store()
+                upload.upload_config.store()
                 save_message = 'settings saved'
             if save_message:
                 logger.debug('saved settings')
@@ -541,8 +540,8 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             apiserver=ApiServer,
             save_message=save_message,
             cfg=current_config,
-            server=upload_config.server,
-            user=upload_config.user,
+            server=upload.upload_config.server,
+            user=upload.upload_config.user,
         )
 
     @staticmethod
@@ -793,11 +792,11 @@ class ApiServer:  # pylint: disable=too-many-public-methods
         """is ftp accessible"""
 
         logger.info('test upload config entries')
-        if upload_config.server is None:
+        if upload.upload_config.server is None:
             logger.info('  no server entry found')
-        if upload_config.user in (None, ''):
+        if upload.upload_config.user in (None, ''):
             logger.info('  no user entry found')
-        if upload_config.password in (None, ''):
+        if upload.upload_config.password in (None, ''):
             logger.info('  no password entry found')
 
         try:

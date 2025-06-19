@@ -389,4 +389,4 @@ def store_zip_from_game(game: Game) -> None:  # pragma: no cover
             if log_path.exists():
                 _zip.write(log_path, arcname=log_file)
     if config.output.upload_server:
-        upload.get_upload_queue().put_nowait(Command(upload.zip_files, f'{zip_filename}'))
+        upload.get_upload_queue().put_nowait(Command(upload.zip_files))
