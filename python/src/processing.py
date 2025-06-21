@@ -127,12 +127,11 @@ def admin_toggle_challenge_type(game: Game, index: int, event: Event | None = No
 def admin_ins_challenge(game: Game, index: int, move_type: MoveType, event: Event | None = None) -> None:
     """insert invalid challenge or withdraw for move number"""
 
-    logger.info(f'insert challenge at index {index}')
-    previous_move = game.moves[index].previous_move
-    if previous_move and move_type == MoveType.CHALLENGE_BONUS:
+    logger.info(f'insert challenge {move_type.name} at index {index}')
+    if move_type == MoveType.CHALLENGE_BONUS:
         game.add_challenge_for(index=index)
-    elif previous_move and move_type == MoveType.WITHDRAW:
-        game.add_withdraw_for(index=index, img=previous_move.img)  # type: ignore
+    elif move_type == MoveType.WITHDRAW:
+        game.add_withdraw_for(index=index, img=game.moves[index].img)  # type: ignore
     event_set(event=event)
 
 

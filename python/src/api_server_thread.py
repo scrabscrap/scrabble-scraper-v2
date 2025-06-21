@@ -402,7 +402,7 @@ class ApiServer:  # pylint: disable=too-many-public-methods
             )
 
         def handle_btnmove(form, game, move_number):
-            if move_number and (0 < move_number <= len(game.moves)):
+            if 0 <= move_number < len(game.moves):
                 move_type = form.get('move.type')
                 coord = form.get('move.coord')
                 word = form.get('move.word')
@@ -446,13 +446,13 @@ class ApiServer:  # pylint: disable=too-many-public-methods
                 handle_btnblankodelete(form, game)
             elif form.get('btninsmoves'):
                 handle_btninsmoves(game, move_number)
-            elif form.get('btndelchallenge') and move_number:
+            elif form.get('btndelchallenge'):
                 handle_btndelchallenge(game, move_number)
-            elif form.get('btntogglechallenge') and move_number:
+            elif form.get('btntogglechallenge'):
                 handle_btntogglechallenge(game, move_number)
-            elif form.get('btninswithdraw') and move_number:
+            elif form.get('btninswithdraw'):
                 handle_btninswithdraw(game, move_number)
-            elif form.get('btninschallenge') and move_number:
+            elif form.get('btninschallenge'):
                 handle_btninschallenge(game, move_number)
             elif form.get('btnmove'):
                 handle_btnmove(form, game, move_number)
