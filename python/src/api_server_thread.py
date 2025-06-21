@@ -199,35 +199,42 @@ class ApiServer:  # pylint: disable=too-many-public-methods
     @app.route('/loglevel', methods=['GET', 'POST'])
     def route_loglevel():
         """settings loglevel, recording"""
+
+        def update_loglevel(new_level: int):
+            root_logger = logging.getLogger('root')
+            prev_level = root_logger.getEffectiveLevel()
+            if new_level != prev_level:
+                logger.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
+                root_logger.setLevel(new_level)
+                log_config = configparser.ConfigParser()
+                with (config.path.work_dir / 'log.conf').open(encoding='UTF-8') as config_file:
+                    log_config.read_file(config_file)
+                    if 'logger_root' not in log_config.sections():
+                        log_config.add_section('logger_root')
+                    log_config.set('logger_root', 'level', logging.getLevelName(new_level))
+                with (config.path.work_dir / 'log.conf').open('w', encoding='UTF-8') as config_file:
+                    log_config.write(config_file)
+
+        def update_recording(recording: bool):
+            if config.development.recording != recording:
+                logger.info(f'development.recording changed to {recording}')
+                if 'development' not in config.config.sections():
+                    config.config.add_section('development')
+                config.config.set('development', 'recording', str(recording))
+                config.save()
+
         if request.method == 'POST':
             try:
-                if (new_level := request.form.get('loglevel', type=int)) is not None:
-                    root_logger = logging.getLogger('root')
-                    prev_level = root_logger.getEffectiveLevel()
-                    if new_level != prev_level:
-                        logger.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
-                        root_logger.setLevel(new_level)
-                        log_config = configparser.ConfigParser()
-                        with (config.path.work_dir / 'log.conf').open(encoding='UTF-8') as config_file:
-                            log_config.read_file(config_file)
-                            if 'logger_root' not in log_config.sections():
-                                log_config.add_section('logger_root')
-                            log_config.set('logger_root', 'level', logging.getLevelName(new_level))
-                        with (config.path.work_dir / 'log.conf').open('w', encoding='UTF-8') as config_file:
-                            log_config.write(config_file)
-
-                recording = 'recording' in request.form
-                if config.development.recording != recording:
-                    logger.info(f'development.recording changed to {recording}')
-                    if 'development' not in config.config.sections():
-                        config.config.add_section('development')
-                    config.config.set('development', 'recording', str(recording))
-                    config.save()
+                new_level = request.form.get('loglevel', type=int)
+                if new_level is not None:
+                    update_loglevel(new_level)
+                update_recording('recording' in request.form)
             except OSError as oops:
                 logger.error(f'I/O error({oops.errno}): {oops.strerror}')
                 return redirect('/index')
             return redirect('/loglevel')
-        # fall through: request.method == 'GET':
+
+        # GET-Request
         loglevel = logging.getLogger('root').getEffectiveLevel()
         return render_template(
             'loglevel.html', apiserver=ApiServer, recording=f'{config.development.recording}', loglevel=f'{loglevel}'
@@ -336,97 +343,122 @@ class ApiServer:  # pylint: disable=too-many-public-methods
 
     @staticmethod
     @app.route('/moves', methods=['GET', 'POST'])
-    def route_moves():  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
+    def route_moves():  # pylint: disable=too-many-statements
         """edit moves form"""
 
         def get_coord(_coord, is_vertical=False) -> str:
             (_col, _row) = _coord
             return str(_col + 1) + chr(ord('A') + _row) if is_vertical else chr(ord('A') + _row) + str(_col + 1)
 
+        def handle_btnblanko(form, game):
+            coord = form.get('coord')
+            char = form.get('char')
+            if coord and char and (char.isalpha() or char == '_'):
+                char = char.lower()
+                ApiServer.last_msg = f'set blanko: {coord} = {char}'
+                logger.info(ApiServer.last_msg)
+                command_queue.put_nowait(Command(set_blankos, game, coord, char, State.ctx.op_event))
+            else:
+                ApiServer.last_msg = 'invalid character for blanko'
+                logger.warning(ApiServer.last_msg)
+
+        def handle_btnblankodelete(form, game):
+            coord = form.get('coord')
+            if coord:
+                ApiServer.last_msg = f'delete blanko: {coord}'
+                logger.info(ApiServer.last_msg)
+                command_queue.put_nowait(Command(remove_blanko, game, coord, State.ctx.op_event))
+
+        def handle_btninsmoves(game, move_number):
+            logger.debug('in btninsmove')
+            if move_number and (0 < move_number <= len(game.moves)):
+                ApiServer.last_msg = f'insert two exchanges before move# {move_number}'
+                logger.info(ApiServer.last_msg)
+                command_queue.put_nowait(Command(admin_insert_moves, game, move_number, State.ctx.op_event))
+            else:
+                ApiServer.last_msg = f'invalid move {move_number}'
+                logger.warning(ApiServer.last_msg)
+
+        def handle_btndelchallenge(game, move_number):
+            ApiServer.last_msg = f'delete challenge {move_number=}'
+            logger.info(ApiServer.last_msg)
+            command_queue.put_nowait(Command(admin_del_challenge, game, move_number, State.ctx.op_event))
+
+        def handle_btntogglechallenge(game, move_number):
+            ApiServer.last_msg = f'toggle challenge type on move {move_number}'
+            logger.info(ApiServer.last_msg)
+            command_queue.put_nowait(Command(admin_toggle_challenge_type, game, move_number, State.ctx.op_event))
+
+        def handle_btninswithdraw(game, move_number):
+            ApiServer.last_msg = f'insert withdraw for move {move_number}'
+            logger.info(ApiServer.last_msg)
+            command_queue.put_nowait(Command(admin_ins_challenge, game, move_number, MoveType.WITHDRAW, State.ctx.op_event))
+
+        def handle_btninschallenge(game, move_number):
+            ApiServer.last_msg = f'insert invalid challenge for move {move_number}'
+            logger.info(ApiServer.last_msg)
+            command_queue.put_nowait(
+                Command(admin_ins_challenge, game, move_number, MoveType.CHALLENGE_BONUS, State.ctx.op_event)
+            )
+
+        def handle_btnmove(form, game, move_number):
+            if move_number and (0 < move_number <= len(game.moves)):
+                move_type = form.get('move.type')
+                coord = form.get('move.coord')
+                word = form.get('move.word')
+                word = word.upper().replace(' ', '_') if word else ''
+                logger.debug(f'{move_type=} {coord=} {word=}')
+                move = game.moves[move_number]
+                if move_type == MoveType.REGULAR.name and coord is not None and word is not None:
+                    vert, (col, row) = move.calc_coord(coord)
+                    if re.compile('[A-ZÜÄÖ_\\.]+').fullmatch(word):
+                        command_queue.put_nowait(
+                            Command( admin_change_move, game, move_number,
+                                MoveType.REGULAR, (col, row), vert, word,
+                                State.ctx.op_event,
+                            )
+                        )  # fmt:off
+                        ApiServer.last_msg = f'edit move #{move_number}: {move.type.name} => {move_type}'
+                        logger.info(ApiServer.last_msg)
+                    else:
+                        ApiServer.last_msg = f'invalid character in word {word}'
+                        logger.info(ApiServer.last_msg)
+                elif move_type == MoveType.EXCHANGE.name:
+                    command_queue.put_nowait(
+                        Command(admin_change_move, game, move_number, MoveType.EXCHANGE, event=State.ctx.op_event)
+                    )
+                    ApiServer.last_msg = f'change move {move_number} to exchange'
+                    logger.info(ApiServer.last_msg)
+                else:
+                    ApiServer.last_msg = f'change move {move_number} missing parameter {move_type=} {coord=} {word=}'
+                    logger.info(ApiServer.last_msg)
+            else:
+                logger.warning(f'invalid move number {move_number}')
+
         ApiServer._clear_message()
         game = State.ctx.game
         move_number = request.form.get('move.move', type=int)
-        if request.method == 'POST':  # pylint: disable=too-many-nested-blocks
-            if request.form.get('btnblanko'):
-                if (
-                    (coord := request.form.get('coord'))
-                    and (char := request.form.get('char'))
-                    and (char.isalpha() or char == '_')
-                ):
-                    char = char.lower()
-                    ApiServer.last_msg = f'set blanko: {coord} = {char}'
-                    logger.info(ApiServer.last_msg)
-                    command_queue.put_nowait(Command(set_blankos, State.ctx.game, coord, char, State.ctx.op_event))
-                else:
-                    ApiServer.last_msg = 'invalid character for blanko'
-                    logger.warning(ApiServer.last_msg)
-            elif request.form.get('btnblankodelete'):
-                if coord := request.form.get('coord'):
-                    ApiServer.last_msg = f'delete blanko: {coord}'
-                    logger.info(ApiServer.last_msg)
-                    command_queue.put_nowait(Command(remove_blanko, State.ctx.game, coord, State.ctx.op_event))
-            elif request.form.get('btninsmoves'):
-                logger.debug('in btninsmove')
-                if move_number and (0 < move_number <= len(game.moves)):
-                    ApiServer.last_msg = f'insert two exchanges before move# {move_number}'
-                    logger.info(ApiServer.last_msg)
-                    command_queue.put_nowait(Command(admin_insert_moves, State.ctx.game, move_number, State.ctx.op_event))
-                else:
-                    ApiServer.last_msg = f'invalid move {move_number}'
-                    logger.warning(ApiServer.last_msg)
-            elif request.form.get('btndelchallenge') and move_number:
-                ApiServer.last_msg = f'delete challenge {move_number=}'
-                logger.info(ApiServer.last_msg)
-                command_queue.put_nowait(Command(admin_del_challenge, State.ctx.game, move_number, State.ctx.op_event))
-            elif request.form.get('btntogglechallenge') and move_number:
-                ApiServer.last_msg = f'toggle challenge type on move {move_number}'
-                logger.info(ApiServer.last_msg)
-                command_queue.put_nowait(Command(admin_toggle_challenge_type, State.ctx.game, move_number, State.ctx.op_event))
-            elif request.form.get('btninswithdraw') and move_number:
-                ApiServer.last_msg = f'insert withdraw for move {move_number}'
-                logger.info(ApiServer.last_msg)
-                command_queue.put_nowait(
-                    Command(admin_ins_challenge, State.ctx.game, move_number, MoveType.WITHDRAW, State.ctx.op_event)
-                )
-            elif request.form.get('btninschallenge') and move_number:
-                ApiServer.last_msg = f'insert invalid challenge for move {move_number}'
-                logger.info(ApiServer.last_msg)
-                command_queue.put_nowait(
-                    Command(admin_ins_challenge, State.ctx.game, move_number, MoveType.CHALLENGE_BONUS, State.ctx.op_event)
-                )
-            elif request.form.get('btnmove'):
-                if move_number and (0 < move_number <= len(game.moves)):
-                    move_type = request.form.get('move.type')
-                    coord = request.form.get('move.coord')
-                    word = request.form.get('move.word')
-                    word = word.upper().replace(' ', '_') if word else ''
-                    logger.debug(f'{move_type=} {coord=} {word=}')
-
-                    move = game.moves[move_number]
-                    if move_type == MoveType.REGULAR.name and coord is not None and word is not None:
-                        vert, (col, row) = move.calc_coord(coord)
-                        if re.compile('[A-ZÜÄÖ_\\.]+').fullmatch(word):  # valide word
-                            command_queue.put_nowait( Command( admin_change_move,
-                                    State.ctx.game, move_number, MoveType.REGULAR, (col, row), vert, word, State.ctx.op_event
-                                ))  # fmt: off
-                            ApiServer.last_msg = f'edit move #{move_number}: {move.type.name} => {move_type}'
-                            logger.info(ApiServer.last_msg)
-                        else:
-                            ApiServer.last_msg = f'invalid character in word {word}'
-                            logger.info(ApiServer.last_msg)
-                    elif move_type == MoveType.EXCHANGE.name:
-                        command_queue.put_nowait(
-                            Command(admin_change_move, State.ctx.game, move_number, MoveType.EXCHANGE, event=State.ctx.op_event)
-                        )
-                        ApiServer.last_msg = f'change move {move_number} to exchange'
-                        logger.info(ApiServer.last_msg)
-                    else:
-                        ApiServer.last_msg = f'change move {move_number} missing parameter {move_type=} {coord=} {word=}'
-                        logger.info(ApiServer.last_msg)
-                else:
-                    logger.warning(f'invalid move number {move_number}')
+        if request.method == 'POST':
+            form = request.form
+            if form.get('btnblanko'):
+                handle_btnblanko(form, game)
+            elif form.get('btnblankodelete'):
+                handle_btnblankodelete(form, game)
+            elif form.get('btninsmoves'):
+                handle_btninsmoves(game, move_number)
+            elif form.get('btndelchallenge') and move_number:
+                handle_btndelchallenge(game, move_number)
+            elif form.get('btntogglechallenge') and move_number:
+                handle_btntogglechallenge(game, move_number)
+            elif form.get('btninswithdraw') and move_number:
+                handle_btninswithdraw(game, move_number)
+            elif form.get('btninschallenge') and move_number:
+                handle_btninschallenge(game, move_number)
+            elif form.get('btnmove'):
+                handle_btnmove(form, game, move_number)
             return redirect('/moves')
-        # fall through: request.method == 'GET':
+
+        # GET-Request
         (player1, player2) = game.nicknames
         blankos = (
             [
