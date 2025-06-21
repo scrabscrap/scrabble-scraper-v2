@@ -44,6 +44,7 @@ from util import TWarp, runtime_measure
 # 19mm x 19mm
 
 THRESHOLD_MAX_DIFF = 70
+BOARD_SIZE = 15
 
 logger = logging.getLogger(__name__)
 
@@ -137,85 +138,53 @@ class CustomBoard:
         mask_result = cv2.bitwise_not(mask_result)  # type: ignore
         candidates = set()
         filtered_pixels = {}
-        for col in range(15):
-            for row in range(15):
-                px_col = int(OFFSET + (row * GRID_H))
-                px_row = int(OFFSET + (col * GRID_W))
-                segment = mask_result[px_col + 2 : px_col + GRID_H - 2, px_row + 2 : px_row + GRID_W - 2]
+        for col in range(BOARD_SIZE):
+            for row in range(BOARD_SIZE):
+                segment = mask_result[cls.get_slice_for_one_field(col=col, row=row, border=-2)]
                 number_of_not_black_pix: int = np.sum(segment > 10)
                 filtered_pixels[(col, row)] = number_of_not_black_pix
                 if number_of_not_black_pix > config.board.tiles_threshold:
                     candidates.add((col, row))
         result = None
         if logger.isEnabledFor(logging.DEBUG):
-            logger.debug(f'filtered pixels:\n{cls.log_pixels(filtered_pixels=filtered_pixels)}')
-            logger.debug(f'candidates:\n{cls.log_candidates(candidates=candidates)}')
+            cls.log_board_info(value_fn=lambda col, row: f' {filtered_pixels[(col, row)]:4d} ')
+            cls.log_board_info(value_fn=lambda col, row: ' X ' if (col, row) in candidates else ' · ')
         return result, candidates
 
     @staticmethod
-    def log_pixels(filtered_pixels: dict) -> str:
-        """Print candidates set"""
-        board_size = 15
-        tmp = '  |' + ''.join(f'{i + 1:5d} ' for i in range(board_size)) + '\n'
+    def log_board_info(value_fn) -> None:
+        """Print board value_fn"""
+        tmp = '  |' + ''.join(f'{i + 1:5d} ' for i in range(BOARD_SIZE)) + '\n'
         tmp += '\n'.join(
-            [
-                f'{chr(ord("A") + row)} |{"".join(f" {filtered_pixels[(col, row)]:4d} " for col in range(board_size))}|'
-                for row in range(board_size)
-            ]
+            [f'{chr(ord("A") + row)} |{"".join(value_fn(col, row) for col in range(BOARD_SIZE))}|' for row in range(BOARD_SIZE)]
         )
-        return tmp
+        logger.debug(f'\n{tmp}')
 
-    @staticmethod
-    def log_candidates(candidates: set) -> str:
-        """Print candidates set"""
-        board_size = 15
-        tmp = '  |' + ''.join(f'{i + 1:2d} ' for i in range(board_size)) + '\n'
-        tmp += '\n'.join(
-            [
-                f'{chr(ord("A") + row)} |{"".join(" X " if (col, row) in candidates else " · " for col in range(board_size))}|'
-                for row in range(board_size)
-            ]
-        )
-        return tmp
+    @classmethod
+    def get_slice_for_one_field(cls, col: int, row: int, border: int):
+        """calculate slice for image to extract one field"""
+        px_col = int(OFFSET + (row * GRID_H))
+        px_row = int(OFFSET + (col * GRID_W))
+        return (slice(px_col - border, px_col + GRID_H + border), slice(px_row - border, px_row + GRID_W + border))
 
     @classmethod
     def create_board_masks(cls) -> tuple[MatLike, MatLike, MatLike, MatLike, MatLike]:
         """create board masks for custom board"""
 
-        tword = np.zeros((800, 800), dtype='uint8')
-        dword = np.zeros((800, 800), dtype='uint8')
-        tletter = np.zeros((800, 800), dtype='uint8')
-        dletter = np.zeros((800, 800), dtype='uint8')
-        field = np.zeros((800, 800), dtype='uint8')
+        tword, dword, tletter, dletter, field = (np.zeros((800, 800), dtype='uint8') for _ in range(5))
         field[:] = 255
-        for col in range(15):
-            for row in range(15):
-                px_col = int(OFFSET + (row * GRID_H))
-                px_row = int(OFFSET + (col * GRID_W))
-                if (col, row) in TRIPLE_WORDS:
-                    tword[
-                        px_col - cls.BOARD_MASK_BORDER : px_col + GRID_H + cls.BOARD_MASK_BORDER,
-                        px_row - cls.BOARD_MASK_BORDER : px_row + GRID_W + cls.BOARD_MASK_BORDER,
-                    ] = 255
-                    field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
-                elif (col, row) in DOUBLE_WORDS:
-                    dword[
-                        px_col - cls.BOARD_MASK_BORDER : px_col + GRID_H + cls.BOARD_MASK_BORDER,
-                        px_row - cls.BOARD_MASK_BORDER : px_row + GRID_W + cls.BOARD_MASK_BORDER,
-                    ] = 255
-                    field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
-                elif (col, row) in TRIPLE_LETTER:
-                    tletter[
-                        px_col - cls.BOARD_MASK_BORDER : px_col + GRID_H + cls.BOARD_MASK_BORDER,
-                        px_row - cls.BOARD_MASK_BORDER : px_row + GRID_W + cls.BOARD_MASK_BORDER,
-                    ] = 255
-                    field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
-                elif (col, row) in DOUBLE_LETTER:
-                    dletter[
-                        px_col - cls.BOARD_MASK_BORDER : px_col + GRID_H + cls.BOARD_MASK_BORDER,
-                        px_row - cls.BOARD_MASK_BORDER : px_row + GRID_W + cls.BOARD_MASK_BORDER,
-                    ] = 255
-                    field[px_col - 0 : px_col + GRID_H + 0, px_row - 0 : px_row + GRID_W + 0] = 0
+        for col, row in TRIPLE_WORDS:
+            tword[cls.get_slice_for_one_field(col=col, row=row, border=cls.BOARD_MASK_BORDER)] = 255
+            field[cls.get_slice_for_one_field(col=col, row=row, border=0)] = 0
+        for col, row in DOUBLE_WORDS:
+            dword[cls.get_slice_for_one_field(col=col, row=row, border=cls.BOARD_MASK_BORDER)] = 255
+            field[cls.get_slice_for_one_field(col=col, row=row, border=0)] = 0
+        for col, row in TRIPLE_LETTER:
+            tletter[cls.get_slice_for_one_field(col=col, row=row, border=cls.BOARD_MASK_BORDER)] = 255
+            field[cls.get_slice_for_one_field(col=col, row=row, border=0)] = 0
+        for col, row in DOUBLE_LETTER:
+            dletter[cls.get_slice_for_one_field(col=col, row=row, border=cls.BOARD_MASK_BORDER)] = 255
+            field[cls.get_slice_for_one_field(col=col, row=row, border=0)] = 0
         return tword, dword, tletter, dletter, field
 
     @staticmethod
