@@ -360,10 +360,7 @@ def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, even
             json_str = game.json_str()
             logger.debug(f'{msg}\napi: {json_str[: json_str.find("moves") + 7]}...\n')
         logger.info(game.dev_str())
-        with suppress(Exception):
-            store_zip_from_game(game)
-        if config.output.upload_server:
-            upload.get_upload_queue().join()  # wait for finishing uploads
+        store_zip_from_game(game)
 
 
 def store_zip_from_game(game: Game) -> None:  # pragma: no cover
@@ -376,17 +373,21 @@ def store_zip_from_game(game: Game) -> None:  # pragma: no cover
     zip_filename = f'{game_id}-{str(uuid.uuid4())}'
     web_dir = config.path.web_dir
     log_dir = config.path.log_dir
-    with ZipFile(web_dir / f'{zip_filename}.zip', 'w') as _zip:
-        logger.info(f'create zip with {len(game.moves):d} files')
-        for mov in game.moves:
-            for suffix in ['.jpg', '-camera.jpg', '.json']:
-                filename = f'{"image" if "jpg" in suffix else "data"}-{mov.move}{suffix}'
-                filepath = web_dir / filename
-                if filepath.exists():
-                    _zip.write(filepath, arcname=filename)
-        for log_file in ['game.log', 'messages.log']:
-            log_path = log_dir / log_file
-            if log_path.exists():
-                _zip.write(log_path, arcname=log_file)
+    try:
+        with ZipFile(web_dir / f'{zip_filename}.zip', 'w') as _zip:
+            logger.info(f'create zip with {len(game.moves):d} files')
+            for mov in game.moves:
+                for suffix in ['.jpg', '-camera.jpg', '.json']:
+                    filename = f'{"image" if "jpg" in suffix else "data"}-{mov.move}{suffix}'
+                    filepath = web_dir / filename
+                    if filepath.exists():
+                        _zip.write(filepath, arcname=filename)
+            for log_file in ['game.log', 'messages.log']:
+                log_path = log_dir / log_file
+                if log_path.exists():
+                    _zip.write(log_path, arcname=log_file)
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        logger.error(f'creating zip file {e=}')
     if config.output.upload_server:
         upload.get_upload_queue().put_nowait(Command(upload.zip_files))
+        upload.get_upload_queue().join()  # wait for finishing uploads

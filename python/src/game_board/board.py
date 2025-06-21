@@ -81,4 +81,3 @@ def overlay_grid(image: ndarray) -> ndarray:  # pragma: no cover
         pos = get_y_position(y)
         cv2.line(img, (x1, pos), (x2, pos), (0, 255, 0), 1)
     return img
-
