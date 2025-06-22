@@ -249,7 +249,7 @@ def _system_info():
 def do_delete_logs():
     """delete message logs"""
     ignore_list = [config.path.log_dir / 'messages.log', config.path.log_dir / 'game.log']
-    file_list = list(config.path.log_dir.glob('*'))
+    file_list = list(config.path.log_dir.glob('*.log*'))
     file_list = [f for f in file_list if f not in ignore_list]
     # Iterate over the list of filepaths & remove each file.
     logger.info('delete logs')
