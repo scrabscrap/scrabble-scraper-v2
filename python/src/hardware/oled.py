@@ -102,26 +102,25 @@ class OLEDDisplay(Display):
         def _shorten_nickname(nickname: str, max_length: int = 6) -> str:
             return f'{nickname[: max_length - 1]}\u2026' if len(nickname) > max_length else nickname
 
+        nicknames = self.game.nicknames if self.game else ('n/a', 'n/a')
         for i in range(2):
             time_str = _format_time(played_time[i])
-            color = WHITE
+            is_active_player = i == player
+            color = BLACK if info and is_active_player else WHITE
+
             with canvas(DEVICE[i]) as draw:
-                if info and i == player:
-                    draw.rectangle((1, 1, 128, 64), fill=WHITE)  # white background
-                    color = BLACK
+                if is_active_player and info:
+                    draw.rectangle((1, 1, 128, 64), fill=WHITE)
+                if is_active_player and 0 < current[player] <= config.scrabble.doubt_timeout:
+                    draw.text((1, 1), '\u2049', font=FONT1, fill=color)
+                if is_active_player and current[player] > 0:
+                    draw.text((90, 1), f'{current[player]:3d}', font=FONT1, fill=color)
                 if info:
                     draw.text((20, 1), info, font=FONT1, fill=color)
-                if i == player:
-                    if 0 < current[player] <= config.scrabble.doubt_timeout:
-                        draw.text((1, 1), '\u2049', font=FONT1, fill=color)  # alternative \u2718
-                    if current[player] != 0:
-                        draw.text((90, 1), f'{current[player]:3d}', font=FONT1, fill=color)
-                if self.game and not info:
-                    if config.scrabble.show_score:
-                        nickname = _shorten_nickname(self.game.nicknames[i])
-                        score = self.game.moves[-1].score[i] if len(self.game.moves) else 0
-                        draw.text((20, 1), f'{nickname}{score:3d}', font=FONT2, fill=color)
-                    else:
-                        nickname = _shorten_nickname(self.game.nicknames[i], 10)
-                        draw.text((20, 1), f'{nickname}', font=FONT2, fill=color)
+                if config.scrabble.show_score:
+                    score = self.game.moves[-1].score[i] if self.game and self.game.moves else 0
+                    draw.text((20, 1), f'{_shorten_nickname(nicknames[i])}{score:3d}', font=FONT2, fill=color)
+                else:
+                    draw.text((20, 1), _shorten_nickname(nicknames[i], 10), font=FONT2, fill=color)
+
                 draw.text((1, 22), time_str, font=FONT, fill=color)
