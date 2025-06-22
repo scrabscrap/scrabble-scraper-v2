@@ -27,7 +27,6 @@ from flask import redirect, render_template, request, url_for
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
-from api_server_thread import ApiServer
 from config import config, version
 from hardware import camera
 from hardware.led import LEDEnum
@@ -35,6 +34,9 @@ from scrabblewatch import ScrabbleWatch
 from state import State
 from threadpool import command_queue, pool
 from timer_thread import RepeatedTimer
+
+from admin_server import app, start_server, stop_server
+from admin_server_context import ctx
 
 Device.pin_factory = MockFactory()
 current_counter: int = 0
@@ -164,7 +166,7 @@ def simulator() -> str:
 
     return render_template(
         'simulator.html',
-        apiserver=ApiServer,
+        apiserver=ctx,
         img_next=png_next,
         img_current=png_current,
         green=LEDEnum.green.value,
@@ -226,29 +228,27 @@ def main():
     timer = RepeatedTimer(1, ScrabbleWatch.tick)
     timer.start()
 
-    api = ApiServer()
-
-    api.app.add_url_rule('/simulator/red', 'red', red)
-    api.app.add_url_rule('/simulator/green', 'green', green)
-    api.app.add_url_rule('/simulator/yellow', 'yellow', yellow)
-    api.app.add_url_rule('/simulator/doubt0', 'doubt0', doubt0)
-    api.app.add_url_rule('/simulator/doubt1', 'doubt1', doubt1)
-    api.app.add_url_rule('/simulator/reset', 'reset', reset)
-    api.app.add_url_rule('/simulator/first', 'first', cam_first)
-    api.app.add_url_rule('/simulator/prev', 'prev', cam_prev)
-    api.app.add_url_rule('/simulator/next', 'next', cam_next)
-    api.app.add_url_rule('/simulator/last', 'last', cam_last)
-    api.app.add_url_rule('/simulator/open', 'open', open_folder)
-    api.app.add_url_rule('/simulator', 'simulator', simulator)
+    app.add_url_rule('/simulator/red', 'red', red)
+    app.add_url_rule('/simulator/green', 'green', green)
+    app.add_url_rule('/simulator/yellow', 'yellow', yellow)
+    app.add_url_rule('/simulator/doubt0', 'doubt0', doubt0)
+    app.add_url_rule('/simulator/doubt1', 'doubt1', doubt1)
+    app.add_url_rule('/simulator/reset', 'reset', reset)
+    app.add_url_rule('/simulator/first', 'first', cam_first)
+    app.add_url_rule('/simulator/prev', 'prev', cam_prev)
+    app.add_url_rule('/simulator/next', 'next', cam_next)
+    app.add_url_rule('/simulator/last', 'last', cam_last)
+    app.add_url_rule('/simulator/open', 'open', open_folder)
+    app.add_url_rule('/simulator', 'simulator', simulator)
 
     # start State-Machine
     State.do_new_game()
     logger.debug(f'#### workdir {config.path.work_dir}')
     logger.info('####################################################################')
 
-    api.start_server(port=5050, simulator=True)
+    start_server(port=5050, simulator=True)
 
-    api.stop_server()
+    stop_server()
     camera.cam.cancel()
     timer.cancel()
 

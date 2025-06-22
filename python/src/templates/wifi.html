@@ -77,7 +77,13 @@
                 <div class="card">
                     <div class="card-header">Messages</div>
                     <div class="card-body">
-                        <div style="font-family: monospace; white-space: pre-wrap;">{{apiserver.last_msg}}</div>
+                        {% with messages = get_flashed_messages(with_categories=False) %}
+                        {% if messages %}
+                        {% for message in messages %}
+                        {{ message }}
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
                     </div>
                 </div>
             </div>

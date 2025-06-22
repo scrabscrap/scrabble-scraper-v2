@@ -361,13 +361,23 @@
         <!-- Buttons-->
         <div class="row float-end">
             <div>
-                {{ save_message }}
                 <button type="button" class="btn btn-secondary" onclick="location.href='/'"><i class="bi-x-square"></i>
                     Cancel</button>
                 <button type="submit" class="btn btn-primary" name="btnsave" value="Submit"><i class="bi-save"></i>
                     Save</button>
             </div>
         </div> <!-- row -->
+        <div class="row">
+            <div>
+                {% with messages = get_flashed_messages(with_categories=False) %}
+                {% if messages %}
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
     </form>
 
 </div>

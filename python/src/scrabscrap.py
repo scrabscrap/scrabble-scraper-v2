@@ -30,7 +30,7 @@ import sys
 from signal import pause
 from threading import Event
 
-from api_server_thread import ApiServer
+from admin_server import start_server, stop_server
 from config import config, version
 from hardware import camera
 from state import State
@@ -58,7 +58,7 @@ def main() -> None:
     def _cleanup():
         atexit.unregister(_cleanup)
         logger.debug('main-_atexit')
-        api.stop_server()
+        stop_server()
         timer.cancel()
         camera.cam.cancel()
         pool.shutdown(cancel_futures=True)
@@ -98,9 +98,8 @@ def main() -> None:
     timer = RepeatedTimer(1, ScrabbleWatch.tick)
     timer.start()
 
-    # start api server
-    api = ApiServer()
-    _ = pool.submit(api.start_server)
+    # start admin server
+    _ = pool.submit(start_server)
 
     # init State Machine
     State.init()
