@@ -373,9 +373,8 @@ def do_update_scrabscrap():
     if State.ctx.current_state == 'START':
         LED.blink_on({LEDEnum.yellow})
         ScrabbleWatch.display.show_ready(('Update...', 'pls wait'))
-        upgrade_cmd = str((config.path.src_dir.parent.parent / 'scripts' / 'tailscale.sh').resolve())
-        log_file = str(config.path.log_dir / 'messages.log')
-        os.system(f'{upgrade_cmd} {config.system.gitbranch} | tee -a {log_file} &')
+        upgrade_cmd = str(config.path.src_dir.parent.parent / 'scripts' / 'upgrade.sh')
+        os.system(f'{upgrade_cmd} {config.system.gitbranch} | tee -a {config.path.log_dir}/messages.log &')
         return redirect(url_for('route_index'))
     logger.warning('not in State START')
     return redirect(url_for('route_index'))
