@@ -162,11 +162,11 @@ class GameRunnerTestCase(unittest.TestCase):
         ScrabbleWatch.display = Display()
         camera.switch_camera('file')
 
-        # read *.ini
         test_config = configparser.ConfigParser()
         try:
             with open(f'{file}', 'r', encoding='UTF-8') as config_file:
                 test_config.read_file(config_file)
+                config_dir = os.path.dirname(config_file.name)
         except IOError as oops:
             logger.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
             self.fail(f'error reading ini-file {file}')
@@ -175,76 +175,86 @@ class GameRunnerTestCase(unittest.TestCase):
         name2 = test_config.get('default', 'name2', fallback='Name2')
         warp = test_config.getboolean('default', 'warp', fallback=True)
         start_button = test_config.get('default', 'start', fallback='Red')
-
         coordstr = test_config.get('default', 'warp-coord', fallback=None)
-        formatter = f'{os.path.dirname(config_file.name)}/{test_config.get("default", "formatter")}'  # type: ignore
-        csvfile = f'{os.path.dirname(config_file.name)}/game.csv'  # type: ignore
+        formatter = f'{config_dir}/{test_config.get("default", "formatter")}'
+        csvfile = f'{config_dir}/game.csv'
 
-        # set config
         self.config_setter('video', 'warp', warp)
         self.config_setter('video', 'warp_coordinates', coordstr)
         logger.info(f'{config.video.warp}: {config.video.warp_coordinates}')
         self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom'))
         camera.cam.formatter = formatter  # type: ignore
         camera.cam.counter = 1  # type: ignore
-        camera.cam.resize = False  # type: ignore
+        camera.cam.resize = False  # type:ignore
         State.do_new_game()
         State.ctx.game.nicknames = (name1, name2)
-        State.press_button(start_button.upper())  # green begins
+        State.press_button(start_button.upper())
 
-        # run test: loop csv
-        with open(csvfile, mode='r') as csv_file:
-            logger.info(f'TESTFILE: {csvfile}')
-            csv_reader = csv.DictReader(csv_file, skipinitialspace=True)
-            for row in csv_reader:
-                logger.info(f'TEST: {row}')
-                camera.cam.counter = int(row['Move'])  # type: ignore
-                State.press_button(row['Button'].upper())
-                sleep(0.01)
+        self._run_csv_test(csvfile)
 
-                self.assertEqual(
-                    GameState[row['State'].upper()],
-                    State.ctx.current_state,
-                    f'invalid state {State.ctx.current_state} at move {int(row["Move"])}',
-                )
-                if State.ctx.current_state not in (GameState.P0, GameState.P1, GameState.EOG):
-                    command_queue.join()
-                    self.assertEqual(
-                        int(row['Points']),
-                        State.ctx.game.moves[-1].points,
-                        f'invalid points {State.ctx.game.moves[-1].points} at move {int(row["Move"])}',
-                    )
-                    self.assertEqual(
-                        int(row['Score1']),
-                        State.ctx.game.moves[-1].score[0],
-                        f'invalid score 1 {State.ctx.game.moves[-1].score[0]} at move {int(row["Move"])}',
-                    )
-                    self.assertEqual(
-                        int(row['Score2']),
-                        State.ctx.game.moves[-1].score[1],
-                        f'invalid score 2 {State.ctx.game.moves[-1].score[1]} at move {int(row["Move"])}',
-                    )
-                    if isinstance(State.ctx.game.moves[-1], (MoveRegular)):
-                        self.assertEqual(
-                            row['Word'],
-                            State.ctx.game.moves[-1].word,
-                            f'invalid word {State.ctx.game.moves[-1].word} at move {int(row["Move"])}',
-                        )
-                logger.warning(f'qsize={command_queue.qsize()}')
-            if State.ctx.current_state != GameState.EOG:
-                State.do_end_of_game()
         logger.info(f'### end of tests {file} ###')
         if PROFILE:
             snapshot = tracemalloc.take_snapshot()
             self.display_top(snapshot, limit=10)
             second_size, second_peak = tracemalloc.get_traced_memory()
             print(f'{second_size=}, {second_peak=}')
-
             top_stats = snapshot.statistics('traceback')
             stat = top_stats[0]
             print('%s memory blocks: %.1f KiB' % (stat.count, stat.size / 1024))
             for line in stat.traceback.format():
                 print(line)
+
+    def _run_csv_test(self, csvfile):
+        from state import State
+        from scrabble import MoveRegular
+
+        with open(csvfile, mode='r') as csv_file:
+            logger.info(f'TESTFILE: {csvfile}')
+            csv_reader = csv.DictReader(csv_file, skipinitialspace=True)
+            for row in csv_reader:
+                self._process_csv_row(row)
+            if State.ctx.current_state != GameState.EOG:
+                State.do_end_of_game()
+
+    def _process_csv_row(self, row):
+        from state import State
+        from scrabble import MoveRegular
+
+        logger.info(f'TEST: {row}')
+        camera.cam.counter = int(row['Move'])  # type:ignore
+        State.press_button(row['Button'].upper())
+        sleep(0.01)
+
+        self.assertEqual(
+            GameState[row['State'].upper()],
+            State.ctx.current_state,
+            f'invalid state {State.ctx.current_state} at move {int(row["Move"])}',
+        )
+
+        if State.ctx.current_state not in (GameState.P0, GameState.P1, GameState.EOG):
+            command_queue.join()
+            self.assertEqual(
+                int(row['Points']),
+                State.ctx.game.moves[-1].points,
+                f'invalid points {State.ctx.game.moves[-1].points} at move {int(row["Move"])}',
+            )
+            self.assertEqual(
+                int(row['Score1']),
+                State.ctx.game.moves[-1].score[0],
+                f'invalid score 1 {State.ctx.game.moves[-1].score[0]} at move {int(row["Move"])}',
+            )
+            self.assertEqual(
+                int(row['Score2']),
+                State.ctx.game.moves[-1].score[1],
+                f'invalid score 2 {State.ctx.game.moves[-1].score[1]} at move {int(row["Move"])}',
+            )
+            if isinstance(State.ctx.game.moves[-1], MoveRegular):
+                self.assertEqual(
+                    row['Word'],
+                    State.ctx.game.moves[-1].word,
+                    f'invalid word {State.ctx.game.moves[-1].word} at move {int(row["Move"])}',
+                )
+        logger.warning(f'qsize={command_queue.qsize()}')
 
 
 # unit tests per commandline
