@@ -116,12 +116,13 @@ WORD_PATTERN = re.compile(r'[A-ZÜÄÖ_\.]+')
 
 
 def is_valid_word(word: str) -> bool:
+    """is word valid"""
     return bool(WORD_PATTERN.fullmatch(word))
 
 
 def handle_btnmove(form, game, move_number):
     """handle button change move"""
-    if not (0 <= move_number < len(game.moves)):
+    if move_number < 0 or move_number >= len(game.moves):
         flash_and_log(f'invalid move number {move_number}')
         return
 
@@ -138,7 +139,7 @@ def handle_btnmove(form, game, move_number):
             return
         try:
             vert, (col, row) = move.calc_coord(coord)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             flash_and_log(f'error parsing coord {coord}: {e}')
             return
         if not is_valid_word(word):

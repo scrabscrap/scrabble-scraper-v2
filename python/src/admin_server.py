@@ -65,30 +65,40 @@ def route_index():
     """index web page"""
     if request.method == 'POST':
         if request.form.get('btnplayer'):
-            if (
-                (player1 := request.form.get('player1'))
-                and (player2 := request.form.get('player2'))
-                and (player1.casefold() != player2.casefold())
-            ):
-                logger.info(f'set {player1=} / {player2=}')
-                State.ctx.game.set_player_names(player1, player2)
-                event_set(State.ctx.op_event)
-            else:
-                logger.warning(f'can not set: {request.form.get("player1")}/{request.form.get("player2")}')
-        elif request.form.get('btntournament'):
-            if (tournament := request.form.get('tournament')) is not None and (tournament != config.scrabble.tournament):
-                if 'scrabble' not in config.config.sections():
-                    config.config.add_section('scrabble')
-                config.config.set('scrabble', 'tournament', str(tournament))
-                config.save()
-                logger.info(f'set {tournament=}')
-            else:
-                logger.warning(f'can not set: {tournament=}')
-        return redirect('/index')
-    (player1, player2) = State.ctx.game.nicknames
+            _handle_player_form(request.form)
+            return redirect('/index')
+        if request.form.get('btntournament'):
+            _handle_tournament_form(request.form)
+            return redirect('/index')
+
+    player1, player2 = State.ctx.game.nicknames
     tournament = config.scrabble.tournament
-    # fall through: request.method == 'GET':
     return render_template('index.html', apiserver=ctx, player1=player1, player2=player2, tournament=tournament)
+
+
+def _handle_player_form(form):
+    """handle set player names"""
+    player1 = form.get('player1')
+    player2 = form.get('player2')
+    if player1 and player2 and player1.casefold() != player2.casefold():
+        logger.info(f'set {player1=} / {player2=}')
+        State.ctx.game.set_player_names(player1, player2)
+        event_set(State.ctx.op_event)
+    else:
+        logger.warning(f'can not set: {player1}/{player2}')
+
+
+def _handle_tournament_form(form):
+    """handle set tournament name"""
+    tournament = form.get('tournament')
+    if tournament and tournament != config.scrabble.tournament:
+        if 'scrabble' not in config.config.sections():
+            config.config.add_section('scrabble')
+        config.config.set('scrabble', 'tournament', str(tournament))
+        config.save()
+        logger.info(f'set {tournament=}')
+    else:
+        logger.warning(f'can not set: {tournament=}')
 
 
 @app.route('/button', methods=['POST', 'GET'])
@@ -134,32 +144,22 @@ def route_logs():
     return render_template('logs.html', apiserver=ctx)
 
 
-@app.route('/log_sysinfo', methods=['GET', 'POST'])
-def log_sysinfo():  # pylint: disable=too-many-locals,too-many-statements
-    """log out system info"""
+def bytes2human(n):
+    """Convert bytes to human-readable string."""
+    # http://code.activestate.com/recipes/578019
+    symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+    prefix = {}
+    for i, s in enumerate(symbols):
+        prefix[s] = 1 << (i + 1) * 10
+    for s in reversed(symbols):
+        if abs(n) >= prefix[s]:
+            value = float(n) / prefix[s]
+            return f'{value:.1f}{s}'
+    return f'{n}B'
 
-    def bytes2human(n):
-        # http://code.activestate.com/recipes/578019
-        # >>> bytes2human(10000)
-        # '9.8K'
-        # >>> bytes2human(100001221)
-        # '95.4M'
-        symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-        prefix = {}
-        for i, s in enumerate(symbols):
-            prefix[s] = 1 << (i + 1) * 10
-        for s in reversed(symbols):
-            if abs(n) >= prefix[s]:
-                value = float(n) / prefix[s]
-                return f'{value:.1f}{s}'
-        return f'{n}B'
 
-    _system_info()
-    _boot_info()
-    _cpu_info()
-    _mem_info(bytes2human)
-    _disk_info(bytes2human)
-
+def log_process_info():
+    """log process infos"""
     logger.info(f'{"=" * 40} Process Info {"=" * 40}')
     for process in psutil.process_iter(['pid', 'name', 'memory_percent', 'cpu_percent']):
         with suppress(psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
@@ -169,10 +169,21 @@ def log_sysinfo():  # pylint: disable=too-many-locals,too-many-statements
                     f'mem:{process.info["memory_percent"]:.2f}% cpu:{process.info["cpu_percent"]:.2f}%'
                 )
 
+
+@app.route('/log_sysinfo', methods=['GET', 'POST'])
+def log_sysinfo():  # pylint: disable=too-many-locals,too-many-statements
+    """log out system info"""
+
+    _system_info()
+    _boot_info()
+    _cpu_info()
+    _mem_info()
+    _disk_info()
+    log_process_info()
     return redirect('/logs')
 
 
-def _disk_info(bytes2human):
+def _disk_info():
     logger.info(f'{"=" * 40} Disk Information {"=" * 40}')
     logger.info('Partitions and Usage:')
     partitions = psutil.disk_partitions()
@@ -195,7 +206,7 @@ def _disk_info(bytes2human):
         logger.info(f'Total write: {bytes2human(disk_io.write_bytes)}')
 
 
-def _mem_info(bytes2human):
+def _mem_info():
     logger.info(f'{"=" * 40} Memory Information {"=" * 40}')
     svmem = psutil.virtual_memory()
     logger.info(f'Total: {bytes2human(svmem.total)}')
