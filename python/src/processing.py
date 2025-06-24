@@ -31,7 +31,8 @@ from cv2.typing import MatLike
 from analyzer import MAX_TILE_PROB, analyze, filter_candidates
 from config import config
 from customboard import filter_image, warp_image
-from scrabble import BoardType, Game, InvalidMoveError, MoveType, NoMoveError, Tile, gcg_to_coord
+from move import InvalidMoveError, NoMoveError, gcg_to_coord
+from scrabble import BoardType, Game, MoveType, Tile
 from threadpool import Command, pool
 from upload import upload
 from util import handle_exceptions, rotate_logs, runtime_measure, trace

@@ -34,7 +34,8 @@ from processing import (
     remove_blanko,
     set_blankos,
 )
-from scrabble import BoardType, MoveType, NoMoveError, Tile, board_to_string
+from move import NoMoveError, Tile, BoardType, MoveType
+from scrabble import board_to_string
 from scrabblewatch import ScrabbleWatch
 from state import State
 
