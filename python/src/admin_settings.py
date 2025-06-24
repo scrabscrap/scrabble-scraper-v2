@@ -46,21 +46,23 @@ logger = logging.getLogger(__name__)
 admin_settings_bp = Blueprint('admin_settings', __name__)
 
 
-@admin_settings_bp.route('/cam', methods=['GET', 'POST'])
-def route_cam():  # pylint: disable=too-many-branches
-    """display current camera picture"""
-    if request.method == 'POST':
-        if request.form.get('btndelete'):
-            config.config.remove_option('video', 'warp_coordinates')
-            config.save()
-        elif request.form.get('btnstore'):
-            if 'video' not in config.config.sections():
-                config.config.add_section('video')
-            config.config.set('video', 'warp_coordinates', request.form.get('warp_coordinates'))
-            config.save()
-        return redirect('/cam')
-    if len(request.args.keys()) > 0:
-        coord = list(request.args.keys())[0]
+def handle_cam_post(form):
+    """process post request"""
+    if form.get('btndelete'):
+        config.config.remove_option('video', 'warp_coordinates')
+        config.save()
+    elif form.get('btnstore'):
+        if 'video' not in config.config.sections():
+            config.config.add_section('video')
+        config.config.set('video', 'warp_coordinates', form.get('warp_coordinates'))
+        config.save()
+    return redirect('/cam')
+
+
+def update_warp_coordinates_from_args(args):
+    """ "set warp coordinates from args (admin frontend mouse coordinates)"""
+    if len(args.keys()) > 0:
+        coord = list(args.keys())[0]
         col: int = int(coord.split(',')[0])
         row: int = int(coord.split(',')[1])
         logger.debug(f'coord x:{col} y:{row}')
@@ -82,6 +84,14 @@ def route_cam():  # pylint: disable=too-many-branches
         config.config.set(
             'video', 'warp_coordinates', np.array2string(rect, formatter={'float_kind': lambda x: f'{x:.1f}'}, separator=',')
         )
+
+
+@admin_settings_bp.route('/cam', methods=['GET', 'POST'])
+def route_cam():  # pylint: disable=too-many-branches
+    """display current camera picture"""
+    if request.method == 'POST':
+        return handle_cam_post(request.form)
+    update_warp_coordinates_from_args(request.args)
     warp_coord_cnf = str(config.video.warp_coordinates)
     img = camera.cam.read()
     if img is not None:
@@ -111,32 +121,36 @@ def route_cam():  # pylint: disable=too-many-branches
     )
 
 
+def update_loglevel(new_level: int):
+    """update log configuration"""
+    root_logger = logging.getLogger('root')
+    prev_level = root_logger.getEffectiveLevel()
+    if new_level != prev_level:
+        logger.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
+        root_logger.setLevel(new_level)
+        log_config = configparser.ConfigParser()
+        with (config.path.work_dir / 'log.conf').open(encoding='UTF-8') as config_file:
+            log_config.read_file(config_file)
+            if 'logger_root' not in log_config.sections():
+                log_config.add_section('logger_root')
+            log_config.set('logger_root', 'level', logging.getLevelName(new_level))
+        with (config.path.work_dir / 'log.conf').open('w', encoding='UTF-8') as config_file:
+            log_config.write(config_file)
+
+
+def update_recording(recording: bool):
+    """update config value for development-recording setting"""
+    if config.development.recording != recording:
+        logger.info(f'development.recording changed to {recording}')
+        if 'development' not in config.config.sections():
+            config.config.add_section('development')
+        config.config.set('development', 'recording', str(recording))
+        config.save()
+
+
 @admin_settings_bp.route('/loglevel', methods=['GET', 'POST'])
 def route_loglevel():
     """settings loglevel, recording"""
-
-    def update_loglevel(new_level: int):
-        root_logger = logging.getLogger('root')
-        prev_level = root_logger.getEffectiveLevel()
-        if new_level != prev_level:
-            logger.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
-            root_logger.setLevel(new_level)
-            log_config = configparser.ConfigParser()
-            with (config.path.work_dir / 'log.conf').open(encoding='UTF-8') as config_file:
-                log_config.read_file(config_file)
-                if 'logger_root' not in log_config.sections():
-                    log_config.add_section('logger_root')
-                log_config.set('logger_root', 'level', logging.getLevelName(new_level))
-            with (config.path.work_dir / 'log.conf').open('w', encoding='UTF-8') as config_file:
-                log_config.write(config_file)
-
-    def update_recording(recording: bool):
-        if config.development.recording != recording:
-            logger.info(f'development.recording changed to {recording}')
-            if 'development' not in config.config.sections():
-                config.config.add_section('development')
-            config.config.set('development', 'recording', str(recording))
-            config.save()
 
     if request.method == 'POST':
         try:
@@ -295,18 +309,23 @@ def get_configured_wifi():
     return []
 
 
+def parse_wifi_output(output: list[str]) -> list[list[str]]:
+    """Hilfsfunktion: Parsed die Ausgabe von nmcli."""
+    wifi_list = [line.split(':', 1) for line in filter(None, output)]
+    unique_wifi: dict[str, str] = {}
+    for in_use, ssid in wifi_list:
+        if ssid not in unique_wifi or unique_wifi[ssid] == ' ':
+            unique_wifi[ssid] = in_use if in_use else ' '
+    return [[in_use, ssid] for ssid, in_use in unique_wifi.items()]
+
+
 def get_available_wifi():
     """scan for available wifis"""
     cmd = ['sudo', '-n', '/usr/bin/nmcli', '-t', '-f', 'IN-USE,SSID', 'device', 'wifi', 'list', '--rescan', 'yes']
     ret, output = run_cmd(cmd)
-    if ret == 0:
-        wifi_list = [line.split(':', 1) for line in filter(None, output)]
-        unique_wifi = {}
-        for in_use, ssid in wifi_list:
-            if ssid not in unique_wifi or unique_wifi[ssid] == ' ':
-                unique_wifi[ssid] = in_use if in_use else ' '
-        return [[in_use, ssid] for ssid, in_use in unique_wifi.items()]
-    return []
+    if ret != 0:
+        return []
+    return parse_wifi_output(output)
 
 
 @admin_settings_bp.route('/wifi', methods=['GET', 'POST'])

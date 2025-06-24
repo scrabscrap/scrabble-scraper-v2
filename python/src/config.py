@@ -101,7 +101,7 @@ DEFAULT = {
         'show_score': 'False',
     },
     'output': {'upload_server': 'False', 'upload_modus': 'http'},
-    'video': {'warp': 'True', 'width': '976', 'height': '976', 'fps': '25', 'rotate': 'True'},
+    'video': {'warp': 'True', 'width': '976', 'height': '976', 'fps': '25', 'rotate': 'True', 'warp_coordinates': ''},
     'board': {
         'layout': 'custom2012',
         'tiles_threshold': '800',
