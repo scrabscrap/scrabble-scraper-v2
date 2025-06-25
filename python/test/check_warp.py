@@ -19,7 +19,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import logging
 import signal
 import sys
-from concurrent import futures
 from threading import Event
 from time import sleep
 
@@ -28,8 +27,11 @@ from numpy import ndarray
 
 from game_board.board import get_x_position, get_y_position, overlay_grid
 from hardware import camera
+from move import BoardType
 from processing import analyze, filter_candidates, filter_image, warp_image
+from scrabble import board_to_string
 from threadpool import pool
+from config import config
 
 logging.basicConfig(
     stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
@@ -37,35 +39,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def print_board(board: dict) -> str:
-    """print out scrabble board dictionary"""
-    result = '  |'
-    for i in range(15):
-        result += f'{(i + 1):2d} '
-    result += ' | '
-    for i in range(15):
-        result += f'{(i + 1):2d} '
-    result += '\n'
-    for row in range(15):
-        result += f'{chr(ord("A") + row)} |'
-        for col in range(15):
-            if (col, row) in board:
-                result += f' {board[(col, row)][0]} '
-            else:
-                result += ' · '
-        result += ' | '
-        for col in range(15):
-            result += f' {str(board[(col, row)][1])}' if (col, row) in board else ' · '
-        result += ' | \n'
-    return result
-
-
-def overlay_tiles(image: ndarray, board: dict[tuple[int, int], tuple[str, int]]) -> ndarray:  # pragma: no cover
+def overlay_tiles(image: ndarray, board: BoardType) -> ndarray:  # pragma: no cover
     """returns an image with overlayed characters from the board dictionary"""
     img = image.copy()
-    for (col, row), (value, _) in board.items():
+    for (col, row), tile in board.items():
         cv2.putText(
-            img, value, (get_x_position(col) + 5, get_y_position(row) + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2
+            img, tile.letter, (get_x_position(col) + 5, get_y_position(row) + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2
         )
     return img
 
@@ -79,9 +58,6 @@ def main() -> None:
         # reset alarm
         signal.alarm(0)
 
-    def chunkify(lst, chunks):
-        return [lst[i::chunks] for i in range(chunks)]
-
     signal.signal(signal.SIGALRM, main_cleanup)
 
     # open Camera
@@ -90,12 +66,11 @@ def main() -> None:
     sleep(1)  # camera warmup
 
     img = camera.cam.read()
-    # _, img = cv2.imencode(".jpg", img)
-    cv2.imwrite('log/img.jpg', img)
+    cv2.imwrite(str(config.path.log_dir / 'img.jpg'), img)
 
     warped, warped_gray = warp_image(img)
-    cv2.imwrite('log/warped.jpg', warped)
-    cv2.imwrite('log/warped_gray.jpg', warped_gray)
+    cv2.imwrite(str(config.path.log_dir / 'warped.jpg'), warped)
+    cv2.imwrite(str(config.path.log_dir / 'warped_gray.jpg'), warped_gray)
 
     _, tiles_candidates = filter_image(warped)  # find potential tiles on board
     logger.debug(f'tiles candidated: {tiles_candidates}')
@@ -105,23 +80,12 @@ def main() -> None:
 
     # previous board information
     board = {}
-    # previous_board = board.copy()
-    # previous_score = (0, 0)
-
-    # picture analysis
-    # analyze(warped_gray, board, filtered_candidates)
-    chunks = chunkify(list(filtered_candidates), 3)
-    future1 = pool.submit(analyze, warped_gray, board, set(chunks[0]))  # 1. thread
-    future2 = pool.submit(analyze, warped_gray, board, set(chunks[1]))  # 2. thread
-    analyze(warped_gray, board, set(chunks[2]))  # 3. (this) thread
-    done, _ = futures.wait({future1, future2})  # blocking wait
-    assert len(done) == 2, 'error on wait to futures'
-
-    logger.debug(f'board: \n{print_board(board)}')
+    board = analyze(warped_gray, board, filtered_candidates)
+    logger.debug(f'board: \n{board_to_string(board)}')
 
     overlay = overlay_grid(warped)
     overlay = overlay_tiles(overlay, board)
-    cv2.imwrite('log/overlay.jpg', overlay)
+    cv2.imwrite(str(config.path.log_dir / 'overlay.jpg'), overlay)
 
     camera.cam.cancel()
     pool.shutdown(cancel_futures=True)
