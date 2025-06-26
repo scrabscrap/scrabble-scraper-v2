@@ -199,6 +199,15 @@ class Move:  # pylint: disable=too-many-instance-attributes
         """returns word of move"""
         return ''
 
+    def cleanup_invalid_blanks(self, tiles_candidates: set) -> None:
+        """cleanup invalid blanks"""
+        if self.new_tiles:
+            blanks_to_remove = [i for i in self.new_tiles if (self.board[i].letter == '_') and i not in tiles_candidates]
+            for to_del in blanks_to_remove:
+                del self.new_tiles[to_del]
+            if blanks_to_remove:
+                self.calculate_score()  # catch exception NoMoveException, InvalidMoveException
+
     @property
     def gcg_str(self) -> str:
         """move as gcg string"""

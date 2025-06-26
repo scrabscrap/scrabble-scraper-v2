@@ -33,6 +33,7 @@ from move import (
     MAX_TILE_PROB,
     BoardType,
     CoordType,
+    InvalidMoveError,
     Move,
     MoveChallenge,
     MoveExchange,
@@ -43,6 +44,7 @@ from move import (
     MoveType,
     MoveUnknown,
     MoveWithdraw,
+    NoMoveError,
     Tile,
     bag_as_list,
 )
@@ -187,6 +189,13 @@ class Game:  # pylint: disable=too-many-public-methods
                 b.remove(i)
         return b
 
+    def get_coords_to_ignore(self) -> set[tuple[int, int]]:
+        """Returns the coordinates that are to be ignored in the analysis."""
+        if not self.moves:
+            return set()
+        to_verify = min(len(self.moves), config.scrabble.verify_moves)
+        return set(self.moves[-to_verify].board.keys())
+
     def _recalculate_from(self, index: int) -> Game:
         """recalculate all moves from index"""
         for m in self.moves[index:]:
@@ -205,38 +214,46 @@ class Game:  # pylint: disable=too-many-public-methods
             prev_move = m
         return self
 
+    def _write_json(self, i: int, web_dir: Path):
+        json_path = web_dir / f'data-{i}.json'
+        with json_path.open('w', encoding='utf-8') as json_file:
+            json.dump(self._get_json_data(index=i), json_file, indent=4)
+
+    def _write_image(self, i: int, web_dir: Path):
+        img = self.moves[i].img
+        if img is not None:
+            image_path = web_dir / f'image-{i}.jpg'
+            cv2.imwrite(str(image_path), img, [cv2.IMWRITE_JPEG_QUALITY, 100])  # type:ignore
+
+    def _write_status(self, i: int, web_dir: Path):
+        status_path = web_dir / 'status.json'
+        with status_path.open('w', encoding='utf-8') as json_file:
+            json.dump(self._get_json_data(index=i), json_file, indent=4)
+
     def _write_json_from(self, index: int, write_mode: list[str]) -> Game:
         """write json for move"""
         if config.is_testing:  # skip if under test
             return self
-        if index < 0:
-            index += len(self.moves)
-        if index >= len(self.moves):
+        index = index % len(self.moves)  # convert to positive index
+        if not self.valid_index(index):
             logger.warning(f'invalid index {index} skipped')
             return self
-
         web_dir = Path(config.path.web_dir)
-        for i in range(index, len(self.moves)):  # write json and images
-            if 'json' in write_mode:
-                json_path = web_dir / f'data-{i}.json'
-                with json_path.open('w', encoding='utf-8') as json_file:
-                    json.dump(self._get_json_data(index=i), json_file, indent=4)
+        write_json = 'json' in write_mode
+        write_img = 'image' in write_mode
 
-            if 'image' in write_mode and self.moves[index].img is not None:
-                image_path = web_dir / f'image-{i}.jpg'
-                cv2.imwrite(str(image_path), self.moves[index].img, [cv2.IMWRITE_JPEG_QUALITY, 100])  # type:ignore
-
+        for i in range(index, len(self.moves)):
+            if write_json:
+                self._write_json(i, web_dir)
+            if write_img:
+                self._write_image(i, web_dir)
             if i == len(self.moves) - 1:
-                status_path = web_dir / 'status.json'
-                with status_path.open('w', encoding='utf-8') as json_file:
-                    json.dump(
-                        self._get_json_data(index=i), json_file, indent=4
-                    )  # logger.debug(f'{self.json_str(index=index)[: self.json_str(index=index).find("moves") + 7]} ...')
+                self._write_status(i, web_dir)
             if config.output.upload_server:
                 upload.get_upload_queue().put_nowait(Command(upload.upload_move, index))
         return self
 
-    def _add_move(self, move: Move, index: int = -1, recalc_from: int | None = None) -> Game:
+    def _insert_move(self, move: Move, index: int = -1, recalc_from: int | None = None) -> Game:
         if index == -1:
             self.moves.append(move)
         else:
@@ -248,19 +265,37 @@ class Game:  # pylint: disable=too-many-public-methods
         self._write_json_from(index=(index if index != -1 else len(self.moves) - 1), write_mode=['json', 'image'])
         return self
 
+    def add_move(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self, player: int, played_time: tuple[int, int], img: MatLike, new_tiles: BoardType, removed_tiles: BoardType
+    ) -> Game:
+        """Adds a new move and determines the type automatically."""
+        try:
+            self.add_regular(player, played_time, img, new_tiles)
+        except NoMoveError:
+            self.add_exchange(player, played_time, img)
+        except InvalidMoveError:
+            self.add_unknown(player, played_time, img, new_tiles, removed_tiles)
+        logger.info(f'new scores {self.moves[-1].score}:\n{self.board_str()}')
+        if logger.isEnabledFor(logging.DEBUG):
+            msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in self.moves)
+            json_str = self.json_str()
+            logger.debug(f'{msg}\napi: {json_str[: json_str.find("moves") + 7]}...\n')
+
+        return self
+
     def add_regular(self, player: int, played_time: tuple[int, int], img: MatLike, new_tiles: BoardType) -> Game:
         """add regular move"""
         prev_move = self.moves[-1] if self.moves else None
         m = MoveRegular(
             game=self, player=player, played_time=played_time, img=img, new_tiles=new_tiles, previous_move=prev_move
         )
-        return self._add_move(m)
+        return self._insert_move(m)
 
     def add_exchange(self, player: int, played_time: tuple[int, int], img: MatLike) -> Game:
         """add exchange move"""
         prev_move = self.moves[-1] if self.moves else None
         m = MoveExchange(game=self, player=player, played_time=played_time, img=img, previous_move=prev_move)
-        return self._add_move(m)
+        return self._insert_move(m)
 
     def add_two_exchanges_at(self, index: int) -> Game:
         """add exchange move at move index (index)"""
@@ -288,8 +323,8 @@ class Game:  # pylint: disable=too-many-public-methods
         played_time = move_to_challenge.played_time
         m = MoveChallenge(game=self, player=player, played_time=played_time, previous_move=move_to_challenge)
         if index in (-1, len(self.moves) - 1):
-            return self._add_move(m)
-        return self._add_move(m, index=index + 1, recalc_from=index + 1)
+            return self._insert_move(m)
+        return self._insert_move(m, index=index + 1, recalc_from=index + 1)
 
     def add_withdraw_for(self, index: int, img: MatLike) -> Game:
         """add withdraw for move at index (or at end)"""
@@ -305,8 +340,8 @@ class Game:  # pylint: disable=too-many-public-methods
         m = MoveWithdraw( game=self, player=move_to_withdraw.player, played_time=played_time,
                              img=img, previous_move=move_to_withdraw )  # fmt:off
         if index in (-1, len(self.moves) - 1):
-            return self._add_move(m)
-        return self._add_move(m, index=index + 1, recalc_from=index + 1)
+            return self._insert_move(m)
+        return self._insert_move(m, index=index + 1, recalc_from=index + 1)
 
     def toggle_challenge_type(self, index: int) -> Game:
         """toogle challenge"""
@@ -333,7 +368,7 @@ class Game:  # pylint: disable=too-many-public-methods
         prev_move = self.moves[-1] if self.moves else None
         m = MoveUnknown( game=self, player=player, played_time=played_time, img=img,
             new_tiles=new_tiles, removed_tiles=removed_tiles, previous_move=prev_move )  # fmt: off
-        return self._add_move(m)
+        return self._insert_move(m)
 
     def add_lastrack(self) -> Game:
         """add lastrack malus/bonus (called by end of game)"""
@@ -348,8 +383,8 @@ class Game:  # pylint: disable=too-many-public-methods
         else:
             logger.warning(f'last rack calculation impossible: rack size={prev_move.rack_size}')
             player1, player2, rack_str = 0, 1, '?'
-        self._add_move(MoveLastRackBonus(game=self, player=player1, previous_move=prev_move, rack=rack_str))
-        self._add_move(MoveLastRackMalus(game=self, player=player2, previous_move=self.moves[-1], rack=rack_str))
+        self._insert_move(MoveLastRackBonus(game=self, player=player1, previous_move=prev_move, rack=rack_str))
+        self._insert_move(MoveLastRackMalus(game=self, player=player2, previous_move=self.moves[-1], rack=rack_str))
         return self
 
     def add_timeout_malus(self) -> Game:
@@ -358,44 +393,51 @@ class Game:  # pylint: disable=too-many-public-methods
         logger.debug('scrabble: create move timeout malus')
         move = MoveTimeMalus(game=self, player=0, previous_move=prev_move)
         if move.points != 0:
-            self._add_move(move)
+            self._insert_move(move)
             prev_move = self.moves[-1]
         move = MoveTimeMalus(game=self, player=1, previous_move=prev_move)
         if move.points != 0:
-            self._add_move(move)
+            self._insert_move(move)
         return self
 
     def replace_blank_with(self, coordinates: CoordType, char: str) -> Game:
         """replace blank at (coordinates) with (char)"""
         char = char.strip().lower()[0]  # use only first char transform to lower
-        modified = None
+        modified_indices = set()
         for i, m in enumerate(self.moves):
+            updated = False
             if coordinates in m.board:
                 m.board[coordinates] = Tile(char, MAX_TILE_PROB)
-                modified = modified if modified else i
+                updated = True
             if isinstance(m, MoveRegular) and coordinates in m.new_tiles:
                 m.new_tiles[coordinates] = Tile(char, MAX_TILE_PROB)
-                modified = modified if modified else i
-                m.calculate_word()  # update word text
-        if modified:
-            self._write_json_from(index=modified, write_mode=['json'])
+                m.calculate_word()
+                updated = True
+            if updated:
+                modified_indices.add(i)
+        if modified_indices:
+            self._write_json_from(index=min(modified_indices), write_mode=['json'])
         return self
 
     def remove_blank(self, coordinates: CoordType) -> Game:
         """remove blank at (coordinates)"""
-        modified_index = None
+        modified_indices = set()
         for i, m in enumerate(self.moves):
+            updated = False
             if coordinates in m.board:
                 m.board.pop(coordinates)
-                modified_index = modified_index if modified_index else i
+                updated = True
             if coordinates in m.new_tiles:
                 m.new_tiles.pop(coordinates)
                 m.is_modified = True
-                modified_index = modified_index if modified_index else i
-        if modified_index:
+                updated = True
+            if updated:
+                modified_indices.add(i)
+        if modified_indices:
+            min_index = min(modified_indices)
             self._update_technical_move_attributes()
-            self._recalculate_from(index=modified_index)  # recalculate all moves from index
-            self._write_json_from(index=modified_index, write_mode=['json'])
+            self._recalculate_from(index=min_index)  # recalculate all moves from index
+            self._write_json_from(index=min_index, write_mode=['json'])
         return self
 
     def remove_move_at(self, index: int) -> Game:
@@ -416,33 +458,23 @@ class Game:  # pylint: disable=too-many-public-methods
             raise IndexError(f'change move at: invalid index {index}')
 
         move_to_change = self.moves[index]
-        match movetype:
-            case MoveType.REGULAR:
-                if isinstance(move_to_change, MoveRegular):
-                    if new_tiles:
-                        move_to_change.new_tiles = new_tiles.copy()
-                else:
-                    if new_tiles:
-                        m = MoveRegular(
-                            game=self,
-                            player=move_to_change.player,
-                            played_time=move_to_change.played_time,
-                            img=move_to_change.img,
-                            new_tiles=new_tiles,
-                            previous_move=move_to_change.previous_move,
-                        )
-                        self.moves[index] = m
-            case MoveType.EXCHANGE:
-                exchange = MoveExchange(
-                    game=self,
-                    player=move_to_change.player,
-                    played_time=move_to_change.played_time,
-                    img=move_to_change.img,
-                    previous_move=move_to_change.previous_move,
-                )
-                self.moves[index] = exchange
-            case _:
-                logger.warning(f'ignore change at: invalid move type {movetype}')
+        if movetype == MoveType.REGULAR:
+            if isinstance(move_to_change, MoveRegular):
+                if new_tiles:
+                    move_to_change.new_tiles = new_tiles.copy()
+            elif new_tiles:
+                self.moves[index] = MoveRegular(
+                    game=self, player=move_to_change.player, played_time=move_to_change.played_time,
+                    img=move_to_change.img, new_tiles=new_tiles, previous_move=move_to_change.previous_move,
+                )  # fmt: off
+        elif movetype == MoveType.EXCHANGE:
+            self.moves[index] = MoveExchange(
+                game=self, player=move_to_change.player, played_time=move_to_change.played_time,
+                img=move_to_change.img, previous_move=move_to_change.previous_move,
+            )  # fmt:off
+        else:
+            logger.warning(f'ignore change at: invalid move type {movetype}')
+            return self
 
         self._update_technical_move_attributes()
         self._recalculate_from(index)  # recalculate all moves from index

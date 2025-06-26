@@ -1087,10 +1087,12 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_remove_blanko(self):
         game = State.ctx.game.new_game()
 
-        board = {
+        board = {}
+        new_tiles = {
             (3, 7): Tile('F', 75), (4, 7): Tile('I', 75), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75), (7, 7): Tile('S', 75),
         }  # fmt:off
-        game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=board)
+        board.update(new_tiles)
+        game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles=new_tiles)
 
         # 5G V.TEn
         new_tiles = {(4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('_', 75)}

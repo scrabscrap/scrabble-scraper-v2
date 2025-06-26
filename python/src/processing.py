@@ -31,7 +31,7 @@ from cv2.typing import MatLike
 from analyzer import MAX_TILE_PROB, analyze, filter_candidates
 from config import config
 from customboard import filter_image, warp_image
-from move import InvalidMoveError, NoMoveError, gcg_to_coord
+from move import gcg_to_coord
 from scrabble import BoardType, Game, MoveType, Tile
 from threadpool import Command, pool
 from upload import upload
@@ -142,25 +142,16 @@ def _image_processing(game: Game, img: MatLike) -> tuple[MatLike, dict]:
     _, tiles_candidates = filter_image(warped)  # find potential tiles on board
 
     if game.moves:
-        prev_move = game.moves[-1]  # remove invalid blanks
-        blanks_to_remove = [i for i in prev_move.new_tiles if (prev_move.board[i].letter == '_') and i not in tiles_candidates]
-        for to_del in blanks_to_remove:
-            del prev_move.new_tiles[to_del]
-        if blanks_to_remove:
-            prev_move.calculate_score()  # catch exception NoMoveException, InvalidMoveException
-        to_verify = min(len(game.moves), config.scrabble.verify_moves)  # find keys to ignore on analyze
-        ignore_coords = set(game.moves[-to_verify].board.keys())
-    else:
-        ignore_coords = set()
+        game.moves[-1].cleanup_invalid_blanks(tiles_candidates=tiles_candidates)
+    ignore_coords = game.get_coords_to_ignore()
     tiles_candidates |= ignore_coords  # tiles_candidates must contain ignored_coords
     tiles_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)  # remove all tiles without path from (7,7)
-    logger.debug(f'filtered_candidates {tiles_candidates}')
 
     board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # copy board for analyze
     return warped, analyze(warped_gray, board, tiles_candidates)  # analyze image
 
 
-def _changes(board: dict, previous_board: dict) -> tuple[dict, dict, dict]:
+def _board_diff(board: dict, previous_board: dict) -> tuple[dict, dict, dict]:
     new_tiles = {i: board[i] for i in set(board.keys()).difference(previous_board)}
     removed_tiles = {i: previous_board[i] for i in set(previous_board.keys()).difference(board)}
     changed_tiles = {
@@ -175,7 +166,7 @@ def _move_processing(board: BoardType, previous_board: BoardType) -> tuple[Board
     def strip_invalid_blanks(current_board: BoardType, new_tiles: BoardType):
         blanks = {(col, row) for col, row in new_tiles if new_tiles[(col, row)].letter == '_'}
         if not blanks:  # no blanks; skip
-            return current_board, new_tiles
+            return new_tiles
 
         previous_tiles = new_tiles.copy()
         set_of_cols = {col for col, row in new_tiles if new_tiles[(col, row)].letter != '_'}  # cols tiles with character
@@ -212,10 +203,10 @@ def _move_processing(board: BoardType, previous_board: BoardType) -> tuple[Board
             del current_board[k]
         if removed_tiles:
             logger.debug(f'new_tiles={previous_tiles} remaining {new_tiles=}')
-        return current_board, new_tiles
+        return new_tiles
 
-    new_tiles, removed_tiles, changed_tiles = _changes(board, previous_board)  # find changes on board
-    _, new_tiles = strip_invalid_blanks(current_board=board, new_tiles=new_tiles)
+    new_tiles, removed_tiles, changed_tiles = _board_diff(board, previous_board)  # find changes on board
+    new_tiles = strip_invalid_blanks(current_board=board, new_tiles=new_tiles)
     return new_tiles, removed_tiles, changed_tiles
 
 
@@ -236,16 +227,18 @@ def _recalculate_score_on_tiles_change(game: Game, changed: BoardType) -> None:
             logger.info(f'recalculated score: {str(mov)}')
 
 
-@trace
-@handle_exceptions
-def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], event: Event | None = None) -> None:
-    """Process a move"""
-
-    def write_original_image(img: MatLike, index: int) -> None:
+def _write_original_image(img: MatLike, index: int) -> None:
+    if config.development.recording:
         image_path = config.path.web_dir / f'image-{index}-camera.jpg'
         logger.debug(f'write image {image_path!s}')
         with suppress(Exception):
             cv2.imwrite(str(image_path), img, [cv2.IMWRITE_JPEG_QUALITY, 100])  # type:ignore
+
+
+@trace
+@handle_exceptions
+def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], event: Event | None = None) -> None:
+    """Process a move"""
 
     warped, board = _image_processing(game, img)
 
@@ -254,22 +247,9 @@ def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], ev
 
     if len(changed_tiles) > 0:  # fix previous moves
         _recalculate_score_on_tiles_change(game, changed_tiles)
-    try:
-        game.add_regular(player=player, played_time=played_time, img=warped, new_tiles=new_tiles)
-    except NoMoveError:
-        game.add_exchange(player=player, played_time=played_time, img=warped)
-    except InvalidMoveError:
-        game.add_unknown(player=player, played_time=played_time, img=warped, new_tiles=new_tiles, removed_tiles=removed_tiles)
+    game.add_move(player=player, played_time=played_time, img=warped, new_tiles=new_tiles, removed_tiles=removed_tiles)
+    pool.submit(_write_original_image, img, len(game.moves) - 1)
     event_set(event)
-
-    if config.development.recording:
-        i = len(game.moves) - 1
-        pool.submit(write_original_image, img, i)
-    logger.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
-    if logger.isEnabledFor(logging.DEBUG):
-        msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in game.moves)
-        json_str = game.json_str()
-        logger.debug(f'{msg}\napi: {json_str[: json_str.find("moves") + 7]}...\n')
 
 
 @trace

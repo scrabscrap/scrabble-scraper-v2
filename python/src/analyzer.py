@@ -93,6 +93,7 @@ def filter_candidates(
             if coordinates not in ignore_set:
                 result.add(coordinates)
             stack.extend([(coordinates[0] + dx, coordinates[1] + dy) for dx, dy in DIRECTIONS])
+    logger.debug(f'{result}')
     return result
 
 
