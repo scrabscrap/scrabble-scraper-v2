@@ -265,6 +265,85 @@ class Game:  # pylint: disable=too-many-public-methods
         self._write_json_from(index=(index if index != -1 else len(self.moves) - 1), write_mode=['json', 'image'])
         return self
 
+    def clean_new_tiles(self, new_tiles: BoardType, previous_board: BoardType) -> BoardType:
+        """
+        Validates new tiles, especially blanks, against the Scrabble rules,
+        by removing invalidly placed blank tiles that are not part
+        of a connected move.
+        """
+        if not new_tiles:
+            return {}
+
+        real_tile_coords, blank_coords = self._split_tiles(new_tiles)
+
+        if not blank_coords:
+            return new_tiles
+
+        if not real_tile_coords:
+            return self._only_first_blank(blank_coords, new_tiles)
+
+        direction = self._get_move_direction(real_tile_coords)
+        if direction is None:
+            return new_tiles
+
+        full_board_coords = previous_board.keys() | new_tiles.keys()
+        valid_blanks = self._find_valid_blanks(direction, blank_coords, real_tile_coords, full_board_coords)
+
+        cleaned_new_tiles = {coord: new_tiles[coord] for coord in real_tile_coords}
+        for coord in valid_blanks:
+            cleaned_new_tiles[coord] = new_tiles[coord]
+
+        self._log_removed_blanks(new_tiles, cleaned_new_tiles)
+        return cleaned_new_tiles
+
+    def _split_tiles(self, new_tiles: BoardType):
+        real_tile_coords = {coord for coord, tile in new_tiles.items() if tile.letter != '_'}
+        blank_coords = {coord for coord, tile in new_tiles.items() if tile.letter == '_'}
+        return real_tile_coords, blank_coords
+
+    def _only_first_blank(self, blank_coords, new_tiles):
+        first_blank = next(iter(blank_coords))
+        return {first_blank: new_tiles[first_blank]}
+
+    def _get_move_direction(self, real_tile_coords):
+        cols = {c for c, r in real_tile_coords}
+        rows = {r for c, r in real_tile_coords}
+        if len(rows) == 1 and len(cols) > 0:
+            return 'horizontal'
+        if len(cols) == 1 and len(rows) > 0:
+            return 'vertical'
+        return None
+
+    def _find_valid_blanks(self, direction, blank_coords, real_tile_coords, full_board_coords):
+        if direction == 'horizontal':
+            return self._find_valid_horizontal_blanks(blank_coords, real_tile_coords, full_board_coords)
+        return self._find_valid_vertical_blanks(blank_coords, real_tile_coords, full_board_coords)
+
+    def _log_removed_blanks(self, new_tiles, cleaned_new_tiles):
+        if len(cleaned_new_tiles) < len(new_tiles):
+            removed = new_tiles.keys() - cleaned_new_tiles.keys()
+            logger.debug(f'removed blankos: {removed}')
+
+    def _find_valid_horizontal_blanks(self, blank_coords, real_tile_coords, full_board_coords):
+        move_row = next(iter({r for c, r in real_tile_coords}))
+        cols = [c for c, r in real_tile_coords]
+        min_col, max_col = min(cols), max(cols)
+        valid_blanks = set()
+        for b_col, b_row in (b for b in blank_coords if b[1] == move_row):
+            if all((c, move_row) in full_board_coords for c in range(min(b_col, min_col), max(b_col, max_col) + 1)):
+                valid_blanks.add((b_col, b_row))
+        return valid_blanks
+
+    def _find_valid_vertical_blanks(self, blank_coords, real_tile_coords, full_board_coords):
+        move_col = next(iter({c for c, r in real_tile_coords}))
+        rows = [r for c, r in real_tile_coords]
+        min_row, max_row = min(rows), max(rows)
+        valid_blanks = set()
+        for b_col, b_row in (b for b in blank_coords if b[0] == move_col):
+            if all((move_col, r) in full_board_coords for r in range(min(b_row, min_row), max(b_row, max_row) + 1)):
+                valid_blanks.add((b_col, b_row))
+        return valid_blanks
+
     def add_move(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self, player: int, played_time: tuple[int, int], img: MatLike, new_tiles: BoardType, removed_tiles: BoardType
     ) -> Game:

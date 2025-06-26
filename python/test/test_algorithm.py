@@ -113,7 +113,7 @@ class AlgorithmTestCase(unittest.TestCase):
             (6, 6): Tile('_', 76), (3, 6): Tile('_', 76),
         }  # fmt:off
         logger.debug(f'previous board\n{board_to_string(board)}\nnew board\n{board_to_string(new_board)}')
-        new_tiles, _, _ = _move_processing(board=new_board, previous_board=board)
+        new_tiles, _, _ = _move_processing(game=game, board=new_board, previous_board=board)
         logger.debug(f'result\n{new_tiles=}')
         self.assertDictEqual(
             new_tiles,
@@ -130,7 +130,7 @@ class AlgorithmTestCase(unittest.TestCase):
             (8, 8): Tile('_', 76), (7, 10): Tile('_', 76),
         }  # fmt:off
         logger.debug(f'previous board\n{board_to_string(board)}\nnew board\n{board_to_string(new_board)}')
-        new_tiles, _, _ = _move_processing(board=new_board, previous_board=board)
+        new_tiles, _, _ = _move_processing(game=game, board=new_board, previous_board=board)
         logger.debug(f'result\n{new_tiles=}')
         self.assertDictEqual(new_tiles, {(7, 10): Tile('_', 76), (7, 9): Tile('N', 75), (7, 8): Tile('A', 75)}, 'invalid tiles')
 
@@ -142,7 +142,7 @@ class AlgorithmTestCase(unittest.TestCase):
             (7, 11): Tile('_', 76), (7, 10): Tile('_', 76),
         }  # fmt:off
         logger.debug(f'previous board\n{board_to_string(board)}\nnew board\n{board_to_string(new_board)}')
-        new_tiles, _, _ = _move_processing(board=new_board, previous_board=board)
+        new_tiles, _, _ = _move_processing(game=game, board=new_board, previous_board=board)
         logger.debug(f'result\n{new_tiles=}')
         self.assertDictEqual(
             new_tiles,
@@ -157,7 +157,7 @@ class AlgorithmTestCase(unittest.TestCase):
             (7, 11): Tile('_', 76), (7, 10): Tile('_', 76),
         }  # fmt:off
         logger.debug(f'previous board\n{board_to_string(board)}\nnew board\n{board_to_string(new_board)}')
-        new_tiles, _, _ = _move_processing(board=new_board, previous_board=board)
+        new_tiles, _, _ = _move_processing(game=game, board=new_board, previous_board=board)
         logger.debug(f'result\n{new_tiles}')
         self.assertDictEqual(
             new_tiles,

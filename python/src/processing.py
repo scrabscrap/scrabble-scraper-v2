@@ -160,53 +160,9 @@ def _board_diff(board: dict, previous_board: dict) -> tuple[dict, dict, dict]:
     return new_tiles, removed_tiles, changed_tiles
 
 
-def _move_processing(board: BoardType, previous_board: BoardType) -> tuple[BoardType, BoardType, BoardType]:
-    # pylint: disable=too-many-branches
-
-    def strip_invalid_blanks(current_board: BoardType, new_tiles: BoardType):
-        blanks = {(col, row) for col, row in new_tiles if new_tiles[(col, row)].letter == '_'}
-        if not blanks:  # no blanks; skip
-            return new_tiles
-
-        previous_tiles = new_tiles.copy()
-        set_of_cols = {col for col, row in new_tiles if new_tiles[(col, row)].letter != '_'}  # cols tiles with character
-        set_of_rows = {row for col, row in new_tiles if new_tiles[(col, row)].letter != '_'}  # rows tiles with character
-
-        if len(set_of_rows) == 1 or len(set_of_cols) == 1:
-            (min_col, max_col) = (min(set_of_cols), max(set_of_cols))
-            (min_row, max_row) = (min(set_of_rows), max(set_of_rows))
-            # either columns or rows
-            logger.debug(f'{set_of_cols=} {set_of_rows=} {blanks=} {min_row=} {max_row=} {min_col=} {max_col=}')
-            if len(set_of_cols) == 1 and len(set_of_rows) == 1:  # only one tile: remove all blanks not in the column/row
-                new_tiles = {k: v for k, v in new_tiles.items() if k[0] in set_of_cols or k[1] in set_of_rows}
-            elif len(set_of_cols) == 1:  # vertical: remove all blanks next to the column
-                new_tiles = {k: v for k, v in new_tiles.items() if k[0] in set_of_cols}
-            elif len(set_of_rows) == 1:  # horizontal: remove all blanks next to the row
-                new_tiles = {k: v for k, v in new_tiles.items() if k[1] in set_of_rows}
-
-            if len(set_of_cols) == 1:  # vertical: find path to min/max character
-                for blank in (x for x in blanks if x[0] == min_col):
-                    if any((blank[0], row) not in current_board for row in range(min_row, blank[1])):
-                        del new_tiles[blank]
-                    if any((blank[0], row) not in current_board for row in range(blank[1], max_row)):
-                        del new_tiles[blank]
-
-            if len(set_of_rows) == 1:  # horizontal: find path to min/max character
-                for blank in (x for x in blanks if x[1] == min_row):
-                    if any((col, blank[1]) not in current_board for col in range(min_col, blank[0])):
-                        del new_tiles[blank]
-                    if any((col, blank[1]) not in current_board for col in range(blank[0], max_col)):
-                        del new_tiles[blank]
-
-        removed_tiles = previous_tiles.keys() - new_tiles
-        for k in removed_tiles:
-            del current_board[k]
-        if removed_tiles:
-            logger.debug(f'new_tiles={previous_tiles} remaining {new_tiles=}')
-        return new_tiles
-
+def _move_processing(game: Game, board: BoardType, previous_board: BoardType) -> tuple[BoardType, BoardType, BoardType]:
     new_tiles, removed_tiles, changed_tiles = _board_diff(board, previous_board)  # find changes on board
-    new_tiles = strip_invalid_blanks(current_board=board, new_tiles=new_tiles)
+    new_tiles = game.clean_new_tiles(new_tiles=new_tiles, previous_board=previous_board)
     return new_tiles, removed_tiles, changed_tiles
 
 
@@ -243,7 +199,7 @@ def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], ev
     warped, board = _image_processing(game, img)
 
     previous_board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # get previous board information
-    new_tiles, removed_tiles, changed_tiles = _move_processing(board, previous_board)
+    new_tiles, removed_tiles, changed_tiles = _move_processing(game, board, previous_board)
 
     if len(changed_tiles) > 0:  # fix previous moves
         _recalculate_score_on_tiles_change(game, changed_tiles)
