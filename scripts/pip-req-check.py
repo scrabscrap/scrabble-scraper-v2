@@ -69,30 +69,34 @@ sys_platform = sys.platform
 def analyze(data: StringIO) -> dict:
     result = "".join(data.readlines())
     tokens, _ = scanner_requirements.scan(result)
-    req = {}
-    lib_name = None
-    lib_version = None
-    lib_condition = None
-    for token in tokens:
-        logging.debug(f"{token}")
-        if token[0] == "IDENT":
-            lib_name = token[1].strip().lower()
-        elif token[0] == "VERSION":
-            lib_version = token[1].strip()
-        elif token[0] == "CONDITION":
-            lib_condition = token[1].lstrip(";").strip()
-        elif token[0] == "EOL":
-            if lib_name:
-                if lib_condition:
-                    logging.debug(f"({lib_condition})={eval(lib_condition)}")
-                    if eval(lib_condition):
-                        req[lib_name] = lib_version
-                else:
-                    req[lib_name] = lib_version
-                lib_name = None
-                lib_version = None
-                lib_condition = None
-    return dict(sorted(req.items()))
+
+    requirements = {}
+    current = {}
+
+    for token_type, token_value in tokens:
+        logging.debug(f"{(token_type, token_value)}")
+
+        if token_type == "IDENT":
+            current["name"] = token_value.strip().lower()
+        elif token_type == "VERSION":
+            current["version"] = token_value.strip()
+        elif token_type == "CONDITION":
+            current["condition"] = token_value.lstrip(";").strip()
+        elif token_type == "EOL":
+            name = current.get("name")
+            version = current.get("version")
+            condition = current.get("condition")
+
+            if name:
+                if condition and eval(condition):
+                    logging.debug(f"({condition}) = {eval(condition)}")
+                    requirements[name] = version
+                elif not condition:
+                    requirements[name] = version
+
+            current.clear()
+
+    return dict(sorted(requirements.items()))
 
 
 def main():
