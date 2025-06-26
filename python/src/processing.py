@@ -89,15 +89,16 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
     The provided tiles(word) will be set on the board with a probability of 99% (MAX_TILE_PROB)
     """
 
-    if movetype == MoveType.REGULAR and coord is not None and isvertical is not None and word is not None:
+    required_fields = all(x is not None for x in (coord, isvertical, word))
+    if movetype == MoveType.REGULAR and required_fields:
         (dcol, drow) = (0, 1) if isvertical else (1, 0)
         m = game.moves[index]
         previous_board = m.previous_move.board if m.previous_move else {}
         new_tiles: BoardType = {}
-        for ch in word:  # only new chars
+        for ch in word:  # type:ignore # only new chars
             if coord not in previous_board:
-                new_tiles[coord] = Tile(ch, MAX_TILE_PROB)
-            coord = (coord[0] + dcol, coord[1] + drow)
+                new_tiles[coord] = Tile(ch, MAX_TILE_PROB)  # type: ignore
+            coord = (coord[0] + dcol, coord[1] + drow)  # type: ignore
         logger.debug(f'new tiles {index=} {new_tiles=}')
         game.change_move_at(index, movetype=movetype, new_tiles=new_tiles)
     elif movetype == MoveType.EXCHANGE:
@@ -274,29 +275,30 @@ def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, even
     # pragma: no cover
     """Process end of game"""
 
-    if game.moves:  # check for a last move on end of game
-        prev_move = game.moves[-1]
-        if (
-            image is not None and prev_move.rack_size[0] > 0 and prev_move.rack_size[1] > 0
-        ):  # we have an image and both racks have tiles
-            last_move = game.moves[-1]
-            warped, _ = warp_image(image)
-            _, tiles_candidates = filter_image(warped)
-            if set(last_move.board.keys()) != set(tiles_candidates):  #  candidates differ from last image
-                logger.info(f'automatic move (player {player})')
-                move(game, image, player, last_move.played_time, event)
+    if not game.moves:
+        return
+    prev_move = game.moves[-1]
+    has_tiles = all(size > 0 for size in prev_move.rack_size[:2])
 
-        game.add_timeout_malus()  # add as move
-        game.add_lastrack()
-        event_set(event)
+    if image is not None and has_tiles:  # we have an image and both racks have tiles
+        last_move = game.moves[-1]
+        warped, _ = warp_image(image)
+        _, tiles_candidates = filter_image(warped)
+        if set(last_move.board.keys()) != set(tiles_candidates):  #  candidates differ from last image
+            logger.info(f'automatic move (player {player})')
+            move(game, image, player, last_move.played_time, event)
 
-        logger.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
-        if logger.isEnabledFor(logging.DEBUG):
-            msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in game.moves)
-            json_str = game.json_str()
-            logger.debug(f'{msg}\napi: {json_str[: json_str.find("moves") + 7]}...\n')
-        logger.info(game.dev_str())
-        store_zip_from_game(game)
+    game.add_timeout_malus()  # add as move
+    game.add_lastrack()
+    event_set(event)
+
+    logger.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
+    if logger.isEnabledFor(logging.DEBUG):
+        msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in game.moves)
+        json_str = game.json_str()
+        logger.debug(f'{msg}\napi: {json_str[: json_str.find("moves") + 7]}...\n')
+    logger.info(game.dev_str())
+    store_zip_from_game(game)
 
 
 def store_zip_from_game(game: Game) -> None:  # pragma: no cover
