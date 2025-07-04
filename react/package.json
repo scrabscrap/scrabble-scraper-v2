@@ -9,7 +9,7 @@
     "react-use-websocket": "^4.13.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.19.2"
   },
   "scripts": {
     "start": "vite",
