@@ -232,7 +232,7 @@ class Game:  # pylint: disable=too-many-public-methods
 
     def _write_json_from(self, index: int, write_mode: list[str]) -> Game:
         """write json for move"""
-        if config.is_testing:  # skip if under test
+        if not self.moves or config.is_testing:  # skip if under test or no moves
             return self
         index = index % len(self.moves)  # convert to positive index
         if not self.valid_index(index):
