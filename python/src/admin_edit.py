@@ -81,7 +81,7 @@ def handle_btnblankodelete(form, game):
 def handle_btninsmoves(game, move_number):
     """handle insert exchange moves"""
     logger.debug('in btninsmove')
-    if move_number and (0 < move_number <= len(game.moves)):
+    if move_number is not None and (0 <= move_number < len(game.moves)):
         flash_and_log(f'insert two exchanges before move# {move_number}')
         command_queue.put_nowait(Command(admin_insert_moves, game, move_number, State.ctx.op_event))
     else:
