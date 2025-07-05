@@ -56,7 +56,7 @@ For detailed setup instructions, visit the [ScrabScrap Wiki](https://github.com/
 
 ## Developing Quick Start
 
-[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in_GitHub_Codespaces-blue?logo=github)](https://codespaces.new/scrabscrap/scrabble-scraper-v2?quickstart=1) &emsp; [![Open in Gitpod](https://img.shields.io/badge/Open_in_Gitpod-blue?logo=gitpod)](https://gitpod.io/#https://github.com/scrabscrap/scrabble-scraper-v2)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in_GitHub_Codespaces-blue?logo=github)](https://codespaces.new/scrabscrap/scrabble-scraper-v2?quickstart=1)
 
 Use the supplied `scrabble-scraper-v2.code-workspace` workspace for browsing and developing.
 
