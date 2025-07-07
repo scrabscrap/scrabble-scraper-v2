@@ -39,6 +39,7 @@ IC2_ADDRESS_PLAYER2 = 0x3C
 
 
 def test_display(serial, device_cls):
+    """test if device is available"""
     try:
         device = device_cls(serial)
         image = Image.new('1', device.size)
@@ -49,12 +50,12 @@ def test_display(serial, device_cls):
         device.clear()
         device.show()
         return device
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         return None
 
 
 def detect_device(serial):
-    # SH1106 zuerst probieren (kann SSD1306 fast vollständig emulieren)
+    """detect device ssh1306 or sh1106"""
     device = test_display(serial, sh1106)
     if device:
         return device
@@ -108,6 +109,7 @@ class OLEDDisplay(Display):
         logger.debug(f'show message {msg}')
         title = get_ipv4_address()
         for i in range(2):
+            DEVICE[i].clear()
             with canvas(DEVICE[i]) as draw:
                 draw.text((1, 1), title[i], font=FONT2, fill=WHITE)
                 text = msg[i][:10]
@@ -116,6 +118,7 @@ class OLEDDisplay(Display):
     def show_end_of_game(self) -> None:
         if self.game:
             for i in range(2):
+                DEVICE[i].clear()
                 with canvas(DEVICE[i]) as draw:
                     nickname = self.game.nicknames[i][:10]
                     draw.text((2, 5), f'{nickname}', font=FONT1, fill=WHITE)
@@ -135,25 +138,42 @@ class OLEDDisplay(Display):
         def _shorten_nickname(nickname: str, max_length: int = 6) -> str:
             return f'{nickname[: max_length - 1]}\u2026' if len(nickname) > max_length else nickname
 
+        def _get_score(i: int) -> int:
+            return self.game.moves[-1].score[i] if self.game and self.game.moves else 0
+
+        def _get_nickname(i: int, max_length: int = 6) -> str:
+            return _shorten_nickname(nicknames[i], max_length)
+
+        def _draw_player_info(draw, i: int, is_active: bool, time_str: str, info: str | None) -> None:
+            color = BLACK if info and is_active else WHITE
+
+            if is_active and info:
+                draw.rectangle((1, 1, 128, 64), fill=WHITE)
+
+            if is_active and 0 < current[player] <= config.scrabble.doubt_timeout:
+                draw.text((1, 1), '\u2049', font=FONT1, fill=color)
+
+            if is_active and current[player] > 0:
+                draw.text((90, 1), f'{current[player]:3d}', font=FONT1, fill=color)
+
+            if info:
+                draw.text((20, 1), info, font=FONT1, fill=color)
+            else:
+                if config.scrabble.show_score:
+                    draw.text((20, 1), f'{_get_nickname(i)}{_get_score(i):3d}', font=FONT2, fill=color)
+                else:
+                    draw.text((20, 1), _get_nickname(i, 10), font=FONT2, fill=color)
+
+            draw.text((1, 22), time_str, font=FONT, fill=color)
+
         nicknames = self.game.nicknames if self.game else ('n/a', 'n/a')
+
         for i in range(2):
             time_str = _format_time(played_time[i])
-            is_active_player = i == player
-            color = BLACK if info and is_active_player else WHITE
+            is_active = i == player
+
+            if info:
+                DEVICE[i].clear()
 
             with canvas(DEVICE[i]) as draw:
-                if is_active_player and info:
-                    draw.rectangle((1, 1, 128, 64), fill=WHITE)
-                if is_active_player and 0 < current[player] <= config.scrabble.doubt_timeout:
-                    draw.text((1, 1), '\u2049', font=FONT1, fill=color)
-                if is_active_player and current[player] > 0:
-                    draw.text((90, 1), f'{current[player]:3d}', font=FONT1, fill=color)
-                if info:
-                    draw.text((20, 1), info, font=FONT1, fill=color)
-                if config.scrabble.show_score:
-                    score = self.game.moves[-1].score[i] if self.game and self.game.moves else 0
-                    draw.text((20, 1), f'{_shorten_nickname(nicknames[i])}{score:3d}', font=FONT2, fill=color)
-                else:
-                    draw.text((20, 1), _shorten_nickname(nicknames[i], 10), font=FONT2, fill=color)
-
-                draw.text((1, 22), time_str, font=FONT, fill=color)
+                _draw_player_info(draw, i, is_active, time_str, info)

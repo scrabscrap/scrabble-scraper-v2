@@ -158,6 +158,7 @@ class State(Static):
         ScrabbleWatch.reset()
         with suppress(Exception):
             new_game(cls.ctx.game, cls.ctx.op_event)
+        ScrabbleWatch.display.set_game(cls.ctx.game)
         ScrabbleWatch.display.show_ready(cls.ctx.game.nicknames)
         cls.ctx.current_state = GameState.START  # method called from outside (api_server)
         return cls.ctx.current_state
