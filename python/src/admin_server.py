@@ -160,7 +160,7 @@ def bytes2human(n):
 
 def log_process_info():
     """log process infos"""
-    logger.info(f'{"=" * 40} Process Info {"=" * 40}')
+    logger.info(f'{"=" * 40} Process Info {"=" * 28}')
     for process in psutil.process_iter(['pid', 'name', 'memory_percent', 'cpu_percent']):
         with suppress(psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             if 'python' in process.info['name'].lower():
@@ -184,7 +184,7 @@ def log_sysinfo():  # pylint: disable=too-many-locals,too-many-statements
 
 
 def _disk_info():
-    logger.info(f'{"=" * 40} Disk Information {"=" * 40}')
+    logger.info(f'{"=" * 40} Disk Information {"=" * 24}')
     logger.info('Partitions and Usage:')
     partitions = psutil.disk_partitions()
     for partition in partitions:
@@ -207,14 +207,14 @@ def _disk_info():
 
 
 def _mem_info():
-    logger.info(f'{"=" * 40} Memory Information {"=" * 40}')
+    logger.info(f'{"=" * 40} Memory Information {"=" * 22}')
     svmem = psutil.virtual_memory()
     logger.info(f'Total: {bytes2human(svmem.total)}')
     logger.info(f'Available: {bytes2human(svmem.available)}')
     logger.info(f'Used: {bytes2human(svmem.used)}')
     logger.info(f'Percentage: {svmem.percent}%')
 
-    logger.info(f'{"=" * 40} SWAP {"=" * 40}')
+    logger.info(f'{"=" * 40} SWAP {"=" * 36}')
     swap = psutil.swap_memory()
     logger.info(f'Total: {bytes2human(swap.total)}')
     logger.info(f'Free: {bytes2human(swap.free)}')
@@ -223,7 +223,7 @@ def _mem_info():
 
 
 def _cpu_info():
-    logger.info(f'{"=" * 40} CPU Info {"=" * 40}')
+    logger.info(f'{"=" * 40} CPU Info {"=" * 32}')
     logger.info(f'Physical cores: {psutil.cpu_count(logical=False)}')
     logger.info(f'Total cores: {psutil.cpu_count(logical=True)}')
     cpufreq = psutil.cpu_freq()
@@ -239,14 +239,14 @@ def _cpu_info():
 
 
 def _boot_info():
-    logger.info(f'{"=" * 40} Boot Time {"=" * 40}')
+    logger.info(f'{"=" * 40} Boot Time {"=" * 31}')
     boot_time_timestamp = psutil.boot_time()
     bt = datetime.fromtimestamp(boot_time_timestamp)
     logger.info(f'Boot Time: {bt.year}/{bt.month}/{bt.day} {bt.hour}:{bt.minute}:{bt.second}')
 
 
 def _system_info():
-    logger.info(f'{"=" * 40} System Information {"=" * 40}')
+    logger.info(f'{"=" * 40} System Information {"=" * 22}')
     uname = platform.uname()
     logger.info(f'System: {uname.system}')
     logger.info(f'Node Name: {uname.node}')
