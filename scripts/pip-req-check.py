@@ -87,16 +87,20 @@ def analyze(data: StringIO) -> dict:
             version = current.get("version")
             condition = current.get("condition")
 
-            if name:
-                if condition and eval(condition):
-                    logging.debug(f"({condition}) = {eval(condition)}")
-                    requirements[name] = version
-                elif not condition:
-                    requirements[name] = version
+            evaluate_version(requirements, name, version, condition)
 
             current.clear()
 
     return dict(sorted(requirements.items()))
+
+
+def evaluate_version(requirements, name, version, condition):
+    if name:
+        if condition and eval(condition):
+            logging.debug(f"({condition}) = {eval(condition)}")
+            requirements[name] = version
+        elif not condition:
+            requirements[name] = version
 
 
 def main():
