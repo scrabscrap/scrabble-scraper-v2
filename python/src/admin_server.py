@@ -381,7 +381,7 @@ def do_update_scrabscrap():
     """start scrabscrap upgrade"""
     from hardware.led import LED, LEDEnum
 
-    if State.ctx.current_state == 'START':
+    if State.ctx.current_state in (GameState.START, GameState.EOG):
         LED.blink_on({LEDEnum.yellow})
         ScrabbleWatch.display.show_ready(('Update...', 'pls wait'))
         upgrade_cmd = str(config.path.src_dir.parent.parent / 'scripts' / 'upgrade.sh')

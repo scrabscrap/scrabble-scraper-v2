@@ -44,7 +44,7 @@ admin_test_bp = Blueprint('admin_test', __name__)
 def do_test_display():
     """start simple display test"""
 
-    if State.ctx.current_state == 'START':
+    if State.ctx.current_state in (GameState.START, GameState.EOG):
         ctx.flask_shutdown_blocked = True
         logger.debug('run display test')
         ScrabbleWatch.display.show_boot()
@@ -134,7 +134,7 @@ def do_test_led():
     """start simple led test"""
     from hardware.led import LED, LEDEnum
 
-    if State.ctx.current_state == 'START':
+    if State.ctx.current_state in (GameState.START, GameState.EOG):
         ctx.flask_shutdown_blocked = True
         logger.debug('run LED test')
         LED.switch_on({LEDEnum.red, LEDEnum.yellow, LEDEnum.green})
