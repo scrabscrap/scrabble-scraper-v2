@@ -35,7 +35,7 @@ from util import runtime_measure
 
 camera_dict: dict = {}
 logging.basicConfig(filename=f'{config.path.work_dir}/log/messages.log', level=logging.INFO, force=True)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class Camera(Protocol):

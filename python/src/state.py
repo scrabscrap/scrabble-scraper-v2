@@ -36,7 +36,7 @@ from scrabblewatch import ScrabbleWatch
 from threadpool import Command, command_queue
 from util import Static
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class GameState(Enum):

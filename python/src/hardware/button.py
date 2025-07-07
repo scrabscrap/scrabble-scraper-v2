@@ -27,7 +27,7 @@ from gpiozero import Button as GpioButton
 
 from util import Static
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class ButtonEnum(Enum):

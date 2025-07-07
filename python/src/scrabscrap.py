@@ -43,7 +43,7 @@ logging.config.fileConfig(
     defaults={'level': 'DEBUG', 'format': '%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'},
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 def main() -> None:

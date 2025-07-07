@@ -44,7 +44,7 @@ from processing import event_set
 from scrabblewatch import ScrabbleWatch
 from state import GameState, State
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 app = Flask(__name__)
 sock = Sock(app)
 app.register_blueprint(admin_settings_bp)

@@ -37,7 +37,7 @@ from scrabble import MoveType
 from state import State
 from threadpool import Command, command_queue
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 admin_edit_bp = Blueprint('admin_edit', __name__)
 
 

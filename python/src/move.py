@@ -38,7 +38,7 @@ SCRABBLE_BONUS = 50
 MAX_TILE_PROB = 99
 ORD_A = ord('A')
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 bag = BAGS[config.board.language]
 bag_as_list = [k for k, count in bag.items() for _ in range(count)]
 

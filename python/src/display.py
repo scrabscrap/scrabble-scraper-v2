@@ -23,7 +23,7 @@ import logging
 from config import config
 from scrabble import Game
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class Display:

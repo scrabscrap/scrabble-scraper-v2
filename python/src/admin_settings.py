@@ -42,7 +42,7 @@ from processing import warp_image
 from scrabblewatch import ScrabbleWatch
 from state import State
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 admin_settings_bp = Blueprint('admin_settings', __name__)
 
 
@@ -123,7 +123,7 @@ def route_cam():  # pylint: disable=too-many-branches
 
 def update_loglevel(new_level: int):
     """update log configuration"""
-    root_logger = logging.getLogger('root')
+    root_logger = logging.getLogger()
     prev_level = root_logger.getEffectiveLevel()
     if new_level != prev_level:
         logger.warning(f'loglevel changed to {logging.getLevelName(new_level)}')
@@ -164,7 +164,7 @@ def route_loglevel():
         return redirect('/loglevel')
 
     # GET-Request
-    loglevel = logging.getLogger('root').getEffectiveLevel()
+    loglevel = logging.getLogger().getEffectiveLevel()
     return render_template('loglevel.html', apiserver=ctx, recording=f'{config.development.recording}', loglevel=f'{loglevel}')
 
 

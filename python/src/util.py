@@ -27,7 +27,7 @@ from typing import Any, Callable
 import numpy as np
 
 TWarp = np.ndarray[Any, np.dtype[np.float32]]
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 # def onexit(f):
 #     # see: https://peps.python.org/pep-0318/#examples

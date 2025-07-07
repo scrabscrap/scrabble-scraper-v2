@@ -37,7 +37,7 @@ from threadpool import Command, pool
 from upload import upload
 from util import handle_exceptions, rotate_logs, runtime_measure, trace
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 def event_set(event: Event | None) -> None:

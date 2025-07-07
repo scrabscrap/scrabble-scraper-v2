@@ -113,7 +113,7 @@ DEFAULT = {
 }
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 def as_bool(string: str) -> bool:

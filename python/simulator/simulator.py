@@ -41,7 +41,7 @@ from admin_server_context import ctx
 Device.pin_factory = MockFactory()
 current_counter: int = 0
 list_of_dir: list[str] = []
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 # TEMPLATE_FOLDER = os.path.abspath(f'{os.path.dirname(__file__) or "."}/../src/templates')
 # STATIC_FOLDER = os.path.abspath(f'{os.path.dirname(__file__) or "."}/../src/static')

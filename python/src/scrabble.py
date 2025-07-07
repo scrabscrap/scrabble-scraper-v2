@@ -52,7 +52,7 @@ from threadpool import Command
 from upload import upload
 
 API_VERSION = '1.3'
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 def board_to_string(board: BoardType) -> str:

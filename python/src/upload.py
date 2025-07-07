@@ -29,7 +29,7 @@ from requests.auth import HTTPBasicAuth
 from config import config
 from threadpool import CommandWorker
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class Upload:

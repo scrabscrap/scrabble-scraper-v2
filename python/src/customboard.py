@@ -46,7 +46,7 @@ from util import TWarp, runtime_measure
 THRESHOLD_MAX_DIFF = 70
 BOARD_SIZE = 15
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class CustomBoard:
@@ -120,7 +120,7 @@ class CustomBoard:
 
             logger.debug(f'{threshold_center=} {threshold_board=} use={int(final_thresh)}')
             _, thresh = cv2.threshold(gray_blur, int(final_thresh), 255, cv2.THRESH_BINARY_INV)
-            return thresh
+            return thresh  # type: ignore
 
         if cls.TWORD_MASK is None:
             cls.TWORD_MASK, cls.DWORD_MASK, cls.TLETTER_MASK, cls.DLETTER_MASK, cls.FIELD_MASK = cls.create_board_masks()

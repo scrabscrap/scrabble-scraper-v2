@@ -36,7 +36,7 @@ from processing import warp_image
 from scrabblewatch import ScrabbleWatch
 from state import GameState, State
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 admin_test_bp = Blueprint('admin_test', __name__)
 
 

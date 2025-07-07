@@ -21,7 +21,7 @@ import queue
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class Command:  # pylint: disable=too-few-public-methods

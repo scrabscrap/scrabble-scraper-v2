@@ -51,7 +51,7 @@ PATH_TILES_IMAGES = {
     'es': BASE_IMG_DIR / 'es',
 }
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 tiles_templates: list[TileTemplate] = []
 
 
