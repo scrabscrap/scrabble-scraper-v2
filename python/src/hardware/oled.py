@@ -19,13 +19,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
 import logging
+from time import sleep
 
 import ifaddr
 from luma.core.error import DeviceNotFoundError
 from luma.core.interface.serial import i2c
 from luma.core.render import canvas
-from luma.oled.device import ssd1306
-from PIL import ImageFont
+from luma.oled.device import sh1106, ssd1306
+from PIL import Image, ImageDraw, ImageFont
 
 from config import config
 from display import Display
@@ -36,16 +37,48 @@ IC2_ADDRESS_PLAYER1 = 0x3C
 IC2_PORT_PLAYER2 = 3
 IC2_ADDRESS_PLAYER2 = 0x3C
 
+
+def test_display(serial, device_cls):
+    try:
+        device = device_cls(serial)
+        image = Image.new('1', device.size)
+        draw = ImageDraw.Draw(image)
+        draw.rectangle((device.width - 10, device.height - 10, device.width - 1, device.height - 1), outline=255, fill=255)
+        device.display(image)
+        sleep(0.1)  # Kurze Anzeigezeit
+        device.clear()
+        device.show()
+        return device
+    except Exception:
+        return None
+
+
+def detect_device(serial):
+    # SH1106 zuerst probieren (kann SSD1306 fast vollständig emulieren)
+    device = test_display(serial, sh1106)
+    if device:
+        return device
+
+    # SSD1306 probieren
+    device = test_display(serial, ssd1306)
+    if device:
+        return device
+
+    raise RuntimeError('OLED-Typ konnte nicht erkannt werden')
+
+
 try:
     SERIAL: tuple[i2c, i2c] = (
         i2c(port=IC2_PORT_PLAYER1, address=IC2_ADDRESS_PLAYER1),
         i2c(port=IC2_PORT_PLAYER2, address=IC2_ADDRESS_PLAYER2),
     )
-    DEVICE: tuple[ssd1306, ssd1306] = (ssd1306(SERIAL[0]), ssd1306(SERIAL[1]))
-except (OSError, DeviceNotFoundError) as e:
-    if not config.is_testing:  # skip if under test
+
+    DEVICE: tuple[ssd1306 | sh1106, ssd1306 | sh1106] = (detect_device(SERIAL[0]), detect_device(SERIAL[1]))
+
+except (OSError, DeviceNotFoundError, RuntimeError) as e:
+    if not config.is_testing:
         logging.basicConfig(filename=f'{config.path.log_dir}/messages.log', level=logging.INFO, force=True)
-        logging.getLogger(__name__).error(f'error opening OLED 1 / OLED 2 {type(e).__name__}: {e}')
+        logging.getLogger().error(f'error opening OLED 1 / OLED 2 {type(e).__name__}: {e}')
     raise RuntimeError('Error: OLED 1 / OLED 2 not available') from e
 
 BLACK = 'black'
@@ -56,7 +89,7 @@ FONT_FAMILY = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
 FONT = ImageFont.truetype(FONT_FAMILY, 42)
 FONT1 = ImageFont.truetype(FONT_FAMILY, 20)
 FONT2 = ImageFont.truetype(FONT_FAMILY, 12)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class OLEDDisplay(Display):
