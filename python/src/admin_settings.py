@@ -235,6 +235,11 @@ def route_settings():
         return redirect('/settings')
         # Nach dem Speichern aktuelle Werte neu laden
         # current_config = config_dict()
+    if request.method == 'POST' and request.form.get('btnreset'):
+        with config.ini_path.open(mode='w', encoding='UTF-8') as _:
+            flash_and_log('reset settings')
+            config.reload()
+        return redirect('/settings')
     return render_template(
         'settings.html',
         apiserver=ctx,
