@@ -87,9 +87,21 @@ WHITE = 'white'
 MIDDLE = (64, 42)
 
 FONT_FAMILY = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
-FONT = ImageFont.truetype(FONT_FAMILY, 42)
+FONT = ImageFont.truetype(FONT_FAMILY, 42)  # time
 FONT1 = ImageFont.truetype(FONT_FAMILY, 20)
-FONT2 = ImageFont.truetype(FONT_FAMILY, 12)
+FONT2 = ImageFont.truetype(FONT_FAMILY, 14)  # only nickname
+FONT3 = ImageFont.truetype(FONT_FAMILY, 10)  # nickname and show score
+
+IP_STR_COORD = (1, 1)
+TIME_STR_COORD = (1, 22)
+DOUBT_STR_COORD = (1, 1)
+INFO_STR_COORD = (18, 1)
+TIMER_STR_COORD = (90, 1)
+NICK_STR_COORD = (16, 4)
+NICK_SCORE_STR_COORD = (16, 6)
+END_NICK_COORD = (2, 5)
+END_MSG_COORD = (2, 30)
+
 logger = logging.getLogger()
 
 
@@ -111,21 +123,19 @@ class OLEDDisplay(Display):
         for i in range(2):
             DEVICE[i].clear()
             with canvas(DEVICE[i]) as draw:
-                draw.text((1, 1), title[i], font=FONT2, fill=WHITE)
-                text = msg[i][:10]
-                draw.text(MIDDLE, text, font=FONT1, anchor='mm', align='center', fill=WHITE)
+                draw.text(IP_STR_COORD, title[i], font=FONT3, fill=WHITE)
+                draw.text(MIDDLE, f'{msg[i]:10.10s}', font=FONT1, anchor='mm', align='center', fill=WHITE)
 
     def show_end_of_game(self) -> None:
         if self.game:
             for i in range(2):
                 DEVICE[i].clear()
                 with canvas(DEVICE[i]) as draw:
-                    nickname = self.game.nicknames[i][:10]
-                    draw.text((2, 5), f'{nickname}', font=FONT1, fill=WHITE)
+                    draw.text(END_NICK_COORD, f'{self.game.nicknames[i]:10.10s}', font=FONT1, fill=WHITE)
                     if self.game.moves:
                         minutes, seconds = divmod(abs(config.scrabble.max_time - self.game.moves[-1].played_time[i]), 60)
                         score = self.game.moves[-1].score[i]
-                        draw.text((2, 30), f'{minutes:02d}:{seconds:02d}  {score:3d}', font=FONT1, fill=WHITE)
+                        draw.text(END_MSG_COORD, f'{minutes:02d}:{seconds:02d}  {score:3d}', font=FONT1, fill=WHITE)
 
     def render_display(
         self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: str | None = None
@@ -135,14 +145,8 @@ class OLEDDisplay(Display):
             minutes, seconds = divmod(abs(delta), 60)
             return f'-{minutes:1d}:{seconds:02d}' if delta < 0 else f'{minutes:02d}:{seconds:02d}'
 
-        def _shorten_nickname(nickname: str, max_length: int = 6) -> str:
-            return f'{nickname[: max_length - 1]}\u2026' if len(nickname) > max_length else nickname
-
         def _get_score(i: int) -> int:
             return self.game.moves[-1].score[i] if self.game and self.game.moves else 0
-
-        def _get_nickname(i: int, max_length: int = 6) -> str:
-            return _shorten_nickname(nicknames[i], max_length)
 
         def _draw_player_info(draw, i: int, is_active: bool, time_str: str, info: str | None) -> None:
             color = BLACK if info and is_active else WHITE
@@ -151,20 +155,20 @@ class OLEDDisplay(Display):
                 draw.rectangle((1, 1, 128, 64), fill=WHITE)
 
             if is_active and 0 < current[player] <= config.scrabble.doubt_timeout:
-                draw.text((1, 1), '\u2049', font=FONT1, fill=color)
+                draw.text(DOUBT_STR_COORD, '?', font=FONT1, fill=color)
 
             if is_active and current[player] > 0:
-                draw.text((90, 1), f'{current[player]:3d}', font=FONT1, fill=color)
+                draw.text(TIMER_STR_COORD, f'{current[player]:3d}', font=FONT1, fill=color)
 
             if info:
-                draw.text((20, 1), info, font=FONT1, fill=color)
+                draw.text(INFO_STR_COORD, f'{info:6.6s}', font=FONT1, fill=color)
             else:
                 if config.scrabble.show_score:
-                    draw.text((20, 1), f'{_get_nickname(i)}{_get_score(i):3d}', font=FONT2, fill=color)
+                    draw.text(NICK_SCORE_STR_COORD, f'{nicknames[i]:9.8s}{_get_score(i):3d}', font=FONT3, fill=color)
                 else:
-                    draw.text((20, 1), _get_nickname(i, 10), font=FONT2, fill=color)
+                    draw.text(NICK_STR_COORD, f'{nicknames[i]:8.8s}', font=FONT2, fill=color)
 
-            draw.text((1, 22), time_str, font=FONT, fill=color)
+            draw.text(TIME_STR_COORD, time_str, font=FONT, fill=color)
 
         nicknames = self.game.nicknames if self.game else ('n/a', 'n/a')
 
