@@ -41,7 +41,7 @@ packaging==25.0
 psutil==7.0.0
 
 --only-binary=:all:
-opencv-python-headless==4.11.0.86
+opencv-python-headless==4.12.0.88
 --only-binary=:none:
 
 numpy<3
