@@ -17,8 +17,7 @@
                                         <button type="submit" class="btn btn-success mb-3 btn-circle btn-md"
                                             data-toggle="tooltip" data-placement="top" title="Move Green" name="GREEN"
                                             value="GREEN">
-                                            {% if state in ('S0', 'START') %}<i class="bi-brightness-high-fill"></i>{%
-                                            endif %}
+                                            {% if green == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
                                         </button>
                                     </div>
                                     <div class="col"> </div>
@@ -26,9 +25,7 @@
                                         <button type="submit" class="btn btn-warning mb-3 btn-circle btn-md"
                                             data-toggle="tooltip" data-placement="top" title="Pause" name="YELLOW"
                                             value="YELLOW">
-                                            {% if state in ('P0', 'P1', 'EOG') %}<i
-                                                class="bi-brightness-high-fill"></i>{% endif
-                                            %}
+                                            {% if yellow == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
                                         </button>
                                     </div>
                                     <div class="col"> </div>
@@ -36,8 +33,7 @@
                                         <button type="submit" class="btn btn-danger mb-3 btn-circle btn-md"
                                             data-toggle="tooltip" data-placement="top" title="Move Red" name="RED"
                                             value="RED">
-                                            {% if state in ('S1', 'START') %}<i class="bi-brightness-high-fill"></i>{%
-                                            endif %}
+                                            {% if red == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
                                         </button>
                                     </div>
                                 </div>

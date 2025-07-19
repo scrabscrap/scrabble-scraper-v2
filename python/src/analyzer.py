@@ -74,7 +74,7 @@ def load_tiles_templates() -> list[TileTemplate]:
     for tile_name in tile_list:
         image_path = filepath / f'{tile_name}.png'
         image = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
-        new_tile = TileTemplate(name=tile_name, img=image.astype(np.uint8))
+        new_tile = TileTemplate(name=tile_name, img=image.astype(np.uint8))  # type: ignore
         tiles_templates.append(new_tile)
     return tiles_templates
 

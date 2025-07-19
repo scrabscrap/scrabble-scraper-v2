@@ -169,7 +169,7 @@ def simulator() -> str:
         apiserver=ctx,
         img_next=png_next,
         img_current=png_current,
-        green=LEDEnum.green.value,
+        green=LEDEnum.green.value,  # pylint: disable=duplicate-code
         yellow=LEDEnum.yellow.value,
         red=LEDEnum.red.value,
         left=left,

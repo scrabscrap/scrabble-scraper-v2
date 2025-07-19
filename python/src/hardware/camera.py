@@ -178,7 +178,7 @@ class CameraFile(Camera):
             self._counter += 1 if Path(self._formatter.format(self._counter + 1)).is_file() else 0
         if img is not None and self._resize:
             img = cv2.resize(img, self.resolution)
-        return img
+        return img  # type: ignore
 
     def update(self, event: Event) -> None:
         pass

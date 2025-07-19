@@ -40,6 +40,7 @@ from admin_server_context import ctx
 from admin_settings import admin_settings_bp
 from admin_test import admin_test_bp
 from config import config, version
+from hardware.led import LED, LEDEnum
 from processing import event_set
 from scrabblewatch import ScrabbleWatch
 from state import GameState, State
@@ -119,7 +120,16 @@ def do_buttons():
     left = f'-{minutes:1d}:{seconds:02d}' if 1800 - time0 < 0 else f'{minutes:02d}:{seconds:02d}'
     minutes, seconds = divmod(abs(1800 - time1), 60)
     right = f'-{minutes:1d}:{seconds:02d}' if 1800 - time1 < 0 else f'{minutes:02d}:{seconds:02d}'
-    return render_template('button.html', apiserver=ctx, state=State.ctx.current_state, left=left, right=right)
+    return render_template(
+        'button.html',
+        apiserver=ctx,
+        state=State.ctx.current_state,
+        green=LEDEnum.green.value,  # pylint: disable=duplicate-code
+        yellow=LEDEnum.yellow.value,
+        red=LEDEnum.red.value,
+        left=left,
+        right=right,
+    )
 
 
 @app.route('/end_game', methods=['POST', 'GET'])
@@ -379,8 +389,6 @@ def do_vpn(op):
 @app.route('/upgrade_scrabscrap')
 def do_update_scrabscrap():
     """start scrabscrap upgrade"""
-    from hardware.led import LED, LEDEnum
-
     if State.ctx.current_state in (GameState.START, GameState.EOG):
         LED.blink_on({LEDEnum.yellow})
         ScrabbleWatch.display.show_ready(('Update...', 'pls wait'))
