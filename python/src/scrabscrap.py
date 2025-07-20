@@ -81,6 +81,7 @@ def main() -> None:
     logger.info('####################################################################')
     logger.info('## ScrabScrap loading ...                                         ##')
     logger.info('####################################################################')
+    ScrabbleWatch.display.show_boot()  # Boot Message
 
     logger.info(f'Version: {version.git_version}')
     logger.info(f'Git branch: {version.git_branch}')
@@ -94,7 +95,6 @@ def main() -> None:
     camera.cam.log_camera_info()
 
     # create Timer
-    ScrabbleWatch.display.show_boot()  # Boot Message
     timer = RepeatedTimer(1, ScrabbleWatch.tick)
     timer.start()
 

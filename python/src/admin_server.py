@@ -391,7 +391,7 @@ def do_update_scrabscrap():
     """start scrabscrap upgrade"""
     if State.ctx.current_state in (GameState.START, GameState.EOG):
         LED.blink_on({LEDEnum.yellow})
-        ScrabbleWatch.display.show_ready(('Update...', 'pls wait'))
+        ScrabbleWatch.display.show_ready(('SCRABSCRAP', 'update\u2026'))
         upgrade_cmd = str(config.path.src_dir.parent.parent / 'scripts' / 'upgrade.sh')
         os.system(f'{upgrade_cmd} {config.system.gitbranch} | tee -a {config.path.log_dir}/messages.log &')
         return redirect(url_for('route_index'))

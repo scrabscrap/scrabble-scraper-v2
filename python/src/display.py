@@ -39,11 +39,11 @@ class Display:
 
     def show_boot(self) -> None:
         """show boot message"""
-        self.show_ready(('Loading\u2026', 'Loading\u2026'))
+        self.show_ready(('SCRABSCRAP', 'Loading\u2026'))
 
     def show_accesspoint(self) -> None:
         """show AP Mode message"""
-        self.show_ready(('AP Mode', 'AP Mode'))
+        self.show_ready(('SCRAPSCRAP', 'AP Mode'))
 
     def show_ready(self, msg: tuple[str, str] = ('Ready', 'Ready')) -> None:
         """show ready message

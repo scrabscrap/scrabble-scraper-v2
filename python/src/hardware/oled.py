@@ -118,13 +118,26 @@ class OLEDDisplay(Display):
             ips = {adapter.name: ip.ip for adapter in ifaddr.get_adapters() for ip in adapter.ips if ip.is_IPv4}
             return (ips.get('wlan0', 'n/a'), ips.get('eth0', 'n/a'))
 
+        def draw_letter_row(draw, letters, x_start, y0):
+            for i, letter in enumerate(letters):
+                x0 = x_start + i * 20
+                x1 = x0 + 18
+                draw.rounded_rectangle((x0, y0, x1, y0 + 18), fill=WHITE, radius=4)
+                draw.text((x0 + 9, y0 + 9), letter, font=FONT2, fill=BLACK, anchor='mm', align='center', stroke_width=1)
+
         logger.debug(f'show message {msg}')
-        title = get_ipv4_address()
-        for i in range(2):
-            DEVICE[i].clear()
-            with canvas(DEVICE[i]) as draw:
-                draw.text(IP_STR_COORD, title[i], font=FONT3, fill=WHITE)
-                draw.text(MIDDLE, f'{msg[i]:10.10s}', font=FONT1, anchor='mm', align='center', fill=WHITE)
+        title = ('', '') if self.game is not None else get_ipv4_address()
+        with canvas(DEVICE[0]) as draw:
+            draw.text(IP_STR_COORD, title[0], font=FONT3, fill=WHITE)
+            if msg[0] == 'SCRABSCRAP':
+                draw_letter_row(draw, 'SCRAB', x_start=5, y0=18)
+                draw_letter_row(draw, 'SCRAP', x_start=25, y0=40)
+            else:
+                draw.text(MIDDLE, f'{msg[0]:.10s}', font=FONT1, anchor='mm', align='center', fill=WHITE)
+
+        with canvas(DEVICE[1]) as draw:
+            draw.text(IP_STR_COORD, title[1], font=FONT3, fill=WHITE)
+            draw.text(MIDDLE, f'{msg[1]:.10s}', font=FONT1, anchor='mm', align='center', fill=WHITE)
 
     def show_end_of_game(self) -> None:
         if self.game:
