@@ -90,8 +90,7 @@ class State(Static):
         """Start playing with player 0/1"""
         ScrabbleWatch.start(player)
         LED.switch(on=PLAYER_LEDS[player])
-        ScrabbleWatch.display.render_display(0, (0, 0), (0, 0))
-        ScrabbleWatch.display.render_display(1, (0, 0), (0, 0))
+        ScrabbleWatch.display.render_display(player, (0, 0), (0, 0))
         return next_state
 
     @classmethod

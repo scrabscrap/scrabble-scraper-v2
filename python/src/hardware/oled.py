@@ -84,21 +84,18 @@ except (OSError, DeviceNotFoundError, RuntimeError) as e:
 
 BLACK = 'black'
 WHITE = 'white'
-MIDDLE = (64, 42)
 
 FONT_FAMILY = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
-FONT = ImageFont.truetype(FONT_FAMILY, 42)  # time
+FONT = ImageFont.truetype(FONT_FAMILY, 40)  # time
 FONT1 = ImageFont.truetype(FONT_FAMILY, 20)
 FONT2 = ImageFont.truetype(FONT_FAMILY, 14)  # only nickname
 FONT3 = ImageFont.truetype(FONT_FAMILY, 10)  # nickname and show score
 
-IP_STR_COORD = (1, 1)
-TIME_STR_COORD = (1, 22)
-DOUBT_STR_COORD = (1, 1)
-INFO_STR_COORD = (18, 1)
-TIMER_STR_COORD = (90, 1)
-NICK_STR_COORD = (16, 4)
-NICK_SCORE_STR_COORD = (16, 6)
+MIDDLE = (64, 44)
+IP_STR_COORD = (64, 3)
+DOUBT_STR_COORD = (0, 3)
+INFO_STR_COORD = (14, 11)
+TIMER_STR_COORD = (128, 3)
 END_NICK_COORD = (2, 5)
 END_MSG_COORD = (2, 30)
 
@@ -128,16 +125,16 @@ class OLEDDisplay(Display):
         logger.debug(f'show message {msg}')
         title = ('', '') if self.game is not None else get_ipv4_address()
         with canvas(DEVICE[0]) as draw:
-            draw.text(IP_STR_COORD, title[0], font=FONT3, fill=WHITE)
+            draw.text(IP_STR_COORD, title[0], font=FONT3, fill=WHITE, anchor='mt', align='center')
             if msg[0] == 'SCRABSCRAP':
                 draw_letter_row(draw, 'SCRAB', x_start=5, y0=18)
                 draw_letter_row(draw, 'SCRAP', x_start=25, y0=40)
             else:
-                draw.text(MIDDLE, f'{msg[0]:.10s}', font=FONT1, anchor='mm', align='center', fill=WHITE)
+                draw.text(MIDDLE, f'{msg[0]:.10s}', font=FONT1, fill=WHITE, anchor='mm', align='center')
 
         with canvas(DEVICE[1]) as draw:
-            draw.text(IP_STR_COORD, title[1], font=FONT3, fill=WHITE)
-            draw.text(MIDDLE, f'{msg[1]:.10s}', font=FONT1, anchor='mm', align='center', fill=WHITE)
+            draw.text(IP_STR_COORD, title[1], font=FONT3, fill=WHITE, anchor='mt', align='center')
+            draw.text(MIDDLE, f'{msg[1]:.10s}', font=FONT1, fill=WHITE, anchor='mm', align='center')
 
     def show_end_of_game(self) -> None:
         if self.game:
@@ -165,23 +162,23 @@ class OLEDDisplay(Display):
             color = BLACK if info and is_active else WHITE
 
             if is_active and info:
-                draw.rectangle((1, 1, 128, 64), fill=WHITE)
+                draw.rectangle((0, 0, 128, 64), fill=WHITE)
 
             if is_active and 0 < current[player] <= config.scrabble.doubt_timeout:
-                draw.text(DOUBT_STR_COORD, '?', font=FONT1, fill=color)
+                draw.text(DOUBT_STR_COORD, '?', font=FONT1, fill=color, anchor='lt')
 
             if is_active and current[player] > 0:
-                draw.text(TIMER_STR_COORD, f'{current[player]:3d}', font=FONT1, fill=color)
+                draw.text(TIMER_STR_COORD, f'{current[player]:3d}', font=FONT1, fill=color, anchor='rt')
 
             if info:
-                draw.text(INFO_STR_COORD, f'{info:6.6s}', font=FONT1, fill=color)
+                draw.text(INFO_STR_COORD, f'{info:9.9s}', font=FONT2, fill=color, anchor='lm')
             else:
                 if config.scrabble.show_score:
-                    draw.text(NICK_SCORE_STR_COORD, f'{nicknames[i]:9.8s}{_get_score(i):3d}', font=FONT3, fill=color)
+                    draw.text(INFO_STR_COORD, f'{nicknames[i]:6.5s}{_get_score(i):3d}', font=FONT2, fill=color, anchor='lm')
                 else:
-                    draw.text(NICK_STR_COORD, f'{nicknames[i]:8.8s}', font=FONT2, fill=color)
+                    draw.text(INFO_STR_COORD, f'{nicknames[i]:9.9s}', font=FONT2, fill=color, anchor='lm')
 
-            draw.text(TIME_STR_COORD, time_str, font=FONT, fill=color)
+            draw.text(MIDDLE, time_str, font=FONT, fill=color, anchor='mm', align='center')
 
         nicknames = self.game.nicknames if self.game else ('n/a', 'n/a')
 
