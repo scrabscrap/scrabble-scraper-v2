@@ -10,6 +10,11 @@
         display: flex;
         flex-direction: column;
     }
+
+    .edit-text {
+        font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+            monospace;
+    }
 </style>
 
 <div class="container">
@@ -52,13 +57,14 @@
                                             <input hidden name="move.player" value={{ move.player }}>
                                         </td>
                                         <td style="text-align: right;">
-                                            <div class="py-2">{{ move.points }}</div>
+                                            <div class="py-2 edit-text">{{ move.points }}</div>
                                         </td>
                                         <td>
-                                            <div class="py-2">{{ move.score }}</div>
+                                            <div class="py-2 edit-text">{{ move.score }}</div>
                                         </td>
                                         <td>
-                                            <select class="form-select" aria-label="Type of move" name="move.type">
+                                            <select class="form-select edit-text" aria-label="Type of move"
+                                                name="move.type">
                                                 <option {% if move.type.name=="REGULAR" %}selected{% endif %} {% if
                                                     move.type.name=="WITHDRAW" or move.type.name=="CHALLENGE_BONUS"
                                                     %}disabled{% endif %} value="REGULAR">Normal</option>
@@ -80,20 +86,20 @@
                                             </select>
                                         </td>
                                         <td> {% if move.type.name=="EXCHANGE" %}
-                                            <input type="text" class="form-control" name="move.coord" size="3"
+                                            <input type="text" class="form-control edit-text" name="move.coord" size="3"
                                                 value="-">
                                             {% elif move.type.name=="CHALLENGE_BONUS" %}
-                                            <input type="text" class="form-control" name="move.coord" size="3"
+                                            <input type="text" class="form-control edit-text" name="move.coord" size="3"
                                                 value="(c)" readonly>
                                             {% elif move.type.name=="WITHDRAW" %}
-                                            <input type="text" class="form-control" name="move.coord" size="3"
+                                            <input type="text" class="form-control edit-text" name="move.coord" size="3"
                                                 value="--" readonly>
                                             {% else %}
-                                            <input type="text" class="form-control" name="move.coord" size="3"
+                                            <input type="text" class="form-control edit-text" name="move.coord" size="3"
                                                 value="{{ move.gcg_coord }}">
                                             {% endif %}
                                         </td>
-                                        <td> <input type="text" class="form-control" name="move.word"
+                                        <td> <input type="text" class="form-control edit-text" name="move.word"
                                                 value="{{ move.word }}" {% if move.type.name=='WITHDRAW' or
                                                 move.type.name=='CHALLENGE_BONUS' %}readonly{% endif %}>
                                         </td>
@@ -221,10 +227,10 @@
                             {% for (coord, tile) in blanko_list %}
                             <tr>
                                 <form action="/moves" method="post">
-                                    <td> <input type="text" class="form-control" name="coord" readonly size="3" value={{
-                                            coord }}>
+                                    <td> <input type="text" class="form-control edit-text" name="coord" readonly
+                                            size="3" value={{ coord }}>
                                     </td>
-                                    <td> <input type="text" class="form-control" name="char" size="1"
+                                    <td> <input type="text" class="form-control edit-text" name="char" size="1"
                                             value="{{ tile.letter }}">
                                     </td>
                                     <td>
