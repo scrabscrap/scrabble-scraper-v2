@@ -89,7 +89,7 @@ DEFAULT = {
         'log_dir': '%(src_dir)s/../work/log',
         'web_dir': '%(src_dir)s/../work/web',
     },
-    'development': {'simulate': 'False', 'simulate_path': 'test/game01/image-{:d}.jpg', 'recording': 'False'},
+    'development': {'simulate_path': 'test/game01/image-{:d}.jpg', 'recording': 'False'},
     'scrabble': {
         'tournament': 'SCRABBLE SCRAPER',
         'malus_doubt': '10',
@@ -153,11 +153,6 @@ class DevelopmentConfig:
     """access to development configuration"""
 
     config: configparser.ConfigParser
-
-    @property
-    def simulate(self) -> bool:
-        """Should Scrabscrap be simulated?"""
-        return self.config.getboolean('development', 'simulate', fallback=False)
 
     @property
     def simulate_path(self) -> str:

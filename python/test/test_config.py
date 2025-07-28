@@ -38,7 +38,6 @@ class ConfigTestCase(unittest.TestCase):
         self.assertEqual(config.path.work_dir, (config.path.src_dir.parent / 'work').resolve())
         self.assertEqual(config.path.log_dir, (config.path.src_dir.parent / 'work' / 'log').resolve())
         self.assertEqual(config.path.web_dir, (config.path.src_dir.parent / 'work' / 'web').resolve())
-        self.assertFalse(config.development.simulate)
         # self.assertEqual(config.simulate_path, config.work_dir + '/simulate/image-{:d}.jpg')
         self.assertFalse(config.development.recording)
         self.assertEqual(config.scrabble.malus_doubt, 10)
