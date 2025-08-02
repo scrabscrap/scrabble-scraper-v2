@@ -48,13 +48,17 @@ def do_test_display():
         ctx.flask_shutdown_blocked = True
         logger.debug('run display test')
         ScrabbleWatch.display.show_boot()
-        sleep(0.5)
+        sleep(1)
         ScrabbleWatch.display.show_cam_err()
-        sleep(0.5)
+        sleep(1)
         ScrabbleWatch.display.show_ftp_err()
-        sleep(0.5)
+        sleep(1)
+        ScrabbleWatch.pause()
+        ScrabbleWatch.display.add_malus(0, (100, 100), (10, 10))
+        sleep(1)
+        ScrabbleWatch.display.add_remove_tiles(1, (100, 100), (10, 10))
+        sleep(1)
         ScrabbleWatch.display.show_ready()
-        sleep(0.5)
         ctx.flask_shutdown_blocked = False
         logger.info('>>> display_test ended')
     else:
