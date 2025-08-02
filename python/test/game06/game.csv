@@ -17,7 +17,7 @@ Move, Button, State, Coord, Word, Points, Score1, Score2
 16, "Red", "S0", "13K", "LEI", 19, 270, 196
 17, "Yellow", "P0", "O10", "LEI", 19, 270, 196
 17, "DOUBT0", "P0", "O10", "LEI", -19, 270, 177
-17, "Red", "S0", "O10", "LEI", -19, 270, 177
+17, "YELLOW", "S0", "O10", "LEI", -19, 270, 177
 18, "Green", "S1", "N8", "ATO.", 20, 290, 177
 19, "Red", "S0", "H13", "RUN", 19, 290, 196
 20, "Green", "S1", "O5", "ZIEM", 36, 326, 196

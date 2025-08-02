@@ -14,7 +14,7 @@ Move, Button, State, Coord, Word, Points, Score1, Score2
 13, "Green", "S1","4I", ".OTZ", 17, 94, 126
 14, "YELLOW", "P1","4I", ".OTZ", 17, 94, 126
 14, "DOUBT1", "P1","4I", ".OTZ", -17, 77, 126
-14, "Green", "S1", "--", ".OTZ", -17, 77, 126
+14, "YELLOW", "S1", "--", ".OTZ", -17, 77, 126
 15, "Red", "S0","L9", "K.AM", 18, 77, 144
 16, "Green", "S1","12G", "TOD", 18, 95, 144
 17, "Red", "S0", "4I", ".ARIN", 12, 95, 156
