@@ -59,6 +59,7 @@ class GameRunnerTestCase(unittest.TestCase):
         clear_last_warp()
         self.config_setter('output', 'upload_server', False)
         self.config_setter('development', 'recording', False)
+        logging.disable(logging.DEBUG)  # nur Error Ausgaben
         if PROFILE:
             self.pr = cProfile.Profile()
             self.pr.enable()
@@ -254,7 +255,7 @@ class GameRunnerTestCase(unittest.TestCase):
                     State.ctx.game.moves[-1].word,
                     f'invalid word {State.ctx.game.moves[-1].word} at move {int(row["Move"])}',
                 )
-        logger.warning(f'qsize={command_queue.qsize()}')
+        logger.debug(f'qsize={command_queue.qsize()}')
 
 
 # unit tests per commandline
