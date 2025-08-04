@@ -17,51 +17,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import logging
-import sys
 import unittest
 
 import numpy as np
 
-from config import config
-from display import Display
-from move import BoardType, MoveType, NoMoveError, Tile
-from processing import (
-    _move_processing,
-    _recalculate_score_on_tiles_change,  # type: ignore
-    admin_change_move,
-    admin_insert_moves,
-    end_of_game,
-    filter_candidates,
-    remove_blanko,
-    set_blankos,
-)
+from move import BoardType, NoMoveError, Tile
+from processing import end_of_game, filter_candidates
 from scrabble import Game
-from scrabblewatch import ScrabbleWatch
 from state import State
-
-logging.basicConfig(
-    stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
-)
-logger = logging.getLogger(__name__)
+from test.test_base import BaseTestClass
 
 
-class AlgorithmTestCase(unittest.TestCase):
+class AlgorithmTestCase(BaseTestClass):
     """Test class for algorithm"""
-
-    def setUp(self):
-        # logger.disable(logger.DEBUG)  # falls Info-Ausgaben erfolgen sollen
-        # logger.disable(logger.ERROR)
-        ScrabbleWatch.display = Display  # type: ignore
-        config.is_testing = True
-        return super().setUp()
-
-    def tearDown(self) -> None:
-        config.is_testing = False
-        return super().tearDown()
-
-    def create_game(self):
-        """Erzeugt ein neues Spiel und gibt das Game-Objekt zurück."""
-        return State.ctx.game.new_game()
 
     def add_move(
         self, game: Game, board: BoardType, new_tiles: BoardType, player_info: tuple[int, tuple[int, int]] = ((0, (1, 0)))
@@ -119,48 +87,36 @@ class AlgorithmTestCase(unittest.TestCase):
     def test_101(self):
         """Test 101 - Algorithm: empty board with tiles exchange"""
 
-        game = self.create_game()
+        game = State.ctx.game.new_game()
         # empty
         board: BoardType = {}
         with self.assertRaises(NoMoveError):
             game.add_regular(player=0, played_time=(1, 0), img=np.zeros((1, 1)), new_tiles={})
         game.add_exchange(player=0, played_time=(1, 0), img=np.zeros((1, 1)))
-        logger.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
+        logging.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
         self.assert_board_and_score(game, board, (0, 0), 1)
 
-    # def test_132(self):
-    #     """Test 132 - Algorithm: new tile with lower propability"""
-
-    #     # H4 FIRNS
-    #     new_tiles:BoardType = {
-    #         (3, 7): Tile('F', 75), (4, 7): Tile('I', 85), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75), (7, 7): Tile('S', 75),
-    #     }  # fmt:off
-    #     board: BoardType = {}
-    #     game = self.create_game()
-    #     self.add_move(game, board, new_tiles, (0,(1,0)))
-
-    #     self.assert_board_and_score(game, board, (24, 0), 1)
-
-    #     # TODO: process changed tiles in processing.py
-    #     # i -> j
-    #     # board = {(3, 7): Tile('F', 75), (4, 7): Tile('J', 80), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75), (7, 7): Tile('S', 75)}
-    #     # new_tiles = {}
-    #     # move = Move(type=MoveType.regular, player=1, coord=None, is_vertical=False, word='', new_tiles=new_tiles,
-    #     #             removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
-    #     # game.add_move(move)
-    #     # score = game.moves[-1].score
-    #     # logger.debug(f'score {score} / moves {len(game.moves)}')
-
-    #     # self.assertEqual(2, len(game.moves), 'invalid count of moves')
-    #     # self.assertEqual((22, 0), game.moves[-1].score, 'invalid scores')
-    #     # self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
+    def test_132(self):
+        """Test 132 - Algorithm: new tile with lower propability"""
+        # H4 FIRNS
+        # 5G V.TEN -> VÄTEN (niedrige Prio)
+        # data = [ { 'button': 'GREEN', 'score': (24, 0),
+        #            'tiles': { (3, 7): Tile('F', 75), (4, 7): Tile('I', 80), (5, 7): Tile('R', 75),
+        #                       (6, 7): Tile('N', 75), (7, 7): Tile('S', 75), },
+        #          },
+        #          { 'button': 'RED', 'score': (24, 20),
+        #            'tiles': {(4, 7): Tile('Ä', 75), (4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('N', 75)},
+        #          }
+        #         ]  # fmt:off
+        # self.run_data(start_button='red', data=data)
+        # self.assertEqual(State.ctx.game.moves[-1].score, data[-1]['score'], 'invalid scores')
 
     def test_150(self):
         new_tiles:BoardType = {
             (3, 7): Tile('F', 75), (4, 7): Tile('I', 85), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75), (7, 7): Tile('S', 75),
         }  # fmt:off
         board: BoardType = {}
-        game = self.create_game()
+        game = State.ctx.game.new_game()
         self.add_move(game, board, new_tiles, (0, (1864, 1984)))
 
         # time_malus(64sec, 184sec) = (-20, -40)

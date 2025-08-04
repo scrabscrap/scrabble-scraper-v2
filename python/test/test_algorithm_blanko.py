@@ -16,73 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-import logging
-import sys
 import unittest
 
 import numpy as np
 
-from config import config
-from display import Display
-from move import BoardType, MoveType, NoMoveError, Tile
-from processing import (
-    _move_processing,
-    _recalculate_score_on_tiles_change,  # type: ignore
-    admin_change_move,
-    admin_insert_moves,
-    end_of_game,
-    filter_candidates,
-    remove_blanko,
-    set_blankos,
-)
-from scrabble import Game
-from scrabblewatch import ScrabbleWatch
+from move import BoardType, Tile
+from processing import _move_processing, admin_insert_moves, remove_blanko, set_blankos
 from state import State
-
-logging.basicConfig(
-    stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
-)
-logger = logging.getLogger(__name__)
+from test.test_base import BaseTestClass
 
 
-class AlgorithmBlankoTestCase(unittest.TestCase):
+class AlgorithmBlankoTestCase(BaseTestClass):
     """Test class for algorithm"""
-
-    def setUp(self):
-        # logger.disable(logger.DEBUG)  # falls Info-Ausgaben erfolgen sollen
-        # logger.disable(logger.ERROR)
-        ScrabbleWatch.display = Display  # type: ignore
-        config.is_testing = True
-        return super().setUp()
-
-    def tearDown(self) -> None:
-        config.is_testing = False
-        return super().tearDown()
-
-    def create_game(self):
-        """Erzeugt ein neues Spiel und gibt das Game-Objekt zurück."""
-        return State.ctx.game.new_game()
-
-    def add_move(
-        self, game: Game, board: BoardType, new_tiles: BoardType, player_info: tuple[int, tuple[int, int]] = ((0, (1, 0)))
-    ) -> BoardType:
-        """Fügt dem Spiel einen Zug hinzu und gibt das aktualisierte Board zurück."""
-        board.update(new_tiles)
-        game.add_regular(player=player_info[0], played_time=player_info[1], img=np.zeros((1, 1)), new_tiles=new_tiles)
-        # logger.debug(f'score {game.moves[-1].score} / moves {len(game.moves)}')
-        return game.moves[-1].board
-
-    def assert_board_and_score(self, game: Game, expected_board: BoardType, expected_score: tuple[int, int], expected_len: int):
-        """Hilfsmethode für häufige Assertions."""
-        self.assertEqual(expected_len, len(game.moves), 'invalid count of moves')
-        self.assertDictEqual(game.moves[-1].board, expected_board, 'invalid board')
-        self.assertEqual(game.moves[-1].score, expected_score, 'invalid scores')
 
     def test_11(self):
         """Test 11 - Algorithm: remove invalid blanks"""
 
-        game = self.create_game()
-
+        game = State.ctx.game.new_game()
         board: BoardType = {
             (3, 7): Tile('F', 75), (4, 7): Tile('I', 75), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75), (7, 7): Tile('S', 75),
         }  # fmt:off
@@ -138,91 +88,64 @@ class AlgorithmBlankoTestCase(unittest.TestCase):
             'invalid tiles',
         )
 
-    # def test_131(self):
-    #     """Test 131 - Algorithm: correct letter to blank"""
-
-    #     # H4 FIRNS
-    #     new_tiles:BoardType = {
-    #         (3, 7): Tile('F', 75), (4, 7): Tile('I', 75), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75), (7, 7): Tile('S', 75),
-    #     }  # fmt:off
-    #     board: BoardType = {}
-    #     game = self.create_game()
-    #     self.add_move(game, board, new_tiles, (0,(1,0)))
-
-    #     self.assert_board_and_score(game, board, (24, 0), 1)
-
-    #     # TODO: process changed tiles in processing.py
-    #     # i -> blank
-    #     # board = {(3, 7): Tile('F', 75), (4, 7): Tile('_', 80), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75), (7, 7): Tile('S', 75)}
-    #     # new_tiles = {}
-    #     # move = Move(type=MoveType.regular, player=1, coord=None, is_vertical=False, word='', new_tiles=new_tiles,
-    #     #             removed_tiles={}, board=board, played_time=(1, 1), previous_score=score)
-    #     # game.add_move(move)
-    #     # score = game.moves[-1].score
-    #     # logger.debug(f'score {score} / moves {len(game.moves)}')
-
-    #     # self.assertEqual(2, len(game.moves), 'invalid count of moves')
-    #     # self.assertEqual((22, 0), game.moves[-1].score, 'invalid scores')
-    #     # self.assertDictEqual(board, game.moves[-1].board, 'invalid board')
-
     def test_147(self):
         """replace blanko with lower character"""
-
         # H4 FIRNS
-        new_tiles:BoardType = {
-            (3, 7): Tile('F', 75), (4, 7): Tile('Ö', 75), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75), (7, 7): Tile('S', 75),
-        }  # fmt:off
-        board: BoardType = {}
-        game = self.create_game()
-        self.add_move(game, board, new_tiles, (0, (1, 0)))
-        score1 = game.moves[-1].score
-
         # 5G V.TEn
-        new_tiles = {(4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('_', 75)}
-        self.add_move(game, board, new_tiles, (1, (1, 1)))
+        data = [ { 'button': 'GREEN', 'score': (24, 0),
+                   'tiles': { (3, 7): Tile('F', 75), (4, 7): Tile('I', 75), (5, 7): Tile('R', 75),
+                              (6, 7): Tile('N', 75), (7, 7): Tile('S', 75), },
+                 },
+                 { 'button': 'RED', 'score': (24, 18),
+                   'tiles': {(4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('_', 75)},
+                 },
+                ]  # fmt:off
+        self.run_data(start_button='red', data=data)
+        game = State.ctx.game
         score1 = game.moves[-1].score
-
         # H4 FIRNS
-        new_tiles = {
-            (3, 7): Tile('F', 75), (4, 7): Tile('Ö', 75), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75), (7, 7): Tile('S', 75),
-        }  # fmt:off
-        board: BoardType = {}
-        game.new_game()
-        self.add_move(game, board, new_tiles, (0, (1, 0)))
-
         # 5G V.TEn
-        new_tiles = {(4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('e', 75)}
-        self.add_move(game, board, new_tiles, (1, (1, 1)))
-        score = game.moves[-1].score
-        self.assertEqual(score1, score, 'same score with _ and e expected')
+        data = [ { 'button': 'GREEN', 'score': (24, 0),
+                   'tiles': { (3, 7): Tile('F', 75), (4, 7): Tile('I', 75), (5, 7): Tile('R', 75),
+                              (6, 7): Tile('N', 75), (7, 7): Tile('S', 75), },
+                 },
+                 { 'button': 'RED', 'score': (24, 18),
+                   'tiles': {(4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('n', 75)},
+                 },
+                ]  # fmt:off
+        self.run_data(start_button='red', data=data)
+        game = State.ctx.game
+        score2 = game.moves[-1].score
+
+        self.assertEqual(score1, score2, 'same score with _ and e expected')
 
     def test_remove_blanko(self):
-        game = self.create_game()
-
-        board = {}
-        new_tiles = {
-            (3, 7): Tile('F', 75), (4, 7): Tile('I', 75), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75), (7, 7): Tile('S', 75),
-        }  # fmt:off
-        self.add_move(game, board, new_tiles, (0, (1, 0)))
-
+        # H4 FIRNS
         # 5G V.TEn
-        new_tiles = {(4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('_', 75)}
-        self.add_move(game, board, new_tiles, (1, (1, 1)))
+        #    MÖS
+        data = [    {   'button': 'GREEN', 'score': (24, 0),
+                        'tiles': { (3, 7): Tile('F', 75), (4, 7): Tile('I', 75), (5, 7): Tile('R', 75), 
+                                   (6, 7): Tile('N', 75), (7, 7): Tile('S', 75), },
+                    },
+                    {   'button': 'RED', 'score': (24, 18),
+                        'tiles': {(4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('_', 75)},
+                    },
+                    {   'button': 'GREEN', 'score': (43, 18),
+                        'tiles': {(1, 9): Tile('M', 75), (2, 9): Tile('Ö', 75), (3, 9): Tile('S', 75)},
+                    },                                   
+        ]  # fmt:off
+        self.run_data(start_button='red', data=data)
+        game = State.ctx.game
 
-        # J2 MÖS.
-        new_tiles = {(1, 9): Tile('M', 75), (2, 9): Tile('Ö', 75), (3, 9): Tile('S', 75)}
-        self.add_move(game, board, new_tiles, (0, (2, 1)))
-
+        # admin changes
         admin_insert_moves(game, 2, None)
         assert 5 == len(game.moves), 'invalid count of moves'
 
         remove_blanko(game, '5K', None)
-
         assert game.moves[-1].score == (43, 9), f'score {game.moves[-1].score} == 43,9'
         self.assertEqual(
             game.moves[-1].board,
-            {
-                (3, 7): Tile('F', 75), (4, 7): Tile('I', 75), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75),
+            {   (3, 7): Tile('F', 75), (4, 7): Tile('I', 75), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75),
                 (7, 7): Tile('S', 75),
                 (4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75),
                 (1, 9): Tile('M', 75), (2, 9): Tile('Ö', 75), (3, 9): Tile('S', 75),
@@ -231,12 +154,15 @@ class AlgorithmBlankoTestCase(unittest.TestCase):
         )  # fmt:off
 
     def test_set_blanko(self):
-        new_tiles: BoardType = {
-            (3, 7): Tile('F', 75), (4, 7): Tile('_', 75), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75), (7, 7): Tile('S', 75),
-        }  # fmt:off
-        board: BoardType = {}
-        game = self.create_game()
-        self.add_move(game, board, new_tiles, (0, (1, 0)))
+        # H4 FIRNS
+        data = [ { 'button': 'GREEN', 'score': (22, 0),
+                   'tiles': { (3, 7): Tile('F', 75), (4, 7): Tile('_', 75), (5, 7): Tile('R', 75),
+                              (6, 7): Tile('N', 75), (7, 7): Tile('S', 75), },
+                 },
+                ]  # fmt:off
+        self.run_data(start_button='red', data=data)
+        game = State.ctx.game
+        # admin changes
         set_blankos(game, 'H5', 'i')
         assert game.moves[-1].board[(4, 7)] == Tile('i', 99), f'invalid board {game.moves[-1].board}'
 
