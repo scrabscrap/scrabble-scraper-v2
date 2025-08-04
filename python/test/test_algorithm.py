@@ -100,16 +100,16 @@ class AlgorithmTestCase(BaseTestClass):
         """Test 132 - Algorithm: new tile with lower propability"""
         # H4 FIRNS
         # 5G V.TEN -> VÄTEN (niedrige Prio)
-        # data = [ { 'button': 'GREEN', 'score': (24, 0),
-        #            'tiles': { (3, 7): Tile('F', 75), (4, 7): Tile('I', 80), (5, 7): Tile('R', 75),
-        #                       (6, 7): Tile('N', 75), (7, 7): Tile('S', 75), },
-        #          },
-        #          { 'button': 'RED', 'score': (24, 20),
-        #            'tiles': {(4, 7): Tile('Ä', 75), (4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('N', 75)},
-        #          }
-        #         ]  # fmt:off
-        # self.run_data(start_button='red', data=data)
-        # self.assertEqual(State.ctx.game.moves[-1].score, data[-1]['score'], 'invalid scores')
+        data = [ { 'button': 'GREEN', 'score': (24, 0),
+                   'tiles': { (3, 7): Tile('F', 75), (4, 7): Tile('I', 80), (5, 7): Tile('R', 75),
+                              (6, 7): Tile('N', 75), (7, 7): Tile('S', 75), },
+                 },
+                 { 'button': 'RED', 'score': (24, 20),
+                   'tiles': {(4, 7): Tile('Ä', 75), (4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('N', 75)},
+                 }
+                ]  # fmt:off
+        self.run_data(start_button='red', data=data)
+        self.assertEqual(State.ctx.game.moves[-1].score, data[-1]['score'], 'invalid scores')
 
     def test_150(self):
         new_tiles:BoardType = {

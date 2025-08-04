@@ -156,7 +156,9 @@ def _board_diff(board: dict, previous_board: dict) -> tuple[dict, dict, dict]:
     new_tiles = {i: board[i] for i in set(board.keys()).difference(previous_board)}
     removed_tiles = {i: previous_board[i] for i in set(previous_board.keys()).difference(board)}
     changed_tiles = {
-        i: board[i] for i in previous_board if i not in removed_tiles and previous_board[i].letter != board[i].letter
+        i: board[i]
+        for i in previous_board
+        if i not in removed_tiles and previous_board[i].letter != board[i].letter and previous_board[i].prob < board[i].prob
     }
     return new_tiles, removed_tiles, changed_tiles
 
