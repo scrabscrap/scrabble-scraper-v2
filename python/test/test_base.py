@@ -1,3 +1,21 @@
+"""
+This file is part of the scrabble-scraper-v2 distribution
+(https://github.com/scrabscrap/scrabble-scraper-v2)
+Copyright (c) 2020 Rainer Rohloff.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import logging
 import sys
 import threading
@@ -49,16 +67,20 @@ class BaseTestClass(unittest.TestCase):
         new_board.update(move['tiles'])
 
         def side_effect(*args, **kwargs):
-            logging.debug(f'simulate move #{i}')
+            logging.info(f'simulate move #{i}')
             event.set()
             return (np.zeros((1, 1)), new_board)
 
         with patch('processing._image_processing', side_effect=side_effect) as _:
             button = move['button'].upper()
             event.clear()
+            if button == 'RESET':
+                camera.cam.read.return_value = None  # type: ignore
             State.press_button(button)
             if button in ('RED', 'GREEN'):
                 event.wait(timeout=0.1)  # wait for side_effect
+            if button in ('DOUBT0', 'DOUBT1', 'YELLOW'):
+                command_queue.join()  # to ensure correct board in game
 
     def run_data(self, start_button: str, data: list):
         """
@@ -72,5 +94,5 @@ class BaseTestClass(unittest.TestCase):
         State.press_button(start_button.upper())
         for i, m in enumerate(data):
             self.run_move(i, board, m)
-            board.update(m['tiles'])
+            board = dict(State.ctx.game.moves[-1].board) if State.ctx.game.moves else {}
         command_queue.join()
