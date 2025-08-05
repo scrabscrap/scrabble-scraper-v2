@@ -2,9 +2,9 @@ Move, Button, State, Coord, Word, Points, Score1, Score2
 1, "Red", "S0", "-", , 0, 0, 0
 2, "Green", "S1", "H4", "M_NDART", 72, 72, 0
 3, "Red", "S0", "9E", "ENT.ÄUME", 72, 72, 72
-4, "Yellow", "P0", "9E", "ENT.ÄUME", 72, 72, 72
-4, "DOUBT0", "P0", "9E", "ENT.ÄUME", -72, 72, 0
-4, "Red", "S0", "9E", "ENT.ÄUME", -72, 72, 0
+4, "YELLOW", "P0", "9E", "ENT.ÄUME", 72, 72, 72
+4, "DOUBT0", "P0", "--", "ENT.ÄUME", -72, 72, 0
+4, "YELLOW", "S0", "--", "ENT.ÄUME", -72, 72, 0
 5, "Green", "S1", "8G", "V.N", 8, 80, 0
 6, "Red", "S0", "6E", "MÄN.E", 24, 80, 24
 7, "Green", "S1", "6E", ".....RN", 16, 96, 24
@@ -34,5 +34,5 @@ Move, Button, State, Coord, Word, Points, Score1, Score2
 31, "Green", "S1", "12L", ".YS", 12, 455, 396
 32, "Red", "S0", "M11", "_.E", 23, 455, 419
 33, "Green", "S1", "7D", "UI", 7, 462, 419
-34, "YELLOW", "P1", "E", , 1, 463, 418
-35, "EOG", "P1", "E", , -1, 463, 418
+34, "YELLOW", "P1", "7D", "UI", 7, 462, 419
+35, "RESET", "EOG", "", "E", -1, 463, 418
