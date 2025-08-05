@@ -440,10 +440,10 @@ class MoveWithdraw(Move):
     def dev_str(self) -> str:
         return dev_strings[self.type].format(
             m1=self.previous_move,
-            status1=('P0', 'P1')[self.player],
+            status1=('P1', 'P0')[self.player],
             button=('DOUBT1', 'DOUBT0')[self.player],
             m2=self,
-            status2=('S0', 'S1')[self.player],
+            status2=('S1', 'S0')[self.player],
         )
 
 
