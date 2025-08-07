@@ -30,7 +30,7 @@ import sys
 from signal import pause
 from threading import Event
 
-from admin_server import start_server, stop_server
+from admin.server import start_server, stop_server
 from config import config, version
 from hardware import camera
 from state import State

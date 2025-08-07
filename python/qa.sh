@@ -21,21 +21,21 @@ do
 done
 
   echo "*** run ruff"
-  ruff check src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
+  ruff check src/*.py src/admin/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
   retVal=$?
   if [ $retVal -ne 0 ]; then
     echo "### ruff returns $retVal"
   fi
 
   echo "*** run mypy"
-  mypy src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
+  mypy src/*.py src/admin/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
   retVal=$?
   if [ $retVal -ne 0 ]; then
     echo "### mypy returns $retVal"
   fi
   
   echo "*** run pylint"
-  pylint src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
+  pylint src/*.py src/admin/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
   retVal=$?
   if [ $retVal -ne 0 ]; then
     echo "### pylint returns $retVal"

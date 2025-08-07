@@ -28,7 +28,7 @@ import cv2
 from flask import Blueprint, redirect, render_template, url_for
 
 import upload
-from admin_server_context import ctx
+from admin.server_context import ctx
 from config import config
 from game_board.board import overlay_grid
 from hardware import camera

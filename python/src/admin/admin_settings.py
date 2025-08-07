@@ -33,7 +33,7 @@ import numpy as np
 from flask import Blueprint, Request, flash, redirect, render_template, request
 
 import upload
-from admin_server_context import ctx
+from admin.server_context import ctx
 from config import config
 from customboard import get_last_warp
 from game_board.board import overlay_grid

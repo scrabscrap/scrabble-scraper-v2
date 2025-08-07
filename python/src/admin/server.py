@@ -35,10 +35,10 @@ from flask import Flask, abort, redirect, render_template, request, send_file, s
 from flask_sock import ConnectionClosed, Sock
 from werkzeug.serving import make_server
 
-from admin_edit import admin_edit_bp
-from admin_server_context import ctx
-from admin_settings import admin_settings_bp
-from admin_test import admin_test_bp
+from admin.edit import admin_edit_bp
+from admin.server_context import ctx
+from admin.settings import admin_settings_bp
+from admin.checks import admin_test_bp
 from config import config, version
 from hardware.led import LED, LEDEnum
 from processing import event_set
@@ -46,7 +46,7 @@ from scrabblewatch import ScrabbleWatch
 from state import GameState, State
 
 logger = logging.getLogger()
-app = Flask(__name__)
+app = Flask(__name__, template_folder=config.path.src_dir / 'templates', static_folder=config.path.src_dir / 'static')
 sock = Sock(app)
 app.register_blueprint(admin_settings_bp)
 app.register_blueprint(admin_edit_bp)

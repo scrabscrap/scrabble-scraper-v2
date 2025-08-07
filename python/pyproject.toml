@@ -136,11 +136,7 @@ source = ["src"]
 omit = [
 	"*/hardware/oled.py", 	# requires special hardware
 	"*/hardware/camera.py",
-	"*/admin_edit.py", 	# flask web app
-	"*/admin_server_context.py", 	# flask web app
-	"*/admin_server.py", 	# flask web app
-	"*/admin_settings.py", 	# flask web app
-	"*/admin_test.py", 	# flask web app
+	"*/admin/*.py", 	# flask web app
 	"*/scrabscrap.py", 	# starter of main application
 	"*/upload.py",
 	"*/upload_impl.py"

@@ -35,8 +35,8 @@ from state import State
 from threadpool import command_queue, pool
 from timer_thread import RepeatedTimer
 
-from admin_server import app, start_server, stop_server
-from admin_server_context import ctx
+from admin.server import app, start_server, stop_server
+from admin.server_context import ctx
 
 Device.pin_factory = MockFactory()
 current_counter: int = 0

@@ -23,7 +23,7 @@ import re
 
 from flask import Blueprint, flash, redirect, render_template, request
 
-from admin_server_context import ctx
+from admin.server_context import ctx
 from processing import (
     admin_change_move,
     admin_del_challenge,
