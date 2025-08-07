@@ -32,7 +32,6 @@ import cv2
 import numpy as np
 from flask import Blueprint, Request, flash, redirect, render_template, request
 
-import utils.upload as upload
 from admin.server_context import ctx
 from config import config
 from customboard import get_last_warp
@@ -41,6 +40,7 @@ from hardware import camera
 from processing import warp_image
 from scrabblewatch import ScrabbleWatch
 from state import State
+from utils import upload
 
 logger = logging.getLogger()
 admin_settings_bp = Blueprint('admin_settings', __name__)

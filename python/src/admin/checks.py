@@ -27,7 +27,6 @@ from time import perf_counter, sleep
 import cv2
 from flask import Blueprint, redirect, render_template, url_for
 
-import utils.upload as upload
 from admin.server_context import ctx
 from config import config
 from game_board.board import overlay_grid
@@ -35,6 +34,7 @@ from hardware import camera
 from processing import warp_image
 from scrabblewatch import ScrabbleWatch
 from state import GameState, State
+from utils import upload
 
 logger = logging.getLogger()
 admin_test_bp = Blueprint('admin_test', __name__)
