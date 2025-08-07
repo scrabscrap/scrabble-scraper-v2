@@ -28,7 +28,7 @@ from cv2.typing import MatLike
 
 from config import DOUBLE_LETTER, DOUBLE_WORDS, TRIPLE_LETTER, TRIPLE_WORDS, config
 from game_board.board import GRID_H, GRID_W, OFFSET
-from util import TWarp, runtime_measure
+from utils.util import TWarp, runtime_measure
 
 # dimension board custom
 # ----------------------

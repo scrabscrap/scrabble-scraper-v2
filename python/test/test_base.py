@@ -30,7 +30,7 @@ from hardware import camera
 from move import BoardType
 from scrabblewatch import ScrabbleWatch
 from state import State
-from threadpool import command_queue
+from utils.threadpool import command_queue
 
 logging.basicConfig(
     stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'

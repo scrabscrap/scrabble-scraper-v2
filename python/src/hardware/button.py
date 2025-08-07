@@ -25,7 +25,7 @@ from typing import Callable
 
 from gpiozero import Button as GpioButton
 
-from util import Static
+from utils.util import Static
 
 logger = logging.getLogger()
 

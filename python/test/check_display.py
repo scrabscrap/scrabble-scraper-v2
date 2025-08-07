@@ -30,7 +30,7 @@ except (FileNotFoundError, ImportError):
 
 from config import config
 from scrabblewatch import ScrabbleWatch
-from util import trace
+from utils.util import trace
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s')
 logger = logging.getLogger(__name__)

@@ -33,8 +33,8 @@ from hardware.led import LED, LEDEnum
 from processing import check_resume, end_of_game, event_set, invalid_challenge, move, new_game, valid_challenge
 from scrabble import Game
 from scrabblewatch import ScrabbleWatch
-from threadpool import Command, command_queue
-from util import Static
+from utils.threadpool import Command, command_queue
+from utils.util import Static
 
 logger = logging.getLogger()
 

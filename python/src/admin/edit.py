@@ -35,7 +35,7 @@ from processing import (
 )
 from scrabble import MoveType
 from state import State
-from threadpool import Command, command_queue
+from utils.threadpool import Command, command_queue
 
 logger = logging.getLogger()
 admin_edit_bp = Blueprint('admin_edit', __name__)

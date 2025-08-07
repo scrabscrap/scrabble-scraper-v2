@@ -33,9 +33,9 @@ from config import config
 from customboard import filter_image, warp_image
 from move import gcg_to_coord
 from scrabble import BoardType, Game, MoveType, Tile
-from threadpool import Command, pool
-from upload import upload
-from util import handle_exceptions, rotate_logs, runtime_measure, trace
+from utils.threadpool import Command, pool
+from utils.upload import upload
+from utils.util import handle_exceptions, rotate_logs, runtime_measure, trace
 
 logger = logging.getLogger()
 

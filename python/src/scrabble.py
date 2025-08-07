@@ -48,8 +48,8 @@ from move import (
     Tile,
     bag_as_list,
 )
-from threadpool import Command
-from upload import upload
+from utils.threadpool import Command
+from utils.upload import upload
 
 API_VERSION = '1.3'
 logger = logging.getLogger()

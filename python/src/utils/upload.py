@@ -27,7 +27,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 from config import config
-from threadpool import CommandWorker
+from utils.threadpool import CommandWorker
 
 logger = logging.getLogger()
 

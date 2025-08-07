@@ -32,7 +32,7 @@ import cv2
 import numpy as np
 from flask import Blueprint, Request, flash, redirect, render_template, request
 
-import upload
+import utils.upload as upload
 from admin.server_context import ctx
 from config import config
 from customboard import get_last_warp

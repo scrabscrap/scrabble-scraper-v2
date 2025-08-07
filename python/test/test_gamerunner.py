@@ -33,7 +33,7 @@ from customboard import clear_last_warp
 from hardware import camera
 from scrabble import MoveRegular
 from state import GameState
-from threadpool import command_queue
+from utils.threadpool import command_queue
 
 PROFILE = False
 TEST_DIR = os.path.dirname(__file__)

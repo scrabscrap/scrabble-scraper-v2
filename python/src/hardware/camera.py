@@ -31,7 +31,7 @@ import numpy as np
 from cv2.typing import MatLike
 
 from config import config
-from util import runtime_measure
+from utils.util import runtime_measure
 
 camera_dict: dict = {}
 logging.basicConfig(filename=f'{config.path.work_dir}/log/messages.log', level=logging.INFO, force=True)
@@ -255,7 +255,7 @@ cam: Camera = (
 def switch_camera(camera: str) -> Camera:
     """switch camera - restarts threadpool thread for camera"""
     global cam  # pylint: disable=global-statement
-    from threadpool import pool
+    from utils.threadpool import pool
 
     if not camera and cam:
         logger.info('restart camera')

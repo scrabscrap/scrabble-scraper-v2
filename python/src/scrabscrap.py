@@ -34,8 +34,8 @@ from admin.server import start_server, stop_server
 from config import config, version
 from hardware import camera
 from state import State
-from threadpool import pool
-from timer_thread import RepeatedTimer
+from utils.threadpool import pool
+from utils.timer_thread import RepeatedTimer
 
 logging.config.fileConfig(
     fname=f'{config.path.work_dir}/log.conf',

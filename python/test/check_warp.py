@@ -30,7 +30,7 @@ from hardware import camera
 from move import BoardType
 from processing import analyze, filter_candidates, filter_image, warp_image
 from scrabble import board_to_string
-from threadpool import pool
+from utils.threadpool import pool
 from config import config
 
 logging.basicConfig(

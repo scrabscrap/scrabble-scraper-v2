@@ -32,8 +32,8 @@ from hardware import camera
 from hardware.led import LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import State
-from threadpool import command_queue, pool
-from timer_thread import RepeatedTimer
+from utils.threadpool import command_queue, pool
+from utils.timer_thread import RepeatedTimer
 
 from admin.server import app, start_server, stop_server
 from admin.server_context import ctx
