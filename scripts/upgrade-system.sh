@@ -35,11 +35,16 @@ fi
 # cleanup
 sudo apt -yq autoremove
 
+cd "$ROOT_PATH/python"
+
+# cleanup python dirs
+find . -type d -name __pycache__ -exec rm -r {} \+ 
+find . -name "*.pyc" -exec rm -rf {} \; 
+
 # create an OpenCV Python environment
 echo "####################################################################"
 echo "## Create venv                                                    ##"
 echo "####################################################################"
-cd "$ROOT_PATH/python"
 if [ -d .venv ] ; then
     echo ".venv already configured, skipping..."
 else
