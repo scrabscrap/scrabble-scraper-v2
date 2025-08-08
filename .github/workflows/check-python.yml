@@ -23,7 +23,7 @@ jobs:
         id: ruff
         run: |
           cd python
-          ruff check src/*.py src/admin/*.py src/hardware/*.py src/game_board/*.py simulator/*.py | tee ruff.txt
+          ruff check src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py | tee ruff.txt
           cat "ruff.txt" >> $GITHUB_STEP_SUMMARY
           exit 0
   mypy:
@@ -46,8 +46,8 @@ jobs:
         id: mypy
         run: |
           cd python
-          mypy src/*.py src/admin/*.py src/hardware/*.py src/game_board/*.py simulator/*.py
-          OUTPUT=$(mypy src/*.py src/hardware/*.py src/game_board/*.py simulator/*.py)
+          mypy src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py 
+          OUTPUT=$(mypy src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py )
           echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
           exit 0
 
@@ -71,7 +71,7 @@ jobs:
         id: pylint
         run: |
           cd python
-          OUTPUT=$(pylint src/*.py src/admin/*.py src/hardware/*.py simulator/*.py --exit-zero)
+          OUTPUT=$(pylint src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py  --exit-zero)
           echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
           exit ${PIPESTATUS[0]}
 
