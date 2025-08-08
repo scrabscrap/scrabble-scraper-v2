@@ -17,7 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import cv2
-from numpy import ndarray
+from cv2.typing import MatLike
 
 # target layout
 # board
@@ -67,7 +67,7 @@ def get_y_position(pos: int) -> int:
     return int(OFFSET + (pos * GRID_H))
 
 
-def overlay_grid(image: ndarray) -> ndarray:  # pragma: no cover
+def overlay_grid(image: MatLike) -> MatLike:  # pragma: no cover
     """returns an image with an overlayed grid"""
     img = image.copy()
     x1 = get_x_position(0)

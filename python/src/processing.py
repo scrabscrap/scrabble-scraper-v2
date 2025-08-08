@@ -152,7 +152,7 @@ def _image_processing(game: Game, img: MatLike) -> tuple[MatLike, dict]:
     return warped, analyze(warped_gray, board, tiles_candidates)  # analyze image
 
 
-def _board_diff(board: dict, previous_board: dict) -> tuple[dict, dict, dict]:
+def _board_diff(board: BoardType, previous_board: BoardType) -> tuple[BoardType, BoardType, BoardType]:
     new_tiles = {i: board[i] for i in set(board.keys()).difference(previous_board)}
     removed_tiles = {i: previous_board[i] for i in set(previous_board.keys()).difference(board)}
     changed_tiles = {

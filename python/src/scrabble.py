@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import logging
+from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -52,6 +53,8 @@ from utils.threadpool import Command
 from utils.upload import upload
 
 API_VERSION = '1.3'
+JSON_FLAG = 'json'
+IMAGE_FLAG = 'image'
 logger = logging.getLogger()
 
 
@@ -129,7 +132,7 @@ class Game:  # pylint: disable=too-many-public-methods
         return bool(self.moves) and -len(self.moves) <= index < len(self.moves)
 
     def dev_str(self) -> str:  # pragma: no cover
-        """Return devleompemt represention of the game for using in tests"""
+        """Return development represention of the game for using in tests"""
         if self.gamestart is None:
             self.gamestart = datetime.now()
         game_id = self.gamestart.strftime('%y%j-%H%M%S')
@@ -182,12 +185,14 @@ class Game:  # pylint: disable=too-many-public-methods
         """returns list of tiles in bag"""
         tiles_on_board = self.moves[index].board.values() if self.moves else []
         values = ['_' if tile.letter.isalpha() and tile.letter.islower() else tile.letter for tile in tiles_on_board]
-
-        b = bag_as_list.copy()
+        bag_counter = Counter(bag_as_list)
         for i in values:
-            if i in b:
-                b.remove(i)
-        return b
+            if bag_counter[i] > 0:
+                bag_counter[i] -= 1
+        result = []
+        for k, v in bag_counter.items():
+            result.extend([k] * v)
+        return result
 
     def get_coords_to_ignore(self) -> set[tuple[int, int]]:
         """Returns the coordinates that are to be ignored in the analysis."""
@@ -214,18 +219,18 @@ class Game:  # pylint: disable=too-many-public-methods
             prev_move = m
         return self
 
-    def _write_json(self, i: int, web_dir: Path):
+    def _write_json(self, i: int, web_dir: Path) -> None:
         json_path = web_dir / f'data-{i}.json'
         with json_path.open('w', encoding='utf-8') as json_file:
             json.dump(self._get_json_data(index=i), json_file, indent=4)
 
-    def _write_image(self, i: int, web_dir: Path):
+    def _write_image(self, i: int, web_dir: Path) -> None:
         img = self.moves[i].img
         if img is not None:
             image_path = web_dir / f'image-{i}.jpg'
             cv2.imwrite(str(image_path), img, [cv2.IMWRITE_JPEG_QUALITY, 100])  # type:ignore
 
-    def _write_status(self, i: int, web_dir: Path):
+    def _write_status(self, i: int, web_dir: Path) -> None:
         status_path = web_dir / 'status.json'
         with status_path.open('w', encoding='utf-8') as json_file:
             json.dump(self._get_json_data(index=i), json_file, indent=4)
@@ -239,8 +244,8 @@ class Game:  # pylint: disable=too-many-public-methods
             logger.warning(f'invalid index {index} skipped')
             return self
         web_dir = Path(config.path.web_dir)
-        write_json = 'json' in write_mode
-        write_img = 'image' in write_mode
+        write_json = JSON_FLAG in write_mode
+        write_img = IMAGE_FLAG in write_mode
 
         for i in range(index, len(self.moves)):
             if write_json:
@@ -262,7 +267,7 @@ class Game:  # pylint: disable=too-many-public-methods
         if recalc_from is not None:
             self._recalculate_from(recalc_from)
         logger.info(f'add move: {str(move)}')
-        self._write_json_from(index=(index if index != -1 else len(self.moves) - 1), write_mode=['json', 'image'])
+        self._write_json_from(index=(index if index != -1 else len(self.moves) - 1), write_mode=[JSON_FLAG, IMAGE_FLAG])
         return self
 
     def clean_new_tiles(self, new_tiles: BoardType, previous_board: BoardType) -> BoardType:
@@ -296,16 +301,16 @@ class Game:  # pylint: disable=too-many-public-methods
         self._log_removed_blanks(new_tiles, cleaned_new_tiles)
         return cleaned_new_tiles
 
-    def _split_tiles(self, new_tiles: BoardType):
+    def _split_tiles(self, new_tiles: BoardType) -> tuple[set[CoordType], set[CoordType]]:
         real_tile_coords = {coord for coord, tile in new_tiles.items() if tile.letter != '_'}
         blank_coords = {coord for coord, tile in new_tiles.items() if tile.letter == '_'}
         return real_tile_coords, blank_coords
 
-    def _only_first_blank(self, blank_coords, new_tiles):
+    def _only_first_blank(self, blank_coords: set[CoordType], new_tiles: BoardType) -> BoardType:
         first_blank = next(iter(blank_coords))
         return {first_blank: new_tiles[first_blank]}
 
-    def _get_move_direction(self, real_tile_coords):
+    def _get_move_direction(self, real_tile_coords: set[CoordType]) -> str | None:
         cols = {c for c, r in real_tile_coords}
         rows = {r for c, r in real_tile_coords}
         if len(rows) == 1 and len(cols) > 0:
@@ -314,17 +319,21 @@ class Game:  # pylint: disable=too-many-public-methods
             return 'vertical'
         return None
 
-    def _find_valid_blanks(self, direction, blank_coords, real_tile_coords, full_board_coords):
+    def _find_valid_blanks(
+        self, direction: str, blank_coords: set[CoordType], real_tile_coords: set[CoordType], full_board_coords: set[CoordType]
+    ) -> set[CoordType]:
         if direction == 'horizontal':
             return self._find_valid_horizontal_blanks(blank_coords, real_tile_coords, full_board_coords)
         return self._find_valid_vertical_blanks(blank_coords, real_tile_coords, full_board_coords)
 
-    def _log_removed_blanks(self, new_tiles, cleaned_new_tiles):
+    def _log_removed_blanks(self, new_tiles: BoardType, cleaned_new_tiles: BoardType) -> None:
         if len(cleaned_new_tiles) < len(new_tiles):
             removed = new_tiles.keys() - cleaned_new_tiles.keys()
             logger.debug(f'removed blankos: {removed}')
 
-    def _find_valid_horizontal_blanks(self, blank_coords, real_tile_coords, full_board_coords):
+    def _find_valid_horizontal_blanks(
+        self, blank_coords: set[CoordType], real_tile_coords: set[CoordType], full_board_coords: set[CoordType]
+    ) -> set[CoordType]:
         move_row = next(iter({r for c, r in real_tile_coords}))
         cols = [c for c, r in real_tile_coords]
         min_col, max_col = min(cols), max(cols)
@@ -334,7 +343,9 @@ class Game:  # pylint: disable=too-many-public-methods
                 valid_blanks.add((b_col, b_row))
         return valid_blanks
 
-    def _find_valid_vertical_blanks(self, blank_coords, real_tile_coords, full_board_coords):
+    def _find_valid_vertical_blanks(
+        self, blank_coords: set[CoordType], real_tile_coords: set[CoordType], full_board_coords: set[CoordType]
+    ) -> set[CoordType]:
         move_col = next(iter({c for c, r in real_tile_coords}))
         rows = [r for c, r in real_tile_coords]
         min_row, max_row = min(rows), max(rows)
@@ -395,7 +406,7 @@ class Game:  # pylint: disable=too-many-public-methods
 
         move_to_challenge = self.moves[index]
         if not isinstance(move_to_challenge, (MoveChallenge, MoveRegular, MoveUnknown)):
-            logger.warning(f'(challenge not allowed: {str(move_to_challenge)}')
+            logger.warning(f'challenge not allowed: {str(move_to_challenge)}')
             return self
 
         player = abs(move_to_challenge.player - 1)
@@ -412,7 +423,7 @@ class Game:  # pylint: disable=too-many-public-methods
 
         move_to_withdraw = self.moves[index]
         if not isinstance(move_to_withdraw, (MoveChallenge, MoveRegular, MoveUnknown)):
-            logger.warning(f'(withdraw not allowed: {str(move_to_withdraw)}')
+            logger.warning(f'withdraw not allowed: {str(move_to_withdraw)}')
             return self
 
         played_time = move_to_withdraw.played_time
@@ -437,7 +448,7 @@ class Game:  # pylint: disable=too-many-public-methods
             return self
         self._update_technical_move_attributes()
         self._recalculate_from(index)  # recalculate all moves from index
-        self._write_json_from(index=index, write_mode=['json'])
+        self._write_json_from(index=index, write_mode=[JSON_FLAG])
         return self
 
     def add_unknown(  # pylint: disable=too-many-arguments,too-many-positional-arguments
@@ -495,7 +506,7 @@ class Game:  # pylint: disable=too-many-public-methods
             if updated:
                 modified_indices.add(i)
         if modified_indices:
-            self._write_json_from(index=min(modified_indices), write_mode=['json'])
+            self._write_json_from(index=min(modified_indices), write_mode=[JSON_FLAG])
         return self
 
     def remove_blank(self, coordinates: CoordType) -> Game:
@@ -516,11 +527,11 @@ class Game:  # pylint: disable=too-many-public-methods
             min_index = min(modified_indices)
             self._update_technical_move_attributes()
             self._recalculate_from(index=min_index)  # recalculate all moves from index
-            self._write_json_from(index=min_index, write_mode=['json'])
+            self._write_json_from(index=min_index, write_mode=[JSON_FLAG])
         return self
 
     def remove_move_at(self, index: int) -> Game:
-        """remove move abeforet move at index (index) without checks"""
+        """remove move before move at index (index) without checks"""
         if not self.valid_index(index=index):
             raise IndexError(f'remove move at: invalid index {index}')
 
@@ -528,7 +539,7 @@ class Game:  # pylint: disable=too-many-public-methods
         self.moves.pop(index)
         self._update_technical_move_attributes()
         self._recalculate_from(index)  # recalculate all moves from index
-        self._write_json_from(index=index, write_mode=['json', 'image'])
+        self._write_json_from(index=index, write_mode=[JSON_FLAG, IMAGE_FLAG])
         return self
 
     def change_move_at(self, index: int, movetype: MoveType, new_tiles: BoardType | None = None) -> Game:
@@ -557,7 +568,7 @@ class Game:  # pylint: disable=too-many-public-methods
 
         self._update_technical_move_attributes()
         self._recalculate_from(index)  # recalculate all moves from index
-        self._write_json_from(index=index, write_mode=['json', 'image'])
+        self._write_json_from(index=index, write_mode=[JSON_FLAG, IMAGE_FLAG])
         return self
 
     def insert_moves_at(self, index: int | None, moves_to_insert: Sequence[Move]) -> Game:
@@ -576,5 +587,5 @@ class Game:  # pylint: disable=too-many-public-methods
             self.moves[index:index] = moves_to_insert  # insert into slice
         self._update_technical_move_attributes()
         self._recalculate_from(index)
-        self._write_json_from(index=index, write_mode=['json', 'image'])
+        self._write_json_from(index=index, write_mode=[JSON_FLAG, IMAGE_FLAG])
         return self

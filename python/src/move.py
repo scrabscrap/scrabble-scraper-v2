@@ -88,7 +88,7 @@ class NoMoveError(Exception):
     """Exception for no move"""
 
 
-gcg_strings: dict = {
+gcg_strings: dict[MoveType, str] = {
     MoveType.REGULAR: '> {m.mod_str}{m.player_name}: {m.gcg_coord} {m.gcg_word} {m.points} {m.player_score}',
     MoveType.PASS_TURN: '> {m.mod_str}{m.player_name}: -  {m.points} {m.player_score}',
     MoveType.EXCHANGE: '> {m.mod_str}{m.player_name}: -  {m.points} {m.player_score}',
@@ -101,7 +101,7 @@ gcg_strings: dict = {
 }
 
 
-dev_strings: dict = {
+dev_strings: dict[MoveType, str] = {
     MoveType.REGULAR: '{m.move}, "{button}", "{status}", "{m.gcg_coord}", "{m.word}", {m.points}, {m.score[0]}, {m.score[1]}',
     MoveType.PASS_TURN: '{m.move}, "{button}", "{status}", "-", "", {m.points}, {m.score[0]}, {m.score[1]}',
     MoveType.EXCHANGE: '{m.move}, "{button}", "{status}", "-", "", {m.points}, {m.score[0]}, {m.score[1]}',
@@ -303,7 +303,7 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
             self.rack_size = (rack0, remain)
         return self.rack_size
 
-    def _find_start(self, coord: CoordType, vertical: bool) -> CoordType:
+    def _find_start(self, vertical: bool, coord: CoordType) -> CoordType:
         """find word start coordinates"""
         col, row = coord
         d_col, d_row = (0, -1) if vertical else (-1, 0)  # find start
@@ -326,7 +326,7 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
                 col, row = (col + d_col, row + d_row)
 
         def crossing_word_score(coord: CoordType, vertical: bool) -> int:
-            start = self._find_start(coord, vertical)
+            start = self._find_start(vertical, coord)
             coords = list(collect_word_coords(start, vertical))
             if len(coords) <= 1:
                 return 0
@@ -346,7 +346,7 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
         points = 0
         crossing_words_score = 0
         word_multiplier = 1
-        for coord in collect_word_coords(self._find_start(self.coord, self.is_vertical), self.is_vertical):
+        for coord in collect_word_coords(self._find_start(self.is_vertical, self.coord), self.is_vertical):
             if coord in self.new_tiles:
                 points += scores(self.board[coord].letter) * get_letter_bonus(coord=coord)
                 word_multiplier *= get_word_multiplier(coord=coord)
@@ -374,7 +374,7 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
             (col, row) = list(self.new_tiles.keys())[0]
             horizontal = (col - 1, row) in self.board or (col + 1, row) in self.board
             self.is_vertical = not horizontal
-        self.coord = self._find_start(changed[0], self.is_vertical)
+        self.coord = self._find_start(self.is_vertical, changed[0])
         self.calculate_word()
         return self.is_vertical, self.coord
 

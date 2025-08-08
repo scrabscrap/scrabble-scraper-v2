@@ -43,7 +43,7 @@ class Static:  # pylint: disable=too-few-public-methods
         raise TypeError('Static classes cannot be instantiated')
 
 
-def handle_exceptions(func):
+def handle_exceptions(func: Callable[..., Any]):
     """
     Decorator to handle common IndexError and ValueError exceptions
     and call event_set after the function execution.

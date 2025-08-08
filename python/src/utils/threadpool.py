@@ -40,7 +40,7 @@ class Command:  # pylint: disable=too-few-public-methods
 class CommandWorker(threading.Thread):
     """Worker Thread for commands"""
 
-    def __init__(self, cmd_queue):
+    def __init__(self, cmd_queue: queue.Queue):
         super().__init__(daemon=True, name='CommandWorker')
         self.command_queue = cmd_queue
 
