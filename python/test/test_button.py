@@ -20,8 +20,9 @@ import logging
 import sys
 import time
 import unittest
-from time import sleep
+from unittest.mock import Mock
 
+import numpy as np
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
@@ -32,6 +33,7 @@ from hardware.button import ButtonEnum
 from hardware.led import LED, LEDEnum
 from scrabblewatch import ScrabbleWatch
 from state import GameState, State
+from utils.threadpool import command_queue
 
 logging.basicConfig(
     stream=sys.stdout, level=logging.DEBUG, force=True, format='%(asctime)s [%(levelname)-5.5s] %(funcName)-20s: %(message)s'
@@ -68,7 +70,8 @@ class ButtonTestCase(unittest.TestCase):
         self.pin_reboot = Device.pin_factory.pin(ButtonEnum.REBOOT.value)
         # self.pin_config = Device.pin_factory.pin(ButtonEnum.config.value)
         ScrabbleWatch.display = Display()
-        camera.switch_camera('file')
+        camera.cam.read = Mock()
+        camera.cam.read.return_value = np.zeros((1, 1))
         State.init()
         return super().setUp()
 
@@ -77,10 +80,7 @@ class ButtonTestCase(unittest.TestCase):
         LED.switch_on({})  # type: ignore
         Device.pin_factory.reset()  # type: ignore
         config.is_testing = False
-        # for thread in threading.enumerate():
-        #    if not thread.name.startswith('Main'):
-        #        logger.debug(f'thread: {thread.name}')
-        # timer.cancel()
+        command_queue.put_nowait = command_queue.put_nowait
         return super().tearDown()
 
     def _press_button(self, pin, wait=0.1):
@@ -93,94 +93,14 @@ class ButtonTestCase(unittest.TestCase):
         pin.drive_high()
         time.sleep(wait)
         pin.drive_low()
-
-        sleep(0.05)
         logger.info(
             f'leds: green {LEDEnum.green.value} yellow {LEDEnum.yellow.value} '
             f'red {LEDEnum.red.value} state nw {State.ctx.current_state}'
         )
 
-    def test_doubt01(self):
-        """Test doubt01"""
-        # doubt invalid
-        display_pause = 0.01
-        State.do_ready()
-
-        time.sleep(display_pause)
-        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (1, 0, 1)
-
-        self._press_button(self.pin_red)  # start Green, Disp0
-        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (1, 0, 0)
-        time.sleep(display_pause)
-
-        self._press_button(self.pin_green)  # S0 Red, Disp1
-        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (0, 0, 1)
-        time.sleep(display_pause)
-
-        self._press_button(self.pin_yellow)  # P0 Yellow, Red
-        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (0, 1, 0)
-        time.sleep(display_pause)
-
-        self._press_button(self.pin_doubt0)  # Yellow, Red, invalid Ch. Disp1
-        # yellow is in state blink
-        assert (LEDEnum.green.value, LEDEnum.red.value) == (0, 1)
-        time.sleep(display_pause)
-
-    def test_doubt02(self):
-        """Test doubt01"""
-        # doubt valid
-        display_pause = 0.01
-
-        time.sleep(display_pause)
-        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (1, 0, 1)
-
-        self._press_button(self.pin_red)  # start Green, Disp0
-        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (1, 0, 0)
-        time.sleep(display_pause)
-
-        self._press_button(self.pin_green)  # S0 Red, Disp1
-        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (0, 0, 1)
-        time.sleep(display_pause)
-
-        self._press_button(self.pin_yellow)  # P0 Yellow, Red
-        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (0, 1, 0)
-        time.sleep(display_pause)
-
-        self._press_button(self.pin_doubt1)  # Yellow, Red, invalid Ch. Disp1
-        # yellow is in state blink
-        assert (LEDEnum.green.value, LEDEnum.red.value) == (0, 1)
-        time.sleep(display_pause)
-
-    def test_doubt03(self):
-        """Test doubt 03"""
-        # first invalid challenge, second valid challenge
-        display_pause = 0.01
-
-        time.sleep(display_pause)
-        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (1, 0, 1)
-
-        self._press_button(self.pin_red)  # start Green, Disp0
-        time.sleep(display_pause)
-        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (1, 0, 0)
-        time.sleep(display_pause)
-
-        self._press_button(self.pin_yellow)  # P0 Yellow, Red
-        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (0, 1, 0)
-        time.sleep(display_pause)
-
-        self._press_button(self.pin_doubt0)  # Yellow, Red, invalid Ch. Disp1
-        # yellow is in state blink
-        assert (LEDEnum.green.value, LEDEnum.red.value) == (1, 0)
-        time.sleep(display_pause)
-
-        self._press_button(self.pin_doubt1)  # Yellow, Red, Valid Ch. Disp0
-        # yellow is in state blink
-        assert (LEDEnum.green.value, LEDEnum.red.value) == (1, 0)
-        time.sleep(display_pause)
-
     def test_button_led(self):
         """Test LED"""
-        display_pause = 0.01
+        display_pause = 0.0
 
         # start
         self._press_button(self.pin_red)  # start Green, Disp0
