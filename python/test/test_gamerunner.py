@@ -17,25 +17,22 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import configparser
-import cProfile
 import csv
-import linecache
 import logging
 import logging.config
 import os
-import tracemalloc
 import unittest
-from pstats import Stats
 from time import sleep
 
 from config import config
 from customboard import clear_last_warp
+from display import Display
 from hardware import camera
 from scrabble import MoveRegular
-from state import GameState
+from scrabblewatch import ScrabbleWatch
+from state import GameState, State
 from utils.threadpool import command_queue
 
-PROFILE = False
 TEST_DIR = os.path.dirname(__file__)
 logging.config.fileConfig(fname=f'{os.path.dirname(os.path.abspath(__file__))}/test_log.conf', disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
@@ -59,19 +56,11 @@ class GameRunnerTestCase(unittest.TestCase):
         clear_last_warp()
         self.config_setter('output', 'upload_server', False)
         self.config_setter('development', 'recording', False)
-        logging.disable(logging.DEBUG)  # nur Error Ausgaben
-        if PROFILE:
-            self.pr = cProfile.Profile()
-            self.pr.enable()
+        logging.disable(logging.DEBUG)  # nur Info Ausgaben
         return super().setUp()
 
     def tearDown(self) -> None:
         config.is_testing = False
-        if PROFILE:
-            p = Stats(self.pr)
-            p.strip_dirs()
-            p.sort_stats('cumtime')
-            p.print_stats()
         return super().tearDown()
 
     def test_game01(self):
@@ -127,38 +116,8 @@ class GameRunnerTestCase(unittest.TestCase):
     def test_game2023dm01(self):
         self.run_game(file=f'{TEST_DIR}/game2023DM-01/game.ini')
 
-    def display_top(self, snapshot, key_type='lineno', limit=10):
-        snapshot = snapshot.filter_traces(
-            (tracemalloc.Filter(False, '<frozen importlib._bootstrap_external>'), tracemalloc.Filter(False, 'xx<unknown>'))
-        )
-        top_stats = snapshot.statistics(key_type)
-
-        print('Top %s lines' % limit)
-        for index, stat in enumerate(top_stats[:limit], 1):
-            frame = stat.traceback[0]
-            print('#%s: %s:%s: %.1f KiB' % (index, frame.filename, frame.lineno, stat.size / 1024))
-            line = linecache.getline(frame.filename, frame.lineno).strip()
-            if line:
-                print('    %s' % line)
-
-        other = top_stats[limit:]
-        if other:
-            size = sum(stat.size for stat in other)
-            print('%s other: %.1f KiB' % (len(other), size / 1024))
-        total = sum(stat.size for stat in top_stats)
-        print('Total allocated size: %.1f KiB' % (total / 1024))
-
     def run_game(self, file: str):
         """Test csv games"""
-        import tracemalloc
-
-        from display import Display
-        from scrabblewatch import ScrabbleWatch
-        from state import State
-
-        if PROFILE:
-            tracemalloc.start()
-            tracemalloc.reset_peak()
 
         ScrabbleWatch.display = Display()
         camera.switch_camera('file')
@@ -193,22 +152,7 @@ class GameRunnerTestCase(unittest.TestCase):
 
         self._run_csv_test(csvfile)
 
-        logger.info(f'### end of tests {file} ###')
-        if PROFILE:
-            snapshot = tracemalloc.take_snapshot()
-            self.display_top(snapshot, limit=10)
-            second_size, second_peak = tracemalloc.get_traced_memory()
-            print(f'{second_size=}, {second_peak=}')
-            top_stats = snapshot.statistics('traceback')
-            stat = top_stats[0]
-            print('%s memory blocks: %.1f KiB' % (stat.count, stat.size / 1024))
-            for line in stat.traceback.format():
-                print(line)
-
     def _run_csv_test(self, csvfile):
-        from state import State
-        from scrabble import MoveRegular
-
         with open(csvfile, mode='r') as csv_file:
             logger.info(f'TESTFILE: {csvfile}')
             csv_reader = csv.DictReader(csv_file, skipinitialspace=True)
@@ -218,9 +162,6 @@ class GameRunnerTestCase(unittest.TestCase):
                 State.do_end_of_game()
 
     def _process_csv_row(self, row):
-        from state import State
-        from scrabble import MoveRegular
-
         logger.info(f'TEST: {row}')
         camera.cam.counter = int(row['Move'])  # type:ignore
         State.press_button(row['Button'].upper())
