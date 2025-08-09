@@ -28,3 +28,4 @@ types-Pillow
 types-requests
 # └── urllib3 [required: >=2, installed: 2.2.1]
 ruff
+yappi
