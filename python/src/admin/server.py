@@ -449,12 +449,12 @@ def echo(socket):
                 png_output = base64.b64encode(bytes(im_buf_arr))
                 # logger.debug('b64encode')
                 socket.send(  # type:ignore[no-member] # pylint: disable=no-member
-                    f'{{"op": "{State.ctx.current_state}", '
+                    f'{{"op": "{State.ctx.current_state.name}", '
                     f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}'
                 )
             else:
                 socket.send(  # type: ignore[no-member] # pylint: disable=no-member
-                    f'{{"op": "{State.ctx.current_state}", "clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}'
+                    f'{{"op": "{State.ctx.current_state.name}", "clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}'
                 )
         except ConnectionClosed:
             logger.debug('connection closed /ws_status')
