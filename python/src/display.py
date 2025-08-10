@@ -73,8 +73,6 @@ class Display:
         """
         logger.debug('Pause message')
         msg = 'Pause'
-        if config.scrabble.show_score and self.game and len(self.game.moves):
-            msg = f'{msg} {self.game.moves[-1].score[player]:3d}'
         self.render_display(player, played_time, current, msg)
 
     def add_malus(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:

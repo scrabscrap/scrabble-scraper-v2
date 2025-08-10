@@ -171,7 +171,10 @@ class OLEDDisplay(Display):
                 draw.text(TIMER_STR_COORD, f'{current[player]:3d}', font=FONT1, fill=color, anchor='rt')
 
             if info:
-                draw.text(INFO_STR_COORD, f'{info:9.9s}', font=FONT2, fill=color, anchor='lm')
+                if config.scrabble.show_score:
+                    draw.text(INFO_STR_COORD, f'{info:6.5s}{_get_score(i):3d}', font=FONT2, fill=color, anchor='lm')
+                else:
+                    draw.text(INFO_STR_COORD, f'{info:9.9s}', font=FONT2, fill=color, anchor='lm')
             else:
                 if config.scrabble.show_score:
                     draw.text(INFO_STR_COORD, f'{nicknames[i]:6.5s}{_get_score(i):3d}', font=FONT2, fill=color, anchor='lm')
