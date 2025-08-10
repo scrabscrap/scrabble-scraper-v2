@@ -52,7 +52,7 @@ from move import (
 from utils.threadpool import Command
 from utils.upload import upload
 
-API_VERSION = '1.3'
+API_VERSION = '3.0'
 JSON_FLAG = 'json'
 IMAGE_FLAG = 'image'
 logger = logging.getLogger()
