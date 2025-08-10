@@ -11,56 +11,57 @@
 			"NODE_VERSION": "lts/*"
 		}
 	},
-
 	"customizations": {
 		// Configure properties specific to VS Code.
 		"vscode": {
-				"settings": {
-					"terminal.integrated.shell.linux": "/bin/bash",
-					"python.pythonPath": "/usr/local/bin/python",
-					"git.openRepositoryInParentFolders": "always",
-					"python.analysis.autoFormatStrings": true,
-					"python.analysis.autoImportCompletions": true,				
-					"python.terminal.activateEnvInCurrentTerminal": true,
-					"editor.defaultFormatter": "charliermarsh.ruff",
-					"editor.formatOnSave": true,				
-					"ruff.lint.enable": false,
-					"ruff.lineLength": 128,
-					"ruff.nativeServer": true,
-					"terminal.integrated.env.linux": {
-						"PYTHONPATH": "src:test"
-					  },
-					"workbench.colorTheme":"Default Dark Modern"
+			"settings": {
+				"python.defaultInterpreterPath": "/workspaces/scrabble-scraper-v2/python/.venv/bin/python",
+				"git.openRepositoryInParentFolders": "always",
+				"python.analysis.autoFormatStrings": true,
+				"python.analysis.autoImportCompletions": true,
+				"python.terminal.activateEnvInCurrentTerminal": true,
+				"editor.defaultFormatter": "charliermarsh.ruff",
+				"editor.formatOnSave": true,
+				"ruff.lint.enable": false,
+				"ruff.lineLength": 128,
+				"ruff.nativeServer": true,
+				"terminal.integrated.env.linux": {
+					"PYTHONPATH": "src:test"
 				},
-				"extensions": [
-					"charliermarsh.ruff",
-					"github.codespaces",
-					"github.copilot",
-					"github.copilot-chat",
-					"github.vscode-pull-request-github",
-					"gruntfuggly.todo-tree",
-					"gxl.git-graph-3",
-					"mk12.better-git-line-blame",
-					"ms-python.debugpy",
-					"ms-python.python",
-					"ms-python.vscode-pylance",
-					"ms-vscode.remote-explorer",
-					"shd101wyy.markdown-preview-enhanced"
-				]
-			}
+				"workbench.colorTheme": "Default Dark Modern",
+			},
+			"extensions": [
+				"charliermarsh.ruff",
+				"github.codespaces",
+				"github.copilot",
+				"github.copilot-chat",
+				"github.vscode-pull-request-github",
+				"gruntfuggly.todo-tree",
+				"gxl.git-graph-3",
+				"mk12.better-git-line-blame",
+				"ms-python.debugpy",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-vscode.remote-explorer",
+				"shd101wyy.markdown-preview-enhanced"
+			]
 		},
-
+	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [5173, 5050],
-
+	"forwardPorts": [
+		5173,
+		5050
+	],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": {
-    "initWorkFolder": "cp -n python/defaults/* python/work/",
-    "initReactFolder": "cd react/public && (ln -s ../../python/work/web web || true)",
-    "python": "pip3 install --user -r python/requirements.txt -r python/requirements-devel.txt",
-    "npm": "cd react && npm install && npm run build && cd ../python/src/static && (ln -s ../../../react/build webapp || true)"
-  },
-
+		"setLocale": "mkdir -p /home/vscode/.vscode-server/data/Machine && echo '{ \"locale\": \"en\" }' > /home/vscode/.vscode-server/data/Machine/argv.json",
+		"setLocaleCodespaces": "mkdir -p /workspaces/.codespaces/.persistedshare && echo '{ \"locale\": \"en\" }' > /workspaces/.codespaces/.persistedshare/argv.json",
+		"initWorkFolder": "cp -n python/defaults/* python/work/",
+		"initReactFolder": "cd react/public && (ln -s ../../python/work/web web || true)",
+		// Erstelle venv "cv" mit Python 3.11 und installiere Requirements
+		"pythonVenv": "cd python && python3.11 -m venv .venv  --system-site-packages --prompt cv && . .venv/bin/activate && pip install --upgrade pip && pip install -U -r requirements.txt -r requirements-devel.txt",
+		"npm": "cd react && npm install && npm run build && cd ../python/src/static && (ln -s ../../../react/build webapp || true)"
+	},
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode"
 }
