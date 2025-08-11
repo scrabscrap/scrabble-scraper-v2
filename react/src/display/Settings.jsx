@@ -1,125 +1,86 @@
-import React, { Component } from 'react';
+import { useEffect, useState } from 'react';
 
-class Settings extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            show: false,
-            obs: props.settings.obs,
-            obsbank: this.props.settings.obsbank,
-            header_text: props.settings.header_text,
-            theme2020: props.settings.theme2020
+function Settings({ settings, updateSettings }) {
+    const [show, setShow] = useState(false);
+    const [obs, setObs] = useState(settings.obs);
+    const [obsbank, setObsbank] = useState(settings.obsbank);
+    const [theme2020, setTheme2020] = useState(settings.theme2020);
+
+    // Wenn sich die übergebenen Settings ändern, lokale Werte synchronisieren
+    useEffect(() => {
+        setObs(settings.obs);
+        setObsbank(settings.obsbank);
+        setTheme2020(settings.theme2020);
+    }, [settings.obs, settings.obsbank, settings.theme2020]);
+
+    const toggleShow = () => {
+        if (show) {
+            // Reset fields on close without save
+            setObs(settings.obs);
+            setObsbank(settings.obsbank);
+            setTheme2020(settings.theme2020);
+        }
+        setShow(!show);
+    };
+
+    const saveValues = () => {
+        setShow(false);
+        const newSettings = {
+            ...settings,
+            obs,
+            obsbank,
+            theme2020
         };
-        this.handleObs = this.handleObs.bind(this);
-        this.handleObsBank = this.handleObsBank.bind(this);
-        this.handleHeader = this.handleHeader.bind(this);
-        this.handleTheme = this.handleTheme.bind(this)
-    }
-
-    toggleShow = () => {
-        if (this.state.show) {
-            // reset fields on close without save
-            this.setState({
-                obs: this.props.settings.obs,
-                obsbank: this.props.settings.obsbank,
-                header_text: this.props.settings.header_text,
-                theme2020: this.props.settings.theme2020
-            })
-        }
-        this.setState({ show: !this.state.show })
+        updateSettings(newSettings);
     };
 
-    saveValues = () => {
-        this.setState({ show: !this.state.show })
-        // set cookie
-        const settings = {
-            obs: this.state.obs,
-            obsbank: this.state.obsbank,
-            websocket: this.props.settings.websocket,
-            header_text: this.props.settings.header_text,
-            theme2020: this.state.theme2020
-        }
-        this.props.updateSettings(settings)
-    };
-
-    componentDidMount() {
-        this.setState({
-            show: false,
-            obs: this.props.settings.obs,
-            obsbank: this.props.settings.obsbank,
-            header_text: this.props.settings.header_text,
-            theme2020: this.props.settings.theme2020
-        })
-    }
-
-    // componentDidUpdate(prevProps) { }
-    // componentWillUnmount() { }
-
-    handleObs(event) {
-        this.setState({ obs: !this.state.obs })
-    }
-
-    handleObsBank(event) {
-        this.setState({ obsbank: !this.state.obsbank })
-    }
-
-    handleHeader(event) {
-        this.setState({ header_text: event.target.value })
-    }
-
-    handleTheme(event) {
-        this.setState({ theme2020: !this.state.theme2020 })
-    }
-
-    render() {
-        return (
-            <span>
-                <button className='btn btn-sm btn-link p-1' onClick={this.toggleShow} title='Settings'>&#x2699;</button>
-                <div className={this.state.show ? '' : 'hidden'} tabIndex='-1'>
-                    <div className='modal-dialog modal-dialog-centered' style={{ minWidth: '300px' }} >
-                        <div className='modal-content'>
-                            <div className='modal-header'>
-                                <h5 className='modal-title'>Settings</h5>
-                                <button type='button' className='close' data-dismiss='modal' onClick={this.toggleShow} aria-label='Close'>
-                                    <span aria-hidden='true'>&times;</span>
-                                </button>
+    return (
+        <span>
+            <button className='btn btn-sm btn-link p-1' onClick={toggleShow} title='Settings'>&#x2699;</button>
+            <div className={show ? '' : 'hidden'} tabIndex='-1'>
+                <div className='modal-dialog modal-dialog-centered' style={{ minWidth: '300px' }} >
+                    <div className='modal-content'>
+                        <div className='modal-header'>
+                            <h5 className='modal-title'>Settings</h5>
+                            <button type='button' className='close' data-dismiss='modal' onClick={toggleShow} aria-label='Close'>
+                                <span aria-hidden='true'>&times;</span>
+                            </button>
+                        </div>
+                        <div className='modal-body justify-content-left text-left m-auto'>
+                            <div className='form-check'>
+                                <input className='form-check-input' type='checkbox'
+                                    onChange={() => setObs(!obs)}
+                                    checked={obs} id='obs' />
+                                <label className='form-check-label' htmlFor='obs'>
+                                    OBS Layout
+                                </label>
                             </div>
-                            <div className='modal-body justify-content-left text-left m-auto'>
-                                <div className='form-check'>
-                                    <input className='form-check-input' type='checkbox' onChange={this.handleObs}
-                                        checked={this.state.obs} id='obs'>
-                                    </input>
-                                    <label className='form-check-label' htmlFor='obs'>
-                                        OBS Layout
-                                    </label>
-                                </div>
-                                <div className='form-check'>
-                                    <input className='form-check-input' type='checkbox' onChange={this.handleObsBank}
-                                        checked={this.state.obsbank} id='obsbank'>
-                                    </input>
-                                    <label className='form-check-label' htmlFor='obsbank'>
-                                        OBS Bank Camera
-                                    </label>
-                                </div>
-                                <div className='form-check'>
-                                    <input className='form-check-input' type='checkbox' onChange={this.handleTheme}
-                                        checked={this.state.theme2020} id='theme'>
-                                    </input>
-                                    <label className='form-check-label' htmlFor='theme'>
-                                        2020 Theme
-                                    </label>
-                                </div>
+                            <div className='form-check'>
+                                <input className='form-check-input' type='checkbox'
+                                    onChange={() => setObsbank(!obsbank)}
+                                    checked={obsbank} id='obsbank' />
+                                <label className='form-check-label' htmlFor='obsbank'>
+                                    OBS Bank Camera
+                                </label>
                             </div>
-                            <div className='modal-footer'>
-                                <button type='button' className='btn btn-secondary' onClick={this.toggleShow} data-dismiss='modal'>Close</button>
-                                <button type='button' className='btn btn-primary' onClick={this.saveValues}>Save changes</button>
+                            <div className='form-check'>
+                                <input className='form-check-input' type='checkbox'
+                                    onChange={() => setTheme2020(!theme2020)}
+                                    checked={theme2020} id='theme' />
+                                <label className='form-check-label' htmlFor='theme'>
+                                    2020 Theme
+                                </label>
                             </div>
+                        </div>
+                        <div className='modal-footer'>
+                            <button type='button' className='btn btn-secondary' onClick={toggleShow} data-dismiss='modal'>Close</button>
+                            <button type='button' className='btn btn-primary' onClick={saveValues}>Save changes</button>
                         </div>
                     </div>
                 </div>
-            </span >
-        );
-    }
+            </div>
+        </span>
+    );
 }
 
 export default Settings;

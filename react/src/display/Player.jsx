@@ -1,87 +1,70 @@
-import React, { Component } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-class Player extends Component {
-    timeoutID;
+function formatSeconds(s) {
+    let sign = (s < 0) ? '-' : '';
+    let minutes = Math.abs(Math.floor(s / 60));
+    let seconds = Math.abs(Math.floor(s % 60));
+    return sign + minutes + ':' + (seconds > 9 ? seconds : '0' + seconds);
+}
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            next: props.time,
-            startTime: Date.now()
+function Player({
+    counter,
+    obs,
+    unknown_move,
+    color,
+    name,
+    score,
+    time,
+    on_move,
+    player_color
+}) {
+    const [next, setNext] = useState(time);
+    const [startTime, setStartTime] = useState(Date.now());
+    const timeoutID = useRef(null);
+
+    // Reset timer when time prop changes
+    useEffect(() => {
+        setNext(time);
+        setStartTime(Date.now());
+    }, [time]);
+
+    // Timer effect
+    useEffect(() => {
+        if (!counter) return;
+        function tick() {
+            setNext(prev => prev - 1);
+        }
+        timeoutID.current = setInterval(tick, 1000);
+        return () => {
+            clearInterval(timeoutID.current);
         };
+    }, [counter, startTime]);
+
+    const headerclass = 'card-header ' + color;
+    let symbol_clock = String.fromCodePoint(0x23F1); // ⏱
+    if (on_move) {
+        symbol_clock = String.fromCodePoint(0x23F3); // ⏳
     }
 
-    componentDidMount() {
-        this.setState({ next: this.props.time, startTime: Date.now() })
-        if (this.props.counter) { // clock countdown, if websocket access and player is active
-            this.timeoutID = setTimeout(this.counter.bind(this), 1000);
-        }
-    }
-
-    componentDidUpdate(prevProps) {
-        if (prevProps.time !== this.props.time) { // got new time info
-            this.setState({ next: this.props.time, startTime: Date.now() })
-        }
-    }
-
-    componentWillUnmount() {
-        if (this.timeoutID) { // clear running timeoutID
-            clearTimeout(this.timeoutID);
-        }
-        this.timeoutID = null
-    }
-
-    counter = () => {
-        clearTimeout(this.timeoutID);
-        this.timeoutID = null
-        if (this.props.counter) {
-            const nowTime = Date.now()
-            const nextTime = this.state.startTime + this.state.next
-            this.timeoutID = setTimeout(this.counter.bind(this), 1000 - ((nowTime - nextTime) * 1000));
-            this.setState({ next: this.state.next - 1 })
-        }
-    }
-
-    formatSeconds(s) { // format <sign><M>:<SS>
-        let sign = (s < 0) ? '-' : ''
-        let minutes = Math.abs(~~(s / 60));
-        let seconds = Math.abs(~~(s % 60));
-        return sign + minutes + ':' + (seconds > 9 ? seconds : '0' + seconds);
-    }
-
-    render() {
-
-        if (this.props.counter) { // clock countdown, if websocket access and player is active
-            if (this.timeoutID) {
-                clearTimeout(this.timeoutID);
-                this.timeoutID = null
-            }
-            this.timeoutID = setTimeout(this.counter.bind(this), 1000);
-        }
-        const headerclass = 'card-header ' + this.props.color
-        let symbol_clock = String.fromCodePoint(0x23F1); // ⏱
-        if (this.props.on_move) {
-            symbol_clock = String.fromCodePoint(0x23F3); // ⏳
-        }
-        return (
-            <div className='card player'>
-                <div className={headerclass}>
-                    <h2 className='card-title'>{this.props.name}</h2>
-                    <p className='h4'>
-                        <span className={this.props.player_color}><b>&#x25C9;&nbsp;</b></span>
-                        <span ><b>{this.props.score} {this.props.unknown_move ? ' ?' : ''}</b></span>
-                        <span className='float-right monospace' >
-                            <b>{this.formatSeconds(this.props.counter ? this.state.next : this.props.time)} {symbol_clock}</b>
-                        </span>
-                    </p>
-
-                    <div className={this.props.obs ? 'obs-bank-camera pt-4' : 'hidden'} >
-                        <center><div><h2>&#x1F4F9;</h2></div></center>
-                    </div>
+    return (
+        <div className='card player'>
+            <div className={headerclass}>
+                <h2 className='card-title'>{name}</h2>
+                <p className='h4'>
+                    <span className={player_color}><b>&#x25C9;&nbsp;</b></span>
+                    <span><b>{score}{unknown_move ? ' ?' : ''}</b></span>
+                    <span className='float-right monospace'>
+                        <b>
+                            {formatSeconds(counter ? next : time)} {symbol_clock}
+                        </b>
+                    </span>
+                </p>
+                <div className={obs ? 'obs-bank-camera pt-4' : 'hidden'}>
+                    <center><div><h2>&#x1F4F9;</h2></div></center>
                 </div>
-            </div >
-        );
-    }
+            </div>
+        </div>
+    );
 }
 
 export default Player;

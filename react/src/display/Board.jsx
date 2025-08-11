@@ -1,4 +1,3 @@
-import React, { Component } from 'react';
 
 const ROWS = 'ABCDEFGHIJKLMNO'.toLowerCase().split('');
 const COLS = Array.from({ length: 15 }, (_, i) => i + 1);
@@ -20,49 +19,47 @@ const SPECIAL_CLASSES = {
   o1: 'tabletw', o4: 'tabledl', o8: 'tabletw', o12: 'tabledl', o15: 'tabletw',
 };
 
-class Board extends Component {
-  cell(coord) {
-    const value = this.props.board?.[coord];
+function Board({ board }) {
+  const cell = (coord) => {
+    const value = board?.[coord];
     if (value == null) return <div id={coord}></div>;
     return (
       <div id={coord} className="tile">
         {value === '_' ? '\u00A0' : value}
       </div>
     );
-  }
+  };
 
-  render() {
-    return (
-      <div className="justify-content-center">
-        <table id="board" className="tableboard">
-          <thead>
-            <tr>
-              <td className="tableborder"></td>
-              {COLS.map((col) => (
-                <td key={`col-${col}`} className="tableborder">{col}</td>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {ROWS.map((row) => (
-              <tr key={`row-${row}`}>
-                <td className="tableborder">{row.toUpperCase()}</td>
-                {COLS.map((col) => {
-                  const coord = `${row}${col}`;
-                  const specialClass = SPECIAL_CLASSES[coord] || '';
-                  return (
-                    <td key={coord} className={specialClass}>
-                      {this.cell(coord)}
-                    </td>
-                  );
-                })}
-              </tr>
+  return (
+    <div className="justify-content-center">
+      <table id="board" className="tableboard">
+        <thead>
+          <tr>
+            <td className="tableborder"></td>
+            {COLS.map((col) => (
+              <td key={`col-${col}`} className="tableborder">{col}</td>
             ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
+          </tr>
+        </thead>
+        <tbody>
+          {ROWS.map((row) => (
+            <tr key={`row-${row}`}>
+              <td className="tableborder">{row.toUpperCase()}</td>
+              {COLS.map((col) => {
+                const coord = `${row}${col}`;
+                const specialClass = SPECIAL_CLASSES[coord] || '';
+                return (
+                  <td key={coord} className={specialClass}>
+                    {cell(coord)}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 export default Board;
