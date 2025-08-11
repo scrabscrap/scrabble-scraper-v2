@@ -25,6 +25,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+import time
 
 import cv2
 from cv2.typing import MatLike
@@ -89,6 +90,7 @@ class Game:  # pylint: disable=too-many-public-methods
         name1, name2 = self.nicknames
         base_json = {
             'api': API_VERSION,
+            'timestamp': time.time(),
             'commit': version.git_commit,
             'layout': config.board.layout,
             'tournament': config.scrabble.tournament,
