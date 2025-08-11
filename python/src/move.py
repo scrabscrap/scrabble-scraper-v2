@@ -140,7 +140,7 @@ class Move:  # pylint: disable=too-many-instance-attributes
 
     type: MoveType
     game: Game
-    time: str = str(datetime.now())
+    time: str = field(init=False)
 
     move: int = field(default=0)
     player: int
@@ -158,6 +158,7 @@ class Move:  # pylint: disable=too-many-instance-attributes
 
     def __post_init__(self) -> None:
         self.new_tiles = {}
+        self.time = str(datetime.now())
         self.setup_board()
         self.calculate_score()
 
@@ -262,6 +263,7 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
     def __post_init__(self) -> None:
         if not self.new_tiles:
             raise NoMoveError
+        self.time = str(datetime.now())
         self.setup_board()
         self.calculate_coord()
         self.calculate_score()
