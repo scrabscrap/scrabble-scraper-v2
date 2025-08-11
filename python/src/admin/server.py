@@ -442,22 +442,18 @@ def echo(socket):
         clock1 = config.scrabble.max_time - clock1
         clock2 = config.scrabble.max_time - clock2
         jsonstr = State.ctx.game.json_str()
-        # logger.debug(f'send socket {State.ctx.current_state} clock1 {clock1} clock2: {clock2}')
         try:
-            if (
-                State.ctx.current_state in [GameState.S0, GameState.S1, GameState.P0, GameState.P1]
-            ) and State.ctx.picture is not None:
+            png_output = ''
+            if State.ctx.game.moves and State.ctx.game.moves[-1].img is not None:
+                _, im_buf_arr = cv2.imencode('.jpg', State.ctx.game.moves[-1].img)  # type: ignore
+                png_output = base64.b64encode(bytes(im_buf_arr))
+            elif State.ctx.picture is not None:
                 _, im_buf_arr = cv2.imencode('.jpg', State.ctx.picture)  # type: ignore
                 png_output = base64.b64encode(bytes(im_buf_arr))
-                # logger.debug('b64encode')
-                socket.send(  # type:ignore[no-member] # pylint: disable=no-member
-                    f'{{"op": "{State.ctx.current_state.name}", '
-                    f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}'
-                )
-            else:
-                socket.send(  # type: ignore[no-member] # pylint: disable=no-member
-                    f'{{"op": "{State.ctx.current_state.name}", "clock1": {clock1},"clock2": {clock2}, "status": {jsonstr}  }}'
-                )
+            socket.send(  # type:ignore[no-member] # pylint: disable=no-member
+                f'{{"op": "{State.ctx.current_state.name}", '
+                f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}'
+            )
         except ConnectionClosed:
             logger.debug('connection closed /ws_status')
             return
