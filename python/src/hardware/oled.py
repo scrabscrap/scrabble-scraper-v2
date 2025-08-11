@@ -120,7 +120,7 @@ class OLEDDisplay(Display):
                 x0 = x_start + i * 20
                 x1 = x0 + 18
                 draw.rounded_rectangle((x0, y0, x1, y0 + 18), fill=WHITE, radius=4)
-                draw.text((x0 + 9, y0 + 9), letter, font=FONT2, fill=BLACK, anchor='mm', align='center', stroke_width=1)
+                draw.text((x0 + 9, y0 + 9), letter, font=FONT2, fill=BLACK, anchor='mm', align='center', stroke_width=0)
 
         logger.debug(f'show message {msg}')
         title = ('', '') if self.game is not None else get_ipv4_address()
