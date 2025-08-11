@@ -47,7 +47,6 @@ class ConfigTestCase(unittest.TestCase):
         self.assertEqual(config.scrabble.verify_moves, 3)
         self.assertFalse(config.scrabble.show_score)
         self.assertFalse(config.output.upload_server)
-        self.assertEqual(config.output.upload_modus, 'http')
         self.assertTrue(config.video.warp)
         self.assertIsNone(config.video.warp_coordinates)
         self.assertEqual(config.video.width, 976)

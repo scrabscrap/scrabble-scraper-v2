@@ -74,51 +74,6 @@
                         </div>
                     </div> <!-- end scrabble -->
                 </div>
-
-                <div class="row">
-                    <div class="py-2"> <!-- start system -->
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="bi-motherboard"></i> System
-                            </div>
-                            <div class="card-body">
-                                <div class="form-group row py-1">
-                                    <label class="col-sm-4 col-form-label" for="system.gitbranch">
-                                        Git branch
-                                    </label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="system.gitbranch" placeholder={{
-                                            cfg['system.gitbranch'] }} value="{{ cfg['system.gitbranch'] }}">
-                                    </div>
-                                </div>
-                                <div class="form-group row py-1">
-                                    <label class="col-sm-4 col-form-label" for="system.quit">
-                                        End Button
-                                    </label>
-                                    <div class="col-sm-8">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="system.quit" id="exit"
-                                                value="exit" {%if cfg['system.quit']=='exit' %}checked {%endif %}>
-                                            <label class="form-check-label" for="exit">exit</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="system.quit" id="reboot"
-                                                value="reboot" {%if cfg['system.quit']=='reboot' %}checked {%endif %}>
-                                            <label class="form-check-label" for="reboot">reboot</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="system.quit"
-                                                id="shutdown" value="shutdown" {%if cfg['system.quit']=='shutdown'
-                                                %}checked {%endif %}>
-                                            <label class="form-check-label" for="shutdown">shutdown</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> <!-- end system -->
-                </div>
-
             </div>
 
             <div class="col-4">
@@ -260,10 +215,10 @@
             <div class="col-4">
 
                 <div class="row">
-                    <div class="py-2"> <!-- start output -->
+                    <div class="py-2"> <!-- start upload -->
                         <div class="card">
                             <div class="card-header">
-                                <i class="bi-upload"></i> Output
+                                <i class="bi-cloud"></i> FTP/HTTP Upload
                             </div>
                             <div class="card-body">
                                 <div class="input-group">
@@ -276,37 +231,6 @@
                                             {%if 'True'==cfg['output.upload_server'] %}checked {%endif %}>
                                     </div>
                                 </div>
-                                <div class="form-group row py-1">
-                                    <label class="col-sm-4 col-form-label" for="output.upload_modus">
-                                        Upload modus
-                                    </label>
-                                    <div class="col-sm-8">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="output.upload_modus"
-                                                id="http" value="http" {%if cfg['output.upload_modus']=='http' %}checked
-                                                {%endif %}>
-                                            <label class="form-check-label" for="http">http</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="output.upload_modus"
-                                                id="ftp" value="ftp" {%if cfg['output.upload_modus']=='ftp' %}checked
-                                                {%endif %}>
-                                            <label class="form-check-label" for="ftp">ftp</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> <!-- end output -->
-                </div>
-
-                <div class="row">
-                    <div class="py-2"> <!-- start ftp -->
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="bi-cloud"></i> FTP/HTTP Upload
-                            </div>
-                            <div class="card-body">
                                 <div class="form-group row py-1">
                                     <label class="col-sm-4 col-form-label" for="idServer">Server URL</label>
                                     <div class="col-sm-8">
@@ -330,7 +254,51 @@
                                 </div>
                             </div>
                         </div>
-                    </div> <!-- end ftp -->
+                    </div> <!-- end upload -->
+                </div>
+
+                <div class="row">
+                    <div class="py-2"> <!-- start system -->
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="bi-motherboard"></i> System
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group row py-1">
+                                    <label class="col-sm-4 col-form-label" for="system.gitbranch">
+                                        Git branch
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="system.gitbranch" placeholder={{
+                                            cfg['system.gitbranch'] }} value="{{ cfg['system.gitbranch'] }}">
+                                    </div>
+                                </div>
+                                <div class="form-group row py-1">
+                                    <label class="col-sm-4 col-form-label" for="system.quit">
+                                        End Button
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="system.quit" id="exit"
+                                                value="exit" {%if cfg['system.quit']=='exit' %}checked {%endif %}>
+                                            <label class="form-check-label" for="exit">exit</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="system.quit" id="reboot"
+                                                value="reboot" {%if cfg['system.quit']=='reboot' %}checked {%endif %}>
+                                            <label class="form-check-label" for="reboot">reboot</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="system.quit"
+                                                id="shutdown" value="shutdown" {%if cfg['system.quit']=='shutdown'
+                                                %}checked {%endif %}>
+                                            <label class="form-check-label" for="shutdown">shutdown</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- end system -->
                 </div>
 
                 <div class="row">

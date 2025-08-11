@@ -223,11 +223,6 @@ class OutputConfig:
         """Should results be uploaded to a server?"""
         return self.config.getboolean('output', 'upload_server', fallback=as_bool(DEFAULT['output']['upload_server']))
 
-    @property
-    def upload_modus(self) -> str:
-        """Upload mode (e.g., FTP, HTTP)"""
-        return self.config.get('output', 'upload_modus', fallback=DEFAULT['output']['upload_modus']).replace('"', '')
-
 
 @dataclass
 class VideoConfig:
