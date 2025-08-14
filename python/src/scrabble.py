@@ -174,7 +174,7 @@ class Game:  # pylint: disable=too-many-public-methods
         self.nicknames = ('Name1', 'Name2')
         self.gamestart = datetime.now()
         self.moves.clear()
-        self._write_json_from(index=-1, write_mode=[])  # only status file
+        self._write_status(i=-1, web_dir=config.path.web_dir)  # only status file
         return self
 
     def end_game(self) -> Game:
