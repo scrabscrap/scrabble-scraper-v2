@@ -175,6 +175,8 @@ class Game:  # pylint: disable=too-many-public-methods
         self.gamestart = datetime.now()
         self.moves.clear()
         self._write_status(i=-1, web_dir=config.path.web_dir)  # only status file
+        if config.output.upload_server:
+            upload.get_upload_queue().put_nowait(Command(upload.upload_status))
         return self
 
     def end_game(self) -> Game:
