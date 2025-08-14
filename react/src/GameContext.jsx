@@ -65,15 +65,6 @@ export function GameProvider({ children }) {
         setState(prev => ({ ...prev, settings: { ...prev.settings, ...val } }));
     };
 
-    const parseImage = (data) => {
-        if (data.image == null) return null;
-        if (data.op === 'START') return null;
-        if (data.image.startsWith("b'")) {
-            return 'data:image/png;base64,' + data.image.substring(2, data.image.length - 1);
-        }
-        return 'data:image/png;base64,' + data.image;
-    };
-
     const hasUnknownMove = (data) => {
         if (!data.move) return false;
         if (!data.moves) return false;
@@ -113,7 +104,6 @@ export function GameProvider({ children }) {
         if (lastMessage !== null && readyState === ReadyState.OPEN) {
             try {
                 const data = JSON.parse(lastMessage.data);
-                const img_str = parseImage(data);
                 const unknown_move = hasUnknownMove(data);
 
                 setState(prev => ({
@@ -122,7 +112,7 @@ export function GameProvider({ children }) {
                     op: data.op,
                     clock1: data.clock1,
                     clock2: data.clock2,
-                    image: img_str,
+                    image: data.image,
                     unknown_move,
                     settings: {
                         ...prev.settings,
@@ -138,13 +128,9 @@ export function GameProvider({ children }) {
     }, [lastMessage, readyState]);
 
     // --- Fileconnect (Polling) ---
-    const parseFileConnectImage = (data) => {
-        return 'web/image-' + data.move + '.jpg?' + data.time.substring(data.time.indexOf('.') + 1);
-    };
 
     const handleFileConnectData = (data) => {
         const op = (data.onmove === data.name1) ? 'S0' : 'S1';
-        const img = parseFileConnectImage(data);
         const unknown_move = hasUnknownMove(data);
 
         setState(prev => ({
@@ -153,7 +139,7 @@ export function GameProvider({ children }) {
             op,
             clock1: data.time1,
             clock2: data.time2,
-            image: img,
+            image: 'web/image-' + data.move + '.jpg?' + data.time1 + data.time2,
             unknown_move,
             settings: {
                 ...prev.settings,
