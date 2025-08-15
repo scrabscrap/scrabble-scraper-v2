@@ -444,7 +444,7 @@ def echo(socket):
         jsonstr = State.ctx.game.json_str()
         try:
             png_output = ''
-            if State.ctx.current_state not in (GameState.EOG, GameState.START):
+            if State.ctx.current_state not in (GameState.START, GameState.BLOCKING):
                 img = None
                 if State.ctx.game.moves and State.ctx.game.moves[-1].img is not None:
                     img = State.ctx.game.moves[-1].img
@@ -455,10 +455,11 @@ def echo(socket):
                     _, im_buf_arr = cv2.imencode('.jpg', img)  # type: ignore
                     png_output = base64.b64encode(im_buf_arr).decode('utf-8')
                     png_output = f'data:image/png;base64,{png_output}'
-            socket.send(  # type:ignore[no-member] # pylint: disable=no-member
-                f'{{"op": "{State.ctx.current_state.name}", '
-                f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}'
-            )
+            if State.ctx.current_state != GameState.BLOCKING:
+                socket.send(  # type:ignore[no-member] # pylint: disable=no-member
+                    f'{{"op": "{State.ctx.current_state.name}", '
+                    f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}'
+                )
         except ConnectionClosed:
             logger.debug('connection closed /ws_status')
             return
