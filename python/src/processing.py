@@ -206,8 +206,10 @@ def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], ev
 
     if len(changed_tiles) > 0:  # fix previous moves
         _recalculate_score_on_tiles_change(game, changed_tiles)
+    if config.development.recording:  # save before upload
+        index = len(game.moves)
+        upload.get_upload_queue().put_nowait(Command(_write_original_image, img.copy(), index))
     game.add_move(player=player, played_time=played_time, img=warped, new_tiles=new_tiles, removed_tiles=removed_tiles)
-    pool.submit(_write_original_image, img, len(game.moves) - 1)
     event_set(event)
 
 
