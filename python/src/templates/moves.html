@@ -99,9 +99,15 @@
                                                 value="{{ move.gcg_coord }}">
                                             {% endif %}
                                         </td>
-                                        <td> <input type="text" class="form-control edit-text" name="move.word"
+                                        <td> {% if move.type.name=="LAST_RACK_BONUS" or
+                                            move.type.name=="LAST_RACK_MALUS" %}
+                                            <input type="text" class="form-control edit-text" name="move.word"
+                                                value="{{ move.rack }}" readonly>
+                                            {% else %}
+                                            <input type="text" class="form-control edit-text" name="move.word"
                                                 value="{{ move.word }}" {% if move.type.name=='WITHDRAW' or
                                                 move.type.name=='CHALLENGE_BONUS' %}readonly{% endif %}>
+                                            {% endif %}
                                         </td>
                                         <td>
                                             <div class="py-1">
