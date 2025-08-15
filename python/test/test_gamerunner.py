@@ -142,7 +142,7 @@ class GameRunnerTestCase(unittest.TestCase):
         self.config_setter('video', 'warp', warp)
         self.config_setter('video', 'warp_coordinates', coordstr)
         logger.info(f'{config.video.warp}: {config.video.warp_coordinates}')
-        self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom'))
+        self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom2012'))
         camera.cam.formatter = formatter  # type: ignore
         camera.cam.counter = 1  # type: ignore
         camera.cam.resize = False  # type:ignore

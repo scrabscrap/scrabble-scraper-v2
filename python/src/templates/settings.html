@@ -152,50 +152,132 @@
                                     <label class="col-sm-4 col-form-label" for="board.layout">
                                         Analyzer
                                     </label>
+                                    <!-- selection changes visibility of threshold-group with javascript -->
                                     <div class="col-sm-8">
-
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="board.layout"
-                                                id="custom2012" value="custom2012" {%if
+                                            <input class="form-check-input board-layout-radio" type="radio"
+                                                name="board.layout" id="custom2012" value="custom2012" {%if
                                                 cfg['board.layout']=='custom2012' %}checked {%endif %}>
                                             <label class="form-check-label" for="custom2012">custom2012</label>
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="board.layout"
-                                                id="custom2020" value="custom2020" {%if
+                                            <input class="form-check-input board-layout-radio" type="radio"
+                                                name="board.layout" id="custom2020" value="custom2020" {%if
                                                 cfg['board.layout']=='custom2020' %}checked {%endif %}>
                                             <label class="form-check-label" for="custom2020">custom2020</label>
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="board.layout"
-                                                id="custom2020light" value="custom2020light" {%if
+                                            <input class="form-check-input board-layout-radio" type="radio"
+                                                name="board.layout" id="custom2020light" value="custom2020light" {%if
                                                 cfg['board.layout']=='custom2020light' %}checked {%endif %}>
                                             <label class="form-check-label"
                                                 for="custom2020light">custom2020light</label>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="py-1 input-group">
-                                    <label class="col-sm-4 col-form-label" for="board.tiles_threshold">
-                                        Threshold
-                                    </label>
-                                    <input type="text" class="form-control" name="board.tiles_threshold" placeholder={{
-                                        cfg['board.tiles_threshold'] }} value="{{ cfg['board.tiles_threshold'] }}">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">px</span>
+
+                                <!-- variant 1 custom2012 -->
+                                <div class="threshold-group" id="group-custom2012" style="display:none;">
+                                    <div class="py-1 input-group">
+                                        <label class="col-sm-4 col-form-label" for="board.custom2012-tiles_threshold">
+                                            Threshold
+                                        </label>
+                                        <input type="text" class="form-control" name="board.custom2012-tiles_threshold"
+                                            placeholder={{ cfg['board.custom2012-tiles_threshold'] }}
+                                            value="{{ cfg['board.custom2012-tiles_threshold'] }}">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">px</span>
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="col-sm-4 col-form-label" for="board.custom2012-dynamic_threshold">
+                                            Dynamic threshold
+                                        </label>
+                                        <div class="form-check form-switch py-2">
+                                            <input class="form-check-input" type="checkbox" value="True"
+                                                name="board.custom2012-dynamic_threshold"
+                                                id="board.custom2012-dynamic_threshold"
+                                                {%if 'True'==cfg['board.custom2012-dynamic_threshold'] %}checked {%endif
+                                                %}>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="input-group">
-                                    <label class="col-sm-4 col-form-label" for="board.dynamic_threshold">
-                                        Dynamic threshold
-                                    </label>
-                                    <div class="form-check form-switch py-2">
-                                        <input class="form-check-input" type="checkbox" value="True"
-                                            name="board.dynamic_threshold" id="board.dynamic_threshold"
-                                            {%if 'True'==cfg['board.dynamic_threshold'] %}checked {%endif %}>
+                                <!-- variant 2 custom2020 -->
+                                <div class="threshold-group" id="group-custom2020" style="display:none;">
+                                    <div class="py-1 input-group">
+                                        <label class="col-sm-4 col-form-label" for="board.custom2020-tiles_threshold">
+                                            Threshold
+                                        </label>
+                                        <input type="text" class="form-control" name="board.custom2020-tiles_threshold"
+                                            placeholder={{ cfg['board.custom2020-tiles_threshold'] }}
+                                            value="{{ cfg['board.custom2020-tiles_threshold'] }}">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">px</span>
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="col-sm-4 col-form-label" for="board.custom2020-dynamic_threshold">
+                                            Dynamic threshold
+                                        </label>
+                                        <div class="form-check form-switch py-2">
+                                            <input class="form-check-input" type="checkbox" value="True"
+                                                name="board.custom2020-dynamic_threshold"
+                                                id="board.custom2020-dynamic_threshold"
+                                                {%if 'True'==cfg['board.custom2020-dynamic_threshold'] %}checked {%endif
+                                                %}>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- variant 3 custom2020light -->
+                                <div class="threshold-group" id="group-custom2020light" style="display:none;">
+                                    <div class="py-1 input-group">
+                                        <label class="col-sm-4 col-form-label"
+                                            for="board.custom2020light-tiles_threshold">
+                                            Threshold
+                                        </label>
+                                        <input type="text" class="form-control"
+                                            name="board.custom2020light-tiles_threshold" placeholder={{
+                                            cfg['board.custom2020light-tiles_threshold'] }}
+                                            value="{{ cfg['board.custom2020light-tiles_threshold'] }}">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">px</span>
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="col-sm-4 col-form-label"
+                                            for="board.custom2020light-dynamic_threshold">
+                                            Dynamic threshold
+                                        </label>
+                                        <div class="form-check form-switch py-2">
+                                            <input class="form-check-input" type="checkbox" value="True"
+                                                name="board.custom2020light-dynamic_threshold"
+                                                id="board.custom2020light-dynamic_threshold"
+                                                {%if 'True'==cfg['board.custom2020light-dynamic_threshold'] %}checked
+                                                {%endif %}>
+                                        </div>
                                     </div>
                                 </div>
 
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        function showDynamicThreshold(layout) {
+                                            document.querySelectorAll('.threshold-group').forEach(function (group) {
+                                                group.style.display = 'none';
+                                            });
+                                            var activeGroup = document.getElementById('group-' + layout);
+                                            if (activeGroup) activeGroup.style.display = '';
+                                        }
+                                        var checked = document.querySelector('.board-layout-radio:checked');
+                                        if (checked) showDynamicThreshold(checked.value);
+
+                                        // on change of layout radio buttons
+                                        document.querySelectorAll('.board-layout-radio').forEach(function (radio) {
+                                            radio.addEventListener('change', function () {
+                                                showDynamicThreshold(this.value);
+                                            });
+                                        });
+                                    });
+                                </script>
                                 <div class="py-1 input-group">
                                     <label class="col-sm-4 col-form-label" for="board.min_tiles_rate">
                                         Recognition rate

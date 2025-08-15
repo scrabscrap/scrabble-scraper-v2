@@ -103,10 +103,14 @@ DEFAULT = {
     'output': {'upload_server': 'False', 'upload_modus': 'http'},
     'video': {'warp': 'True', 'width': '976', 'height': '976', 'fps': '25', 'rotate': 'True', 'warp_coordinates': ''},
     'board': {
-        'layout': 'custom2012',
-        'tiles_threshold': '800',
+        'layout': 'custom2012',  # available: custom2012, custom2020, custom2020light
         'min_tiles_rate': '96',
-        'dynamic_threshold': 'True',
+        'custom2012-tiles_threshold': '1000',
+        'custom2012-dynamic_threshold': 'False',
+        'custom2020-tiles_threshold': '800',
+        'custom2020-dynamic_threshold': 'True',
+        'custom2020light-tiles_threshold': '800',
+        'custom2020light-dynamic_threshold': 'True',
         'language': 'de',
     },
     'system': {'quit': 'shutdown', 'gitbranch': 'main'},
@@ -278,7 +282,10 @@ class BoardConfig:
     @property
     def tiles_threshold(self) -> int:
         """Pixel count threshold to detect tiles"""
-        return self.config.getint('board', 'tiles_threshold', fallback=int(DEFAULT['board']['tiles_threshold']))
+        layout = self.layout
+        return self.config.getint(
+            'board', f'{layout}.tiles_threshold', fallback=int(DEFAULT['board'][f'{layout}-tiles_threshold'])
+        )
 
     @property
     def min_tiles_rate(self) -> int:
@@ -288,7 +295,10 @@ class BoardConfig:
     @property
     def dynamic_threshold(self) -> int:
         """Use dynamic image thresholding?"""
-        return self.config.getboolean('board', 'dynamic_threshold', fallback=as_bool(DEFAULT['board']['dynamic_threshold']))
+        layout = self.layout
+        return self.config.getboolean(
+            'board', f'{layout}.dynamic_threshold', fallback=as_bool(DEFAULT['board'][f'{layout}-dynamic_threshold'])
+        )
 
     @property
     def language(self) -> str:
