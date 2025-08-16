@@ -428,7 +428,22 @@ def ws_log(socket):
 @app.route('/game_status', methods=['POST', 'GET'])
 def game_status():
     """get request to current game state"""
-    return State.ctx.game.json_str(), 201
+    _, (clock1, clock2), _ = ScrabbleWatch.status()
+    clock1 = config.scrabble.max_time - clock1
+    clock2 = config.scrabble.max_time - clock2
+    jsonstr = State.ctx.game.json_str()
+    image_str = f'web/image-{len(State.ctx.game.moves) - 1}.jpg' if State.ctx.game.moves else ''
+    return (
+        f'{{"op": "{State.ctx.current_state.name}", "clock1": {clock1},"clock2": {clock2}, '
+        f'"image": "{image_str}", "status": {jsonstr}  }}',
+        201,
+    )
+
+
+@app.route('/ws_status', methods=['POST', 'GET'])
+def ws_avail():
+    """exists routing to websocket endpoint"""
+    return f'{version.git_version}', 201
 
 
 @sock.route('/ws_status')
@@ -443,7 +458,7 @@ def echo(socket):
         clock2 = config.scrabble.max_time - clock2
         jsonstr = State.ctx.game.json_str()
         try:
-            png_output = ''
+            image_str = ''
             if State.ctx.current_state not in (GameState.START, GameState.BLOCKING):
                 img = None
                 if State.ctx.game.moves and State.ctx.game.moves[-1].img is not None:
@@ -453,12 +468,12 @@ def echo(socket):
 
                 if img is not None:
                     _, im_buf_arr = cv2.imencode('.jpg', img)  # type: ignore
-                    png_output = base64.b64encode(im_buf_arr).decode('utf-8')
-                    png_output = f'data:image/png;base64,{png_output}'
+                    image_str = base64.b64encode(im_buf_arr).decode('utf-8')
+                    image_str = f'data:image/png;base64,{image_str}'
             if State.ctx.current_state != GameState.BLOCKING:
                 socket.send(  # type:ignore[no-member] # pylint: disable=no-member
                     f'{{"op": "{State.ctx.current_state.name}", '
-                    f'"clock1": {clock1},"clock2": {clock2}, "image": "{png_output}", "status": {jsonstr}  }}'
+                    f'"clock1": {clock1},"clock2": {clock2}, "image": "{image_str}", "status": {jsonstr}  }}'
                 )
         except ConnectionClosed:
             logger.debug('connection closed /ws_status')
