@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "jsx": "react",
+        "checkJs": true,
+        "noEmit": true,
+        "module": "esnext",
+        "target": "esnext",
+        "strict": false, // first setup: not strict
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitAny": false,
+        "allowSyntheticDefaultImports": true,
+    },
+    "include": [
+        "src/**/*.tsx",
+        "src/**/*.ts",
+    ],
+}

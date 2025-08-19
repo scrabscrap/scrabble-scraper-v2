@@ -442,12 +442,6 @@ def game_status():
     )
 
 
-@app.route('/ws_status', methods=['POST', 'GET'])
-def ws_avail():
-    """exists routing to websocket endpoint"""
-    return f'{version.git_version}', 201
-
-
 @sock.route('/ws_status')
 def echo(socket):
     """websocket endpoint"""

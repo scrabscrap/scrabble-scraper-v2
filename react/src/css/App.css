@@ -26,12 +26,8 @@ body {
   max-height: 850px;
 }
 
-.hidden {
-  display: none;
-}
-
 .monospace {
-  font-family: monospace;
+      font-family: Menlo, source-code-pro, Monaco, Consolas, "Courier New", monospace;
 }
 
 /* picture */
