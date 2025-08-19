@@ -31,7 +31,7 @@ from time import sleep
 
 import cv2
 import psutil
-from flask import Flask, abort, redirect, render_template, request, send_file, send_from_directory, url_for
+from flask import Flask, abort, make_response, redirect, render_template, request, send_file, send_from_directory, url_for
 from flask_sock import ConnectionClosed, Sock
 from werkzeug.serving import make_server
 
@@ -57,7 +57,9 @@ app.secret_key = 'scrabscrap'
 @app.route('/webapp/<path:path>')
 def static_file(path):
     """static routing for web app on rpi"""
-    return app.send_static_file(f'webapp/{path}')
+    response = make_response(app.send_static_file(f'webapp/{path}'))
+    response.headers['X-WebSocket-Available'] = 'true'
+    return response
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -458,7 +460,7 @@ def echo(socket):
         clock2 = config.scrabble.max_time - clock2
         jsonstr = State.ctx.game.json_str()
         try:
-            image_str = ''
+            image_str = None
             if State.ctx.current_state not in (GameState.START, GameState.BLOCKING):
                 img = None
                 if State.ctx.game.moves and State.ctx.game.moves[-1].img is not None:
