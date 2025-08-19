@@ -541,3 +541,10 @@ class MoveUnknown(Move):
     type: MoveType = MoveType.UNKNOWN
     new_tiles: BoardType = field(default_factory=dict, init=True)
     removed_tiles: BoardType = field(default_factory=dict, init=True)
+
+    def __post_init__(self) -> None:
+        """initialize board"""
+        self.time = str(datetime.now())
+        previous_board = self.previous_move.board if self.previous_move else {}
+        self.board = {**previous_board}
+        self.board.update(self.new_tiles)
