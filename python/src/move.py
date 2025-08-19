@@ -546,5 +546,6 @@ class MoveUnknown(Move):
         """initialize board"""
         self.time = str(datetime.now())
         previous_board = self.previous_move.board if self.previous_move else {}
+        self.score = self.previous_move.score if self.previous_move else (0, 0)
         self.board = {**previous_board}
         self.board.update(self.new_tiles)
