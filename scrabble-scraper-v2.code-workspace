@@ -1,6 +1,14 @@
 {
   "folders": [
     {
+      "name": "ScrabScrap",
+      "path": "."
+    },
+    {
+      "name": "Documentation",
+      "path": "docs"
+    },
+    {
       "name": "Python",
       "path": "python"
     },
@@ -9,16 +17,13 @@
       "path": "react"
     },
     {
-      "name": "Documentation",
-      "path": "docs"
-    },
-    {
       "name": "Scripts",
       "path": "scripts"
     },
     {
+      "name": "PHP",
       "path": "php"
-    }
+    },
   ],
   "settings": {
     "editor.formatOnSave": true,
