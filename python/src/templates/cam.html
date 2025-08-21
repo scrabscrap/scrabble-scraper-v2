@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<div class="container py-3">
     <div class="row">
-        <div class="py-2">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     video.warp_coordinates = {{warp_coord_cnf}} <br />
@@ -19,22 +19,18 @@
                                     src="data:image/jpg;base64,{{warp_data}}" />
                             </div>
                             <div class="col-2">
-                                <div class="row py-2">
+                                <div class="row p-2">
                                     <button type="button" class="btn btn-primary" onclick="location.href='/cam'">
                                         <i class="bi-arrow-repeat"></i> Reload</button>
                                 </div>
-                                <div class="row py-2">
+                                <div class="row p-2">
                                     <button type="submit" class="btn btn-secondary" name="btndelete" value="Delete">
                                         <i class="bi-eraser"></i> Clear Warp</button>
                                 </div>
-                                <div class="row py-2">
+                                <div class="row p-2">
                                     <input type="text" name="warp_coordinates" value="{{warp_coord_raw}}" hidden>
                                     <button type="submit" class="btn btn-success" name="btnstore" value="Store">
                                         <i class="bi-save"></i> Save Warp</button>
-                                </div>
-                                <div class="row py-2">
-                                    <p>
-                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -44,8 +40,8 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="py-2">
+    <div class="row py-2">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header">Original</div>
                 <div class="card-body">

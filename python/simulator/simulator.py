@@ -163,6 +163,9 @@ def simulator() -> str:
     img = camera.cam.read(peek=True)  # type: ignore
     _, pic_buf_arr = cv2.imencode('.jpg', img)
     png_next = urllib.parse.quote(base64.b64encode(bytes(pic_buf_arr)))
+    next_file = ''
+    if isinstance(camera.cam, camera.CameraFile):
+        next_file = camera.cam._formatter.format(camera.cam._counter).split('/')[-1]
 
     return render_template(
         'simulator.html',
@@ -175,6 +178,7 @@ def simulator() -> str:
         left=left,
         right=right,
         folder=list_of_dir,
+        next_file=next_file,
         current_file=current_file_str,
     )
 

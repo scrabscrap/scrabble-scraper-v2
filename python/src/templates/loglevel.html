@@ -1,73 +1,67 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-6">
-            <div class="py-2">
-                <div class="card">
-                    <div class="card-header">
-                        Set Log-Level
-                    </div>
-                    <div class="card-body">
-                        <form action="/loglevel" method="post">
-                            <div class="row py-2">
-                                <div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="loglevel" id="level10"
-                                            value="10" {%if loglevel=='10' %}checked{% endif %}>
-                                        <label class="form-check-label" for="level10">
-                                            debug
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="loglevel" id="level20"
-                                            value="20" {%if loglevel=='20' %}checked{% endif %}>
-                                        <label class="form-check-label" for="level20">
-                                            info
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="loglevel" id="level30"
-                                            value="30" {%if loglevel=='30' %}checked{% endif %}>
-                                        <label class="form-check-label" for="level30">
-                                            warning
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="loglevel" id="level40"
-                                            value="40" {%if loglevel=='40' %}checked{% endif %}>
-                                        <label class="form-check-label" for="level40">
-                                            error
-                                        </label>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div>These settings only affect the root logger</div>
-                                    <hr />
-                                </div>
-                                <div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" value="True" type="checkbox" name="recording"
-                                            id="recording" {%if recording=='True' %}checked{% endif %}>
-                                        <label class="form-check-label" for="recording">
-                                            record images for debugging
-                                        </label>
-                                    </div>
-                                </div>
+<div class="container py-3">
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header">Set Log-Level</div>
+            <div class="card-body">
+                <form action="/loglevel" method="post">
+                    <div class="row py-2">
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="loglevel" id="level10" value="10"
+                                    {%if loglevel=='10' %}checked{% endif %}>
+                                <label class="form-check-label" for="level10">
+                                    debug
+                                </label>
                             </div>
-                            <div class="row float-end">
-                                <div>
-                                    <button type="button" class="btn btn-outline-secondary"
-                                        onclick="location.href='/'"><i class="bi-x-square"></i> Cancel</button>
-                                    <button type="submit" class="btn btn-primary" value="Store" data-bs-toggle="tooltip"
-                                        data-bs-placement="bottom" title="Store current selection">
-                                        <i class="bi-save"></i> Save</button>
-                                </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="loglevel" id="level20" value="20"
+                                    {%if loglevel=='20' %}checked{% endif %}>
+                                <label class="form-check-label" for="level20">
+                                    info
+                                </label>
                             </div>
-                        </form>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="loglevel" id="level30" value="30"
+                                    {%if loglevel=='30' %}checked{% endif %}>
+                                <label class="form-check-label" for="level30">
+                                    warning
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="loglevel" id="level40" value="40"
+                                    {%if loglevel=='40' %}checked{% endif %}>
+                                <label class="form-check-label" for="level40">
+                                    error
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <div>These settings only affect the root logger</div>
+                            <hr />
+                        </div>
+                        <div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" value="True" type="checkbox" name="recording"
+                                    id="recording" {%if recording=='True' %}checked{% endif %}>
+                                <label class="form-check-label" for="recording">
+                                    record images for debugging
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <div class="row float-end">
+                        <div>
+                            <button type="button" class="btn btn-outline-secondary" onclick="location.href='/'"><i
+                                    class="bi-x-square" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn btn-primary" value="Store" data-bs-toggle="tooltip"
+                                data-bs-placement="bottom" title="Store current selection">
+                                <i class="bi-save" aria-hidden="true"></i> Save</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

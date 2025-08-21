@@ -17,15 +17,14 @@
     }
 </style>
 
-<div class="container">
-    <div class="row py-2">
+<div class="container py-3">
+    <div class="row">
 
         <div class="col-9">
             <div class="card">
                 <div class="card-header">
                     <div class="row">
                         <div class="col">
-                            Edit move&nbsp;&nbsp;
                             <i class="bi-circle-fill text-success"></i> {{player1}}
                             &nbsp;&mdash;&nbsp;
                             <i class="bi-circle-fill text-danger"></i> {{player2}}
@@ -45,15 +44,14 @@
                                 <form action="/moves" method="post">
                                     <tr>
                                         <th scope="row">
-                                            <div class="py-2">{{ move.move }}</div> <input hidden name="move.move"
-                                                value={{ move.move }}>
+                                            <div class="py-2">{{ move.move }}</div>
+                                            <input hidden name="move.move" value={{ move.move }}>
                                         </th>
                                         <td>
                                             <div class="py-2">{% if move.player == 0 %}
                                                 <i class="bi-circle-fill text-success"></i> {% else %}
                                                 <i class="bi-circle-fill text-danger"></i> {% endif %}
                                             </div>
-
                                             <input hidden name="move.player" value={{ move.player }}>
                                         </td>
                                         <td style="text-align: right;">
@@ -278,7 +276,7 @@
     </div>
 
     <script>
-        var blurred = false;
+        let blurred = false;
         window.onblur = function () { blurred = true; };
         window.onfocus = function () { blurred && (location.reload()); };
         // window.scrollTo(0, document.body.scrollHeight);

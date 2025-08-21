@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-
-    <div class="row py-2">
-
+<div class="container py-3">
+    <div class="row">
         <div class="col-6">
             <div class="card">
                 <div class="card-header">Tournament</div>
@@ -16,8 +14,8 @@
                                     required>
                             </div>
                             <div class="col-md-auto">
-                                <button type="submit" class="form-control btn btn-primary" name="btntournament"
-                                    value="Submit"><i class="bi-save"></i> Save</button>
+                                <button type="submit" class="btn btn-primary" name="btntournament" value="Submit"><i
+                                        class="bi-save" aria-hidden="true"></i> Save</button>
                             </div>
                         </div>
                     </form>
@@ -32,17 +30,15 @@
                     <form action="/index" method="post">
                         <div class="row">
                             <div class="col">
-                                <input type="text" class="form-control" name="player1" placeholder="{{player1}}"
-                                    required>
+                                <input type="text" class="form-control" name="player1" value="{{player1}}" required>
                             </div>
                             <div class="col">
-                                <input type="text" class="form-control" name="player2" placeholder="{{player2}}"
-                                    required>
+                                <input type="text" class="form-control" name="player2" value="{{player2}}" required>
                             </div>
                             <div class="col-md-auto">
                                 <div>
                                     <button type="submit" class="btn btn-primary" name="btnplayer" value="Submit">
-                                        <i class="bi-save"></i> Save
+                                        <i class="bi-save" aria-hidden="true"></i> Save
                                     </button>
                                 </div>
                             </div>
@@ -52,14 +48,15 @@
             </div>
         </div>
     </div>
-    <div class="row">
+
+    <div class="row py-3">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">Log output</div>
                 <div class="card-body">
-                    <div style="font-family: monospace; display: flex; flex-direction: column-reverse; 
-                            max-height: calc(96vh - 235px); overflow: auto;font-size: 70%; white-space: pre-wrap;"
-                        id="logentry">
+                    <div id="logentry"
+                        class="font-monospace small overflow-auto border rounded p-2 d-flex flex-column-reverse"
+                        style=" max-height: calc(96vh - 245px); font-size: 75%; white-space: pre-wrap;">
                     </div>
                 </div>
             </div>
@@ -67,34 +64,5 @@
     </div>
 </div>
 
-<script>
-    function decodeHtmlEntities(str) {
-        const entities = {
-            '&lt;': '<',
-            '&gt;': '>',
-            '&amp;': '&',
-            '&quot;': '"',
-            '&apos;': "'",
-            '&#x27;': "'"
-        };
-
-        return str.replace(/&[a-zA-Z0-9#]+;/g, (match) => entities[match] || match);
-    }
-    const log = (text) => {
-        const logEntry = document.getElementById('logentry');
-        text = decodeHtmlEntities(text);
-        logEntry.textContent = logEntry.textContent + text;
-    };
-
-    const socket = new WebSocket('ws://' + location.host + '/ws_log');
-    socket.addEventListener('message', ev => { log(ev.data); });
-    socket.addEventListener("close", (event) => {
-        // reload on server reboot
-        setTimeout(function () { location.reload(); }, 60 * 1000);
-    });
-    socket.addEventListener("error", (event) => {
-        socket.close()
-    });
-</script>
-
+<script src="{{ url_for('static', filename='js/scrabscrap.log.loader.js') }}"></script>
 {% endblock %}

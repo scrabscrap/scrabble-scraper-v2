@@ -1,90 +1,84 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<div class="container py-3">
     <div class="row">
         <div class="col-6">
-            <div class="py-2">
-                <div class="card">
-                    <div class="card-header">Configured WiFi</div>
-                    <div class="card-body">
-                        <form action="/wifi" method="post">
-                            <div class="row py-2">
-                                <select size="9" class="form-control" name="selectwifi">
-                                    {% for wifi in wifi_configured %}
-                                    <option value="{{ wifi[0] }}" {% if wifi[2]=='wlan0' or wifi[0]=='ScrabScrap'
-                                        %}disabled{% endif %}>{{ wifi[0] }}{% if wifi[2]=='wlan0'%} *{% endif %}
-                                    </option>
-                                    {% endfor %}
-                                </select>
+            <div class="card">
+                <div class="card-header">Configured WiFi</div>
+                <div class="card-body">
+                    <form action="/wifi" method="post">
+                        <div class="row p-2">
+                            <select size="9" class="form-control" name="selectwifi">
+                                {% for wifi in wifi_configured %}
+                                <option value="{{ wifi[0] }}" {% if wifi[2]=='wlan0' or wifi[0]=='ScrabScrap'
+                                    %}disabled{% endif %}>{{ wifi[0] }}{% if wifi[2]=='wlan0'%} *{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-outline-warning" name="btnhotspot" value="Hotspot"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toogle Hotspot">
+                            <i class="bi-wifi"></i>Hotspot</button>
+                        <div class="row float-end">
+                            <div>
+                                <button type="submit" class="btn btn-outline-danger" name="btndelete" value="Delete"
+                                    title="Delete WiFi">
+                                    <i class="bi-clipboard-minus"></i> Delete</button>
+                                <button type="submit" class="btn btn-outline-success" name="btnselect" value="Select"
+                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                    title="Please reconnect after change">
+                                    <i class="bi-clipboard-check"></i>Select</button>
                             </div>
-                            <button type="submit" class="btn btn-outline-warning" name="btnhotspot" value="Hotspot"
-                                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toogle Hotspot">
-                                <i class="bi-wifi"></i>Hotspot</button>
-                            <div class="row float-end">
-                                <div>
-                                    <button type="submit" class="btn btn-outline-danger" name="btndelete" value="Delete"
-                                        title="Delete WiFi">
-                                        <i class="bi-clipboard-minus"></i> Delete</button>
-                                    <button type="submit" class="btn btn-outline-success" name="btnselect"
-                                        value="Select" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                        title="Please reconnect after change">
-                                        <i class="bi-clipboard-check"></i>Select</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
         <div class="col-6">
-            <div class="py-2">
-                <div class="card">
-                    <div class="card-header">Add WiFi</div>
-                    <div class="card-body">
-                        <form action="/wifi" method="post">
-                            <div class="row py-2">
-                                <select size="9" class="form-control" name="ssid" required>
-                                    {% for wifi in wifi_list %}
-                                    <option value="{{ wifi[1] }}" {% if wifi[0]=='*' or wifi[1]=='ScrabScrap'
-                                        %}disabled{% endif %}>{{ wifi[1] }}{% if wifi[0]=='*' %} *{% endif %}
-                                    </option>
-                                    {% endfor %}
-                                </select>
+            <div class="card">
+                <div class="card-header">Add WiFi</div>
+                <div class="card-body">
+                    <form action="/wifi" method="post">
+                        <div class="row p-2">
+                            <select size="9" class="form-control" name="ssid" required>
+                                {% for wifi in wifi_list %}
+                                <option value="{{ wifi[1] }}" {% if wifi[0]=='*' or wifi[1]=='ScrabScrap' %}disabled{%
+                                    endif %}>{{ wifi[1] }}{% if wifi[0]=='*' %} *{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">
+                                <input type="password" class="form-control" pattern=".{8,}" name="psk" placeholder="psk"
+                                    required>
                             </div>
-                            <div class="row">
-                                <div class="col-8">
-                                    <input type="password" class="form-control" pattern=".{8,}" name="psk"
-                                        placeholder="psk" required>
-                                </div>
-                                <div class="col-4 float-end">
-                                    <button type="submit" class="btn btn-outline-secondary" name="btnscan" value="Scan"
-                                        formnovalidate="formnovalidate">
-                                        <i class="bi-clipboard-data"></i>Scan</button>
-                                    <button type="submit" class="btn btn-outline-primary" name="btnadd" value="Add">
-                                        <i class="bi-clipboard-plus"></i> Add</button>
-                                </div>
+                            <div class="col-4 float-end">
+                                <button type="submit" class="btn btn-outline-secondary" name="btnscan" value="Scan"
+                                    formnovalidate="formnovalidate">
+                                    <i class="bi-clipboard-data"></i>Scan</button>
+                                <button type="submit" class="btn btn-outline-primary" name="btnadd" value="Add">
+                                    <i class="bi-clipboard-plus"></i> Add</button>
                             </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row py-3">
         <div class="col-12">
-            <div class="py-2">
-                <div class="card">
-                    <div class="card-header">Messages</div>
-                    <div class="card-body">
-                        {% with messages = get_flashed_messages(with_categories=False) %}
-                        {% if messages %}
-                        {% for message in messages %}
-                        {{ message }}
-                        {% endfor %}
-                        {% endif %}
-                        {% endwith %}
-                    </div>
+            <div class="card">
+                <div class="card-header">Messages</div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=False) %}
+                    {% if messages %}
+                    {% for message in messages %}
+                    {{ message }}
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
                 </div>
             </div>
         </div>

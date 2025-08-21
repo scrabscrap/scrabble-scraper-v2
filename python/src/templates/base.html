@@ -28,88 +28,11 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/custom.css') }}">
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <script>
-    /*!
-     * Color mode toggler for Bootstrap's docs (https://getbootstrap.com/)
-     * Copyright 2011-2023 The Bootstrap Authors
-     * Licensed under the Creative Commons Attribution 3.0 Unported License.
-     */
-
-    (() => {
-      'use strict'
-
-      const storedTheme = localStorage.getItem('theme')
-
-      const getPreferredTheme = () => {
-        if (storedTheme) {
-          return storedTheme
-        }
-
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-      }
-
-      const setTheme = function (theme) {
-        if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          document.documentElement.setAttribute('data-bs-theme', 'dark')
-        } else {
-          document.documentElement.setAttribute('data-bs-theme', theme)
-        }
-      }
-
-      setTheme(getPreferredTheme())
-
-      const showActiveTheme = (theme, focus = false) => {
-        const themeSwitcher = document.querySelector('#bd-theme')
-
-        if (!themeSwitcher) {
-          return
-        }
-
-        const themeSwitcherText = document.querySelector('#bd-theme-text')
-        const activeThemeIcon = document.querySelector('.theme-icon-active i')
-        const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-        const svgOfActiveBtn = btnToActive.querySelector('i').getAttribute('class')
-
-        for (const element of document.querySelectorAll('[data-bs-theme-value]')) {
-          element.classList.remove('active')
-          element.setAttribute('aria-pressed', 'false')
-        }
-
-        btnToActive.classList.add('active')
-        btnToActive.setAttribute('aria-pressed', 'true')
-        activeThemeIcon.setAttribute('class', svgOfActiveBtn)
-        const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
-        themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
-
-        if (focus) {
-          themeSwitcher.focus()
-        }
-      }
-
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-        if (storedTheme !== 'light' || storedTheme !== 'dark') {
-          setTheme(getPreferredTheme())
-        }
-      })
-
-      window.addEventListener('DOMContentLoaded', () => {
-        showActiveTheme(getPreferredTheme())
-
-        for (const toggle of document.querySelectorAll('[data-bs-theme-value]')) {
-          toggle.addEventListener('click', () => {
-            const theme = toggle.getAttribute('data-bs-theme-value')
-            localStorage.setItem('theme', theme)
-            setTheme(theme)
-            showActiveTheme(theme, true)
-          })
-        }
-      })
-    })()
-  </script>
+  <script src="{{ url_for('static', filename='js/scrabscrap.theme.switcher.js') }}"></script>
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg">
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
       <a class="navbar-brand" href="/">ScrabScrap</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -120,114 +43,167 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownGame" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              <i class="bi-grid-3x3-gap"></i> Game
+              <i class="bi-grid-3x3-gap" aria-hidden="true"></i> Game
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/moves"><i class="bi-pencil"></i> Edit Moves</a></li>
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/button"><i class="bi-hand-index-thumb"></i> Button Control</a></li>
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/end_game"><i class="bi-sign-stop"></i> End Game</a></li>
-              <li><a class="dropdown-item" href="/new_game"><i class="bi-play-btn"></i> Start new Game</a></li>
+              <li><a class="dropdown-item" href="/moves"><i class="bi-pencil" aria-hidden="true"></i> Edit Moves</a>
+              </li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="/button"><i class="bi-hand-index-thumb" aria-hidden="true"></i> Button
+                  Control</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="/end_game"><i class="bi-sign-stop" aria-hidden="true"></i> End Game</a>
+              </li>
+              <li><a class="dropdown-item" href="/new_game"><i class="bi-play-btn" aria-hidden="true"></i> Start new
+                  Game</a></li>
             </ul>
           </li>
 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false"><i class="bi-webcam"></i> Camera</a>
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownCamera" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-webcam" aria-hidden="true"></i> Camera</a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/cam"><i class="bi-aspect-ratio"></i> Configure warp</a></li>
+              <li><a class="dropdown-item" href="/cam"><i class="bi-aspect-ratio" aria-hidden="true"></i> Configure
+                  warp</a></li>
             </ul>
           </li>
 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              <i class="bi-gear-fill"></i> Settings
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSettings" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi-gear-fill" aria-hidden="true"></i> Settings
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/settings"><i class="bi-gear"></i> Settings</a></li>
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/wifi"><i class="bi-wifi"></i> Wifi</a></li>
-              <div class="dropdown-divider"></div>
+              <li><a class="dropdown-item" href="/settings"><i class="bi-gear" aria-hidden="true"></i> Settings</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="/wifi"><i class="bi-wifi" aria-hidden="true"></i> Wifi</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
               <li><a class="dropdown-item" href="/upgrade_scrabscrap">
-                  <i class="bi-arrow-up-right-circle"></i> Upgrade ScrabScrap</a></li>
+                  <i class="bi-arrow-up-right-circle" aria-hidden="true"></i> Upgrade ScrabScrap</a></li>
             </ul>
           </li>
 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownLogs" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              <i class="bi-file-earmark-text"></i> Logs
+              <i class="bi-file-earmark-text" aria-hidden="true"></i> Logs
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/logs"><i class="bi-search"></i> Log output</a></li>
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/loglevel"><i class="bi-gear"></i> Log Settings</a></li>
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/log_sysinfo"><i class="bi-incognito"></i> System Info</a></li>
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/download_logs"><i class="bi-download"></i> Download Logs</a></li>
-              <li><a class="dropdown-item" href="/download_games"><i class="bi-download"></i> Download
+              <li><a class="dropdown-item" href="/logs"><i class="bi-search" aria-hidden="true"></i> Log output</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="/loglevel"><i class="bi-gear" aria-hidden="true"></i> Log Settings</a>
+              </li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="/log_sysinfo"><i class="bi-incognito" aria-hidden="true"></i> System
+                  Info</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="/download_logs"><i class="bi-download" aria-hidden="true"></i> Download
+                  Logs</a></li>
+              <li><a class="dropdown-item" href="/download_games"><i class="bi-download" aria-hidden="true"></i>
+                  Download
                   web folder file(s)</a></li>
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/delete_logs"><i class="bi-trash"></i> Delete Logs</a></li>
-              <li><a class="dropdown-item" href="/delete_recording"><i class="bi-trash"></i> Delete Recording(s)</a>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="/delete_logs"><i class="bi-trash" aria-hidden="true"></i> Delete
+                  Logs</a></li>
+              <li><a class="dropdown-item" href="/delete_recording"><i class="bi-trash" aria-hidden="true"></i> Delete
+                  Recording(s)</a>
               </li>
             </ul>
           </li>
 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              <i class="bi-card-checklist"></i> Tests
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTests" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi-card-checklist" aria-hidden="true"></i> Tests
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/test_led"><i class="bi-lightbulb"></i> LED</a></li>
-              <li><a class="dropdown-item" href="/test_display"><i class="bi-display"></i> Display</a></li>
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/test_upload"><i class="bi-upload"></i> Upload</a></li>
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/test_analyze"><i class="bi-ui-checks-grid"></i> Analyze</a></li>
+              <li><a class="dropdown-item" href="/test_led"><i class="bi-lightbulb" aria-hidden="true"></i> LED</a></li>
+              <li><a class="dropdown-item" href="/test_display"><i class="bi-display" aria-hidden="true"></i>
+                  Display</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="/test_upload"><i class="bi-upload" aria-hidden="true"></i> Upload</a>
+              </li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="/test_analyze"><i class="bi-ui-checks-grid" aria-hidden="true"></i>
+                  Analyze</a></li>
               {% if apiserver.simulator %}
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/simulator" target="simulator"><i class="bi-easel"></i> Simulator</a>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="/simulator" target="simulator"><i class="bi-easel"
+                    aria-hidden="true"></i> Simulator</a>
               </li>
               {% endif %}
             </ul>
           </li>
 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownVpn" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              <i class="bi-cloud"></i> VPN
+              <i class="bi-cloud" aria-hidden="true"></i> VPN
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               {% if apiserver.tailscale %}
-              <li><a class="dropdown-item" href="/vpn/status"><i class="bi-question-circle"></i> Status
+              <li><a class="dropdown-item" href="/vpn/status"><i class="bi-question-circle" aria-hidden="true"></i>
+                  Status
                   Tailscale</a>
               </li>
-              <li><a class="dropdown-item" href="/vpn/start"><i class="bi-toggle-on"></i> Start Tailscale</a></li>
-              <li><a class="dropdown-item" href="/vpn/stop"><i class="bi-toggle-off"></i> Stop Tailscale</a></li>
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item" href="/vpn/auth"><i class="bi-key"></i> Reauth Tailscale</a></li>
-              <li><a class="dropdown-item disabled" href="/vpn/install"><i class="bi-cart-plus"></i> Install
+              <li><a class="dropdown-item" href="/vpn/start"><i class="bi-toggle-on" aria-hidden="true"></i> Start
                   Tailscale</a></li>
-              <li><a class="dropdown-item" href="/vpn/uninstall"><i class="bi-cart-dash"></i> Remove Tailscale</a></li>
+              <li><a class="dropdown-item" href="/vpn/stop"><i class="bi-toggle-off" aria-hidden="true"></i> Stop
+                  Tailscale</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="/vpn/auth"><i class="bi-key" aria-hidden="true"></i> Reauth
+                  Tailscale</a></li>
+              <li><a class="dropdown-item disabled" href="/vpn/install"><i class="bi-cart-plus" aria-hidden="true"></i>
+                  Install
+                  Tailscale</a></li>
+              <li><a class="dropdown-item" href="/vpn/uninstall"><i class="bi-cart-dash" aria-hidden="true"></i> Remove
+                  Tailscale</a></li>
               {% else %}
-              <li><a class="dropdown-item disabled" href="/vpn/status"><i class="bi-question-circle"></i> Status
+              <li><a class="dropdown-item disabled" href="/vpn/status"><i class="bi-question-circle"
+                    aria-hidden="true"></i> Status
                   Tailscale</a>
               </li>
-              <li><a class="dropdown-item disabled" href="/vpn/start"><i class="bi-toggle-on"></i> Start Tailscale</a>
+              <li><a class="dropdown-item disabled" href="/vpn/start"><i class="bi-toggle-on" aria-hidden="true"></i>
+                  Start Tailscale</a>
               </li>
-              <li><a class="dropdown-item disabled" href="/vpn/stop"><i class="bi-toggle-off"></i> Stop Tailscale</a>
+              <li><a class="dropdown-item disabled" href="/vpn/stop"><i class="bi-toggle-off" aria-hidden="true"></i>
+                  Stop Tailscale</a>
               </li>
-              <div class="dropdown-divider"></div>
-              <li><a class="dropdown-item disabled" href="/vpn/auth"><i class="bi-key"></i> Reauth Tailscale</a></li>
-              <li><a class="dropdown-item" href="/vpn/install"><i class="bi-cart-plus"></i> Install Tailscale</a></li>
-              <li><a class="dropdown-item disabled" href="/vpn/uninstall"><i class="bi-cart-dash"></i> Remove
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item disabled" href="/vpn/auth"><i class="bi-key" aria-hidden="true"></i> Reauth
+                  Tailscale</a></li>
+              <li><a class="dropdown-item" href="/vpn/install"><i class="bi-cart-plus" aria-hidden="true"></i> Install
+                  Tailscale</a></li>
+              <li><a class="dropdown-item disabled" href="/vpn/uninstall"><i class="bi-cart-dash"
+                    aria-hidden="true"></i> Remove
                   Tailscale</a></li>
               {% endif %}
             </ul>
@@ -235,44 +211,47 @@
 
           {% if apiserver.local_webapp %}
           <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="/webapp/index.html" target="webapp"><i class="bi-eye"></i>
+            <a class="nav-link" aria-current="page" href="/webapp/index.html" target="webapp"><i class="bi-eye"
+                aria-hidden="true"></i>
               Web-App</a>
           </li>
           {% endif %}
 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false"><i class="bi-brush"></i> Theme</a>
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTheme" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-brush" aria-hidden="true"></i> Theme</a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li><a class="dropdown-item" data-bs-theme-value="auto" href="#">
-                  <i class="bi-toggles"></i> Auto</a></li>
+                  <i class="bi-toggles" aria-hidden="true"></i> Auto</a></li>
               <li><a class="dropdown-item" data-bs-theme-value="light" href="#">
-                  <i class="bi-sun"></i> Light</a></li>
+                  <i class="bi-sun" aria-hidden="true"></i> Light</a></li>
               <li><a class="dropdown-item" data-bs-theme-value="dark" href="#">
-                  <i class="bi-sun-fill"></i> Dark</a></li>
+                  <i class="bi-sun-fill" aria-hidden="true"></i> Dark</a></li>
             </ul>
           </li>
 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownExit" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              <i class="bi-box-arrow-right"></i> Exit
+              <i class="bi-box-arrow-right" aria-hidden="true"></i> Exit
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li class="nav-item"><a class="nav-link" href="/restart"><i class="bi-arrow-repeat"></i> Restart
+              <li class="nav-item"><a class="nav-link" href="/restart"><i class="bi-arrow-repeat"
+                    aria-hidden="true"></i> Restart
                   App</a></li>
-              <li class="nav-item"><a class="nav-link" href="/end"><i class="bi-box-arrow-right"></i> End App</a></li>
-              <li class="nav-item"><a class="nav-link" href="/reboot"><i class="bi-bootstrap-reboot"></i> Reboot</a>
-              <li class="nav-item"><a class="nav-link" href="/shutdown"><i class="bi-toggle-off"></i> Shutdown</a>
+              <li class="nav-item"><a class="nav-link" href="/end"><i class="bi-box-arrow-right" aria-hidden="true"></i>
+                  End App</a></li>
+              <li class="nav-item"><a class="nav-link" href="/reboot"><i class="bi-bootstrap-reboot"
+                    aria-hidden="true"></i> Reboot</a>
+              <li class="nav-item"><a class="nav-link" href="/shutdown"><i class="bi-toggle-off" aria-hidden="true"></i>
+                  Shutdown</a>
               </li>
             </ul>
           </li>
 
-
         </ul>
-
         <span class="navbar-text">
-          <i class="bi-info-circle"></i> {{apiserver.scrabscrap_version}}
+          <i class="bi-info-circle" aria-hidden="true"></i> {{apiserver.scrabscrap_version}}
         </span>
       </div>
     </div>
@@ -283,7 +262,6 @@
   </main>
   <!-- JavaScript Bundle with Popper -->
   <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-
 </body>
 
 </html>

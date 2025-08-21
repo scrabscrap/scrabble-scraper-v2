@@ -1,17 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<div class="container py-2">
     <form action="/settings" method="post">
         <div class="row">
-            <div class="col-4">
 
+            <div class="col-4">
                 <div class="row">
                     <div class="py-2"><!-- start scrabble -->
                         <div class="card">
-                            <div class="card-header">
-                                <i class="bi-grid-3x3-gap"></i> Scrabble
-                            </div>
+                            <div class="card-header"><i class="bi-grid-3x3-gap"></i> Scrabble</div>
                             <div class="card-body">
                                 <div class="input-group">
                                     <label class="col-sm-4 col-form-label" for="scrabble.show_score">
@@ -81,9 +79,7 @@
                 <div class="row">
                     <div class="py-2"> <!-- start video -->
                         <div class="card">
-                            <div class="card-header">
-                                <i class="bi-webcam"></i> Video
-                            </div>
+                            <div class="card-header"><i class="bi-webcam"></i> Video</div>
                             <div class="card-body">
                                 <div class="input-group">
                                     <label class="col-sm-4 col-form-label" for="video.rotate">
@@ -144,9 +140,7 @@
                 <div class="row">
                     <div class="py-2"> <!-- start board -->
                         <div class="card">
-                            <div class="card-header">
-                                <i class="bi-border-all"></i> Board
-                            </div>
+                            <div class="card-header"><i class="bi-border-all"></i> Board</div>
                             <div class="card-body">
                                 <div class="py-1 input-group">
                                     <label class="col-sm-4 col-form-label" for="board.layout">
@@ -295,13 +289,10 @@
             </div>
 
             <div class="col-4">
-
                 <div class="row">
                     <div class="py-2"> <!-- start upload -->
                         <div class="card">
-                            <div class="card-header">
-                                <i class="bi-cloud"></i> FTP/HTTP Upload
-                            </div>
+                            <div class="card-header"><i class="bi-cloud"></i> FTP/HTTP Upload</div>
                             <div class="card-body">
                                 <div class="input-group">
                                     <label class="col-sm-4 col-form-label" for="output.upload_server">
@@ -342,9 +333,7 @@
                 <div class="row">
                     <div class="py-2"> <!-- start system -->
                         <div class="card">
-                            <div class="card-header">
-                                <i class="bi-motherboard"></i> System
-                            </div>
+                            <div class="card-header"><i class="bi-motherboard"></i> System</div>
                             <div class="card-body">
                                 <div class="form-group row py-1">
                                     <label class="col-sm-4 col-form-label" for="system.gitbranch">
@@ -386,9 +375,7 @@
                 <div class="row">
                     <div class="py-2"> <!-- start development -->
                         <div class="card">
-                            <div class="card-header">
-                                <i class="bi-bug"></i> Development
-                            </div>
+                            <div class="card-header"><i class="bi-bug"></i> Development</div>
                             <div class="card-body">
                                 <div class="input-group">
                                     <label class="col-sm-4 col-form-label" for="development.recording">
@@ -404,7 +391,6 @@
                         </div>
                     </div> <!-- end development -->
                 </div>
-
             </div>
         </div> <!-- row -->
 

@@ -1,84 +1,61 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<div class="container py-3">
     <div class="row">
         <div class="col-6">
-            <div class="row">
-                <div class="py-2">
-                    <div class="card">
-                        <div class="card-header">
-                            ScrabScrap
+            <div class="card">
+                <div class="card-header">ScrabScrap</div>
+                <div class="card-body">
+                    <form action="/button" method="post">
+                        <div class="row justify-content-center text-center py-2">
+                            <div class="col-2">
+                                <button type="submit" class="btn btn-success btn-circle btn-md" data-toggle="tooltip"
+                                    title="Move Green" name="GREEN" value="GREEN">
+                                    {% if green == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
+                                </button>
+                            </div>
+                            <div class="col-8">
+                                <button type="submit" class="btn btn-warning btn-circle btn-md" data-toggle="tooltip"
+                                    title="Pause" name="YELLOW" value="YELLOW">
+                                    {% if yellow == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
+                                </button>
+                            </div>
+                            <div class="col-2">
+                                <button type="submit" class="btn btn-danger btn-circle btn-md" data-toggle="tooltip"
+                                    title="Move Red" name="RED" value="RED">
+                                    {% if red == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
+                                </button>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <form action="/button" method="post">
-                                <div class="row py-2">
-                                    <div class="col-2 text-center">
-                                        <button type="submit" class="btn btn-success mb-3 btn-circle btn-md"
-                                            data-toggle="tooltip" data-placement="top" title="Move Green" name="GREEN"
-                                            value="GREEN">
-                                            {% if green == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
-                                        </button>
-                                    </div>
-                                    <div class="col"> </div>
-                                    <div class="col-2 text-center">
-                                        <button type="submit" class="btn btn-warning mb-3 btn-circle btn-md"
-                                            data-toggle="tooltip" data-placement="top" title="Pause" name="YELLOW"
-                                            value="YELLOW">
-                                            {% if yellow == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
-                                        </button>
-                                    </div>
-                                    <div class="col"> </div>
-                                    <div class="col-2 text-center">
-                                        <button type="submit" class="btn btn-danger mb-3 btn-circle btn-md"
-                                            data-toggle="tooltip" data-placement="top" title="Move Red" name="RED"
-                                            value="RED">
-                                            {% if red == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row py-2 px-2">
-                                    <div class="col"> </div>
-                                    <div class="col-3 py-2 border border-secondary text-center"
-                                        style="color: white; background-color: black;">{{ left }}</div>
-                                    <div class="col-2"> </div>
-                                    <div class="col-3 py-2 border border-secondary text-center"
-                                        style="color: white; background-color: black;">{{ right }}</div>
-                                    <div class="col"> </div>
-                                </div>
-                                <div class="row py-2 px-2">
-                                    <div class="col"> </div>
-                                    <div class="col-2 text-center">
-                                        <button type="submit" class="btn btn-outline-success btn-circle btn-sm"
-                                            data-toggle="tooltip" data-placement="top" title="Doubt Green" name="DOUBT0"
-                                            value="DOUBT0"></button>
-                                    </div>
-                                    <div class="col-1 text-center">
-                                        <button type="submit" class="btn btn-outline-warning btn-circle btn-sm"
-                                            data-toggle="tooltip" data-placement="top" title="End of Game" name="RESET"
-                                            value="RESET"></button>
-                                    </div>
-                                    <div class="col-2 text-center">
-                                        <button type="submit" class="btn btn-outline-danger btn-circle btn-sm"
-                                            data-toggle="tooltip" data-placement="top" title="Doubt Red" name="DOUBT1"
-                                            value="DOUBT1"></button>
-                                    </div>
-                                    <div class="col"> </div>
-
-                                </div>
-                            </form>
+                        <div class="row justify-content-center text-center py-2">
+                            <div class="col-3 py-2 border border-secondary bg-dark text-white">{{ left }}</div>
+                            <div class="col-2"> </div>
+                            <div class="col-3 py-2 border border-secondary bg-dark text-white"> {{ right }}</div>
                         </div>
-                    </div>
+                        <div class="row justify-content-center text-center py-2">
+                            <div class="col-2">
+                                <button type="submit" class="btn btn-outline-success btn-circle btn-sm"
+                                    data-toggle="tooltip" title="Doubt Green" name="DOUBT0" value="DOUBT0"></button>
+                            </div>
+                            <div class="col-2">
+                                <button type="submit" class="btn btn-outline-warning btn-circle btn-sm"
+                                    data-toggle="tooltip" title="End of Game" name="RESET" value="RESET"></button>
+                            </div>
+                            <div class="col-2">
+                                <button type="submit" class="btn btn-outline-danger btn-circle btn-sm"
+                                    data-toggle="tooltip" title="Doubt Red" name="DOUBT1" value="DOUBT1"></button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        var blurred = false;
-        window.onblur = function () { blurred = true; };
-        window.onfocus = function () { blurred && (location.reload()); };
-        // window.scrollTo(0, document.body.scrollHeight);
+        let blurred = false;
+        window.onblur = () => { blurred = true; };
+        window.onfocus = () => { blurred && location.reload(); };
     </script>
-
 </div>
 {% endblock %}
