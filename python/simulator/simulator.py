@@ -165,7 +165,7 @@ def simulator() -> str:
     png_next = urllib.parse.quote(base64.b64encode(bytes(pic_buf_arr)))
     next_file = ''
     if isinstance(camera.cam, camera.CameraFile):
-        next_file = camera.cam._formatter.format(camera.cam._counter).split('/')[-1]
+        next_file = camera.cam._formatter.format(camera.cam._counter).split('/')[-1]  # ruff: noqa SLF001 # pylint: disable=protected-access
 
     return render_template(
         'simulator.html',
