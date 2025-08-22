@@ -20,21 +20,41 @@ const WS_TIMEOUT = 30 * 60 * 1000; // 30min
 const WS_RECONNECT = 2000; // 2s
 const MAX_RETRIES = 100;
 
+interface GameStatus {
+  'api': string;    // api version
+  'timestamp': number | null; // timestamp for creating the json data (float) - new in api 3.0
+  'commit': string; // git commit for app
+  'layout': string; // custom2012, custom2020, custom2020light
+  'tournament': string;
+  'name1': string;
+  'name2': string;
+  'onmove': string; // player on move
+  'time': string;   // timestamp current move
+  'move': number;   // int
+  'score1': number; // int
+  'score2': number; // int
+  'time1': number;  // int
+  'time2': number;  // int
+  'moves': any;
+  'board': any;
+  'bag': any;
+  'unknown_move': boolean; // true if moves contains MoveUnknown; the score calculation is invalid
+}
+
+interface WSData {
+  op: string;         // current Status of Game (START, S0, S1, P0, P1, EOG)
+  clock1: number;     // current timer player1
+  clock2: number;     // current timer player2
+  image: string;      // image url or data image
+  status: GameStatus;
+}
+
 interface LiveDataState {
-  data: {
-    op: string;
-    clock1: number;
-    clock2: number;
-    image: string;
-    status: any;
-    unknown_move: boolean;
-  } | null;
+  data: WSData | null;
   lastUpdate: number | null;
   isStale: boolean;
   usingWebSocket: boolean | null;
 }
-
-
 
 export function useLiveData(pollUrl: string, wsUrl: string) {
   const { settings } = useSettings();
@@ -49,7 +69,7 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
   const reconnectTimer = useRef(null);
   const startTime = useRef<number | null>(null);
 
-  const hasUnknownMove = (data) => {
+  const hasUnknownMove = (data: GameStatus) => {
     if (!data.move) return false;
     if (!data.moves) return false;
     const items: Array<string> = data.moves
@@ -62,7 +82,7 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
   // --------------------------
   // Polling
   // --------------------------
-  const hasDataChanged = (prevData: any, newJson: any) => {
+  const hasDataChanged = (prevData: WSData, newJson: GameStatus) => {
     if (!prevData?.status) return true;
 
     return (
@@ -84,6 +104,7 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
         const res = await fetch(pollUrl);
         if (!res.ok) return;
         const json = await res.json();
+        console.debug(json)
 
         setState((prev) => {
           const changed = hasDataChanged(prev.data, json);
@@ -93,8 +114,10 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
           const clock1 = json.time1;
           const clock2 = json.time2;
           const image = json.moves.length > 0 ? `web/image-${json.move}.jpg?${clock1}${clock2}` : "";
-          const unknown_move = hasUnknownMove(json);
-
+          // new field (api 3.1): status.unknown_move
+          if (!('unknown_move' in json)) {
+            json.unknown_move = hasUnknownMove(json);
+          }
           return {
             ...prev,
             data: {
@@ -103,7 +126,6 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
               clock2,
               image,
               status: json,
-              unknown_move,
             },
             lastUpdate: changed ? now : prev.lastUpdate ?? now,
             isStale:
@@ -177,13 +199,16 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
     ws.onmessage = (ev) => {
       try {
         const json = JSON.parse(ev.data);
-        const unknown_move = hasUnknownMove(json.status);
-
+        // new field (api 3.1): status.unknown_move
+        if (!('unknown_move' in json.status)) {
+          json.status.unknown_move = hasUnknownMove(json);
+          console.debug('add unknown_move')
+        }
+        console.debug(json)
         setState((prev) => ({
           ...prev,
           data: {
             ...json,
-            unknown_move,
           },
           lastUpdate: Date.now(),
           isStale: false,

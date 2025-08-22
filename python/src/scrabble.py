@@ -54,7 +54,7 @@ from move import (
 from utils.threadpool import Command
 from utils.upload import upload
 
-API_VERSION = '3.0'
+API_VERSION = '3.1'
 JSON_FLAG = 'json'
 IMAGE_FLAG = 'image'
 logger = logging.getLogger()
@@ -89,40 +89,35 @@ class Game:  # pylint: disable=too-many-public-methods
         """Return the json represention of the board"""
 
         name1, name2 = self.nicknames
-        base_json = {
+        data = {
             'api': API_VERSION,
             'timestamp': time.time(),
             'commit': version.git_commit,
             'layout': config.board.layout,
             'tournament': config.scrabble.tournament,
-            'name1': name1,
-            'name2': name2,
-        }
-        if not self.moves:
-            data = base_json | {
-                'time': str(self.gamestart),
-                'move': 0, 'score1': 0, 'score2': 0,
-                'time1': config.scrabble.max_time, 'time2': config.scrabble.max_time,
-                'onmove': name1, 'moves': [], 'board': {}, 'props': {},
-                'bag': bag_as_list.copy(),
-            }  # fmt: off
-        else:
+            'name1': name1, 'name2': name2, 'onmove': name1,
+            'unknown_move': ('MoveUnknown' in {x.__class__.__name__ for x in self.moves}),
+            'time': str(self.gamestart),
+            'move': 0,
+            'score1': 0, 'score2': 0,
+            'time1': config.scrabble.max_time, 'time2': config.scrabble.max_time,
+            'moves': [], 'board': {},
+            'bag': self.tiles_in_bag(index),
+        }  # fmt:off
+        if self.moves:
             move_index = len(self.moves) + index if index < 0 else index
             move = self.moves[move_index]
             keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in move.board]
             values1 = [tile.letter for tile in move.board.values()]
-            prop1 = [tile.prob for tile in move.board.values()]
             gcg_moves = [self.moves[i].gcg_str for i in range(move_index + 1)]
-            data = base_json | {
+            data |=  {
+                'onmove': self.nicknames[move.player],
                 'time': move.time, 'move': move.move,
                 'score1': move.score[0], 'score2': move.score[1],
                 'time1': config.scrabble.max_time - move.played_time[0],
                 'time2': config.scrabble.max_time - move.played_time[1],
-                'onmove': self.nicknames[move.player],
                 'moves': gcg_moves,
                 'board': dict(zip(keys1, values1)),
-                'props': dict(zip(keys1, prop1)),
-                'bag': self.tiles_in_bag(index),
             }  # fmt: off
         return data
 
