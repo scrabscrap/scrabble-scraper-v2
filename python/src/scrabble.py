@@ -25,6 +25,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+import pprint
 import time
 
 import cv2
@@ -372,8 +373,8 @@ class Game:  # pylint: disable=too-many-public-methods
         logger.info(f'new scores {self.moves[-1].score}:\n{self.board_str()}')
         if logger.isEnabledFor(logging.DEBUG):
             msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in self.moves)
-            json_str = self.json_str()
-            logger.debug(f'{msg}\napi: {json_str[: json_str.find("moves") + 7]}...\n')
+            pp = pprint.PrettyPrinter(indent=2, depth=1)
+            logger.debug(f'{msg}\napi:\n{pp.pformat(self._get_json_data())}')
 
         return self
 

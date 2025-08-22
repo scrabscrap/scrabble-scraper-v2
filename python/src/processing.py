@@ -19,6 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
 import logging
+import pprint
 import uuid
 from contextlib import suppress
 from pathlib import Path
@@ -299,8 +300,8 @@ def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, even
     logger.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
     if logger.isEnabledFor(logging.DEBUG):
         msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in game.moves)
-        json_str = game.json_str()
-        logger.debug(f'{msg}\napi: {json_str[: json_str.find("moves") + 7]}...\n')
+        pp = pprint.PrettyPrinter(indent=2, depth=1)
+        logger.debug(f'{msg}\napi:\n{pp.pformat(game._get_json_data())}')  # pylint: disable=protected-access # noqa: SLF001
     logger.info(game.dev_str())
     store_zip_from_game(game)
 
