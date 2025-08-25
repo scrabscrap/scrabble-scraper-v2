@@ -97,7 +97,7 @@ if importlib.util.find_spec('picamera2'):
         @runtime_measure
         def read(self, peek: bool = False) -> MatLike:
             """read next picture"""
-            return self.frame
+            return self.frame.copy()
 
         def update(self, event: Event) -> None:
             """update to next picture on thread event"""
@@ -219,7 +219,7 @@ class CameraOpenCV(Camera):
 
     @runtime_measure
     def read(self, peek: bool = False) -> MatLike:
-        return self.frame
+        return self.frame.copy()
 
     def update(self, event: Event) -> None:
         self.event = event

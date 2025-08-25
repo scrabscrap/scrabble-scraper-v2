@@ -91,6 +91,7 @@ class State(Static):
         ScrabbleWatch.start(player)
         LED.switch(on=PLAYER_LEDS[player])
         ScrabbleWatch.display.render_display(player, (0, 0), (0, 0))
+        cls.ctx.picture = camera.cam.read(peek=True)
         return next_state
 
     @classmethod
@@ -100,7 +101,7 @@ class State(Static):
         _, played_time, _ = ScrabbleWatch.status()
         ScrabbleWatch.start(next_player)
         LED.switch(on=PLAYER_LEDS[next_player])
-        cls.ctx.picture = camera.cam.read().copy()
+        cls.ctx.picture = camera.cam.read()
         with suppress(Exception):
             command_queue.put_nowait(Command(move, cls.ctx.game, cls.ctx.picture, player, played_time, cls.ctx.op_event))
         return next_state
@@ -118,7 +119,7 @@ class State(Static):
         ScrabbleWatch.resume()
         LED.switch(on=PLAYER_LEDS[player])
         with suppress(Exception):
-            cls.ctx.picture = camera.cam.read(peek=True).copy()
+            cls.ctx.picture = camera.cam.read(peek=True)
             command_queue.put_nowait(Command(check_resume, cls.ctx.game, cls.ctx.picture, cls.ctx.op_event))
         return next_state
 
@@ -171,7 +172,7 @@ class State(Static):
         player, _, _ = ScrabbleWatch.status()
         picture = None
         with suppress(Exception):
-            picture = camera.cam.read(peek=True).copy()
+            picture = camera.cam.read(peek=True)
         with suppress(Exception):
             command_queue.put_nowait(
                 Command(end_of_game, game=cls.ctx.game, image=picture, player=player, event=cls.ctx.op_event)
