@@ -55,14 +55,11 @@ class CommandWorker(threading.Thread):
                         logger.warning('CommandWorker received None, shutting down')  # Log shutdown
                         continue  # never end worker thread
                     command.execute()
-                    logger.debug(f'CommandWorker finished command: {command.func.__name__}')
+                    logger.debug(f'Command finished: {command.func.__name__} Queue: {self.command_queue.qsize()}')
                 except Exception as e:  # pylint: disable=broad-exception-caught
                     logger.exception(f'unexpected exception in CommandWorker {e}')
                 finally:
                     self.command_queue.task_done()
-                    logger.debug(
-                        f'Queue size: {self.command_queue.qsize()}, Unfinished tasks: {self.command_queue.unfinished_tasks}'
-                    )
             except queue.Empty:  # continue with next entry
                 pass
 
