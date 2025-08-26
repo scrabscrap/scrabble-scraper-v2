@@ -170,9 +170,7 @@ class Game:  # pylint: disable=too-many-public-methods
         self.nicknames = ('Name1', 'Name2')
         self.gamestart = datetime.now()
         self.moves.clear()
-        self._write_status(i=-1, web_dir=config.path.web_dir)  # only status file
-        if config.output.upload_server:
-            upload.get_upload_queue().put_nowait(Command(upload.upload_status))
+        self._write_json_from(-1, [])
         return self
 
     def end_game(self) -> Game:
@@ -219,41 +217,41 @@ class Game:  # pylint: disable=too-many-public-methods
             prev_move = m
         return self
 
-    def _write_json(self, i: int, web_dir: Path) -> None:
-        json_path = web_dir / f'data-{i}.json'
-        with json_path.open('w', encoding='utf-8') as json_file:
-            json.dump(self._get_json_data(index=i), json_file, indent=4)
-
-    def _write_image(self, i: int, web_dir: Path) -> None:
-        img = self.moves[i].img
+    def _write_image(self, index: int, web_dir: Path) -> None:
+        img = self.moves[index].img
         if img is not None:
-            image_path = web_dir / f'image-{i}.jpg'
+            image_path = web_dir / f'image-{index}.jpg'
             cv2.imwrite(str(image_path), img, [cv2.IMWRITE_JPEG_QUALITY, 100])  # type:ignore
 
-    def _write_status(self, i: int, web_dir: Path) -> None:
-        status_path = web_dir / 'status.json'
+    def _write_json(self, index: int, web_dir: Path, fname: str) -> None:
+        status_path = web_dir / fname
         with status_path.open('w', encoding='utf-8') as json_file:
-            json.dump(self._get_json_data(index=i), json_file, indent=4)
+            json.dump(self._get_json_data(index=index), json_file, indent=2)
 
     def _write_json_from(self, index: int, write_mode: list[str]) -> Game:
         """write json for move"""
-        if not self.moves or config.is_testing:  # skip if under test or no moves
+        if config.is_testing:  # skip if under test or no moves
+            return self
+        web_dir = Path(config.path.web_dir)
+        if not self.moves:
+            upload.get_upload_queue().put_nowait(Command(self._write_json, -1, web_dir, 'status.json'))
+            if config.output.upload_server:
+                upload.get_upload_queue().put_nowait(Command(upload.upload_move, index))
             return self
         index = index % len(self.moves)  # convert to positive index
         if not self.valid_index(index):
             logger.warning(f'invalid index {index} skipped')
             return self
-        web_dir = Path(config.path.web_dir)
         write_json = JSON_FLAG in write_mode
         write_img = IMAGE_FLAG in write_mode
 
         for i in range(index, len(self.moves)):
             if write_json:
-                self._write_json(i, web_dir)
+                upload.get_upload_queue().put_nowait(Command(self._write_json, i, web_dir, f'data-{i}.json'))
             if write_img:
-                self._write_image(i, web_dir)
+                upload.get_upload_queue().put_nowait(Command(self._write_image, i, web_dir))
             if i == len(self.moves) - 1:
-                self._write_status(i, web_dir)
+                upload.get_upload_queue().put_nowait(Command(self._write_json, i, web_dir, 'status.json'))
             if config.output.upload_server:
                 upload.get_upload_queue().put_nowait(Command(upload.upload_move, index))
         return self

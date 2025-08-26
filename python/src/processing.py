@@ -293,8 +293,7 @@ def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, even
             logger.info(f'automatic move (player {player})')
             move(game, image, player, last_move.played_time, event)
 
-    game.add_timeout_malus()  # add as move
-    game.add_lastrack()
+    game.end_game()
     event_set(event)
 
     logger.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
