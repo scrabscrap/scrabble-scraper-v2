@@ -19,12 +19,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
 import logging
-import pprint
-import uuid
 from contextlib import suppress
 from pathlib import Path
 from threading import Event
-from zipfile import ZipFile
 
 import cv2
 from cv2.typing import MatLike
@@ -295,41 +292,3 @@ def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, even
 
     game.end_game()
     event_set(event)
-
-    logger.info(f'new scores {game.moves[-1].score}:\n{game.board_str()}')
-    if logger.isEnabledFor(logging.DEBUG):
-        msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in game.moves)
-        pp = pprint.PrettyPrinter(indent=2, depth=1)
-        logger.debug(f'{msg}\napi:\n{pp.pformat(game._get_json_data())}')  # pylint: disable=protected-access # noqa: SLF001
-    logger.info(game.dev_str())
-    store_zip_from_game(game)
-
-
-def store_zip_from_game(game: Game) -> None:  # pragma: no cover
-    """zip a game and upload to server"""
-
-    if config.is_testing:
-        logger.info('skip store because flag is_testing is set')
-        return
-    game_id = game.gamestart.strftime('%y%j-%H%M%S')
-    zip_filename = f'{game_id}-{str(uuid.uuid4())}'
-    web_dir = config.path.web_dir
-    log_dir = config.path.log_dir
-    try:
-        with ZipFile(web_dir / f'{zip_filename}.zip', 'w') as _zip:
-            logger.info(f'create zip with {len(game.moves):d} files')
-            for mov in game.moves:
-                for suffix in ['.jpg', '-camera.jpg', '.json']:
-                    filename = f'{"image" if "jpg" in suffix else "data"}-{mov.move}{suffix}'
-                    filepath = web_dir / filename
-                    if filepath.exists():
-                        _zip.write(filepath, arcname=filename)
-            for log_file in ['game.log', 'messages.log']:
-                log_path = log_dir / log_file
-                if log_path.exists():
-                    _zip.write(log_path, arcname=log_file)
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        logger.error(f'creating zip file {e=}')
-    if config.output.upload_server:
-        upload.get_upload_queue().put_nowait(Command(upload.zip_files))
-        upload.get_upload_queue().join()  # wait for finishing uploads

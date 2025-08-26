@@ -20,13 +20,15 @@ from __future__ import annotations
 
 import json
 import logging
+import pprint
+import time
+import uuid
 from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-import pprint
-import time
+from zipfile import ZipFile
 
 import cv2
 from cv2.typing import MatLike
@@ -177,6 +179,19 @@ class Game:  # pylint: disable=too-many-public-methods
         """finish game"""
         self.add_timeout_malus()
         self.add_lastrack()
+
+        upload.get_upload_queue().put_nowait(Command(self._zip_from_game))
+        if config.output.upload_server:
+            upload.get_upload_queue().put_nowait(Command(upload.zip_files))
+
+        logger.info(f'new scores {self.moves[-1].score}:\n{self.board_str()}')
+        if logger.isEnabledFor(logging.DEBUG):
+            msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in self.moves)
+            pp = pprint.PrettyPrinter(indent=2, depth=1)
+            logger.debug(f'{msg}\napi:\n{pp.pformat(self._get_json_data())}')  # pylint: disable=protected-access # noqa: SLF001
+        logger.info(self.dev_str())
+        upload.get_upload_queue().join()  # wait for finishing uploads
+
         return self
 
     def tiles_in_bag(self, index: int = -1) -> list[str]:
@@ -255,6 +270,30 @@ class Game:  # pylint: disable=too-many-public-methods
             if config.output.upload_server:
                 upload.get_upload_queue().put_nowait(Command(upload.upload_move, index))
         return self
+
+    def _zip_from_game(self):
+        if config.is_testing:
+            logger.info('skip store because flag is_testing is set')
+            return
+        game_id = self.gamestart.strftime('%y%j-%H%M%S')
+        zip_filename = f'{game_id}-{str(uuid.uuid4())}'
+        web_dir = config.path.web_dir
+        log_dir = config.path.log_dir
+        try:
+            with ZipFile(web_dir / f'{zip_filename}.zip', 'w') as _zip:
+                logger.info(f'create zip with {len(self.moves):d} files')
+                for mov in self.moves:
+                    for suffix in ['.jpg', '-camera.jpg', '.json']:
+                        filename = f'{"image" if "jpg" in suffix else "data"}-{mov.move}{suffix}'
+                        filepath = web_dir / filename
+                        if filepath.exists():
+                            _zip.write(filepath, arcname=filename)
+                for log_file in ['game.log', 'messages.log']:
+                    log_path = log_dir / log_file
+                    if log_path.exists():
+                        _zip.write(log_path, arcname=log_file)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error(f'creating zip file {e=}')
 
     def _insert_move(self, move: Move, index: int = -1, recalc_from: int | None = None) -> Game:
         if index == -1:
