@@ -181,7 +181,6 @@ class State(Static):
 
         ScrabbleWatch.display.show_end_of_game()
         LED.switch(blink={LEDEnum.yellow})
-        event_set(cls.ctx.op_event)
         cls.ctx.current_state = GameState.EOG  # method called from outside (api_server)
         return cls.ctx.current_state
 
