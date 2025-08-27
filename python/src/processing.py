@@ -225,7 +225,6 @@ def check_resume(game: Game, image: MatLike, event: Event | None = None) -> None
         if intersection == set():  #  empty set => tiles are removed
             valid_challenge(game, event)
             logger.info('automatic valid challenge after resume')
-            event_set(event=event)
         # else: # uncomment if you want a invalid challenges as default on resume
         #     invalid_challenge(game, player, played_time, event)
         #     logger.info(f'automatic invalid challenge (move time {current_time[player]} sec)')
