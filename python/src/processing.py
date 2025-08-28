@@ -208,7 +208,7 @@ def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], ev
         index = len(game.moves)
         upload.get_upload_queue().put_nowait(Command(_write_original_image, img.copy(), index))
     game.add_move(player=player, played_time=played_time, img=warped, new_tiles=new_tiles, removed_tiles=removed_tiles)
-    event_set(event)
+    event_set(event=event)
 
 
 @trace
@@ -268,7 +268,7 @@ def new_game(game: Game, event: Event | None = None) -> None:
             if file_list:
                 rotate_logs()
     game.new_game()
-    event_set(event)
+    event_set(event=event)
 
 
 @trace
@@ -290,4 +290,4 @@ def end_of_game(game: Game, image: MatLike | None = None, player: int = -1, even
             move(game, image, player, last_move.played_time, event)
 
     game.end_game()
-    event_set(event)
+    event_set(event=event)

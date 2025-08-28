@@ -23,14 +23,14 @@ export function Player({ player }: PlayerProps) {
     const { settings } = useSettings();
     const { data, usingWebSocket } = useDataContext();
 
-    const name = (player === 0) ? data.status.name1 : data.status.name2;
+    const name = (player === 0) ? data.name1 : data.name2;
     const clock = (player === 0) ? data.clock1 : data.clock2;
-    const score = (player === 0) ? data.status.score1 : data.status.score2;
+    const score = (player === 0) ? data.score1 : data.score2;
     const playerColor = (player === 0) ? 'text-success' : 'text-danger';
     const [timeLeft, setTimeLeft] = useState(clock);
     const timeoutID = useRef(null);
-    const onMove = (data.op === 'S0' && player === 0) || (data.op === 'S1' && player === 1);
-    const isPaused = (data.op === 'P0' && player === 0) || (data.op === 'P1' && player === 1);
+    const onMove = (data.state === 'S0' && player === 0) || (data.state === 'S1' && player === 1);
+    const isPaused = (data.state === 'P0' && player === 0) || (data.state === 'P1' && player === 1);
     const headerColor = onMove ? 'bg-info' : isPaused ? 'bg-warning' : '';
 
     // util to format time string
@@ -70,7 +70,7 @@ export function Player({ player }: PlayerProps) {
                     <span>
                         <b>
                             {score}
-                            {data.status.unknown_move ? ' ?' : ''}
+                            {data.unknown_move ? ' ?' : ''}
                         </b>
                     </span>
                     <span className="float-right monospace">

@@ -16,7 +16,7 @@ import { useDataContext } from "../context/DataContext";
 
 export function Bag() {
     const { data } = useDataContext();
-    const bag = data.status.bag
+    const bag = data.bag
     const cntTiles = bag?.length ?? 0;
     const cntBag = cntTiles > 14 ? cntTiles - 14 : 0;
     const panelClass = `card-body bag-body${cntTiles > 0 && cntTiles <= 14 ? ' bg-warning' : ''}`;

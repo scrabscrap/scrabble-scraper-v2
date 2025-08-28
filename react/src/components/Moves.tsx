@@ -36,8 +36,8 @@ function isScrabble(word: string): boolean {
 
 export function Moves() {
     const { data } = useDataContext();
-    const moves: Map<number, string> | null = data.status.moves as Map<number, string> | null;
-    const api: string = data.status.api;
+    const moves: Map<number, string> | null = data.moves as Map<number, string> | null;
+    const api: string = data.api;
 
 
     function renderRow(key: number, imgLink: string, name: string, sp: string[], marker: string = '') {

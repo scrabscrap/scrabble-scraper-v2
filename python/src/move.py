@@ -215,6 +215,11 @@ class Move:  # pylint: disable=too-many-instance-attributes
         return gcg_strings[self.type].format(m=self)
 
     @property
+    def gcg_word(self) -> str:
+        """move as gcg string"""
+        return ''
+
+    @property
     def dev_str(self) -> str:
         """returns a string for GCG"""
         return dev_strings[self.type].format(m=self, button=('Green', 'Red')[self.player], status=('S1', 'S0')[self.player])
@@ -439,6 +444,10 @@ class MoveWithdraw(Move):
         return self.points, False
 
     @property
+    def gcg_word(self) -> str:
+        return self.word
+
+    @property
     def dev_str(self) -> str:
         return dev_strings[self.type].format(
             m1=self.previous_move,
@@ -494,6 +503,10 @@ class MoveLastRackBonus(Move):
         self.points = 0 if self.rack == '?' else sum(scores(c) for c in self.rack)
         return self.points, False
 
+    @property
+    def gcg_word(self) -> str:
+        return self.rack
+
 
 @dataclass(kw_only=True)
 class MoveLastRackMalus(Move):
@@ -512,6 +525,10 @@ class MoveLastRackMalus(Move):
     def calculate_points(self) -> tuple[int, bool]:
         self.points = 0 if self.rack == '?' else -sum(scores(c) for c in self.rack)
         return self.points, False
+
+    @property
+    def gcg_word(self) -> str:
+        return self.rack
 
 
 @dataclass(kw_only=True)

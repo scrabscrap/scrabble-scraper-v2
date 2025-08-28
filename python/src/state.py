@@ -48,7 +48,6 @@ class GameState(Enum):
     P0 = auto()
     P1 = auto()
     EOG = auto()
-    BLOCKING = auto()
 
 
 PLAYER_LEDS: dict[int, set] = {0: {LEDEnum.green}, 1: {LEDEnum.red}}
@@ -92,6 +91,8 @@ class State(Static):
         LED.switch(on=PLAYER_LEDS[player])
         ScrabbleWatch.display.render_display(player, (0, 0), (0, 0))
         cls.ctx.picture = camera.cam.read(peek=True)
+        cls.ctx.current_state = next_state
+        event_set(event=cls.ctx.op_event)
         return next_state
 
     @classmethod
@@ -111,6 +112,8 @@ class State(Static):
         """pause pressed while player 0 is active"""
         ScrabbleWatch.pause()
         LED.switch(on={LEDEnum.yellow})
+        cls.ctx.current_state = next_state
+        event_set(event=cls.ctx.op_event)
         return next_state
 
     @classmethod
@@ -121,6 +124,8 @@ class State(Static):
         with suppress(Exception):
             cls.ctx.picture = camera.cam.read(peek=True)
             command_queue.put_nowait(Command(check_resume, cls.ctx.game, cls.ctx.picture, cls.ctx.op_event))
+        cls.ctx.current_state = next_state
+        event_set(event=cls.ctx.op_event)
         return next_state
 
     @classmethod
@@ -152,46 +157,44 @@ class State(Static):
     @classmethod
     def do_new_game(cls) -> GameState:
         """Starts a new game"""
-        cls.ctx.current_state = GameState.BLOCKING
-        LED.switch(on={LEDEnum.green, LEDEnum.red})
+        LED.switch()
         cls.ctx.picture = None
         ScrabbleWatch.reset()
+        cls.ctx.current_state = GameState.START
         with suppress(Exception):
             new_game(cls.ctx.game, cls.ctx.op_event)
         ScrabbleWatch.display.set_game(cls.ctx.game)
         ScrabbleWatch.display.show_ready(cls.ctx.game.nicknames)
-        cls.ctx.current_state = GameState.START  # method called from outside (api_server)
+        LED.switch(on={LEDEnum.green, LEDEnum.red})
         return cls.ctx.current_state
 
     @classmethod
     def do_end_of_game(cls) -> GameState:
         """Resets state and game to default"""
-        cls.ctx.current_state = GameState.BLOCKING
         LED.switch()
         ScrabbleWatch.display.show_ready(('end of', 'game'))
         player, _, _ = ScrabbleWatch.status()
         picture = None
         with suppress(Exception):
             picture = camera.cam.read(peek=True)
+        cls.ctx.current_state = GameState.EOG
         with suppress(Exception):
             command_queue.put_nowait(
                 Command(end_of_game, game=cls.ctx.game, image=picture, player=player, event=cls.ctx.op_event)
             )
         command_queue.join()  # wait for finishing tasks
-
         ScrabbleWatch.display.show_end_of_game()
         LED.switch(blink={LEDEnum.yellow})
-        cls.ctx.current_state = GameState.EOG  # method called from outside (api_server)
         return cls.ctx.current_state
 
     @classmethod
     def do_reboot(cls) -> GameState:  # pragma: no cover
         """Perform a reboot"""
-        cls.ctx.current_state = GameState.BLOCKING
-        ScrabbleWatch.display.show_boot()
         LED.switch()
+        ScrabbleWatch.display.show_boot()
         with suppress(Exception):
             end_of_game(cls.ctx.game)
+        command_queue.join()  # wait for finishing tasks
         ScrabbleWatch.display.stop()
         cls.ctx.current_state = GameState.START  # method called from outside (api_server)
         alarm(1)  # raise alarm for reboot
@@ -242,7 +245,7 @@ class State(Static):
             logger.warning(f'Key Error: {button} at {cls.ctx.current_state} - ignored')
         except Exception as oops:  # pylint: disable=broad-exception-caught
             logger.warning(f'ignore invalid exception on button handling {oops}')
-        event_set(cls.ctx.op_event)
+        # event_set(cls.ctx.op_event)
 
     # unused:
     # @classmethod

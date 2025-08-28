@@ -22,35 +22,32 @@ const MAX_RETRIES = 100;
 
 interface GameStatus {
   'api': string;    // api version
+  'state': string; // current state
   'timestamp': number | null; // timestamp for creating the json data (float) - new in api 3.0
+  'time': string;   // timestamp current move
   'commit': string; // git commit for app
   'layout': string; // custom2012, custom2020, custom2020light
   'tournament': string;
   'name1': string;
   'name2': string;
   'onmove': string; // player on move
-  'time': string;   // timestamp current move
   'move': number;   // int
   'score1': number; // int
   'score2': number; // int
+  'clock1': number;  // int
+  'clock2': number;  // int
   'time1': number;  // int
   'time2': number;  // int
-  'moves': any;
-  'board': any;
+  'image': string;  // current image URL or base64 encoded
   'bag': any;
+  'board': any;
+  'moves': any;
+  'moves_data': any;
   'unknown_move': boolean; // true if moves contains MoveUnknown; the score calculation is invalid
 }
 
-interface WSData {
-  op: string;         // current Status of Game (START, S0, S1, P0, P1, EOG)
-  clock1: number;     // current timer player1
-  clock2: number;     // current timer player2
-  image: string;      // image url or data image
-  status: GameStatus;
-}
-
 interface LiveDataState {
-  data: WSData | null;
+  data: GameStatus | null;
   lastUpdate: number | null;
   isStale: boolean;
   usingWebSocket: boolean | null;
@@ -82,14 +79,14 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
   // --------------------------
   // Polling
   // --------------------------
-  const hasDataChanged = (prevData: WSData, newJson: GameStatus) => {
-    if (!prevData?.status) return true;
+  const hasDataChanged = (prevData: GameStatus, newJson: GameStatus) => {
+    if (!prevData) return true;
 
     return (
-      prevData.status.time1 !== newJson.time1 ||
-      prevData.status.time2 !== newJson.time2 ||
-      prevData.status.move !== newJson.move ||
-      prevData.status.onmove !== newJson.onmove
+      prevData.time1 !== newJson.time1 ||
+      prevData.time2 !== newJson.time2 ||
+      prevData.move !== newJson.move ||
+      prevData.onmove !== newJson.onmove
     );
   };
 
@@ -110,23 +107,13 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
           const changed = hasDataChanged(prev.data, json);
           if (!changed) return prev; // Keine Änderung -> keine Aktualisierung
           const now = Date.now();
-          const op = (json.moves.length <= 0) ? (json.onmove === json.name1) ? "S0" : "S1" : (json.onmove === json.name1) ? "S1" : "S0";
-          const clock1 = json.time1;
-          const clock2 = json.time2;
-          const image = json.moves.length > 0 ? `web/image-${json.move}.jpg?${clock1}${clock2}` : "";
           // new field (api 3.1): status.unknown_move
           if (!('unknown_move' in json)) {
             json.unknown_move = hasUnknownMove(json);
           }
           return {
             ...prev,
-            data: {
-              op,
-              clock1,
-              clock2,
-              image,
-              status: json,
-            },
+            data: json,
             lastUpdate: changed ? now : prev.lastUpdate ?? now,
             isStale:
               prev.lastUpdate !== null &&
@@ -200,16 +187,14 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
       try {
         const json = JSON.parse(ev.data);
         // new field (api 3.1): status.unknown_move
-        if (!('unknown_move' in json.status)) {
-          json.status.unknown_move = hasUnknownMove(json);
+        if (!('unknown_move' in json)) {
+          json.unknown_move = hasUnknownMove(json);
           console.debug('add unknown_move')
         }
         console.debug(json)
         setState((prev) => ({
           ...prev,
-          data: {
-            ...json,
-          },
+          data: json,
           lastUpdate: Date.now(),
           isStale: false,
         }));

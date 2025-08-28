@@ -24,17 +24,14 @@ export function Header() {
         return String.fromCodePoint(0x1F4BE); // Diskette
     }
 
-    const items = Array.from(data.status.tournament).map((char: string, i: number) => (
+    const items = Array.from(data.tournament).map((char: string, i: number) => (
         <span key={i} className="tile">
             {char !== ' ' ? char.toUpperCase() : '\u00A0'}
         </span>
     ));
 
-    const timeString = String(data.status.time).split('.')[0]; // cut off nano sec
-    let commitString = import.meta.env.VITE_APP_VERSION;
-    if (import.meta.env.VITE_APP_VERSION !== data.status.commit) {
-        commitString = `${import.meta.env.VITE_APP_VERSION}/${data.status.commit}`;
-    }
+    const timeString = String(data.time).split('.')[0]; // cut off nano sec
+    const commitString = import.meta.env.PACKAGE_VERSION + ' (' + import.meta.env.VITE_APP_VERSION + ')';
 
     const buttonClass = isStale ? 'btn btn-link text-danger p-1' : 'btn btn-link text-muted p-1';
 
@@ -49,7 +46,7 @@ export function Header() {
                 <div className='row'>
                     <div className='justify-content-center text-center m-auto'>
                         <span className='text-muted'>
-                            {timeString}&nbsp;v{import.meta.env.PACKAGE_VERSION}-{commitString}
+                            {timeString}&nbsp;v{commitString}
                         </span>
                         <span>
                             &nbsp;{getLoadingIcon(usingWebSocket)}

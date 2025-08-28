@@ -19,6 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
 import base64
+import json
 import logging
 import os
 import platform
@@ -32,13 +33,13 @@ from time import sleep
 import cv2
 import psutil
 from flask import Flask, abort, make_response, redirect, render_template, request, send_file, send_from_directory, url_for
-from flask_sock import ConnectionClosed, Sock
+from flask_sock import ConnectionClosed, Sock, Server
 from werkzeug.serving import make_server
 
+from admin.checks import admin_test_bp
 from admin.edit import admin_edit_bp
 from admin.server_context import ctx
 from admin.settings import admin_settings_bp
-from admin.checks import admin_test_bp
 from config import config, version
 from hardware.led import LED, LEDEnum
 from processing import event_set
@@ -88,7 +89,7 @@ def _handle_player_form(form):
         State.ctx.game.set_player_names(player1, player2)
         if State.ctx.current_state == GameState.START:
             ScrabbleWatch.display.show_ready((player1, player2))
-        event_set(State.ctx.op_event)
+        event_set(event=State.ctx.op_event)
     else:
         logger.warning(f'can not set: {player1}/{player2}')
 
@@ -443,34 +444,28 @@ def game_status():
 
 
 @sock.route('/ws_status')
-def echo(socket):
+def echo(socket: Server):
     """websocket endpoint"""
     logger.debug('call /ws_status')
     while True:
         if State.ctx.op_event.is_set():
             State.ctx.op_event.clear()
-        _, (clock1, clock2), _ = ScrabbleWatch.status()
-        clock1 = config.scrabble.max_time - clock1
-        clock2 = config.scrabble.max_time - clock2
-        jsonstr = State.ctx.game.json_str()
-        try:
-            image_str = None
-            if State.ctx.current_state not in (GameState.START, GameState.BLOCKING):
-                img = None
-                if State.ctx.game.moves and State.ctx.game.moves[-1].img is not None:
-                    img = State.ctx.game.moves[-1].img
-                elif State.ctx.picture is not None:
-                    img = State.ctx.picture
 
-                if img is not None:
-                    _, im_buf_arr = cv2.imencode('.jpg', img)  # type: ignore
-                    image_str = base64.b64encode(im_buf_arr).decode('utf-8')
-                    image_str = f'data:image/png;base64,{image_str}'
-            if State.ctx.current_state != GameState.BLOCKING:
-                socket.send(  # type:ignore[no-member] # pylint: disable=no-member
-                    f'{{"op": "{State.ctx.current_state.name}", '
-                    f'"clock1": {clock1},"clock2": {clock2}, "image": "{image_str}", "status": {jsonstr}  }}'
-                )
+        json_data = State.ctx.game.get_json_data()
+        _, (clock1, clock2), _ = ScrabbleWatch.status()
+        try:
+            img = State.ctx.picture if State.ctx.picture is not None else None
+            if State.ctx.game.moves and State.ctx.game.moves[-1].img is not None:
+                img = State.ctx.game.moves[-1].img
+            if img is not None:
+                _, im_buf_arr = cv2.imencode('.jpg', img)  # type: ignore
+                image_str = base64.b64encode(im_buf_arr).decode('utf-8')  # type: ignore
+                json_data['image'] = f'data:image/png;base64,{image_str}'
+            # possible problem: check if state is set before thread ended?
+            json_data['state'] = State.ctx.current_state.name
+            json_data['clock1'] = config.scrabble.max_time - clock1
+            json_data['clock2'] = config.scrabble.max_time - clock2
+            socket.send(f'{json.dumps(json_data)}')
         except ConnectionClosed:
             logger.debug('connection closed /ws_status')
             return

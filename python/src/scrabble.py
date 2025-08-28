@@ -56,7 +56,7 @@ from move import (
 from utils.threadpool import Command
 from utils.upload import upload
 
-API_VERSION = '3.1'
+API_VERSION = '3.2'
 JSON_FLAG = 'json'
 IMAGE_FLAG = 'image'
 logger = logging.getLogger()
@@ -87,45 +87,72 @@ class Game:  # pylint: disable=too-many-public-methods
     def __str__(self) -> str:
         return self.json_str()
 
-    def _get_json_data(self, index: int = -1) -> dict:
+    def get_json_data(self, index: int = -1) -> dict:
         """Return the json represention of the board"""
 
         name1, name2 = self.nicknames
-        data = {
-            'api': API_VERSION,
-            'timestamp': time.time(),
-            'commit': version.git_commit,
-            'layout': config.board.layout,
-            'tournament': config.scrabble.tournament,
-            'name1': name1, 'name2': name2, 'onmove': name1,
-            'unknown_move': ('MoveUnknown' in {x.__class__.__name__ for x in self.moves}),
-            'time': str(self.gamestart),
-            'move': 0,
-            'score1': 0, 'score2': 0,
-            'time1': config.scrabble.max_time, 'time2': config.scrabble.max_time,
-            'moves': [], 'board': {},
-            'bag': self.tiles_in_bag(index),
+        data = {    'api': API_VERSION,
+                    'state': 'START',
+                    'timestamp': time.time(),
+                    'commit': version.git_commit,
+                    'layout': config.board.layout,
+                    'tournament': config.scrabble.tournament,
+                    'name1': name1, 'name2': name2, 'onmove': name1,
+                    'unknown_move': False,
+                    'time': str(self.gamestart),
+                    'move': 0,
+                    'score1': 0, 'score2': 0,
+                    'clock1': 0, 'clock2': 0,
+                    'time1': config.scrabble.max_time, 'time2': config.scrabble.max_time,
+                    'image': '',
+                    'moves': [], 'moves_data':[], 'board': {},
+                    'bag': self.tiles_in_bag(index),
         }  # fmt:off
         if self.moves:
             move_index = len(self.moves) + index if index < 0 else index
             move = self.moves[move_index]
-            keys1 = [chr(ord('a') + y) + str(x + 1) for (x, y) in move.board]
-            values1 = [tile.letter for tile in move.board.values()]
-            gcg_moves = [self.moves[i].gcg_str for i in range(move_index + 1)]
-            data |=  {
-                'onmove': self.nicknames[move.player],
-                'time': move.time, 'move': move.move,
-                'score1': move.score[0], 'score2': move.score[1],
-                'time1': config.scrabble.max_time - move.played_time[0],
-                'time2': config.scrabble.max_time - move.played_time[1],
-                'moves': gcg_moves,
-                'board': dict(zip(keys1, values1)),
+            board_keys = [chr(ord('a') + y) + str(x + 1) for (x, y) in move.board]
+            board_values = [tile.letter for tile in move.board.values()]
+            gcg_moves = [m.gcg_str for m in self.moves[: move_index + 1]]
+            moves_data = []
+            for m in self.moves[: move_index + 1]:
+                move_keys = [chr(ord('a') + y) + str(x + 1) for (x, y) in m.new_tiles]
+                move_values = [tile.letter for tile in m.new_tiles.values()]
+                moves_data.append({ 'move_type': m.type.name,
+                                    'player': m.player,
+                                    'start': m.gcg_coord.strip(),
+                                    'word': m.calculate_word(),
+                                    'gcg_word': m.gcg_word,  # type: ignore
+                                    'new_letter': dict(zip(move_keys, move_values)),
+                                    'points': m.points,
+                                    'score': m.score,
+                    } )  # fmt: off
+            if move.type in (MoveType.LAST_RACK_BONUS, MoveType.LAST_RACK_MALUS, MoveType.TIME_MALUS):
+                state = 'EOG'
+            elif move.type == MoveType.REGULAR:
+                state = f'S{abs(move.player - 1)}'
+            else:
+                state = f'S{move.player}'
+
+            data |=  {  'onmove': self.nicknames[move.player],
+                        'state': state,
+                        'unknown_move': ('MoveUnknown' in {x.__class__.__name__ for x in self.moves[: move_index + 1]}),
+                        'time': move.time, 'move': move.move,
+                        'score1': move.score[0], 'score2': move.score[1],
+                        'clock1': config.scrabble.max_time - move.played_time[0],
+                        'clock2': config.scrabble.max_time - move.played_time[1],
+                        'time1': config.scrabble.max_time - move.played_time[0],
+                        'time2': config.scrabble.max_time - move.played_time[1],
+                        'image': f'web/image-{move_index}.jpg',
+                        'moves': gcg_moves,
+                        'moves_data': moves_data,
+                        'board': dict(zip(board_keys, board_values)),
             }  # fmt: off
         return data
 
     def json_str(self, index: int = -1) -> str:
         """Return the json represention of the board"""
-        return json.dumps(self._get_json_data(index=index), indent=4)  # Add indent here
+        return json.dumps(self.get_json_data(index=index), indent=2)  # Add indent here
 
     def valid_index(self, index: int) -> bool:
         """is (index) valid"""
@@ -188,7 +215,7 @@ class Game:  # pylint: disable=too-many-public-methods
         if logger.isEnabledFor(logging.DEBUG):
             msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in self.moves)
             pp = pprint.PrettyPrinter(indent=2, depth=1)
-            logger.debug(f'{msg}\napi:\n{pp.pformat(self._get_json_data())}')  # pylint: disable=protected-access # noqa: SLF001
+            logger.debug(f'{msg}\napi:\n{pp.pformat(self.get_json_data())}')  # pylint: disable=protected-access # noqa: SLF001
         logger.info(self.dev_str())
         upload.get_upload_queue().join()  # wait for finishing uploads
 
@@ -241,7 +268,7 @@ class Game:  # pylint: disable=too-many-public-methods
     def _write_json(self, index: int, web_dir: Path, fname: str) -> None:
         status_path = web_dir / fname
         with status_path.open('w', encoding='utf-8') as json_file:
-            json.dump(self._get_json_data(index=index), json_file, indent=2)
+            json.dump(self.get_json_data(index=index), json_file, indent=2)
 
     def _write_json_from(self, index: int, write_mode: list[str]) -> Game:
         """write json for move"""
@@ -406,7 +433,7 @@ class Game:  # pylint: disable=too-many-public-methods
         if logger.isEnabledFor(logging.DEBUG):
             msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in self.moves)
             pp = pprint.PrettyPrinter(indent=2, depth=1)
-            logger.debug(f'{msg}\napi:\n{pp.pformat(self._get_json_data())}')
+            logger.debug(f'{msg}\napi:\n{pp.pformat(self.get_json_data())}')
 
         return self
 

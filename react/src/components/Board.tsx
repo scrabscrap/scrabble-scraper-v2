@@ -36,7 +36,7 @@ const SPECIAL_CLASSES = {
 
 export function Board() {
   const { data } = useDataContext();
-  const board = data.status.board;
+  const board = data.board;
 
   const cell = coord => {
     const value = board[coord];
