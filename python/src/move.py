@@ -397,7 +397,8 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
                 new_tiles.pop((col, row))
             (col, row) = (col + d_col, row + d_row)
         if new_tiles:
-            raise ValueError(f'can not build word (tiles remaining {new_tiles})')
+            logger.error(f'can not build word (tiles remaining {new_tiles})')
+            # raise ValueError(f'can not build word (tiles remaining {new_tiles})')
         return self.word
 
 

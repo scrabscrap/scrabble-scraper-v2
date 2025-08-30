@@ -454,7 +454,9 @@ class Game:  # pylint: disable=too-many-public-methods
     def add_two_exchanges_at(self, index: int) -> Game:
         """add exchange move at move index (index)"""
         if not self.valid_index(index=index):
-            raise IndexError(f'add challenge at: invalid index {index}')
+            logger.error(f'add challenge at: invalid index {index}')
+            # raise IndexError(f'add challenge at: invalid index {index}')
+            return self
         player1, player2 = (self.moves[index].player, abs(self.moves[index].player - 1))
         played_time = self.moves[index - 1].played_time if index > 0 else (0, 0)
         img = self.moves[index].img.copy() if self.moves[index].img is not None else None  # type: ignore[attr-defined,union-attr]
@@ -466,7 +468,9 @@ class Game:  # pylint: disable=too-many-public-methods
     def add_challenge_for(self, index: int = -1) -> Game:
         """add challenge malus for move at index (or at end)"""
         if not self.valid_index(index=index):
-            raise IndexError(f'add challenge at: invalid index {index}')
+            logger.error(f'add challenge at: invalid index {index}')
+            # raise IndexError(f'add challenge at: invalid index {index}')
+            return self
 
         move_to_challenge = self.moves[index]
         if not isinstance(move_to_challenge, (MoveChallenge, MoveRegular, MoveUnknown)):
@@ -483,7 +487,9 @@ class Game:  # pylint: disable=too-many-public-methods
     def add_withdraw_for(self, index: int, img: MatLike) -> Game:
         """add withdraw for move at index (or at end)"""
         if not self.valid_index(index=index):
-            raise IndexError(f'add withdraw at: invalid index {index}')
+            logger.error(f'add withdraw at: invalid index {index}')
+            # raise IndexError(f'add withdraw at: invalid index {index}')
+            return self
 
         move_to_withdraw = self.moves[index]
         if not isinstance(move_to_withdraw, (MoveChallenge, MoveRegular, MoveUnknown)):
@@ -527,7 +533,9 @@ class Game:  # pylint: disable=too-many-public-methods
     def add_lastrack(self) -> Game:
         """add lastrack malus/bonus (called by end of game)"""
         if not self.moves:
-            raise ValueError('add last rack: no previous move available')  # pylint: disable=broad-exception-raised
+            logger.error('add last rack: no previous move available')
+            # raise ValueError('add last rack: no previous move available')  # pylint: disable=broad-exception-raised
+            return self
         prev_move = self.moves[-1]
         rack_str = ''.join(self.tiles_in_bag())
         if prev_move.rack_size[0] == 0:
@@ -597,7 +605,9 @@ class Game:  # pylint: disable=too-many-public-methods
     def remove_move_at(self, index: int) -> Game:
         """remove move before move at index (index) without checks"""
         if not self.valid_index(index=index):
-            raise IndexError(f'remove move at: invalid index {index}')
+            logger.error(f'remove move at: invalid index {index}')
+            # raise IndexError(f'remove move at: invalid index {index}')
+            return self
 
         logger.info(f'remove move: {str(self.moves[index])}')
         self.moves.pop(index)
@@ -609,7 +619,9 @@ class Game:  # pylint: disable=too-many-public-methods
     def change_move_at(self, index: int, movetype: MoveType, new_tiles: BoardType | None = None) -> Game:
         """change move before move at index (index)"""
         if not self.valid_index(index=index):
-            raise IndexError(f'change move at: invalid index {index}')
+            logger.error(f'change move at: invalid index {index}')
+            # raise IndexError(f'change move at: invalid index {index}')
+            return self
 
         move_to_change = self.moves[index]
         if movetype == MoveType.REGULAR:
@@ -647,7 +659,9 @@ class Game:  # pylint: disable=too-many-public-methods
             index = -len(moves_to_insert)
         else:
             if not self.valid_index(index=index):
-                raise IndexError(f'move to insert: invalid index {index}')
+                logger.error(f'move to insert: invalid index {index}')
+                # raise IndexError(f'move to insert: invalid index {index}')
+                return self
             self.moves[index:index] = moves_to_insert  # insert into slice
         self._update_technical_move_attributes()
         self._recalculate_from(index)
