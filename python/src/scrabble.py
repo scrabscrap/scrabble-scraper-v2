@@ -87,7 +87,10 @@ class Game:  # pylint: disable=too-many-public-methods
     def __str__(self) -> str:
         return self.json_str()
 
-    def get_json_data(self, index: int = -1) -> dict:
+    def _cell_name(self, coord: tuple[int, int]) -> str:
+        return chr(ord('A') + coord[1]) + str(coord[0] + 1)  # pylint: disable=unnecessary-lambda-assignment
+
+    def get_json_data(self, index: int = -1) -> dict:  # pylint: disable=too-many-locals
         """Return the json represention of the board"""
 
         name1, name2 = self.nicknames
@@ -107,6 +110,7 @@ class Game:  # pylint: disable=too-many-public-methods
                     'image': '',
                     'moves': [], 'moves_data':[], 'board': {},
                     'bag': self.tiles_in_bag(index),
+                    'blankos': [],
         }  # fmt:off
         if self.moves:
             move_index = len(self.moves) + index if index < 0 else index
@@ -134,6 +138,12 @@ class Game:  # pylint: disable=too-many-public-methods
             else:
                 state = f'S{move.player}'
 
+            blankos = [
+                (self._cell_name(key), tile.letter)
+                for key, tile in self.moves[-1].board.items()
+                if tile.letter.islower() or tile.letter == '_'
+            ]
+
             data |=  {  'onmove': self.nicknames[move.player],
                         'state': state,
                         'unknown_move': ('MoveUnknown' in {x.__class__.__name__ for x in self.moves[: move_index + 1]}),
@@ -147,6 +157,7 @@ class Game:  # pylint: disable=too-many-public-methods
                         'moves': gcg_moves,
                         'moves_data': moves_data,
                         'board': dict(zip(board_keys, board_values)),
+                        'blankos': blankos,
             }  # fmt: off
         return data
 
