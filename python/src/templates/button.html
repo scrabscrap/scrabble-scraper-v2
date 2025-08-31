@@ -9,40 +9,40 @@
                 <div class="card-body">
                     <form action="/button" method="post">
                         <div class="row justify-content-center text-center py-2">
-                            <div class="col-2">
-                                <button type="submit" class="btn btn-success btn-circle btn-md" data-toggle="tooltip"
-                                    title="Move Green" name="GREEN" value="GREEN">
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-success btn-circle btn-md" title="Move Green"
+                                    name="GREEN" value="GREEN">
                                     {% if green == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
                                 </button>
                             </div>
-                            <div class="col-8">
-                                <button type="submit" class="btn btn-warning btn-circle btn-md" data-toggle="tooltip"
-                                    title="Pause" name="YELLOW" value="YELLOW">
+                            <div class="col">
+                                <button type="submit" class="btn btn-warning btn-circle btn-md" title="Pause"
+                                    name="YELLOW" value="YELLOW">
                                     {% if yellow == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
                                 </button>
                             </div>
-                            <div class="col-2">
-                                <button type="submit" class="btn btn-danger btn-circle btn-md" data-toggle="tooltip"
-                                    title="Move Red" name="RED" value="RED">
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-danger btn-circle btn-md" title="Move Red"
+                                    name="RED" value="RED">
                                     {% if red == 1 %}<i class="bi-brightness-high-fill"></i>{% endif %}
                                 </button>
                             </div>
                         </div>
                         <div class="row justify-content-center text-center py-2">
-                            <div class="col-3 py-2 border border-secondary bg-dark text-white">{{ left }}</div>
+                            <div class="col-auto py-2 border border-secondary bg-dark text-white">{{ left }}</div>
                             <div class="col-2"> </div>
-                            <div class="col-3 py-2 border border-secondary bg-dark text-white"> {{ right }}</div>
+                            <div class="col-auto py-2 border border-secondary bg-dark text-white"> {{ right }}</div>
                         </div>
                         <div class="row justify-content-center text-center py-2">
-                            <div class="col-2">
+                            <div class="col">
                                 <button type="submit" class="btn btn-outline-success btn-circle btn-sm"
                                     data-toggle="tooltip" title="Doubt Green" name="DOUBT0" value="DOUBT0"></button>
                             </div>
-                            <div class="col-2">
+                            <div class="col-auto">
                                 <button type="submit" class="btn btn-outline-warning btn-circle btn-sm"
                                     data-toggle="tooltip" title="End of Game" name="RESET" value="RESET"></button>
                             </div>
-                            <div class="col-2">
+                            <div class="col">
                                 <button type="submit" class="btn btn-outline-danger btn-circle btn-sm"
                                     data-toggle="tooltip" title="Doubt Red" name="DOUBT1" value="DOUBT1"></button>
                             </div>
