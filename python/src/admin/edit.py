@@ -80,10 +80,18 @@ def handle_btnblankodelete(form, game):
 
 def handle_btninsmoves(game, move_number):
     """handle insert exchange moves"""
-    logger.debug('in btninsmove')
     if move_number is not None and (0 <= move_number < len(game.moves)):
         flash_and_log(f'insert two exchanges before move# {move_number}')
         command_queue.put_nowait(Command(admin_insert_moves, game, move_number, State.ctx.op_event))
+    else:
+        flash_and_log(f'invalid move {move_number}')
+
+
+def handle_btnexchange(game, move_number):
+    """handle toggle regular move to exchange move"""
+    if move_number is not None and (0 <= move_number < len(game.moves)):
+        command_queue.put_nowait(Command(admin_change_move, game, move_number, MoveType.EXCHANGE, event=State.ctx.op_event))
+        flash_and_log(f'change move {move_number} to exchange')
     else:
         flash_and_log(f'invalid move {move_number}')
 
@@ -158,6 +166,38 @@ def handle_btnmove(form, game, move_number):
 
 @admin_edit_bp.route('/moves', methods=['GET', 'POST'])
 def route_moves():  # pylint: disable=too-many-locals,too-many-statements
+    """new edit moves form"""
+    game = State.ctx.game
+    move_number = request.form.get('move.move', type=int)
+    if request.method == 'POST':
+        form = request.form
+        # btnexchange
+        if form.get('btnblanko'):
+            handle_btnblanko(form, game)
+        elif form.get('btnblankodelete'):
+            handle_btnblankodelete(form, game)
+        elif form.get('btninsmoves'):
+            handle_btninsmoves(game, move_number)
+        elif form.get('btnexchange'):
+            handle_btnexchange(game, move_number)
+        elif form.get('btndelchallenge'):
+            handle_btndelchallenge(game, move_number)
+        elif form.get('btntogglechallenge'):
+            handle_btntogglechallenge(game, move_number)
+        elif form.get('btninschallenge'):
+            handle_btninschallenge(game, move_number)
+        elif form.get('btninswithdraw'):
+            handle_btninswithdraw(game, move_number)
+        elif form.get('btnmove'):
+            handle_btnmove(form, game, move_number)
+        return redirect('/moves')
+
+    # GET-Request
+    return render_template('moves.html', apiserver=ctx, json_msg=dict(game.get_json_data()))
+
+
+@admin_edit_bp.route('/moves_old', methods=['GET', 'POST'])
+def route_moves_old():  # pylint: disable=too-many-locals,too-many-statements
     """edit moves form"""
 
     game = State.ctx.game
@@ -180,7 +220,7 @@ def route_moves():  # pylint: disable=too-many-locals,too-many-statements
             handle_btninschallenge(game, move_number)
         elif form.get('btnmove'):
             handle_btnmove(form, game, move_number)
-        return redirect('/moves')
+        return redirect('/moves_old')
 
     # GET-Request
     (player1, player2) = game.nicknames
@@ -190,5 +230,5 @@ def route_moves():  # pylint: disable=too-many-locals,too-many-statements
         else []
     )
     return render_template(
-        'moves.html', apiserver=ctx, player1=player1, player2=player2, move_list=game.moves, blanko_list=blankos
+        'moves_old.html', apiserver=ctx, player1=player1, player2=player2, move_list=game.moves, blanko_list=blankos
     )
