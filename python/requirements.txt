@@ -31,7 +31,7 @@ luma.oled==3.14.0
 #     └── smbus2 [required: Any, installed: 0.4.3]
 ifaddr==0.2.0
 
-requests==2.32.4
+requests==2.32.5
 # ├── certifi [required: >=2017.4.17, installed: 2024.6.2]
 # ├── charset-normalizer [required: >=2,<4, installed: 3.3.2]
 # ├── idna [required: >=2.5,<4, installed: 3.7]
