@@ -61,8 +61,13 @@ if(isset($_POST["delete"])) {
 
 } elseif (isset($_POST["zip"])) {
 
+  if (isset($_POST["fname"])) {
+    $fname_part = htmlspecialchars('-' . $_POST["fname"]);
+  } else {
+    $fname_part = '';
+  }
   $zip = new ZipArchive();
-  $filename = $path . date('Y-m-d-His') . '.zip';
+  $filename = $path . date('Y-m-d-His') . $fname_part . '.zip';
 
   if ($zip->open($filename, ZipArchive::CREATE) !== TRUE) {
       exit("ERROR: Could not open archive");

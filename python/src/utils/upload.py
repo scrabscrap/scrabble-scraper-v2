@@ -110,10 +110,10 @@ class Upload:
         logger.debug('http: delete files')
         return self.upload(data={'delete': 'true'})
 
-    def zip_files(self) -> bool:
+    def zip_files(self, fname: str) -> bool:
         """create zip of current game on server"""
         logger.debug('http: zip files on server')
-        return self.upload(data={'zip': 'true'})
+        return self.upload(data={'zip': 'true', 'fname': fname})
 
 
 class UploadConfig:

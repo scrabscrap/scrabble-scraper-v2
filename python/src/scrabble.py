@@ -22,7 +22,6 @@ import json
 import logging
 import pprint
 import time
-import uuid
 from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass, field
@@ -90,75 +89,99 @@ class Game:  # pylint: disable=too-many-public-methods
     def _cell_name(self, coord: tuple[int, int]) -> str:
         return chr(ord('A') + coord[1]) + str(coord[0] + 1)  # pylint: disable=unnecessary-lambda-assignment
 
-    def get_json_data(self, index: int = -1) -> dict:  # pylint: disable=too-many-locals
-        """Return the json represention of the board"""
-
+    def _build_base_data(self) -> dict:
         name1, name2 = self.nicknames
-        data = {    'api': API_VERSION,
-                    'state': 'START',
-                    'timestamp': time.time(),
-                    'commit': version.git_commit,
-                    'layout': config.board.layout,
-                    'tournament': config.scrabble.tournament,
-                    'name1': name1, 'name2': name2, 'onmove': name1,
-                    'unknown_move': False,
-                    'time': str(self.gamestart),
-                    'move': 0,
-                    'score1': 0, 'score2': 0,
-                    'clock1': 0, 'clock2': 0,
-                    'time1': config.scrabble.max_time, 'time2': config.scrabble.max_time,
-                    'image': '',
-                    'moves': [], 'moves_data':[], 'board': {},
-                    'bag': self.tiles_in_bag(index),
-                    'blankos': [],
-        }  # fmt:off
-        if self.moves:
-            move_index = len(self.moves) + index if index < 0 else index
-            move = self.moves[move_index]
-            board_keys = [chr(ord('a') + y) + str(x + 1) for (x, y) in move.board]
-            board_values = [tile.letter for tile in move.board.values()]
-            gcg_moves = [m.gcg_str for m in self.moves[: move_index + 1]]
-            moves_data = []
-            for m in self.moves[: move_index + 1]:
-                move_keys = [chr(ord('a') + y) + str(x + 1) for (x, y) in m.new_tiles]
-                move_values = [tile.letter for tile in m.new_tiles.values()]
-                moves_data.append({ 'move_type': m.type.name,
-                                    'player': m.player,
-                                    'start': m.gcg_coord.strip(),
-                                    'word': m.calculate_word(),
-                                    'gcg_word': m.gcg_word,  # type: ignore
-                                    'new_letter': dict(zip(move_keys, move_values)),
-                                    'points': m.points,
-                                    'score': m.score,
-                    } )  # fmt: off
-            if move.type in (MoveType.LAST_RACK_BONUS, MoveType.LAST_RACK_MALUS, MoveType.TIME_MALUS):
-                state = 'EOG'
-            elif move.type == MoveType.REGULAR:
-                state = f'S{abs(move.player - 1)}'
-            else:
-                state = f'S{move.player}'
+        return {
+            'api': API_VERSION,
+            'state': 'START',
+            'timestamp': time.time(),
+            'commit': version.git_commit,
+            'layout': config.board.layout,
+            'tournament': config.scrabble.tournament,
+            'name1': name1, 'name2': name2, 'onmove': name1,
+            'unknown_move': False,
+            'time': str(self.gamestart),
+            'move': 0,
+            'score1': 0, 'score2': 0,
+            'clock1': 0, 'clock2': 0,
+            'time1': config.scrabble.max_time, 'time2': config.scrabble.max_time,
+            'image': '',
+            'moves': [],
+            'moves_data': [],
+            'board': {},
+            'bag': self.tiles_in_bag(),
+            'blankos': [],
+        }  # fmt: off
 
-            blankos = [
-                (self._cell_name(key), tile.letter)
-                for key, tile in self.moves[-1].board.items()
-                if tile.letter.islower() or tile.letter == '_'
-            ]
+    def _resolve_move_index(self, index: int) -> int:
+        return len(self.moves) + index if index < 0 else index
 
-            data |=  {  'onmove': self.nicknames[move.player],
-                        'state': state,
-                        'unknown_move': ('MoveUnknown' in {x.__class__.__name__ for x in self.moves[: move_index + 1]}),
-                        'time': move.time, 'move': move.move,
-                        'score1': move.score[0], 'score2': move.score[1],
-                        'clock1': config.scrabble.max_time - move.played_time[0],
-                        'clock2': config.scrabble.max_time - move.played_time[1],
-                        'time1': config.scrabble.max_time - move.played_time[0],
-                        'time2': config.scrabble.max_time - move.played_time[1],
-                        'image': f'web/image-{move_index}.jpg',
-                        'moves': gcg_moves,
-                        'moves_data': moves_data,
-                        'board': dict(zip(board_keys, board_values)),
-                        'blankos': blankos,
-            }  # fmt: off
+    def _build_move_data(self, move_index: int, move: Move) -> dict:
+        board_keys = [chr(ord('a') + y) + str(x + 1) for (x, y) in move.board]
+        board_values = [tile.letter for tile in move.board.values()]
+        gcg_moves = [m.gcg_str for m in self.moves[: move_index + 1]]
+
+        return {
+            'onmove': self.nicknames[move.player],
+            'state': self._determine_state(move),
+            'unknown_move': self._has_unknown_move(move_index),
+            'time': move.time,
+            'move': move.move,
+            'score1': move.score[0], 'score2': move.score[1],
+            'clock1': config.scrabble.max_time - move.played_time[0],
+            'clock2': config.scrabble.max_time - move.played_time[1],
+            'time1': config.scrabble.max_time - move.played_time[0],
+            'time2': config.scrabble.max_time - move.played_time[1],
+            'image': f'web/image-{move_index}.jpg',
+            'moves': gcg_moves,
+            'moves_data': [self._serialize_move(m) for m in self.moves[: move_index + 1]],
+            'board': dict(zip(board_keys, board_values)),
+            'blankos': self._collect_blankos(),
+        }  # fmt: off
+
+    def _determine_state(self, move: Move) -> str:
+        if move.type in (MoveType.LAST_RACK_BONUS, MoveType.LAST_RACK_MALUS, MoveType.TIME_MALUS):
+            return 'EOG'
+        if move.type == MoveType.REGULAR:
+            return f'S{abs(move.player - 1)}'
+        return f'S{move.player}'
+
+    def _has_unknown_move(self, move_index: int) -> bool:
+        return 'MoveUnknown' in {x.__class__.__name__ for x in self.moves[: move_index + 1]}
+
+    def _serialize_move(self, m: Move) -> dict:
+        move_keys = [chr(ord('a') + y) + str(x + 1) for (x, y) in m.new_tiles]
+        move_values = [tile.letter for tile in m.new_tiles.values()]
+        return {
+            'move_type': m.type.name,
+            'player': m.player,
+            'start': m.gcg_coord.strip(),
+            'word': m.calculate_word(),
+            'gcg_word': m.gcg_word,  # type: ignore
+            'new_letter': dict(zip(move_keys, move_values)),
+            'points': m.points,
+            'score': m.score,
+        }
+
+    def _collect_blankos(self) -> list[tuple[str, str]]:
+        return [
+            (self._cell_name(key), tile.letter)
+            for key, tile in self.moves[-1].board.items()
+            if tile.letter.islower() or tile.letter == '_'
+        ]
+
+    def get_json_data(self, index: int = -1) -> dict:
+        """Return the json representation of the board"""
+        data = self._build_base_data()
+
+        if not self.moves:
+            return data
+
+        move_index = self._resolve_move_index(index)
+        move = self.moves[move_index]
+
+        data |= self._build_move_data(move_index, move)
+
         return data
 
     def json_str(self, index: int = -1) -> str:
@@ -220,7 +243,9 @@ class Game:  # pylint: disable=too-many-public-methods
 
         upload.get_upload_queue().put_nowait(Command(self._zip_from_game))
         if config.output.upload_server:
-            upload.get_upload_queue().put_nowait(Command(upload.zip_files))
+            fname = (self.nicknames[0] + '-' + self.nicknames[1]).replace(' ', '_')
+            logger.debug(f'{fname=}')
+            upload.get_upload_queue().put_nowait(Command(upload.zip_files, fname))
 
         logger.info(f'new scores {self.moves[-1].score}:\n{self.board_str()}')
         if logger.isEnabledFor(logging.DEBUG):
@@ -282,23 +307,36 @@ class Game:  # pylint: disable=too-many-public-methods
             json.dump(self.get_json_data(index=index), json_file, indent=2)
 
     def _write_json_from(self, index: int, write_mode: list[str]) -> Game:
-        """write json for move"""
-        if config.is_testing:  # skip if under test or no moves
+        """Write JSON and images for moves starting from index."""
+        if config.is_testing:
             return self
+
         web_dir = Path(config.path.web_dir)
+
         if not self.moves:
-            upload.get_upload_queue().put_nowait(Command(self._write_json, -1, web_dir, 'status.json'))
-            if config.output.upload_server:
-                upload.get_upload_queue().put_nowait(Command(upload.upload_move, index))
+            self._enqueue_status_only(index, web_dir)
             return self
-        index = index % len(self.moves)  # convert to positive index
+
+        index = index % len(self.moves)
         if not self.valid_index(index):
             logger.warning(f'invalid index {index} skipped')
             return self
+
+        self._enqueue_writes(index, write_mode, web_dir)
+        return self
+
+    def _enqueue_status_only(self, index: int, web_dir: Path) -> None:
+        """Handle case with no moves – only status.json upload."""
+        upload.get_upload_queue().put_nowait(Command(self._write_json, -1, web_dir, 'status.json'))
+        if config.output.upload_server:
+            upload.get_upload_queue().put_nowait(Command(upload.upload_move, index))
+
+    def _enqueue_writes(self, start_index: int, write_mode: list[str], web_dir: Path) -> None:
+        """Enqueue write and upload tasks for all moves starting from index."""
         write_json = JSON_FLAG in write_mode
         write_img = IMAGE_FLAG in write_mode
 
-        for i in range(index, len(self.moves)):
+        for i in range(start_index, len(self.moves)):
             if write_json:
                 upload.get_upload_queue().put_nowait(Command(self._write_json, i, web_dir, f'data-{i}.json'))
             if write_img:
@@ -306,15 +344,14 @@ class Game:  # pylint: disable=too-many-public-methods
             if i == len(self.moves) - 1:
                 upload.get_upload_queue().put_nowait(Command(self._write_json, i, web_dir, 'status.json'))
             if config.output.upload_server:
-                upload.get_upload_queue().put_nowait(Command(upload.upload_move, index))
-        return self
+                upload.get_upload_queue().put_nowait(Command(upload.upload_move, i))
 
     def _zip_from_game(self):
         if config.is_testing:
             logger.info('skip store because flag is_testing is set')
             return
         game_id = self.gamestart.strftime('%y%j-%H%M%S')
-        zip_filename = f'{game_id}-{str(uuid.uuid4())}'
+        zip_filename = f'{game_id}-{self.nicknames[0]}-{self.nicknames[1]}-{hex(int(time.time()))}'
         web_dir = config.path.web_dir
         log_dir = config.path.log_dir
         try:
