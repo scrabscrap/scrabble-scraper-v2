@@ -2,7 +2,7 @@ const OFFSET = 12.5; // 18.75;     // Rahmenbreite
 const GRID_DIM = 15;
 const GRID_SIZE = 25;
 
-const ws = new WebSocket(`ws://${location.host}/ws_status`);
+const ws = new WebSocket((window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/ws_status');
 const POST_URL = '/moves'
 
 const boardImage = document.getElementById('boardImage');

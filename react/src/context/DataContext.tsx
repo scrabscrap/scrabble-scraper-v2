@@ -18,7 +18,7 @@ type DataProviderProps = {
     children: React.ReactNode;
 };
 
-const WEBSOCKET_URL = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}/ws_status`;
+const WEBSOCKET_URL = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/ws_status';
 const STATUS_FILE = 'web/status.json';
 
 const DataContext = createContext(null);
