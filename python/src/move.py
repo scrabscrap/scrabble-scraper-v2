@@ -94,8 +94,8 @@ gcg_strings: dict[MoveType, str] = {
     MoveType.EXCHANGE: '> {m.mod_str}{m.player_name}: -  {m.points} {m.player_score}',
     MoveType.WITHDRAW: '> {m.mod_str}{m.player_name}: -- {m.points} {m.player_score}',
     MoveType.CHALLENGE_BONUS: '> {m.mod_str}{m.player_name}: (challenge) {m.points} {m.player_score}',
-    MoveType.LAST_RACK_BONUS: '> {m.mod_str}{m.player_name}: bank={m.rack} {m.points} {m.player_score}',
-    MoveType.LAST_RACK_MALUS: '> {m.mod_str}{m.player_name}: bank={m.rack} {m.points} {m.player_score}',
+    MoveType.LAST_RACK_BONUS: '> {m.mod_str}{m.player_name}: rack={m.rack} {m.points} {m.player_score}',
+    MoveType.LAST_RACK_MALUS: '> {m.mod_str}{m.player_name}: rack={m.rack} {m.points} {m.player_score}',
     MoveType.TIME_MALUS: '> {m.mod_str}{m.player_name}: (time) {m.points} {m.player_score}',
     MoveType.UNKNOWN: '> {m.mod_str}{m.player_name}: (unknown) ? {m.player_score}',
 }
