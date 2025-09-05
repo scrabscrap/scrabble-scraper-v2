@@ -142,7 +142,7 @@ class Game:  # pylint: disable=too-many-public-methods
     def _determine_state(self, move: Move) -> str:
         if move.type in (MoveType.LAST_RACK_BONUS, MoveType.LAST_RACK_MALUS, MoveType.TIME_MALUS):
             return 'EOG'
-        if move.type in (MoveType.REGULAR, MoveType.EXCHANGE):
+        if move.type in (MoveType.REGULAR, MoveType.EXCHANGE, MoveType.UNKNOWN):
             return f'S{abs(move.player - 1)}'
         return f'S{move.player}'
 
