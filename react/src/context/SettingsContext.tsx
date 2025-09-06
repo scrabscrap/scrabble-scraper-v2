@@ -55,7 +55,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
   useEffect(() => {
     async function checkWS() {
       try {
-        const res = await fetch("index.html");
+        const res = await fetch("index.html", { method: 'HEAD' });
         const ws = res.headers.get("X-WebSocket-Available") === "true";
         setSettings(prev => ({ ...prev, WS_AVAILABLE: ws }));
       } catch {
