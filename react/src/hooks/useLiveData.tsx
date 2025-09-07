@@ -101,6 +101,13 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
     if (!startTime.current) startTime.current = Date.now();
 
     const pollOnce = async () => {
+      // first check for Timeout
+      if (startTime.current && Date.now() - startTime.current > POLLING_TIMEOUT) {
+        console.warn("Polling timeout reached (2h) ⏰");
+        stopPolling();
+        return;
+      }
+
       try {
         const headers: Record<string, string> = {};
         if (etagRef.current) {
@@ -157,11 +164,6 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
         }
       }
 
-      // Stop after 2h
-      if (startTime.current && Date.now() - startTime.current > POLLING_TIMEOUT) {
-        console.warn("Polling timeout reached (2h) ⏰");
-        stopPolling();
-      }
     };
 
     pollOnce();
@@ -171,6 +173,11 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
   const stopPolling = () => {
     if (pollTimer.current) clearInterval(pollTimer.current);
     pollTimer.current = null;
+    setState(prev => ({
+      ...prev,
+      isStale: true
+    }));
+
   };
 
   const resetPolling = () => {
