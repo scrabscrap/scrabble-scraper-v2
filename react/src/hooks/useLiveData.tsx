@@ -14,8 +14,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useSettings } from "../context/SettingsContext";
 
-const POLLING_TIMEOUT = 2 * 60 * 60 * 1000; // 2h
-const POLLING_INTERVAL = 3000; // 3s
+const POLLING_TIMEOUT = 1 * 60 * 60 * 1000; // 1h
+const POLLING_INTERVAL = 2000; // 2s
 const WS_TIMEOUT = 30 * 60 * 1000; // 30min
 const WS_RECONNECT = 2000; // 2s
 const MAX_RETRIES = 100;
@@ -60,11 +60,13 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
     lastUpdate: null,
     isStale: false,
     usingWebSocket: null,
-  }); const errorCountRef = useRef(0);
+  });
+  const errorCountRef = useRef(0);
   const wsRef = useRef<WebSocket | null>(null);
   const pollTimer = useRef(null);
   const reconnectTimer = useRef(null);
   const startTime = useRef<number | null>(null);
+  const etagRef = useRef<string | null>(null);
 
   const hasUnknownMove = (data: GameStatus) => {
     if (!data.move) return false;
@@ -86,7 +88,9 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
       prevData.time1 !== newJson.time1 ||
       prevData.time2 !== newJson.time2 ||
       prevData.move !== newJson.move ||
-      prevData.onmove !== newJson.onmove
+      prevData.onmove !== newJson.onmove ||
+      prevData.time !== newJson.time ||
+      prevData?.timestamp !== newJson?.timestamp
     );
   };
 
@@ -98,19 +102,38 @@ export function useLiveData(pollUrl: string, wsUrl: string) {
 
     const pollOnce = async () => {
       try {
-        const res = await fetch(pollUrl);
+        const headers: Record<string, string> = {};
+        if (etagRef.current) {
+          headers["If-None-Match"] = etagRef.current;
+        }
+        const res = await fetch(pollUrl, { headers }); // set previous etag for request
+        if (res.status === 304) { // check for changes
+          console.log("No changes (304)");
+          return;
+        }
         if (!res.ok) return;
+
         const json = await res.json();
+        const etag = res.headers.get("etag"); // get current etag
+        if (etag) {
+          etagRef.current = etag;
+        }
+
         console.debug(json)
 
         setState((prev) => {
           const changed = hasDataChanged(prev.data, json);
-          if (!changed) return prev; // Keine Änderung -> keine Aktualisierung
+          if (!changed) return prev; // no change -> no data update
           const now = Date.now();
-          // new field (api 3.1): status.unknown_move
-          if (!('unknown_move' in json)) {
+
+          if (!('unknown_move' in json)) { // new field (api 3.1): status.unknown_move
             json.unknown_move = hasUnknownMove(json);
           }
+          if (!('clock1' in json)) { // new field (api 3.1): status.clock1 / status.clock2
+            json.clock1 = 1800 - json.time1;
+            json.clock2 = 1800 - json.time2;
+          }
+
           return {
             ...prev,
             data: json,
