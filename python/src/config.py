@@ -325,6 +325,28 @@ class SystemConfig:
 
 
 @dataclass
+class TestConfig:
+    """access to test configuration"""
+
+    config: configparser.ConfigParser
+
+    @property
+    def name1(self) -> str:
+        """name of player1"""
+        return self.config.get('test', 'name1', fallback='Spieler1').replace('"', '')
+
+    @property
+    def name2(self) -> str:
+        """name of player2"""
+        return self.config.get('test', 'name2', fallback='Spieler2').replace('"', '')
+
+    @property
+    def start(self) -> str:
+        """start button"""
+        return self.config.get('test', 'start', fallback='Red').replace('"', '')
+
+
+@dataclass
 class Config:  # pylint: disable=too-many-instance-attributes
     """access to application configuration"""
 
@@ -335,6 +357,7 @@ class Config:  # pylint: disable=too-many-instance-attributes
     video: VideoConfig = field(init=False)
     board: BoardConfig = field(init=False)
     system: SystemConfig = field(init=False)
+    test: TestConfig = field(init=False)
 
     def __post_init__(self) -> None:
         self.config = configparser.ConfigParser()
@@ -348,6 +371,7 @@ class Config:  # pylint: disable=too-many-instance-attributes
         self.video = VideoConfig(config=self.config)
         self.board = BoardConfig(config=self.config)
         self.system = SystemConfig(config=self.config)
+        self.test = TestConfig(config=self.config)
 
     def reload(self, ini_file: str | None = None, clean: bool = True) -> None:
         """reload configuration"""

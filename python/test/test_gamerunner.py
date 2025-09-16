@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-import configparser
 import csv
 import logging
 import logging.config
@@ -61,40 +60,41 @@ class GameRunnerTestCase(unittest.TestCase):
 
     def tearDown(self) -> None:
         config.is_testing = False
+        # config.reload(str(config.path.work_dir / 'scrabble.ini'))
         return super().tearDown()
 
     def test_game01(self):
-        self.run_game(file=f'{TEST_DIR}/game01/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game01/scrabble.ini')
 
     def test_game02(self):
-        self.run_game(file=f'{TEST_DIR}/game02/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game02/scrabble.ini')
 
     def test_game03(self):
-        self.run_game(file=f'{TEST_DIR}/game03/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game03/scrabble.ini')
 
     def test_game04(self):
-        self.run_game(file=f'{TEST_DIR}/game04/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game04/scrabble.ini')
 
     def test_game05(self):
-        self.run_game(file=f'{TEST_DIR}/game05/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game05/scrabble.ini')
 
     def test_game06(self):
-        self.run_game(file=f'{TEST_DIR}/game06/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game06/scrabble.ini')
 
     def test_game07(self):
-        self.run_game(file=f'{TEST_DIR}/game07/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game07/scrabble.ini')
 
     def test_game08(self):
-        self.run_game(file=f'{TEST_DIR}/game08/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game08/scrabble.ini')
 
     def test_game12(self):
-        self.run_game(file=f'{TEST_DIR}/game12/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game12/scrabble.ini')
 
     def test_game13(self):
-        self.run_game(file=f'{TEST_DIR}/game13/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game13/scrabble.ini')
 
     def test_game14(self):
-        self.run_game(file=f'{TEST_DIR}/game14/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game14/scrabble.ini')
 
     def test_game15(self):
         # test: wrong end of game
@@ -105,51 +105,34 @@ class GameRunnerTestCase(unittest.TestCase):
         # move 40, "Red", "S0", "5D", ".I.", 12, 329, 348
         # YELLOW - EOG
         # check log output !
-        self.run_game(file=f'{TEST_DIR}/game15/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game15/scrabble.ini')
 
     def test_game16(self):
-        self.run_game(file=f'{TEST_DIR}/game16/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game16/scrabble.ini')
 
     def test_pause_remove(self):
-        self.run_game(file=f'{TEST_DIR}/test-pause-remove/game.ini')
+        self.run_game(file=f'{TEST_DIR}/test-pause-remove/scrabble.ini')
 
     def test_game2023dm01(self):
-        self.run_game(file=f'{TEST_DIR}/game2023DM-01/game.ini')
+        self.run_game(file=f'{TEST_DIR}/game2023DM-01/scrabble.ini')
 
     def run_game(self, file: str):
         """Test csv games"""
 
+        config.reload(ini_file=file, clean=True)
+        start_button = config.test.start
+        csvfile = f'{os.path.dirname(file)}/game.csv'
+        logger.info(f'{config.video.warp=}: {config.video.warp_coordinates=}')
+
         ScrabbleWatch.display = Display()
         camera.switch_camera('file')
-
-        test_config = configparser.ConfigParser()
-        try:
-            with open(f'{file}', 'r', encoding='UTF-8') as config_file:
-                test_config.read_file(config_file)
-                config_dir = os.path.dirname(config_file.name)
-        except IOError as oops:
-            logger.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
-            self.fail(f'error reading ini-file {file}')
-
-        name1 = test_config.get('default', 'name1', fallback='Name1')
-        name2 = test_config.get('default', 'name2', fallback='Name2')
-        warp = test_config.getboolean('default', 'warp', fallback=True)
-        start_button = test_config.get('default', 'start', fallback='Red')
-        coordstr = test_config.get('default', 'warp-coord', fallback=None)
-        formatter = f'{config_dir}/{test_config.get("default", "formatter")}'
-        csvfile = f'{config_dir}/game.csv'
-
-        self.config_setter('video', 'warp', warp)
-        self.config_setter('video', 'warp_coordinates', coordstr)
-        logger.info(f'{config.video.warp}: {config.video.warp_coordinates}')
-        self.config_setter('board', 'layout', test_config.get('default', 'layout', fallback='custom2012'))
-        camera.cam.formatter = formatter  # type: ignore
-        camera.cam.counter = 1  # type: ignore
-        camera.cam.resize = False  # type:ignore
+        if isinstance(camera.cam, camera.CameraFile):
+            camera.cam.formatter = config.development.simulate_path
+            camera.cam.counter = 1
+            camera.cam.resize = False
         State.do_new_game()
-        State.ctx.game.nicknames = (name1, name2)
+        State.ctx.game.nicknames = (config.test.name1, config.test.name2)
         State.press_button(start_button.upper())
-
         self._run_csv_test(csvfile)
 
     def _run_csv_test(self, csvfile):
