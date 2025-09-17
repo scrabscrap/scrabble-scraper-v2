@@ -20,6 +20,7 @@ import logging
 import os
 import sys
 import unittest
+from pathlib import Path
 
 import cv2
 
@@ -67,21 +68,15 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         """Test: Namess on board"""
         files = {
             TEST_DIR + '/board2012/board-04.png': {
-                (3, 7): 'A',
-                (4, 7): 'N',
-                (5, 7): 'K',
-                (6, 7): 'E',
-                (7, 7): '_',
-                (8, 7): 'S',
-                (9, 7): 'T',
-                (10, 7): 'E',
-                (11, 7): 'F',
-                (12, 7): 'A',
-                (13, 7): 'N',
+                (3, 7): 'A', (4, 7): 'N', (5, 7): 'K', (6, 7): 'E', (7, 7): '_',
+                (8, 7): 'S', (9, 7): 'T', (10, 7): 'E', (11, 7): 'F', (12, 7): 'A', (13, 7): 'N',
             }
-        }
+        }  # fmt: off
 
         for file, expected in files.items():
+            if not Path(file).is_file():  # check for file
+                self.skipTest(f'Image File {file} not available')
+
             img = cv2.imread(file)
             logger.debug(f'file: {file}')
 
@@ -107,6 +102,8 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
         # error
         for file in files:
+            if not Path(file).is_file():  # check for file
+                self.skipTest(f'Image File {file} not available')
             img = cv2.imread(file)
             logger.debug(f'file: {file}')
 
@@ -119,37 +116,13 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             logger.debug(f'new board= \n{board_to_string(new_board)}')
             # last_board = ret  # falls der Test vorige Boards berücksichtigen soll
             res = {
-                (8, 8): 'W',
-                (4, 9): 'Y',
-                (4, 6): 'G',
-                (5, 7): 'N',
-                (7, 9): 'Ö',
-                (6, 7): 'O',
-                (9, 5): 'F',
-                (8, 9): 'Ü',
-                (7, 6): 'I',
-                (9, 8): 'X',
-                (8, 6): 'K',
-                (4, 7): 'M',
-                (5, 5): 'B',
-                (7, 7): 'P',
-                (6, 5): 'C',
-                (5, 8): 'T',
-                (8, 7): 'Q',
-                (9, 9): '_',
-                (6, 8): 'U',
-                (9, 6): 'L',
-                (6, 9): 'Ä',
-                (4, 5): 'A',
-                (5, 6): 'H',
-                (4, 8): 'S',
-                (6, 6): 'J',
-                (5, 9): 'Z',
-                (7, 5): 'D',
-                (9, 7): 'R',
-                (8, 5): 'E',
-                (7, 8): 'V',
-            }
+                (8, 8): 'W', (4, 9): 'Y', (4, 6): 'G', (5, 7): 'N', (7, 9): 'Ö',
+                (6, 7): 'O', (9, 5): 'F', (8, 9): 'Ü', (7, 6): 'I', (9, 8): 'X',
+                (8, 6): 'K', (4, 7): 'M', (5, 5): 'B', (7, 7): 'P', (6, 5): 'C',
+                (5, 8): 'T', (8, 7): 'Q', (9, 9): '_', (6, 8): 'U', (9, 6): 'L',
+                (6, 9): 'Ä', (4, 5): 'A', (5, 6): 'H', (4, 8): 'S', (6, 6): 'J',
+                (5, 9): 'Z', (7, 5): 'D', (9, 7): 'R', (8, 5): 'E', (7, 8): 'V',
+            }  # fmt:off
             keys = new_board.keys()
             values = new_board.values()
             keys1 = [(x, y) for (x, y) in keys]
@@ -189,6 +162,9 @@ class ScrabbleMusterTestCase(unittest.TestCase):
 
         # error
         for file in files:
+            if not Path(file).is_file():  # check for file
+                self.skipTest(f'Image File {file} not available')
+
             img = cv2.imread(file)
             logger.debug(f'file: {file}')
 
@@ -201,24 +177,11 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             logger.debug(f'new board= \n{board_to_string(new_board)}')
             # last_board = ret  # falls der Test vorige Boards berücksichtigen soll
             res = {
-                (4, 11): 'G',
-                (5, 7): 'Y',
-                (5, 10): 'U',
-                (5, 11): 'S',
-                (6, 7): 'L',
-                (6, 10): 'Ü',
-                (7, 7): 'A',
-                (7, 8): 'E',
-                (7, 9): 'E',
-                (7, 10): 'N',
-                (8, 7): 'T',
-                (9, 7): 'Z',
-                (10, 5): 'W',
-                (10, 6): 'Ö',
-                (10, 7): 'I',
-                (10, 8): 'U',
-                (10, 9): 'Ä',
-            }
+                (4, 11): 'G', (5, 7): 'Y', (5, 10): 'U', (5, 11): 'S', (6, 7): 'L',
+                (6, 10): 'Ü', (7, 7): 'A', (7, 8): 'E', (7, 9): 'E', (7, 10): 'N',
+                (8, 7): 'T', (9, 7): 'Z', (10, 5): 'W', (10, 6): 'Ö', (10, 7): 'I',
+                (10, 8): 'U', (10, 9): 'Ä',
+            }  # fmt:off
             keys = new_board.keys()
             values = new_board.values()
             keys1 = [(x, y) for (x, y) in keys]
@@ -229,16 +192,8 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         """Test some board 2012 images"""
         files = {
             TEST_DIR + '/board2012/board-00.png': {
-                (5, 7): 'V',
-                (6, 6): 'M',
-                (6, 7): 'Ä',
-                (6, 8): 'Y',
-                (6, 9): 'X',
-                (7, 7): 'L',
-                (7, 9): 'G',
-                (8, 7): 'S',
-                (8, 9): 'A',
-                (8, 10): 'Ü',
+                (5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y', (6, 9): 'X',
+                (7, 7): 'L', (7, 9): 'G', (8, 7): 'S', (8, 9): 'A', (8, 10): 'Ü',
                 (8, 11): 'T',
             },
             # TEST_DIR + "/board2012/board-01.png": {(5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y',
@@ -248,21 +203,16 @@ class ScrabbleMusterTestCase(unittest.TestCase):
             #                                        (6, 9): 'X', (7, 7): 'L', (7, 9): 'G', (8, 7): 'S',
             #                                        (8, 9): 'A', (8, 10): 'Ü', (8, 11): 'T'},
             TEST_DIR + '/board2012/board-03.png': {
-                (5, 7): 'V',
-                (6, 6): 'M',
-                (6, 7): 'Ä',
-                (6, 8): 'Y',
-                (6, 9): 'X',
-                (7, 7): 'L',
-                (7, 9): 'G',
-                (8, 7): 'S',
-                (8, 9): 'A',
-                (8, 10): 'Ü',
+                (5, 7): 'V', (6, 6): 'M', (6, 7): 'Ä', (6, 8): 'Y', (6, 9): 'X',
+                (7, 7): 'L', (7, 9): 'G', (8, 7): 'S', (8, 9): 'A', (8, 10): 'Ü',
                 (8, 11): 'T',
             },
-        }
+        }  # fmt:off
 
         for file, expected in files.items():
+            if not Path(file).is_file():  # check for file
+                self.skipTest(f'Image File {file} not available')
+
             img = cv2.imread(file)
             warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)
@@ -285,73 +235,41 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         files = {
             # TEST_DIR + "/board2020/board-01.png": {},
             TEST_DIR + '/board2020/board-02.jpg': {
-                (7, 7): 'E',
-                (6, 7): 'W',
-                (6, 8): 'I',
-                (6, 9): 'R',
-                (8, 7): 'R',
-                (8, 6): 'Ü',
-                (8, 5): 'K',
+                (7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                (8, 6): 'Ü', (8, 5): 'K',
             },
             TEST_DIR + '/board2020/board-03.jpg': {(7, 7): 'E', (6, 7): 'W', (8, 7): 'R'},
             TEST_DIR + '/board2020/board-04.jpg': {(7, 7): 'E', (6, 7): 'W', (8, 7): 'R', (8, 6): 'Ü', (8, 5): 'K'},
             TEST_DIR + '/board2020/board-05.jpg': {
-                (7, 7): 'E',
-                (6, 7): 'W',
-                (6, 8): 'I',
-                (6, 9): 'R',
-                (8, 7): 'R',
-                (8, 6): 'Ü',
-                (8, 5): 'K',
+                (7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                (8, 6): 'Ü', (8, 5): 'K',
             },
             TEST_DIR + '/board2020/board-06.jpg': {
-                (7, 7): 'E',
-                (6, 7): 'W',
-                (6, 8): 'I',
-                (6, 9): 'R',
-                (8, 7): 'R',
-                (8, 6): 'Ü',
-                (8, 5): 'K',
+                (7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                (8, 6): 'Ü', (8, 5): 'K',
             },
             TEST_DIR + '/board2020/board-07.jpg': {
-                (7, 7): 'E',
-                (6, 7): 'W',
-                (6, 8): 'I',
-                (6, 9): 'R',
-                (8, 7): 'R',
-                (8, 6): 'Ü',
-                (8, 5): 'K',
+                (7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                (8, 6): 'Ü', (8, 5): 'K',
             },
             TEST_DIR + '/board2020/board-08.jpg': {
-                (7, 7): 'E',
-                (6, 7): 'W',
-                (6, 8): 'I',
-                (6, 9): 'R',
-                (8, 7): 'R',
-                (8, 6): 'Ü',
-                (8, 5): 'K',
+                (7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                (8, 6): 'Ü', (8, 5): 'K',
             },
             TEST_DIR + '/board2020/board-09.jpg': {
-                (7, 7): 'E',
-                (6, 7): 'W',
-                (6, 8): 'I',
-                (6, 9): 'R',
-                (8, 7): 'R',
-                (8, 6): 'Ü',
-                (8, 5): 'K',
+                (7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                (8, 6): 'Ü', (8, 5): 'K',
             },
             TEST_DIR + '/board2020/board-10.jpg': {
-                (7, 7): 'E',
-                (6, 7): 'W',
-                (6, 8): 'I',
-                (6, 9): 'R',
-                (8, 7): 'R',
-                (8, 6): 'Ü',
-                (8, 5): 'K',
+                (7, 7): 'E', (6, 7): 'W', (6, 8): 'I', (6, 9): 'R', (8, 7): 'R',
+                (8, 6): 'Ü', (8, 5): 'K',
             },
-        }
+        }  # fmt:off
 
         for file, expected in files.items():
+            if not Path(file).is_file():  # check for file
+                self.skipTest(f'Image File {file} not available')
+
             img = cv2.imread(file)
             self.config_setter('board', 'layout', 'custom2020light')
             logger.debug(f'file: {file}')
@@ -374,64 +292,24 @@ class ScrabbleMusterTestCase(unittest.TestCase):
         """Test some board 2012 images"""
         files = {
             TEST_DIR + '/board2012/weak-ae-01.jpg': {
-                (4, 9): 'G',
-                (3, 7): 'D',
-                (4, 6): 'F',
-                (9, 2): 'R',
-                (9, 5): 'K',
-                (11, 2): 'D',
-                (8, 9): 'S',
-                (10, 6): 'E',
-                (8, 12): 'P',
-                (10, 3): '_',
-                (1, 6): 'U',
-                (10, 9): 'N',
-                (13, 2): 'M',
-                (10, 12): 'N',
-                (1, 9): 'N',
-                (11, 11): 'A',
-                (13, 11): 'M',
-                (7, 7): 'O',
-                (6, 5): 'H',
-                (7, 10): 'X',
-                (6, 8): 'T',
-                (12, 12): 'L',
-                (4, 8): 'N',
-                (5, 9): 'L',
-                (8, 5): 'C',
-                (10, 2): 'Ü',
-                (0, 7): 'W',
-                (10, 5): 'T',
-                (11, 10): 'Y',
-                (2, 7): 'R',
-                (1, 5): 'Q',
-                (1, 8): 'E',
-                (13, 10): 'R',
-                (13, 13): 'R',
-                (7, 9): 'I',
-                (6, 7): 'R',
-                (12, 2): 'E',
-                (4, 7): 'A',
-                (4, 10): 'T',
-                (9, 9): 'E',
-                (8, 7): 'M',
-                (10, 4): 'Z',
-                (9, 12): 'I',
-                (8, 10): 'I',
-                (10, 1): 'N',
-                (10, 7): 'N',
-                (11, 12): 'K',
-                (10, 10): 'E',
-                (1, 7): 'E',
-                (13, 9): 'Ä',
-                (13, 12): 'E',
-                (6, 6): 'Ö',
-                (7, 5): 'U',
-                (6, 9): 'E',
+                (4, 9): 'G', (3, 7): 'D', (4, 6): 'F', (9, 2): 'R', (9, 5): 'K',
+                (11, 2): 'D', (8, 9): 'S', (10, 6): 'E', (8, 12): 'P', (10, 3): '_',
+                (1, 6): 'U', (10, 9): 'N', (13, 2): 'M', (10, 12): 'N', (1, 9): 'N',
+                (11, 11): 'A', (13, 11): 'M', (7, 7): 'O', (6, 5): 'H', (7, 10): 'X',
+                (6, 8): 'T', (12, 12): 'L', (4, 8): 'N', (5, 9): 'L', (8, 5): 'C',
+                (10, 2): 'Ü', (0, 7): 'W', (10, 5): 'T', (11, 10): 'Y', (2, 7): 'R',
+                (1, 5): 'Q', (1, 8): 'E', (13, 10): 'R', (13, 13): 'R', (7, 9): 'I',
+                (6, 7): 'R', (12, 2): 'E', (4, 7): 'A', (4, 10): 'T', (9, 9): 'E',
+                (8, 7): 'M', (10, 4): 'Z', (9, 12): 'I', (8, 10): 'I', (10, 1): 'N',
+                (10, 7): 'N', (11, 12): 'K', (10, 10): 'E', (1, 7): 'E', (13, 9): 'Ä',
+                (13, 12): 'E', (6, 6): 'Ö', (7, 5): 'U', (6, 9): 'E',
             }
-        }
+        }  # fmt:off
 
         for file, expected in files.items():
+            if not Path(file).is_file():  # check for file
+                self.skipTest(f'Image File {file} not available')
+
             img = cv2.imread(file)
             warped, warped_gray = warp_image(img)
             _, tiles_candidates = filter_image(warped)

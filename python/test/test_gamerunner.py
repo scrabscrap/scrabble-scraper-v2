@@ -21,6 +21,7 @@ import logging
 import logging.config
 import os
 import unittest
+from pathlib import Path
 from time import sleep
 
 from config import config
@@ -130,6 +131,8 @@ class GameRunnerTestCase(unittest.TestCase):
             camera.cam.formatter = config.development.simulate_path
             camera.cam.counter = 1
             camera.cam.resize = False
+        if not Path(config.development.simulate_path.format(1)).is_file():  # check for first file
+            self.skipTest('Image File not available')
         State.do_new_game()
         State.ctx.game.nicknames = (config.test.name1, config.test.name2)
         State.press_button(start_button.upper())
