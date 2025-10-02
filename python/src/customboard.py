@@ -154,7 +154,8 @@ class CustomBoard:
     @staticmethod
     def log_board_info(value_fn) -> None:
         """Print board value_fn"""
-        tmp = '  |' + ''.join(f'{i + 1:5d} ' for i in range(BOARD_SIZE)) + '\n'
+        width = f'{len(value_fn(0, 0)) - 1}d'
+        tmp = '  |' + ''.join(f'{i + 1:{width}} ' for i in range(BOARD_SIZE)) + '\n'
         tmp += '\n'.join(
             [f'{chr(ord("A") + row)} |{"".join(value_fn(col, row) for col in range(BOARD_SIZE))}|' for row in range(BOARD_SIZE)]
         )
