@@ -18,11 +18,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 import functools
 import logging
 import time
 from logging.handlers import BaseRotatingHandler
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 

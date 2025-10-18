@@ -19,12 +19,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
 import threading
+from collections.abc import Callable
 from contextlib import suppress
 from dataclasses import dataclass
 from enum import Enum, auto
 from signal import alarm
 from time import sleep
-from typing import Callable
 
 from config import config
 from hardware import camera

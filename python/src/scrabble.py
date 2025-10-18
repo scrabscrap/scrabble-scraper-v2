@@ -135,7 +135,7 @@ class Game:  # pylint: disable=too-many-public-methods
             'image': f'web/image-{move_index}.jpg',
             'moves': gcg_moves,
             'moves_data': [self._serialize_move(m) for m in self.moves[: move_index + 1]],
-            'board': dict(zip(board_keys, board_values)),
+            'board': dict(zip(board_keys, board_values, strict=True)),
             'blankos': self._collect_blankos(),
         }  # fmt: off
 
@@ -158,7 +158,7 @@ class Game:  # pylint: disable=too-many-public-methods
             'start': m.gcg_coord.strip(),
             'word': m.calculate_word(),
             'gcg_word': m.gcg_word,  # type: ignore
-            'new_letter': dict(zip(move_keys, move_values)),
+            'new_letter': dict(zip(move_keys, move_values, strict=True)),
             'points': m.points,
             'score': m.score,
         }

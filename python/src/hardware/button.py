@@ -20,8 +20,8 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Callable
 from enum import Enum
-from typing import Callable
 
 from gpiozero import Button as GpioButton
 
