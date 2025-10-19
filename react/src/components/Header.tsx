@@ -31,7 +31,7 @@ export function Header() {
     ));
 
     const timeString = String(data.time).split('.')[0]; // cut off nano sec
-    const commitString = import.meta.env.PACKAGE_VERSION + ' (' + import.meta.env.VITE_APP_VERSION + ')';
+    const commitString = import.meta.env.PACKAGE_VERSION + '.' + import.meta.env.VITE_APP_VERSION;
 
     const buttonClass = isStale ? 'btn btn-link text-danger p-1' : 'btn btn-link text-muted p-1';
 
