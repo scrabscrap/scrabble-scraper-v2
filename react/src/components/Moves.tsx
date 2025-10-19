@@ -65,7 +65,7 @@ export function Moves() {
 
     const items = moves
         ? Array.from(moves.entries()).map(([key, value]) => {
-            let name = value.slice(1, value.indexOf(':') + 1);
+            let name = value.slice(1, value.indexOf(':'));
             let rest = value.slice(value.indexOf(':') + 1).trim();
             let sp = rest.split(' ');
             let img_number = parseInt(api) < 3 ? key + 1 : key;
