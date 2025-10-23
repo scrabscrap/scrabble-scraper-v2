@@ -21,7 +21,7 @@ export function Header() {
     function getLoadingIcon(usingWebSocket: boolean | null): string {
         if (usingWebSocket === null) return String.fromCodePoint(0x1F50E); // Lupe
         if (usingWebSocket) return String.fromCodePoint(0x26A1); // Blitz
-        return String.fromCodePoint(0x1F4BE); // Diskette
+        return ' '; // String.fromCodePoint(0x1F4BE); // Diskette
     }
 
     const items = Array.from(data.tournament).map((char: string, i: number) => (
@@ -30,9 +30,7 @@ export function Header() {
         </span>
     ));
 
-    const timeString = String(data.time).split('.')[0].split(' ')[1]; // cut off nano sec and date
-    const commitString = import.meta.env.PACKAGE_VERSION + '.' + import.meta.env.VITE_APP_VERSION;
-
+    const timeString = String(data.time).split('.')[0]; // cut off nano sec and date
     const buttonClass = isStale ? 'btn btn-link text-danger p-1' : 'btn btn-link text-muted p-1';
 
     return (
@@ -45,9 +43,8 @@ export function Header() {
                 </div>
                 <div className='row'>
                     <div className='justify-content-center text-center m-auto'>
-                        <span className='text-muted' >{timeString}&nbsp;</span>
-                        <span className='header-info-text' >
-                            ScrabScrap@GitHub&nbsp;v{commitString}
+                        <span className='text-muted' >
+                            {timeString}&nbsp;({import.meta.env.VITE_APP_VERSION})
                         </span>
                         <span>
                             &nbsp;{getLoadingIcon(usingWebSocket)}
@@ -57,6 +54,9 @@ export function Header() {
                             </button>
                         </span>
                         <SettingsForm />
+                        <div className='header-info-text' >
+                            ScrabScrap@GitHub&nbsp;{import.meta.env.VITE_APP_TAG}&nbsp;&copy;&nbsp;R&nbsp;Rohloff
+                        </div>
                     </div>
                 </div>
             </div>
