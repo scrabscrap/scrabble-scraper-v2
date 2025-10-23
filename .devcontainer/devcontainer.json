@@ -60,7 +60,7 @@
 		"initReactFolder": "cd react/public && (ln -s ../../python/work/web web || true)",
 		// Erstelle venv "cv" mit Python 3.11 und installiere Requirements
 		"pythonVenv": "cd python && python3.11 -m venv .venv  --system-site-packages --prompt cv && . .venv/bin/activate && pip install --upgrade pip && pip install -U -r requirements.txt -r requirements-devel.txt",
-		"npm": "cd react && npm install && npm run build && cd ../python/src/static && (ln -s ../../../react/build webapp || true)"
+		"npm": "cd react && npm ci && npm run build && cd ../python/src/static && (ln -s ../../../react/build webapp || true)"
 	},
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode"
