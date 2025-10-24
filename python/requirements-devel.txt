@@ -2,30 +2,24 @@
 # pip install -U -r requirements-devel.txt
 
 --prefer-binary
-autopep8
-# └── pycodestyle [required: >=2.12.0, installed: 2.12.0]
 coverage
-flake8
-# ├── mccabe [required: >=0.7.0,<0.8.0, installed: 0.7.0]
-# ├── pycodestyle [required: >=2.12.0,<2.13.0, installed: 2.12.0]
-# └── pyflakes [required: >=3.2.0,<3.3.0, installed: 3.2.0]
 mypy
-# ├── mypy-extensions [required: >=1.0.0, installed: 1.0.0]
-# └── typing_extensions [required: >=4.1.0, installed: 4.12.2]
+# ├── typing_extensions [required: >=4.6.0, installed: 4.15.0]
+# ├── mypy_extensions [required: >=1.0.0, installed: 1.1.0]
+# └── pathspec [required: >=0.9.0, installed: 0.12.1]
 pipdeptree
-# ├── packaging [required: >=23.1, installed: 24.1]
-# └── pip [required: >=23.1.2, installed: 24.0]
+# ├── packaging [required: >=25, installed: 25.0]
+# └── pip [required: >=25.2, installed: 25.2]
 pylint
-# ├── astroid [required: >=3.2.2,<=3.3.0-dev0, installed: 3.2.2]
-# ├── dill [required: >=0.3.6, installed: 0.3.8]
-# ├── isort [required: >=4.2.5,<6,!=5.13.0, installed: 5.13.2]
+# ├── astroid [required: >=4.0.1,<=4.1.dev0, installed: 4.0.1]
+# ├── dill [required: >=0.3.6, installed: 0.4.0]
+# ├── isort [required: >=5,<8,!=5.13, installed: 7.0.0]
 # ├── mccabe [required: >=0.6,<0.8, installed: 0.7.0]
-# ├── platformdirs [required: >=2.2.0, installed: 4.2.2]
-# └── tomlkit [required: >=0.10.1, installed: 0.12.5]
+# ├── platformdirs [required: >=2.2, installed: 4.5.0]
+# └── tomlkit [required: >=0.10.1, installed: 0.13.3]
 snakeviz
-# └── tornado [required: >=2.0, installed: 6.4.1]
-types-Pillow
+# └── tornado [required: >=2.0, installed: 6.5.2]
 types-requests
-# └── urllib3 [required: >=2, installed: 2.2.1]
+# └── urllib3 [required: >=2, installed: 2.5.0]
 ruff
 yappi
