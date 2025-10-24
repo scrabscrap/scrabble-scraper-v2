@@ -2,6 +2,9 @@ name: Python package
 
 on: [push]
 
+env:
+  QA_FILES: src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py
+
 jobs:
   ruff:
     runs-on: ubuntu-latest
@@ -14,18 +17,12 @@ jobs:
         with:
           python-version: 3.11
       - name: Install pip dependencies
-        run: |
-          cd python
-          python -m pip install --upgrade pip
-          pip install ruff pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        run: pip install ruff
       - name: Lint with ruff
         id: ruff
         run: |
           cd python
-          ruff check src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py | tee ruff.txt
-          cat "ruff.txt" >> $GITHUB_STEP_SUMMARY
-          exit 0
+          ruff check --output-format=github $QA_FILES
   mypy:
     runs-on: ubuntu-latest
     env:
@@ -37,19 +34,13 @@ jobs:
         with:
           python-version: 3.11
       - name: Install pip dependencies
-        run: |
-          cd python
-          python -m pip install --upgrade pip
-          pip install mypy pytest types-requests
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        run: pip install mypy types-requests -r python/requirements.txt
       - name: Check with mypy
         id: mypy
         run: |
           cd python
-          mypy src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py 
-          OUTPUT=$(mypy src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py )
-          echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
-          exit 0
+          mypy $QA_FILES --output=json | jq -r '"::error title=mypy issue,file=\(.file),line=\(.line),col=\(.column)::\(.message)"'
+          exit ${PIPESTATUS[0]}
 
   pylint:
     runs-on: ubuntu-latest
@@ -62,18 +53,12 @@ jobs:
         with:
           python-version: 3.11
       - name: Install pip dependencies
-        run: |
-          cd python
-          python -m pip install --upgrade pip
-          pip install pylint
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        run: pip install pylint -r python/requirements.txt
       - name: Check with pylint
         id: pylint
         run: |
           cd python
-          OUTPUT=$(pylint src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py  --exit-zero)
-          echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
-          exit ${PIPESTATUS[0]}
+          pylint -j 2 --output-format=github $QA_FILES
 
   test:
     runs-on: ubuntu-latest
@@ -86,11 +71,7 @@ jobs:
         with:
           python-version: 3.11
       - name: Install pip dependencies
-        run: |
-          cd python
-          python -m pip install --upgrade pip
-          pip install flake8 pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        run: pip install -r python/requirements.txt
       - name: Test with unittest
         id: unittest
         run: |
@@ -98,32 +79,17 @@ jobs:
           cp defaults/* work/
           python -m unittest discover -s test -p "test_*.py" -v
 
-  coverage:
-    runs-on: ubuntu-latest
-    env:
-      PYTHONPATH: 'src:'
-    steps:
-      - uses: actions/checkout@v5
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: 3.11
-      - name: Install pip dependencies
-        run: |
-          cd python
-          python -m pip install --upgrade pip
-          pip install flake8 pytest coverage
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Run test coverage
-        id: unittest
-        run: |
-          cd python
-          cp defaults/* work/
-          coverage run -m unittest discover
-      - name: Coverage report
-        id: report
-        run: |
-          cd python
-          OUTPUT=$(coverage report --format=markdown)
-          echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
-          exit ${PIPESTATUS[0]}
+#
+#  npm-build:
+#    runs-on: ubuntu-latest
+#    env:
+#      PYTHONPATH: 'src:'
+#    steps:
+#      - uses: actions/checkout@v5
+#        with:
+#          fetch-tags: 'true'
+#      - name: Clean install dependencies and build
+#        run: |
+#          cd react
+#          npm ci
+#          npm run build
