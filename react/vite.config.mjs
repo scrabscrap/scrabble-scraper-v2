@@ -3,9 +3,8 @@ import react from '@vitejs/plugin-react';
 import loadVersion from 'vite-plugin-package-version';
 import * as child from "child_process";
 
-const commitHash = child.execSync("git rev-parse --short HEAD").toString().replace('\n', '');
-const commitTag = child.execSync("git describe --tags").toString().replace('\n', '');
-
+const commitHash = child.exec("git rev-parse --short HEAD").toString().replace('\n', '');
+const commitTag = child.exec("git describe --tags").toString().replace('\n', '');
 
 export default defineConfig(() => {
     return {
