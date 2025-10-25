@@ -7,7 +7,7 @@ do
     case $flag in
         h)
           echo "usage qa.sh"
-          echo "always run ruff, mypy, pylint unittest"
+          echo "always run ruff, pyright, unittest"
           echo "-h help"
           echo "-c run coverage"
           exit 0
@@ -28,23 +28,17 @@ done
   fi
 
   echo "*** run ruff"
-  ruff check src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py 
+  ruff check src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py
   retVal=$?
   if [ $retVal -ne 0 ]; then
     echo "### ruff returns $retVal"
   fi
 
-  echo "*** run mypy"
-  mypy src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py 
+  echo "*** run pyright"
+  pyright src/ src/admin/ src/game_board/ src/hardware/ src/utils/ simulator/ --threads 6
   retVal=$?
   if [ $retVal -ne 0 ]; then
-    echo "### mypy returns $retVal"
-  fi
-  
-  echo "*** run pylint"
-  pylint -j 2 src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py 
-  retVal=$?
-  if [ $retVal -ne 0 ]; then
-    echo "### pylint returns $retVal"
+    echo "### pyright returns $retVal"
+    exit $retVal
   fi
 

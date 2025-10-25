@@ -3,7 +3,7 @@ name: Python package
 on: [push]
 
 env:
-  QA_FILES: src/*.py src/admin/*.py src/game_board/*.py src/hardware/*.py src/utils/*.py simulator/*.py
+  QA_FILES: "src/ src/admin/ src/hardware/ src/game_board/ src/utils/ simulator/"
 
 jobs:
   ruff:
@@ -23,42 +23,32 @@ jobs:
         run: |
           cd python
           ruff check --output-format=github $QA_FILES
-  mypy:
-    runs-on: ubuntu-latest
-    env:
-      PYTHONPATH: 'src:'
-    steps:
-      - uses: actions/checkout@v5
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: 3.11
-      - name: Install pip dependencies
-        run: pip install mypy types-requests -r python/requirements.txt
-      - name: Check with mypy
-        id: mypy
-        run: |
-          cd python
-          mypy $QA_FILES --output=json | jq -r '"::error title=mypy issue,file=\(.file),line=\(.line),col=\(.column)::\(.message)"'
-          exit ${PIPESTATUS[0]}
 
-  pylint:
+  pyright:
     runs-on: ubuntu-latest
-    env:
-      PYTHONPATH: 'src:'
+
     steps:
-      - uses: actions/checkout@v5
-      - name: Set up Python 3.11
+      - uses: actions/checkout@v4
+      - name: Setup Python
         uses: actions/setup-python@v6
         with:
           python-version: 3.11
       - name: Install pip dependencies
-        run: pip install pylint -r python/requirements.txt
-      - name: Check with pylint
-        id: pylint
+        run: pip install pyright -r python/requirements.txt
+      - name: Run pyright on source directories
+        id: pyright
         run: |
           cd python
-          pylint -j 2 --output-format=github $QA_FILES
+          echo "Running Pyright type checks..."
+          pyright $QA_FILES --outputjson | jq -r '
+              .generalDiagnostics[] |
+              if .severity == "error" then
+                "::error file=\(.file),line=\(.range.start.line+1),col=\(.range.start.character+1)::[\(.rule // "unknown")] \(.message)"
+              else
+                "::warning file=\(.file),line=\(.range.start.line+1),col=\(.range.start.character+1)::[\(.rule // "unknown")] \(.message)"
+              end
+            '
+          exit ${PIPESTATUS[0]}
 
   test:
     runs-on: ubuntu-latest
@@ -78,18 +68,3 @@ jobs:
           cd python
           cp defaults/* work/
           python -m unittest discover -s test -p "test_*.py" -v
-
-#
-#  npm-build:
-#    runs-on: ubuntu-latest
-#    env:
-#      PYTHONPATH: 'src:'
-#    steps:
-#      - uses: actions/checkout@v5
-#        with:
-#          fetch-tags: 'true'
-#      - name: Clean install dependencies and build
-#        run: |
-#          cd react
-#          npm ci
-#          npm run build
