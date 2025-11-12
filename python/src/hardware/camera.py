@@ -121,9 +121,9 @@ if importlib.util.find_spec('picamera2'):
         camera_dict.update({'picamera': CameraRPI64})
         camera_dict.update({'picamera2': CameraRPI64})
         camera_dict.update({'picamera-still': CameraRPI64})
-        logger.info('picamera2 added')
+        logger.info(' ✅ picamera2 added')
     else:
-        logger.error('picamera2 not detected')
+        logger.error(' ❌ picamera2 not detected')
 
 
 class CameraFile(Camera):
