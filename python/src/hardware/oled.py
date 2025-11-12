@@ -26,7 +26,7 @@ from luma.core.error import DeviceNotFoundError
 from luma.core.interface.serial import i2c
 from luma.core.render import canvas
 from luma.oled.device import sh1106, ssd1306
-from PIL import Image, ImageDraw, ImageFont
+from PIL import ImageFont
 
 from config import config
 from display import Display
@@ -40,17 +40,15 @@ IC2_ADDRESS_PLAYER2 = 0x3C
 
 def test_display(serial, device_cls):
     """test if device is available"""
+    sleep(0.5)  # sleep before test
     try:
         device = device_cls(serial)
-        image = Image.new('1', device.size)
-        draw = ImageDraw.Draw(image)
-        draw.rectangle((device.width - 10, device.height - 10, device.width - 1, device.height - 1), outline=255, fill=255)
-        device.display(image)
-        sleep(0.1)  # Kurze Anzeigezeit
         device.clear()
         device.show()
         return device
-    except Exception:  # pylint: disable=broad-exception-caught
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        logging.basicConfig(filename=f'{config.path.log_dir}/messages.log', level=logging.INFO, force=True)
+        logging.getLogger().error(f' ❌ {device_cls.__class__.__name__} konnte nicht initialisiert werden: {e}')
         return None
 
 
@@ -58,11 +56,15 @@ def detect_device(serial):
     """detect device ssh1306 or sh1106"""
     device = test_display(serial, sh1106)
     if device:
+        logging.basicConfig(filename=f'{config.path.log_dir}/messages.log', level=logging.INFO, force=True)
+        logging.getLogger().info(' ✅ sh1106 Display found!')
         return device
 
     # SSD1306 probieren
     device = test_display(serial, ssd1306)
     if device:
+        logging.basicConfig(filename=f'{config.path.log_dir}/messages.log', level=logging.INFO, force=True)
+        logging.getLogger().info(' ✅ ssh1306 Display found!')
         return device
 
     raise RuntimeError('OLED-Typ konnte nicht erkannt werden')
