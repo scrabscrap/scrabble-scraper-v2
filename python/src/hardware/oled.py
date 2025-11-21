@@ -160,6 +160,11 @@ class OLEDDisplay(Display):
         def _get_score(i: int) -> int:
             return self.game.moves[-1].score[i] if self.game and self.game.moves else 0
 
+        def _shorten_name(name: str, max_len: int) -> str:
+            if len(name) > max_len:
+                return f'{name[:max_len]}\u2026'  # U+2026
+            return name
+
         def _draw_player_info(draw, i: int, is_active: bool, time_str: str, info: str | None) -> None:
             color = BLACK if info and is_active else WHITE
 
@@ -179,9 +184,10 @@ class OLEDDisplay(Display):
                     draw.text(INFO_STR_COORD, f'{info:9.9s}', font=FONT2, fill=color, anchor='lm')
             else:
                 if config.scrabble.show_score:
-                    draw.text(INFO_STR_COORD, f'{nicknames[i]:6.5s}{_get_score(i):3d}', font=FONT2, fill=color, anchor='lm')
+                    draw.text( INFO_STR_COORD, f'{_shorten_name(nicknames[i], 5)}{_get_score(i):3d}',
+                               font=FONT2, fill=color, anchor='lm',)  # fmt:off
                 else:
-                    draw.text(INFO_STR_COORD, f'{nicknames[i]:9.9s}', font=FONT2, fill=color, anchor='lm')
+                    draw.text(INFO_STR_COORD, f'{_shorten_name(nicknames[i], 8)}', font=FONT2, fill=color, anchor='lm')
 
             draw.text(MIDDLE, time_str, font=FONT, fill=color, anchor='mm', align='center')
 
