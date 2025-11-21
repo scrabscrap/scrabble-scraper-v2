@@ -55,7 +55,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(config.video.rotate)
         self.assertEqual(config.board.layout, 'custom2012')
         self.assertEqual(config.board.language, 'de')
-        self.assertEqual(config.system.quit, 'shutdown')
+        self.assertEqual(config.system.quit, 'reboot')
         self.assertEqual(config.system.gitbranch, 'main')
         config.reload()
 

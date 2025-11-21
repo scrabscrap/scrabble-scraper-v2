@@ -113,7 +113,7 @@ DEFAULT = {
         'custom2020light-dynamic_threshold': 'True',
         'language': 'de',
     },
-    'system': {'quit': 'shutdown', 'gitbranch': 'main'},
+    'system': {'quit': 'reboot', 'gitbranch': 'main'},
 }
 
 
