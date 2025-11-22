@@ -434,6 +434,10 @@ class Game:  # pylint: disable=too-many-public-methods
     def _find_valid_blanks(
         self, direction: str, blank_coords: set[CoordType], real_tile_coords: set[CoordType], full_board_coords: set[CoordType]
     ) -> set[CoordType]:
+        if len(real_tile_coords) <= 1:
+            return self._find_valid_horizontal_blanks(
+                blank_coords, real_tile_coords, full_board_coords
+            ) | self._find_valid_vertical_blanks(blank_coords, real_tile_coords, full_board_coords)
         if direction == 'horizontal':
             return self._find_valid_horizontal_blanks(blank_coords, real_tile_coords, full_board_coords)
         return self._find_valid_vertical_blanks(blank_coords, real_tile_coords, full_board_coords)

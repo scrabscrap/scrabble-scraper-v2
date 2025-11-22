@@ -88,6 +88,14 @@ class AlgorithmBlankoTestCase(BaseTestClass):
             'invalid tiles',
         )
 
+        game = State.ctx.game.new_game()
+        board = {}
+        new_board = {
+            (3, 6): Tile('_', 75), (3, 7): Tile('F', 75),
+        }  # fmt:off
+        new_tiles, _, _ = _move_processing(game=game, board=new_board, previous_board=board)
+        self.assertDictEqual(new_tiles, {(3, 6): Tile('_', 75), (3, 7): Tile('F', 75)}, 'invalid tiles')
+
     def test_147(self):
         """replace blanko with lower character"""
         # H4 FIRNS
