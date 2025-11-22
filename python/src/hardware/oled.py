@@ -179,15 +179,15 @@ class OLEDDisplay(Display):
 
             if info:
                 if config.scrabble.show_score:
-                    draw.text(INFO_STR_COORD, f'{info:6.5s}{_get_score(i):3d}', font=FONT2, fill=color, anchor='lm')
+                    draw.text(INFO_STR_COORD, f'{info:6.6s}{_get_score(i):3d}', font=FONT2, fill=color, anchor='lm')
                 else:
                     draw.text(INFO_STR_COORD, f'{info:9.9s}', font=FONT2, fill=color, anchor='lm')
             else:
                 if config.scrabble.show_score:
-                    draw.text( INFO_STR_COORD, f'{_shorten_name(nicknames[i], 5)}{_get_score(i):3d}',
+                    draw.text( INFO_STR_COORD, f'{_shorten_name(nicknames[i], 5):6.6s}{_get_score(i):3d}',
                                font=FONT2, fill=color, anchor='lm',)  # fmt:off
                 else:
-                    draw.text(INFO_STR_COORD, f'{_shorten_name(nicknames[i], 8)}', font=FONT2, fill=color, anchor='lm')
+                    draw.text(INFO_STR_COORD, f'{_shorten_name(nicknames[i], 8):9.9s}', font=FONT2, fill=color, anchor='lm')
 
             draw.text(MIDDLE, time_str, font=FONT, fill=color, anchor='mm', align='center')
 
