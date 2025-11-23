@@ -274,8 +274,9 @@ class Game:  # pylint: disable=too-many-public-methods
         """Returns the coordinates that are to be ignored in the analysis."""
         if not self.moves:
             return set()
-        to_verify = min(len(self.moves), config.scrabble.verify_moves)
-        return set(self.moves[-to_verify].board.keys())
+        if len(self.moves) < config.scrabble.verify_moves:
+            return set()
+        return set(self.moves[-config.scrabble.verify_moves].board.keys()) & set(self.moves[-1].board.keys())
 
     def _recalculate_from(self, index: int) -> Game:
         """recalculate all moves from index"""

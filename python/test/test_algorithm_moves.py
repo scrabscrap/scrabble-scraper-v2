@@ -451,6 +451,67 @@ class AlgorithmMovesTestCase(BaseTestClass):
         self.run_data(start_button='red', data=data)
         self.assertEqual(State.ctx.game.moves[-1].score, data[-1]['score'], 'invalid scores')
 
+    def test_131(self):
+        """Test prevent removal of newly placed tile after a successful challenge"""
+        data = [ { 'button': 'RED', 'score': (0, 0),
+                   'tiles': {}
+                 },
+                 { 'button': 'GREEN', 'score': (20, 0),
+                   'tiles': { (4, 7): Tile('S', 75), (5, 7): Tile('Ä', 75), (6, 7): Tile('H', 75), (7, 7): Tile('E', 75), }
+                 },
+                 { 'button': 'RED', 'score': (20, 24),
+                   'tiles': { (5, 5): Tile('K', 75), (5, 6): Tile('R', 75), (5, 8): Tile('H', 75), (5, 9): Tile('E', 75) },
+                 },
+                 { 'button': 'GREEN', 'score': (77, 24),
+                   'tiles': { (7, 1): Tile('_', 75), (7, 2): Tile('U', 75), (7, 3): Tile('S', 75), (7, 4): Tile('R', 75) , 
+                              (7, 5): Tile('E', 75), (7, 6): Tile('D', 75), (7, 8): Tile('_', 75) },
+                 },
+                 { 'button': 'RED', 'score': (77, 51),
+                   'tiles': { (3, 10): Tile('G', 75), (4, 10): Tile('U', 75), (5, 10): Tile('N', 75), (6, 10): Tile('S', 75) , 
+                              (7, 10): Tile('T', 75), },
+                 },
+                 { 'button': 'GREEN', 'score': (97, 51),
+                   'tiles': { (4, 11): Tile('I', 75), (5, 11): Tile('D', 75), },
+                 },
+                 { 'button': 'RED', 'score': (97, 68),
+                   'tiles': { (6, 1): Tile('J', 75), (6, 2): Tile('A', 75), },
+                 },
+                 { 'button': 'GREEN', 'score': (121, 68),
+                   'tiles': { (8, 7): Tile('T', 75), (8, 8): Tile('E', 75), (8, 9): Tile('X', 75), },
+                 },
+                 { 'button': 'RED', 'score': (121, 92),
+                   'tiles': { (7, 11): Tile('O', 75), (7, 12): Tile('U', 75), (7, 13): Tile('R', 75),(7, 14): Tile('I', 75), },
+                 },
+                 { 'button': 'GREEN', 'score': (135, 92),
+                   'tiles': { (6, 5): Tile('L', 75), (8, 5): Tile('B', 75), (9, 5): Tile('S', 75), (10, 5): Tile('T', 75), },
+                 },
+                 { 'button': 'RED', 'score': (135, 106),
+                   'tiles': { (5, 13): Tile('C', 75), (6, 13): Tile('A', 75), },
+                 },
+                 { 'button': 'GREEN', 'score': (163, 106),
+                   'tiles': { (5, 0): Tile('M', 75), (5, 1): Tile('O', 75), (5, 2): Tile('H', 75), (5, 3): Tile('N', 75), },
+                 },
+                 { 'button': 'YELLOW', 'score': (163, 106),
+                   'tiles': { },
+                 },
+                 { 'button': 'DOUBT1', 'score': (135, 106),
+                   'tiles': { },
+                 },
+                 { 'button': 'YELLOW', 'score': (135, 106),
+                   'tiles': { },
+                 },
+                 { 'button': 'RED', 'score': (135, 136),
+                   'tiles': { (8, 2): Tile('F', 75), (9, 2): Tile('G', 75), (10, 2): Tile('E', 75), (11, 2): Tile('I', 75), 
+                              (12, 2): Tile('N', 75), },
+                 },
+                 { 'button': 'GREEN', 'score': (153, 136),
+                   'tiles': { (4, 3): Tile('O', 75), (5, 3): Tile('H', 75), (6, 3): Tile('M', 75), },
+                 },
+
+                ]  # fmt:off
+        self.run_data(start_button='green', data=data)
+        self.assertEqual(State.ctx.game.moves[-1].score, data[-1]['score'], 'invalid scores')
+
 
 if __name__ == '__main__':
     unittest.main(module='test_algorithm_moves')
