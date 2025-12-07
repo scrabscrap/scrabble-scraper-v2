@@ -85,7 +85,7 @@ def _handle_player_form(form):
     player1 = form.get('player1')
     player2 = form.get('player2')
     if player1 and player2 and player1.casefold() != player2.casefold():
-        logger.info(f'set {player1=} / {player2=}')
+        logger.debug(f'set {player1=} / {player2=}')
         State.ctx.game.set_player_names(player1, player2)
         if State.ctx.current_state == GameState.START:
             ScrabbleWatch.display.show_ready((player1, player2))
