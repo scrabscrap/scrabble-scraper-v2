@@ -195,7 +195,17 @@ def log_sysinfo():  # pylint: disable=too-many-locals,too-many-statements
     _mem_info()
     _disk_info()
     log_process_info()
+    _git_info()
     return redirect('/logs')
+
+
+def _git_info():
+    cmd = ['git', 'log', '--oneline', '-n', '20']
+    process = subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    if process.returncode != 0:
+        logger.warning(f'git command returned non-zero: {process.returncode}')
+    else:
+        logger.info(f'{"=" * 40} Git Information {"=" * 25}\n{process.stdout}')
 
 
 def _disk_info():
