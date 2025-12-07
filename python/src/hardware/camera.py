@@ -71,13 +71,17 @@ if importlib.util.find_spec('picamera2'):
             self.framerate = framerate or config.video.fps
             self.frame = np.zeros(shape=(self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
             self.event: Event | None = None
-            self.camera = Picamera2()
-            logger.info(f'open CameraRPI64: {self.resolution=} {self.framerate=}')
-            cfg = self.camera.create_still_configuration(main={'format': 'RGB888', 'size': self.resolution})
-            if config.video.rotate:
-                cfg['transform'] = libcamera.Transform(hflip=1, vflip=1)  # self.camera.rotation = 180
-            self.camera.configure(cfg)
-            self.camera.start()
+            try:
+                self.camera = Picamera2()
+                logger.info(f'open CameraRPI64: {self.resolution=} {self.framerate=}')
+                cfg = self.camera.create_still_configuration(main={'format': 'RGB888', 'size': self.resolution})
+                if config.video.rotate:
+                    cfg['transform'] = libcamera.Transform(hflip=1, vflip=1)  # self.camera.rotation = 180
+                self.camera.configure(cfg)
+                self.camera.start()
+            except Exception:
+                logger.exception('CameraRPI64 init failed')
+                raise
             self.wait = round(1 / self.framerate, 2)
             sleep(2)  # warmup camera
             self.frame = self.camera.capture_array()
@@ -174,6 +178,9 @@ class CameraFile(Camera):
     def read(self, peek: bool = False) -> MatLike:
         logger.debug(f'CameraFile read: {self._formatter.format(self._counter)}')
         img = cv2.imread(self._formatter.format(self._counter))
+        if img is None:
+            logger.warning(f'CameraFile.read: image not found {self._formatter.format(self._counter)}')
+            return np.zeros((self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
         if not peek:
             self._counter += 1 if Path(self._formatter.format(self._counter + 1)).is_file() else 0
         if img is not None and self._resize:
@@ -271,7 +278,12 @@ def switch_camera(camera: str) -> Camera:
         cam.cancel()
         sleep(1)
 
-    cam = clazz()
+    try:
+        cam = clazz()
+    except Exception:
+        logger.exception('switch_camera: failed initializing camera class %s', clazz)
+        raise
+
     if clazz.__name__ != 'CameraFile':
         pool.submit(cam.update, event=Event())  # start cam
     cam.log_camera_info()

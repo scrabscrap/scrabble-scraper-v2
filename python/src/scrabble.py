@@ -300,12 +300,18 @@ class Game:  # pylint: disable=too-many-public-methods
         img = self.moves[index].img
         if img is not None:
             image_path = web_dir / f'image-{index}.jpg'
-            cv2.imwrite(str(image_path), img, [cv2.IMWRITE_JPEG_QUALITY, 100])  # type:ignore
+            try:
+                cv2.imwrite(str(image_path), img, [cv2.IMWRITE_JPEG_QUALITY, 100])  # type:ignore
+            except Exception:
+                logger.exception(f'Failed to write image {image_path}')
 
     def _write_json(self, index: int, web_dir: Path, fname: str) -> None:
         status_path = web_dir / fname
-        with status_path.open('w', encoding='utf-8') as json_file:
-            json.dump(self.get_json_data(index=index), json_file, indent=2)
+        try:
+            with status_path.open('w', encoding='utf-8') as json_file:
+                json.dump(self.get_json_data(index=index), json_file, indent=2)
+        except OSError:
+            logger.exception(f'Failed to write status file: {status_path}')
 
     def _write_json_from(self, index: int, write_mode: list[str]) -> Game:
         """Write JSON and images for moves starting from index."""
@@ -368,8 +374,8 @@ class Game:  # pylint: disable=too-many-public-methods
                     log_path = log_dir / log_file
                     if log_path.exists():
                         _zip.write(log_path, arcname=log_file)
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            logger.error(f'creating zip file {e=}')
+        except Exception:  # pylint: disable=broad-exception-caught
+            logger.exception('creating zip file failed')
 
     def _insert_move(self, move: Move, index: int = -1, recalc_from: int | None = None) -> Game:
         if index == -1:

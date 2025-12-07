@@ -70,9 +70,14 @@ def runtime_measure(func: Callable[..., Any]) -> Callable[..., Any]:  # pragma: 
     @functools.wraps(func)
     def runtime(*args: Any, **kwargs: Any) -> Any:
         start = time.perf_counter()
-        result = func(*args, **kwargs)
-        logger.info(f'{func.__name__} took {(time.perf_counter() - start):.4f} sec(s).')
-        return result
+        try:
+            return func(*args, **kwargs)
+        except Exception:
+            logger.exception(f'runtime_measure: function {func.__name__} failed')
+            raise
+        finally:
+            elapsed = time.perf_counter() - start
+            logger.info(f'runtime_measure: {func.__name__} took {elapsed:.4f}s')
 
     return runtime
 

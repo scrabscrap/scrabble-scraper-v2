@@ -74,7 +74,14 @@ def load_tiles_templates() -> list[TileTemplate]:
     for tile_name in tile_list:
         image_path = filepath / f'{tile_name}.png'
         image = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
-        new_tile = TileTemplate(name=tile_name, img=image.astype(np.uint8))  # type: ignore
+        if image is None:
+            logger.error(f'load_tiles_templates: cannot read image: {image_path}')
+            continue
+        try:
+            new_tile = TileTemplate(name=tile_name, img=image.astype(np.uint8))  # type: ignore
+        except Exception:
+            logger.exception('load_tiles_templates: failed processing image %s for tile %s', image_path, tile_name)
+            continue
         tiles_templates.append(new_tile)
     return tiles_templates
 
@@ -124,12 +131,15 @@ def analyze_chunk(warped_gray: MatLike, board: BoardType, coord_list: set[tuple[
 
         return tile if tile is not None and tile.prob > THRESHOLD_PROP_TILE else Tile('_', BLANK_PROP)
 
-    for coord in coord_list:
-        (col, row) = coord
-        x, y = get_x_position(col), get_y_position(row)
-        segment = warped_gray[y - 15 : y + GRID_H + 15, x - 15 : x + GRID_W + 15]
-        board[coord] = find_tile(segment, board.get(coord, Tile('_', BLANK_PROP)))
-        logger.info(f'{chr(ORD_A + row)}{col + 1:2}: {board[coord]}) found')
+    try:
+        for coord in coord_list:
+            (col, row) = coord
+            x, y = get_x_position(col), get_y_position(row)
+            segment = warped_gray[y - 15 : y + GRID_H + 15, x - 15 : x + GRID_W + 15]
+            board[coord] = find_tile(segment, board.get(coord, Tile('_', BLANK_PROP)))
+            logger.info(f'{chr(ORD_A + row)}{col + 1:2}: {board[coord]}) found')
+    except Exception:
+        logger.exception(f'analyze_chunk failed for coords={coord_list}')
     return board
 
 
@@ -147,9 +157,12 @@ def analyze(warped_gray: MatLike, board: BoardType, candidates: set[tuple[int, i
             analyze_futures.append(executor.submit(analyze_chunk, warped_gray, board_chunk, set(chunks[i])))
         done, not_done = futures.wait(analyze_futures)  # blocking wait
         for f in done:
-            board.update(f.result())
-        for e in not_done:
-            logger.error(f'Error during analyze future: {e.exception}')
+            try:
+                board.update(f.result())
+            except Exception:  # noqa: PERF203 # `try`-`except` within a loop incurs performance overhead
+                logger.exception('analyze future failed')
+        for f in not_done:
+            logger.error(f'analyze future not finished: {f}')
     return board
 
 

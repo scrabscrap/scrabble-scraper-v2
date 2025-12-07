@@ -50,21 +50,35 @@ class Upload:
     def upload(self, data: dict | None = None, files: dict | None = None) -> bool:
         """do upload/delete operation"""
 
-        logger.debug(f'http: upload files {list(files.keys())}' if files else 'http: no files to upload')
+        logger.debug(f'http: upload files data={data}, files={list(files.keys()) if files else []}')
         if data is None:
             data = {'upload': 'true'}
         if (url := upload_config.server) is not None:
             try:
                 url = url if url.startswith(('http://', 'https://')) else f'https://{url}'
                 url += '' if url.endswith('/bin/scrabscrap.php') else '/bin/scrabscrap.php'
-                ret = requests.post(
+                with requests.post(
                     url, data=data, files=files, timeout=50, auth=HTTPBasicAuth(upload_config.user, upload_config.password)
-                )
-                return ret.status_code == 200
+                ) as ret:
+                    logger.info(f'upload: response {ret.status_code}')
+                    if ret.status_code != 200:
+                        logger.warning('upload failed: %s %s', ret.status_code, ret.text)
+                        return False
+                    return True
             except requests.Timeout:
-                logger.error(f'http: error timeout url={url}')
+                logger.exception(f'http: timeout while POST to {url}')
             except requests.ConnectionError:
-                logger.error(f'http: error connection error url={url}')
+                logger.exception(f'http: connection error while POST to {url}')
+            except Exception:
+                logger.exception(f'http: unexpected exception while POST to {url}')
+            finally:
+                # Ensure we close any file handles that might have been passed in
+                if files:
+                    for fh in files.values() if isinstance(files, dict) else files:
+                        try:
+                            fh.close()
+                        except Exception:  # noqa: PERF203
+                            logger.debug('failed to close upload file handle', exc_info=True)
         return False
 
     def upload_move(self, move: int) -> bool:
@@ -76,15 +90,22 @@ class Upload:
             'messages.log': Path(config.path.log_dir) / 'messages.log',
             f'image-{move}-camera.jpg': Path(config.path.web_dir) / f'image-{move}-camera.jpg',
         }
+        upload_files = {}
         try:
-            upload_files = {}
             for key, path in files.items():
                 if path.is_file():
                     upload_files[key] = path.open('rb')
             if upload_files:
-                return self.upload(files=upload_files)
-        except OSError as oops:
-            logger.error(f'upload I/O error({oops.errno}): {oops.strerror}')
+                ok = self.upload(files=upload_files)
+                if not ok:
+                    logger.warning(f'upload_move: upload returned False for move={move} files={list(upload_files.keys())}')
+                return ok
+        finally:
+            for f in upload_files.values():
+                try:
+                    f.close()
+                except Exception:  # noqa: PERF203
+                    logger.debug('upload_move: failed closing file handle', exc_info=True)
         return False
 
     def upload_status(self) -> bool:
@@ -130,12 +151,12 @@ class UploadConfig:
     def reload(self) -> None:
         """reload configuration"""
         self.parser = configparser.ConfigParser()
+        ini_path = Path(config.path.work_dir) / self.INIFILE
         try:
-            ini_path = Path(config.path.work_dir) / self.INIFILE
             with ini_path.open(encoding='utf-8') as config_file:
                 self.parser.read_file(config_file)
         except OSError as oops:
-            logger.error(f'read ini-file: I/O error({oops.errno}): {oops.strerror}')
+            logger.exception(f'read ini-file failed {oops} (path={ini_path})')
         if self.SECTION not in self.parser.sections():
             self.parser.add_section(self.SECTION)
             self.store()

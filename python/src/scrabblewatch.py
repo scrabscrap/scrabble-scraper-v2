@@ -16,12 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+import logging
+
 from utils.util import Static
 
 try:
     from hardware.oled import OLEDDisplay as DisplayImpl
 except (ImportError, RuntimeError):
     from display import Display as DisplayImpl  # type: ignore[assignment] # pylint: disable=ungrouped-imports
+
+logger = logging.getLogger()
 
 
 class ScrabbleWatch(Static):
@@ -67,11 +71,14 @@ class ScrabbleWatch(Static):
     @classmethod
     def tick(cls) -> None:
         """add one second"""
-        cls.play_time += 1
-        if not cls.paused:
-            cls.time = (cls.time[0] + 1, cls.time[1]) if cls.player == 0 else (cls.time[0], cls.time[1] + 1)
-            cls.current = (cls.current[0] + 1, cls.current[1]) if cls.player == 0 else (cls.current[0], cls.current[1] + 1)
-            cls.display.render_display(cls.player, cls.time, cls.current)
+        try:
+            cls.play_time += 1
+            if not cls.paused:
+                cls.time = (cls.time[0] + 1, cls.time[1]) if cls.player == 0 else (cls.time[0], cls.time[1] + 1)
+                cls.current = (cls.current[0] + 1, cls.current[1]) if cls.player == 0 else (cls.current[0], cls.current[1] + 1)
+                cls.display.render_display(cls.player, cls.time, cls.current)
+        except Exception:
+            logger.exception('ScrabbleWatch.tick: unexpected error')
 
     @classmethod
     def status(cls) -> tuple[int, tuple[int, int], tuple[int, int]]:
