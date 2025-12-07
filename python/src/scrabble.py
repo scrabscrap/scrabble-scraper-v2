@@ -225,11 +225,13 @@ class Game:  # pylint: disable=too-many-public-methods
 
     def set_player_names(self, name1: str, name2: str) -> None:
         """set player names"""
+        logger.info(f"Setting player names to: '{name1}' and '{name2}'")
         self.nicknames = (name1, name2)
         self._write_json_from(index=-1, write_mode=[])  # only status file
 
     def new_game(self) -> Game:
         """Reset to a new game (nicknames, moves)"""
+        logger.info('New game started')
         self.nicknames = ('Name1', 'Name2')
         self.gamestart = datetime.now()
         self.moves.clear()
@@ -238,6 +240,7 @@ class Game:  # pylint: disable=too-many-public-methods
 
     def end_game(self) -> Game:
         """finish game"""
+        logger.info('End of game started')
         self.add_timeout_malus()
         self.add_lastrack()
 
@@ -247,7 +250,7 @@ class Game:  # pylint: disable=too-many-public-methods
             logger.debug(f'{fname=}')
             upload.get_upload_queue().put_nowait(Command(upload.zip_files, fname))
 
-        logger.info(f'new scores {self.moves[-1].score}:\n{self.board_str()}')
+        logger.info(f'final scores {self.moves[-1].score}\n{self.board_str()}')
         if logger.isEnabledFor(logging.DEBUG):
             msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in self.moves)
             pp = pprint.PrettyPrinter(indent=2, depth=1)
@@ -385,7 +388,7 @@ class Game:  # pylint: disable=too-many-public-methods
         self._update_technical_move_attributes()
         if recalc_from is not None:
             self._recalculate_from(recalc_from)
-        logger.info(f'add move: {str(move)}')
+        logger.info(f'#{move.move}: {str(move)}')
         self._write_json_from(index=(index if index != -1 else len(self.moves) - 1), write_mode=[JSON_FLAG, IMAGE_FLAG])
         return self
 
@@ -452,7 +455,7 @@ class Game:  # pylint: disable=too-many-public-methods
     def _log_removed_blanks(self, new_tiles: BoardType, cleaned_new_tiles: BoardType) -> None:
         if len(cleaned_new_tiles) < len(new_tiles):
             removed = new_tiles.keys() - cleaned_new_tiles.keys()
-            logger.debug(f'removed blankos: {removed}')
+            logger.info(f'removed blankos: {removed}')
 
     def _find_valid_horizontal_blanks(
         self, blank_coords: set[CoordType], real_tile_coords: set[CoordType], full_board_coords: set[CoordType]
@@ -488,7 +491,7 @@ class Game:  # pylint: disable=too-many-public-methods
             self.add_exchange(player, played_time, img)
         except InvalidMoveError:
             self.add_unknown(player, played_time, img, new_tiles, removed_tiles)
-        logger.info(f'new scores {self.moves[-1].score}:\n{self.board_str()}')
+        logger.info(f'Scores after move #{self.moves[-1].move} {self.moves[-1].score}\n{self.board_str()}')
         if logger.isEnabledFor(logging.DEBUG):
             msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in self.moves)
             pp = pprint.PrettyPrinter(indent=2, depth=1)
@@ -513,7 +516,7 @@ class Game:  # pylint: disable=too-many-public-methods
     def add_two_exchanges_at(self, index: int) -> Game:
         """add exchange move at move index (index)"""
         if not self.valid_index(index=index):
-            logger.error(f'add challenge at: invalid index {index}')
+            logger.error(f'invalid index {index}')
             # raise IndexError(f'add challenge at: invalid index {index}')
             return self
         player1, player2 = (self.moves[index].player, abs(self.moves[index].player - 1))
@@ -527,7 +530,7 @@ class Game:  # pylint: disable=too-many-public-methods
     def add_challenge_for(self, index: int = -1) -> Game:
         """add challenge malus for move at index (or at end)"""
         if not self.valid_index(index=index):
-            logger.error(f'add challenge at: invalid index {index}')
+            logger.error(f'invalid index {index}')
             # raise IndexError(f'add challenge at: invalid index {index}')
             return self
 
@@ -546,7 +549,7 @@ class Game:  # pylint: disable=too-many-public-methods
     def add_withdraw_for(self, index: int, img: MatLike) -> Game:
         """add withdraw for move at index (or at end)"""
         if not self.valid_index(index=index):
-            logger.error(f'add withdraw at: invalid index {index}')
+            logger.error(f'invalid index {index}')
             # raise IndexError(f'add withdraw at: invalid index {index}')
             return self
 
@@ -573,7 +576,7 @@ class Game:  # pylint: disable=too-many-public-methods
             self.moves[index] = MoveChallenge(game=self, player=player, played_time=to_change.played_time, # type: ignore[assignment]
                                         previous_move=to_change.previous_move)  # fmt:off
         else:
-            logger.debug('not expected: invalid move type for toggle challenge')
+            logger.debug(f'toggle_challenge_type not possible for move type {type(to_change).__name__} at index {index}')
             return self
         self._update_technical_move_attributes()
         self._recalculate_from(index)  # recalculate all moves from index
@@ -592,7 +595,7 @@ class Game:  # pylint: disable=too-many-public-methods
     def add_lastrack(self) -> Game:
         """add lastrack malus/bonus (called by end of game)"""
         if not self.moves:
-            logger.error('add last rack: no previous move available')
+            logger.error('no previous move available, cannot calculate bonus/malus')
             # raise ValueError('add last rack: no previous move available')  # pylint: disable=broad-exception-raised
             return self
         prev_move = self.moves[-1]
@@ -602,7 +605,7 @@ class Game:  # pylint: disable=too-many-public-methods
         elif prev_move.rack_size[1] == 0:
             player1, player2 = 1, 0
         else:
-            logger.warning(f'last rack calculation impossible: rack size={prev_move.rack_size}')
+            logger.warning(f'calculation impossible, no player has an empty rack. Rack size={prev_move.rack_size}')
             player1, player2, rack_str = 0, 1, '?'
         self._insert_move(MoveLastRackBonus(game=self, player=player1, previous_move=prev_move, rack=rack_str))
         self._insert_move(MoveLastRackMalus(game=self, player=player2, previous_move=self.moves[-1], rack=rack_str))
@@ -611,7 +614,7 @@ class Game:  # pylint: disable=too-many-public-methods
     def add_timeout_malus(self) -> Game:
         """add timeout malus (called by end of game)"""
         prev_move = self.moves[-1] if self.moves else None
-        logger.debug('scrabble: create move timeout malus')
+        logger.debug('add timeout malus')
         move = MoveTimeMalus(game=self, player=0, previous_move=prev_move)
         if move.points != 0:
             self._insert_move(move)
@@ -664,7 +667,7 @@ class Game:  # pylint: disable=too-many-public-methods
     def remove_move_at(self, index: int) -> Game:
         """remove move before move at index (index) without checks"""
         if not self.valid_index(index=index):
-            logger.error(f'remove move at: invalid index {index}')
+            logger.error(f'invalid index {index}')
             # raise IndexError(f'remove move at: invalid index {index}')
             return self
 
@@ -678,7 +681,7 @@ class Game:  # pylint: disable=too-many-public-methods
     def change_move_at(self, index: int, movetype: MoveType, new_tiles: BoardType | None = None) -> Game:
         """change move before move at index (index)"""
         if not self.valid_index(index=index):
-            logger.error(f'change move at: invalid index {index}')
+            logger.error(f'invalid index {index}')
             # raise IndexError(f'change move at: invalid index {index}')
             return self
 
@@ -698,7 +701,7 @@ class Game:  # pylint: disable=too-many-public-methods
                 img=move_to_change.img, previous_move=move_to_change.previous_move,
             )  # fmt:off
         else:
-            logger.warning(f'ignore change at: invalid move type {movetype}')
+            logger.warning(f'ignored due to invalid move type {movetype}')
             return self
 
         self._update_technical_move_attributes()
@@ -718,7 +721,7 @@ class Game:  # pylint: disable=too-many-public-methods
             index = -len(moves_to_insert)
         else:
             if not self.valid_index(index=index):
-                logger.error(f'move to insert: invalid index {index}')
+                logger.error(f'invalid index {index}')
                 # raise IndexError(f'move to insert: invalid index {index}')
                 return self
             self.moves[index:index] = moves_to_insert  # insert into slice
