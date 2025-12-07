@@ -58,10 +58,22 @@ def main() -> None:
     def _cleanup():
         atexit.unregister(_cleanup)
         logger.debug('main-_atexit')
-        stop_server()
-        timer.cancel()
-        camera.cam.cancel()
-        pool.shutdown(cancel_futures=True)
+        try:
+            stop_server()
+        except Exception:
+            logger.exception('cleanup: stop_server failed')
+        try:
+            timer.cancel()
+        except Exception:
+            logger.exception('cleanup: timer.cancel failed')
+        try:
+            camera.cam.cancel()
+        except Exception:
+            logger.exception('cleanup: camera.cancel failed')
+        try:
+            pool.shutdown(cancel_futures=True)
+        except Exception:
+            logger.exception('cleanup: pool.shutdown failed')
 
     def signal_alarm(signum, _) -> None:
         import os
@@ -90,8 +102,13 @@ def main() -> None:
     signal.signal(signal.SIGALRM, signal_alarm)
     atexit.register(_cleanup)
 
+    def _on_future_done(f):
+        if exc := f.exception():
+            logger.exception('camera update thread failed: %s', exc)
+
     # start camera
-    _ = pool.submit(camera.cam.update, Event())
+    future_cam = pool.submit(camera.cam.update, Event())
+    future_cam.add_done_callback(lambda f: _on_future_done(f))
     camera.cam.log_camera_info()
 
     # create Timer
@@ -99,8 +116,9 @@ def main() -> None:
     timer.start()
 
     # start admin server
-    _ = pool.submit(start_server)
-
+    future_server = pool.submit(start_server)
+    future_server.add_done_callback(lambda f: _on_future_done(f))
+    logger.debug('submitted camera and server tasks to threadpool')
     # init State Machine
     State.init()
 

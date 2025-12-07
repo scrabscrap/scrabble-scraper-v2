@@ -384,7 +384,12 @@ def do_vpn(op):
     log_file = str(config.path.log_dir / 'messages.log')
     if op in ops:  # pylint: disable=consider-iterating-dictionary
         cmd = f'{tailscale_cmd} {ops[op]} | tee -a {log_file} &'
-        _ = subprocess.run(['bash', '-c', cmd], check=False)
+        try:
+            ret = subprocess.run(['bash', '-c', cmd], check=False)
+            if ret.returncode != 0:
+                logger.warning(f'vpn command returned non-zero: {ret.returncode}')
+        except Exception:
+            logger.exception(f'do_vpn: running tailscale command failed for op={op} cmd={cmd}')
     else:
         logger.warning('invalid operation for vpn')
     ctx.tailscale = Path('/usr/bin/tailscale').is_file()
@@ -409,22 +414,35 @@ def ws_log(socket):
     """websocket for logging"""
     import html
 
-    f = (config.path.log_dir / 'messages.log').open(encoding='utf-8')  # pylint: disable=consider-using-with
+    try:
+        f = (config.path.log_dir / 'messages.log').open(encoding='utf-8')  # pylint: disable=consider-using-with
+    except Exception:
+        logger.exception(f'ws_log: cannot open messages.log at {config.path.log_dir / "messages.log"}')
+        return
+
     # with will close at eof
     tmp = '\n' + ''.join(f.readlines()[-600:])  # first read last 600 lines
     tmp = html.escape(tmp)
     socket.send(tmp)  # type: ignore[no-member] # pylint: disable=no-member
     while True:
-        tmp = f.readline()
-        if tmp and tmp != '':  # new data available
-            try:
-                tmp = html.escape(tmp)
-                socket.send(tmp)  # type: ignore[no-member] # pylint: disable=no-member
-            except ConnectionClosed:
-                f.close()
-                return
-        else:
-            sleep(0.5)
+        try:
+            tmp = f.readline()
+            if tmp and tmp != '':  # new data available
+                try:
+                    tmp = html.escape(tmp)
+                    socket.send(tmp)  # type: ignore[no-member] # pylint: disable=no-member
+                except ConnectionClosed:
+                    f.close()
+                    return
+            else:
+                sleep(0.5)
+        except ConnectionClosed:  # noqa: PERF203
+            f.close()
+            return
+        except Exception:  # noqa: PERF203
+            logger.exception('ws_log: unexpected failure in websocket loop')
+            f.close()
+            return
 
 
 @app.route('/status', methods=['POST', 'GET'])
@@ -467,7 +485,10 @@ def echo(socket: Server):
             json_data['clock2'] = config.scrabble.max_time - clock2
             socket.send(f'{json.dumps(json_data)}')
         except ConnectionClosed:
-            logger.debug('connection closed /ws_status')
+            logger.exception('connection closed /ws_status')
+            return
+        except Exception:
+            logger.exception('ws_status: error while preparing/sending status')
             return
         State.ctx.op_event.wait()
 

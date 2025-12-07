@@ -193,6 +193,8 @@ class CustomBoard:
         """try to find the game board border"""
         if config.video.warp_coordinates is not None:
             rect = np.array(config.video.warp_coordinates, dtype='float32')
+            cleaned_rect = str(rect).replace('\n', '')
+            logger.info(f'warp new calculated {cleaned_rect}')
         else:
             # based on: https://www.pyimagesearch.com/2014/08/25/4-point-opencv-getperspective-transform-example/
             (blue, _, _) = cv2.split(image.copy())
@@ -233,6 +235,8 @@ class CustomBoard:
             diff = np.diff(pts, axis=1)
             rect[1] = pts[np.argmin(diff)]
             rect[3] = pts[np.argmax(diff)]
+            cleaned_rect = str(rect).replace('\n', '')
+            logger.info(f'warp new calculated {cleaned_rect}')
         return rect
 
 
