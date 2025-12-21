@@ -378,7 +378,7 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
         if self.is_vertical and horizontal:
             raise InvalidMoveError(f'move: illegal move horizontal and vertical changes detected {changed}')
         if len(self.new_tiles) == 1:  # only 1 tile
-            (col, row) = list(self.new_tiles.keys())[0]
+            (col, row) = next(iter(self.new_tiles))
             horizontal = (col - 1, row) in self.board or (col + 1, row) in self.board
             self.is_vertical = not horizontal
         self.coord = self._find_start(self.is_vertical, changed[0])

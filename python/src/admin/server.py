@@ -19,6 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
 import base64
+from collections import deque
 import json
 import logging
 import os
@@ -431,7 +432,7 @@ def ws_log(socket):
         return
 
     # with will close at eof
-    tmp = '\n' + ''.join(f.readlines()[-600:])  # first read last 600 lines
+    tmp = tmp = '\n' + ''.join(deque(f, maxlen=600))  # first read last 600 lines
     tmp = html.escape(tmp)
     socket.send(tmp)  # type: ignore[no-member] # pylint: disable=no-member
     while True:
