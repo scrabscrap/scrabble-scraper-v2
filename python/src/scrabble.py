@@ -117,10 +117,6 @@ class Game:  # pylint: disable=too-many-public-methods
         return len(self.moves) + index if index < 0 else index
 
     def _build_move_data(self, move_index: int, move: Move) -> dict:
-        board_keys = [chr(ord('a') + y) + str(x + 1) for (x, y) in move.board]
-        board_values = [tile.letter for tile in move.board.values()]
-        gcg_moves = [m.gcg_str for m in self.moves[: move_index + 1]]
-
         return {
             'onmove': self.nicknames[move.player],
             'state': self._determine_state(move),
@@ -133,9 +129,9 @@ class Game:  # pylint: disable=too-many-public-methods
             'time1': config.scrabble.max_time - move.played_time[0],
             'time2': config.scrabble.max_time - move.played_time[1],
             'image': f'web/image-{move_index}.jpg',
-            'moves': gcg_moves,
+            'moves': [m.gcg_str for m in self.moves[: move_index + 1]],
             'moves_data': [self._serialize_move(m) for m in self.moves[: move_index + 1]],
-            'board': dict(zip(board_keys, board_values, strict=True)),
+            'board': {chr(ord('a') + y) + str(x + 1): tile.letter for (x, y), tile in move.board.items()},
             'blankos': self._collect_blankos(),
         }  # fmt: off
 
@@ -150,15 +146,13 @@ class Game:  # pylint: disable=too-many-public-methods
         return 'MoveUnknown' in {x.__class__.__name__ for x in self.moves[: move_index + 1]}
 
     def _serialize_move(self, m: Move) -> dict:
-        move_keys = [chr(ord('a') + y) + str(x + 1) for (x, y) in m.new_tiles]
-        move_values = [tile.letter for tile in m.new_tiles.values()]
         return {
             'move_type': m.type.name,
             'player': m.player,
             'start': m.gcg_coord.strip(),
             'word': m.calculate_word(),
             'gcg_word': m.gcg_word,  # type: ignore
-            'new_letter': dict(zip(move_keys, move_values, strict=True)),
+            'new_letter': {chr(ord('a') + y) + str(x + 1): tile.letter for (x, y), tile in m.new_tiles.items()},
             'points': m.points,
             'score': m.score,
         }
