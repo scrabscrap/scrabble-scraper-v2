@@ -172,17 +172,18 @@ class State(Static):
     def do_end_of_game(cls) -> GameState:
         """Resets state and game to default"""
         LED.switch()
-        ScrabbleWatch.display.show_ready(('end of', 'game'))
-        player, _, _ = ScrabbleWatch.status()
-        picture = None
-        with suppress(Exception):
-            picture = camera.cam.read(peek=True)
-        cls.ctx.current_state = GameState.EOG
-        with suppress(Exception):
-            command_queue.put_nowait(
-                Command(end_of_game, game=cls.ctx.game, image=picture, player=player, event=cls.ctx.op_event)
-            )
-        command_queue.join()  # wait for finishing tasks
+        if cls.ctx.current_state != GameState.EOG:
+            ScrabbleWatch.display.show_ready(('end of', 'game'))
+            player, _, _ = ScrabbleWatch.status()
+            picture = None
+            with suppress(Exception):
+                picture = camera.cam.read(peek=True)
+            cls.ctx.current_state = GameState.EOG
+            with suppress(Exception):
+                command_queue.put_nowait(
+                    Command(end_of_game, game=cls.ctx.game, image=picture, player=player, event=cls.ctx.op_event)
+                )
+            command_queue.join()  # wait for finishing tasks
         ScrabbleWatch.display.show_end_of_game()
         LED.switch(blink={LEDEnum.yellow})
         return cls.ctx.current_state
