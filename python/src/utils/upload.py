@@ -53,32 +53,34 @@ class Upload:
         logger.debug(f'http: upload files data={data}, files={list(files.keys()) if files else []}')
         if data is None:
             data = {'upload': 'true'}
-        if (url := upload_config.server) is not None:
-            try:
-                url = url if url.startswith(('http://', 'https://')) else f'https://{url}'
-                url += '' if url.endswith('/bin/scrabscrap.php') else '/bin/scrabscrap.php'
-                with requests.post(
-                    url, data=data, files=files, timeout=50, auth=HTTPBasicAuth(upload_config.user, upload_config.password)
-                ) as ret:
-                    logger.info(f'upload: response {ret.status_code}')
-                    if ret.status_code != 200:
-                        logger.warning('upload failed: %s %s', ret.status_code, ret.text)
-                        return False
-                    return True
-            except requests.Timeout:
-                logger.exception(f'http: timeout while POST to {url}')
-            except requests.ConnectionError:
-                logger.exception(f'http: connection error while POST to {url}')
-            except Exception:
-                logger.exception(f'http: unexpected exception while POST to {url}')
-            finally:
-                # Ensure we close any file handles that might have been passed in
-                if files:
-                    for fh in files.values() if isinstance(files, dict) else files:
-                        try:
-                            fh.close()
-                        except Exception:  # noqa: PERF203
-                            logger.debug('failed to close upload file handle', exc_info=True)
+        if upload_config.server is None:
+            return False
+        url = upload_config.server
+        try:
+            url = url if url.startswith(('http://', 'https://')) else f'https://{url}'
+            url += '' if url.endswith('/bin/scrabscrap.php') else '/bin/scrabscrap.php'
+            with requests.post(
+                url, data=data, files=files, timeout=50, auth=HTTPBasicAuth(upload_config.user, upload_config.password)
+            ) as ret:
+                logger.info(f'upload: response {ret.status_code}')
+                if ret.status_code != 200:
+                    logger.warning('upload failed: %s %s', ret.status_code, ret.text)
+                    return False
+                return True
+        except requests.Timeout:
+            logger.exception(f'http: timeout while POST to {url}')
+        except requests.ConnectionError:
+            logger.exception(f'http: connection error while POST to {url}')
+        except Exception:
+            logger.exception(f'http: unexpected exception while POST to {url}')
+        finally:
+            # Ensure we close any file handles that might have been passed in
+            if files:
+                for fh in files.values() if files and isinstance(files, dict) else files:
+                    try:
+                        fh.close()
+                    except Exception:  # noqa: PERF203
+                        logger.debug('failed to close upload file handle', exc_info=True)
         return False
 
     def upload_move(self, move: int) -> bool:
@@ -95,11 +97,12 @@ class Upload:
             for key, path in files.items():
                 if path.is_file():
                     upload_files[key] = path.open('rb')
-            if upload_files:
-                ok = self.upload(files=upload_files)
-                if not ok:
-                    logger.warning(f'upload_move: upload returned False for move={move} files={list(upload_files.keys())}')
-                return ok
+            if not upload_files:
+                return False
+            ok = self.upload(files=upload_files)
+            if not ok:
+                logger.warning(f'upload_move: upload returned False for move={move} files={list(upload_files.keys())}')
+            return ok
         finally:
             for f in upload_files.values():
                 try:
