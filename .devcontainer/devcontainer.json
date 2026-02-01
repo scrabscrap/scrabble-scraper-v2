@@ -15,6 +15,7 @@
 		// Configure properties specific to VS Code.
 		"vscode": {
 			"settings": {
+				"locale": "en",
 				"python.defaultInterpreterPath": "/workspaces/scrabble-scraper-v2/python/.venv/bin/python",
 				"git.openRepositoryInParentFolders": "always",
 				"python.analysis.autoFormatStrings": true,
@@ -28,7 +29,7 @@
 				"terminal.integrated.env.linux": {
 					"PYTHONPATH": "src:test"
 				},
-				"workbench.colorTheme": "Default Dark Modern",
+				"workbench.colorTheme": "Default Dark Modern"
 			},
 			"extensions": [
 				"charliermarsh.ruff",
@@ -43,9 +44,10 @@
 				"ms-python.python",
 				"ms-python.vscode-pylance",
 				"ms-vscode.remote-explorer",
-				"shd101wyy.markdown-preview-enhanced"
+				"shd101wyy.markdown-preview-enhanced",
+				"ms-vscode.vscode-loc-en"
 			]
-		},
+		}
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [
@@ -57,9 +59,8 @@
 		"setLocale": "mkdir -p /home/vscode/.vscode-server/data/Machine && echo '{ \"locale\": \"en\" }' > /home/vscode/.vscode-server/data/Machine/argv.json",
 		"setLocaleCodespaces": "mkdir -p /workspaces/.codespaces/.persistedshare && echo '{ \"locale\": \"en\" }' > /workspaces/.codespaces/.persistedshare/argv.json",
 		"initWorkFolder": "cp -n python/defaults/* python/work/",
-		"initReactFolder": "cd react/public && (ln -s ../../python/work/web web || true)",
-		// Erstelle venv "cv" mit Python 3.11 und installiere Requirements
 		"pythonVenv": "cd python && python3.11 -m venv .venv  --system-site-packages --prompt cv && . .venv/bin/activate && pip install --upgrade pip && pip install -U -r requirements.txt -r requirements-devel.txt",
+		"initReactFolder": "cd react/public && (ln -s ../../python/work/web web || true)",
 		"npm": "cd react && npm ci && npm run build && cd ../python/src/static && (ln -s ../../../react/build webapp || true)"
 	},
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
