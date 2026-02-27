@@ -496,7 +496,7 @@ def echo(socket: Server):
             json_data['clock2'] = config.scrabble.max_time - clock2
             socket.send(f'{json.dumps(json_data)}')
         except ConnectionClosed:
-            logger.exception('connection closed /ws_status')
+            logger.warning('connection closed /ws_status')
             return
         except Exception:
             logger.exception('ws_status: error while preparing/sending status')
