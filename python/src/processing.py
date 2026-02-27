@@ -27,7 +27,7 @@ import cv2
 from cv2.typing import MatLike
 
 from analyzer import MAX_TILE_PROB, analyze, filter_candidates
-from config import config
+from config import config, SCORES
 from customboard import filter_image, warp_image
 from move import gcg_to_coord
 from scrabble import BoardType, Game, MoveType, Tile
@@ -94,7 +94,10 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
         previous_board = m.previous_move.board if m.previous_move else {}
         new_tiles: BoardType = {}
         for ch in word:  # type:ignore # only new chars
-            if coord not in previous_board:
+            if ch not in SCORES[config.board.language]:  # handle invalid ch
+                logger.error(f'ignore invalid char {ch} in {word} at {coord}: replace with blank')
+                new_tiles[coord] = Tile('_', 76)  # type: ignore
+            elif coord not in previous_board:
                 new_tiles[coord] = Tile(ch, MAX_TILE_PROB)  # type: ignore
             coord = (coord[0] + dcol, coord[1] + drow)  # type: ignore
         logger.debug(f'new tiles {index=} {new_tiles=}')

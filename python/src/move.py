@@ -45,7 +45,9 @@ bag_as_list = [k for k, count in bag.items() for _ in range(count)]
 
 def scores(tile: str) -> int:
     """returns 0 if  '_' or lower chars otherwise the scoring value"""
-    return 0 if tile.islower() or tile == '_' else SCORES[config.board.language][tile]
+    if tile.islower() or tile == '_':
+        return 0
+    return SCORES[config.board.language].get(tile, 0)
 
 
 def gcg_to_coord(gcg_string: str) -> tuple[bool, tuple[int, int]]:
@@ -286,8 +288,9 @@ class MoveRegular(Move):  # pylint: disable=too-many-instance-attributes
         gcg_str = []
         for pos, char in enumerate(self.word):
             if char == '.':
-                cell = self.board[(col, row + pos)] if self.is_vertical else self.board[(col + pos, row)]
-                gcg_str.append(f'({cell.letter})')
+                coord = (col, row + pos) if self.is_vertical else (col + pos, row)
+                cell = self.board.get(coord)
+                gcg_str.append(f'({cell.letter if cell else "?"})')
             else:
                 gcg_str.append(char)
         return ''.join(gcg_str).replace(')(', '')

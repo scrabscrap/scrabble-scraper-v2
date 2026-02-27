@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import unittest
+import logging
 
 from move import MoveType, Tile
 from processing import admin_change_move
@@ -137,6 +138,25 @@ class AlgorithmAdminTestCase(BaseTestClass):
         self.run_data(start_button='red', data=data)
         score2 = State.ctx.game.moves[-1].score
         self.assertEqual(score1, score2, 'same score with _ and e expected')
+
+    def test_147(self):
+        """invalid edit"""
+        # H4 TURNeNS
+        data = [ { 'button': 'GREEN', 'score': (64, 0),
+                   'tiles': { (3, 7): Tile('T', 75), (4, 7): Tile('U', 75), (5, 7): Tile('R', 75), (6, 7): Tile('N', 75),
+                              (7, 7): Tile('_', 75), (8, 7): Tile('N', 75), (9, 7): Tile('S', 75), },
+                 },
+                ]  # fmt:off
+        self.run_data(start_button='red', data=data)
+        score1 = State.ctx.game.moves[-1].score
+        logging.info(f'{score1=}')
+        game = State.ctx.game
+        admin_change_move(game, 0, MoveType.REGULAR, (4, 7), False, word='TURN_N.')
+        logging.info(f'invalid char in admin_change_move {game.board_str()}')
+        score2 = State.ctx.game.moves[-1].score
+        logging.info(f'{score2=}')
+        self.assertEqual(score1, (64, 0), 'first score 64')
+        self.assertEqual(score2, (60, 0), 'second score 60')  # ignore '.'
 
 
 if __name__ == '__main__':
