@@ -30,6 +30,7 @@ from config import config
 from hardware import camera
 from hardware.button import Button, ButtonEnum
 from hardware.led import LED, LEDEnum
+from move import MoveType
 from processing import check_resume, end_of_game, event_set, invalid_challenge, move, new_game, valid_challenge
 from scrabble import Game
 from scrabblewatch import ScrabbleWatch
@@ -171,6 +172,13 @@ class State(Static):
     @classmethod
     def do_end_of_game(cls) -> GameState:
         """Resets state and game to default"""
+
+        def has_unknown_rack() -> bool:
+            for m in cls.ctx.game.moves:
+                if m.type in (MoveType.LAST_RACK_BONUS, MoveType.LAST_RACK_MALUS):
+                    return m.points == 0
+            return True
+
         LED.switch()
         if cls.ctx.current_state != GameState.EOG:
             ScrabbleWatch.display.show_ready(('end of', 'game'))
@@ -184,7 +192,7 @@ class State(Static):
                     Command(end_of_game, game=cls.ctx.game, image=picture, player=player, event=cls.ctx.op_event)
                 )
             command_queue.join()  # wait for finishing tasks
-        ScrabbleWatch.display.show_end_of_game()
+        ScrabbleWatch.display.show_end_of_game(unknown_rack=has_unknown_rack())
         LED.switch(blink={LEDEnum.yellow})
         return cls.ctx.current_state
 

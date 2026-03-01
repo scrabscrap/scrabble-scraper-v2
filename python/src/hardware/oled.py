@@ -99,7 +99,8 @@ DOUBT_STR_COORD = (0, 3)
 INFO_STR_COORD = (14, 11)
 TIMER_STR_COORD = (128, 3)
 END_NICK_COORD = (2, 5)
-END_MSG_COORD = (2, 30)
+END_MSG_COORD = (2, 25)
+END_RACK = (124, 55)
 
 logger = logging.getLogger()
 
@@ -138,16 +139,17 @@ class OLEDDisplay(Display):
             draw.text(IP_STR_COORD, title[1], font=FONT3, fill=WHITE, anchor='mt', align='center')
             draw.text(MIDDLE, f'{msg[1]:.10s}', font=FONT1, fill=WHITE, anchor='mm', align='center')
 
-    def show_end_of_game(self) -> None:
+    def show_end_of_game(self, unknown_rack: bool) -> None:
         if self.game:
             for i in range(2):
                 DEVICE[i].clear()
                 with canvas(DEVICE[i]) as draw:
-                    draw.text(END_NICK_COORD, f'{self.game.nicknames[i]:10.10s}', font=FONT1, fill=WHITE)
+                    draw.text(END_NICK_COORD, f'{self.game.nicknames[i]:10.10s}', font=FONT2, fill=WHITE)
                     if self.game.moves:
                         minutes, seconds = divmod(abs(config.scrabble.max_time - self.game.moves[-1].played_time[i]), 60)
                         score = self.game.moves[-1].score[i]
                         draw.text(END_MSG_COORD, f'{minutes:02d}:{seconds:02d}  {score:3d}', font=FONT1, fill=WHITE)
+                        draw.text(END_RACK, f'{"without rack" if unknown_rack else ""}', anchor='rm', font=FONT3, fill=WHITE)
 
     def render_display(
         self, player: int, played_time: tuple[int, int], current: tuple[int, int], info: str | None = None

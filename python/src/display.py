@@ -53,7 +53,7 @@ class Display:
         """
         logger.debug(f'Ready message: {msg}')
 
-    def show_end_of_game(self) -> None:
+    def show_end_of_game(self, unknown_rack: bool) -> None:
         """show ready message"""
         logger.debug('end of game message')
         if self.game and self.game.moves:
@@ -61,7 +61,9 @@ class Display:
                 nickname = self.game.nicknames[i][:10]
                 minutes, seconds = divmod(abs(config.scrabble.max_time - self.game.moves[-1].played_time[i]), 60)
                 score = self.game.moves[-1].score[i]
-                logger.debug(f'{nickname} {score} {minutes:02d}:{seconds:02d}')
+                logger.debug(
+                    f'Display {i}: {nickname} {minutes:02d}:{seconds:02d} {score=}{" without rack" if unknown_rack else ""}'
+                )
 
     def show_pause(self, player: int, played_time: tuple[int, int], current: tuple[int, int]) -> None:
         """show pause hint
@@ -140,5 +142,5 @@ class Display:
         )
         # log message only if player changed
         if info or self.lastplayer != player:
-            logger.debug(f'render_display {player}: {text} ({current}/{info})')
+            logger.debug(f'Display {player}: {text} {current} {info if info else ""}')
             self.lastplayer = player
