@@ -87,19 +87,25 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
     The provided tiles(word) will be set on the board with a probability of 99% (MAX_TILE_PROB)
     """
 
-    required_fields = all(x is not None for x in (coord, isvertical, word))
-    if movetype == MoveType.REGULAR and required_fields:
+    def create_new_tiles(isvertical: bool, coord: tuple[int, int], word: str, prev_board: dict) -> dict:
         (dcol, drow) = (0, 1) if isvertical else (1, 0)
-        m = game.moves[index]
-        previous_board = m.previous_move.board if m.previous_move else {}
         new_tiles: BoardType = {}
         for ch in word:  # type:ignore # only new chars
-            if ch not in SCORES[config.board.language]:  # handle invalid ch
-                logger.error(f'ignore invalid char {ch} in {word} at {coord}: replace with blank')
-                new_tiles[coord] = Tile('_', 76)  # type: ignore
-            elif coord not in previous_board:
-                new_tiles[coord] = Tile(ch, MAX_TILE_PROB)  # type: ignore
+            if coord not in previous_board:
+                if ch not in SCORES[config.board.language]:  # handle invalid ch
+                    logger.error(f'ignore invalid char {ch} in {word} at {coord}: replace with blank')
+                    new_tiles[coord] = Tile('_', 76)  # type: ignore
+                else:
+                    new_tiles[coord] = Tile(ch, MAX_TILE_PROB)  # type: ignore
             coord = (coord[0] + dcol, coord[1] + drow)  # type: ignore
+        return new_tiles
+
+    required_fields = all(x is not None for x in (coord, isvertical, word))
+    if movetype == MoveType.REGULAR and required_fields:
+        m = game.moves[index]
+        previous_board = m.previous_move.board if m.previous_move else {}
+        new_tiles = create_new_tiles(isvertical=isvertical, coord=coord, word=word, prev_board=previous_board)  # type: ignore
+
         logger.debug(f'new tiles {index=} {new_tiles=}')
         game.change_move_at(index, movetype=movetype, new_tiles=new_tiles)
     elif movetype == MoveType.EXCHANGE:
