@@ -221,7 +221,7 @@ class Game:  # pylint: disable=too-many-public-methods
         """set player names"""
         logger.info(f"Setting player names to: '{name1}' and '{name2}'")
         self.nicknames = (name1, name2)
-        self._write_json_from(index=-1, write_mode=[])  # only status file
+        self.write_json_from(index=-1, write_mode=[])  # only status file
 
     def new_game(self) -> Game:
         """Reset to a new game (nicknames, moves)"""
@@ -229,7 +229,7 @@ class Game:  # pylint: disable=too-many-public-methods
         self.nicknames = ('Name1', 'Name2')
         self.gamestart = datetime.now()
         self.moves.clear()
-        self._write_json_from(-1, [])
+        self.write_json_from(-1, [])
         return self
 
     def end_game(self) -> Game:
@@ -310,7 +310,7 @@ class Game:  # pylint: disable=too-many-public-methods
         except OSError:
             logger.exception(f'Failed to write status file: {status_path}')
 
-    def _write_json_from(self, index: int, write_mode: list[str]) -> Game:
+    def write_json_from(self, index: int, write_mode: list[str]) -> Game:
         """Write JSON and images for moves starting from index."""
         if config.is_testing:
             return self
@@ -383,7 +383,7 @@ class Game:  # pylint: disable=too-many-public-methods
         if recalc_from is not None:
             self._recalculate_from(recalc_from)
         logger.info(f'#{move.move}: {str(move)}')
-        self._write_json_from(index=(index if index != -1 else len(self.moves) - 1), write_mode=[JSON_FLAG, IMAGE_FLAG])
+        self.write_json_from(index=(index if index != -1 else len(self.moves) - 1), write_mode=[JSON_FLAG, IMAGE_FLAG])
         return self
 
     def clean_new_tiles(self, new_tiles: BoardType, previous_board: BoardType) -> BoardType:
@@ -574,7 +574,7 @@ class Game:  # pylint: disable=too-many-public-methods
             return self
         self._update_technical_move_attributes()
         self._recalculate_from(index)  # recalculate all moves from index
-        self._write_json_from(index=index, write_mode=[JSON_FLAG])
+        self.write_json_from(index=index, write_mode=[JSON_FLAG])
         return self
 
     def add_unknown(  # pylint: disable=too-many-arguments,too-many-positional-arguments
@@ -634,7 +634,7 @@ class Game:  # pylint: disable=too-many-public-methods
             if updated:
                 modified_indices.add(i)
         if modified_indices:
-            self._write_json_from(index=min(modified_indices), write_mode=[JSON_FLAG])
+            self.write_json_from(index=min(modified_indices), write_mode=[JSON_FLAG])
         return self
 
     def remove_blank(self, coordinates: CoordType) -> Game:
@@ -655,7 +655,7 @@ class Game:  # pylint: disable=too-many-public-methods
             min_index = min(modified_indices)
             self._update_technical_move_attributes()
             self._recalculate_from(index=min_index)  # recalculate all moves from index
-            self._write_json_from(index=min_index, write_mode=[JSON_FLAG])
+            self.write_json_from(index=min_index, write_mode=[JSON_FLAG])
         return self
 
     def remove_move_at(self, index: int) -> Game:
@@ -669,38 +669,41 @@ class Game:  # pylint: disable=too-many-public-methods
         self.moves.pop(index)
         self._update_technical_move_attributes()
         self._recalculate_from(index)  # recalculate all moves from index
-        self._write_json_from(index=index, write_mode=[JSON_FLAG, IMAGE_FLAG])
+        self.write_json_from(index=index, write_mode=[JSON_FLAG, IMAGE_FLAG])
         return self
 
     def change_move_at(self, index: int, movetype: MoveType, new_tiles: BoardType | None = None) -> Game:
-        """change move before move at index (index)"""
+        """change move at index (index) ! no recalculation of subsequent moves !"""
         if not self.valid_index(index=index):
             logger.error(f'invalid index {index}')
             # raise IndexError(f'change move at: invalid index {index}')
             return self
 
         move_to_change = self.moves[index]
-        if movetype == MoveType.REGULAR:
-            if isinstance(move_to_change, MoveRegular):
-                if new_tiles:
-                    move_to_change.new_tiles = new_tiles.copy()
-            elif new_tiles:
+        if movetype == MoveType.REGULAR and new_tiles:
+            try:
                 self.moves[index] = MoveRegular(
                     game=self, player=move_to_change.player, played_time=move_to_change.played_time,
-                    img=move_to_change.img, new_tiles=new_tiles, previous_move=move_to_change.previous_move,
-                )  # fmt: off
+                    img=move_to_change.img, new_tiles=new_tiles, previous_move=move_to_change.previous_move, )  # fmt: off
+            except NoMoveError:
+                self.moves[index] = MoveExchange(
+                    game=self, player=move_to_change.player, played_time=move_to_change.played_time,
+                    img=move_to_change.img, previous_move=move_to_change.previous_move, )  # fmt:off
+            except InvalidMoveError:
+                self.moves[index] = MoveUnknown(
+                    game=self, player=move_to_change.player, played_time=move_to_change.played_time,
+                    img=move_to_change.img, new_tiles=new_tiles, previous_move=move_to_change.previous_move, )  # fmt: off
+
         elif movetype == MoveType.EXCHANGE:
             self.moves[index] = MoveExchange(
                 game=self, player=move_to_change.player, played_time=move_to_change.played_time,
-                img=move_to_change.img, previous_move=move_to_change.previous_move,
-            )  # fmt:off
+                img=move_to_change.img, previous_move=move_to_change.previous_move, )  # fmt:off
         else:
-            logger.warning(f'ignored due to invalid move type {movetype}')
+            move_to_change.calculate_score()
+            logger.warning(f'calculate score due to unexpected move type {movetype}')
             return self
 
         self._update_technical_move_attributes()
-        self._recalculate_from(index)  # recalculate all moves from index
-        self._write_json_from(index=index, write_mode=[JSON_FLAG, IMAGE_FLAG])
         return self
 
     def insert_moves_at(self, index: int | None, moves_to_insert: Sequence[Move]) -> Game:
@@ -721,5 +724,5 @@ class Game:  # pylint: disable=too-many-public-methods
             self.moves[index:index] = moves_to_insert  # insert into slice
         self._update_technical_move_attributes()
         self._recalculate_from(index)
-        self._write_json_from(index=index, write_mode=[JSON_FLAG, IMAGE_FLAG])
+        self.write_json_from(index=index, write_mode=[JSON_FLAG, IMAGE_FLAG])
         return self
