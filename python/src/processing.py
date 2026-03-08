@@ -132,7 +132,7 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
         current_move = game.moves[i]
         if current_move.type in (MoveType.REGULAR, MoveType.UNKNOWN):
             prev_board = game.moves[i - 1].board
-            if current_move.img:
+            if current_move.img is not None and current_move.img.shape[:2][0] >= 800 and current_move.img.shape[:2][1] >= 800:
                 new_board = reapply_image_processing(prev_board, current_move.img)  # pyright: ignore[reportArgumentType]
                 new_tiles = {i: new_board[i] for i in new_board.keys() - prev_board.keys()}
             else:
