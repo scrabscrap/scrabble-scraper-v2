@@ -1,0 +1,7 @@
+Move, Button, State, Coord, Word, Points, Score1, Score2
+1, "Green", "S1", "H7", "QI", 22, 22, 0
+2, "Red", "S0", "9C", "GRUNDS", 22, 22, 22
+3, "Green", "S1", "I6", "BI", 17, 39, 22
+4, "Red", "S0", "J7", "SPUREN_", 73, 39, 95
+5, "Green", "S1", "D7", "EI.E", 0, 39, 95
+6, "Red", "S0", "E4", "VATI", 20, 39, 115
