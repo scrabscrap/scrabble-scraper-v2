@@ -118,7 +118,7 @@ dev_strings: dict[MoveType, str] = {
     MoveType.LAST_RACK_BONUS: '{m.move}, "EOG", "(rack)", "", "{m.rack}", {m.points}, {m.score[0]}, {m.score[1]}',
     MoveType.LAST_RACK_MALUS: '{m.move}, "EOG", "(rack)", "", "{m.rack}", {m.points}, {m.score[0]}, {m.score[1]}',
     MoveType.TIME_MALUS: '{m.move}, "", "(time)", "", "", {m.points}, {m.score[0]}, {m.score[1]}',
-    MoveType.UNKNOWN: '{m.move}, "", "(unknown)", "", "", , {m.score[0]}, {m.score[1]}',
+    MoveType.UNKNOWN: '{m.move}, "{button}", "(unknown)", "", "", , {m.score[0]}, {m.score[1]}',
 }
 
 
