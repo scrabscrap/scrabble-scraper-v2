@@ -1,0 +1,7 @@
+Move, Button, State, Coord, Word, Points, Score1, Score2
+1, "green", "S1", "H4", "FIRNS", 24, 24, 0
+2, "red", "S0", "5G", "V.TEN", 20, 24, 20
+3, "green", "S1", "-", "", 0, 24, 20
+4, "red", "S0", "-", "", 0, 24, 20
+5, "green", "S1", "-", "", 0, 24, 20
+6, "red", "S0", "-", "", 0, 24, 20

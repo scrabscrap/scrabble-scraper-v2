@@ -130,16 +130,19 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
         return
     for i in range(index + 1, len(game.moves)):
         current_move = game.moves[i]
-        if current_move.type in (MoveType.REGULAR, MoveType.UNKNOWN):
+        if current_move.type in (MoveType.REGULAR, MoveType.EXCHANGE, MoveType.UNKNOWN):
             prev_board = game.moves[i - 1].board
             if current_move.img is not None and current_move.img.shape[:2][0] >= 800 and current_move.img.shape[:2][1] >= 800:
                 new_board = reapply_image_processing(prev_board, current_move.img)  # pyright: ignore[reportArgumentType]
                 new_tiles = {i: new_board[i] for i in new_board.keys() - prev_board.keys()}
             else:
                 new_tiles = current_move.new_tiles
-            game.change_move_at(index=i, movetype=MoveType.REGULAR, new_tiles=new_tiles)
+            if new_tiles:
+                game.change_move_at(index=i, movetype=MoveType.REGULAR, new_tiles=new_tiles)
+            else:
+                game.change_move_at(index=i, movetype=current_move.type)
             logger.info(f'repair #{i}: type {current_move.type} with {new_tiles}')
-        else:  # if game.moves[i].type in (MoveType.EXCHANGE, MoveType.WITHDRAW, MoveType.CHALLENGE_BONUS):
+        else:  # if game.moves[i].type in (MoveType.WITHDRAW, MoveType.CHALLENGE_BONUS):
             game.change_move_at(index=i, movetype=current_move.type)
             logger.info(f'repair #{i}: type {current_move.type} recalc score')
     game.write_json_from(index=index, write_mode=[JSON_FLAG, IMAGE_FLAG])
