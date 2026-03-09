@@ -69,14 +69,14 @@ class AdminEditTestCase(unittest.TestCase):
 
     def test_edit01(self):
         # Move, Button, State, Coord, Word, Points, Score1, Score2
-        # 1, "Red", "S0", "-", , 0, 0, 0
-        # 2, "Green", "S1", "H7", "QI", 22, 22, 0
-        # 3, "Red", "S0", "9C", "GRUNDS", 22, 22, 22
-        # 4, "Green", "S1", "I6", "BI", 17, 39, 22
-        # 5, "Red", "S0", "J7", "SPUREN_", 73, 39, 95
-        # 6, "Green", "S1", "5I", "OHA", 16, 55, 95
-        # 7, "Red", "S0", "11H", "CR.W", 18, 55, 113
-        # 8, "Green", "S1", "D7", "EI.E", 5, 60, 113
+        # 0, "Green", "S1", "H7", "QI", 22, 22, 0
+        # 1, "Red", "S0", "9C", "GRUNDS", 22, 22, 22
+        # 2, "Green", "S1", "I6", "BI", 17, 39, 22
+        # 3, "Red", "S0", "J7", "SPUREN_", 73, 39, 95
+        # 4, "Green", "S1", "5I", "OHA", 16, 55, 95
+        # 5, "Red", "S0", "11H", "CR.W", 18, 55, 113
+        # 6, "Green", "S1", "D7", "EI.E", 5, 60, 113
+        # 7, "Red", "S0", "E4", "VATI", 20, 60, 133
 
         self.run_game(file=f'{TEST_DIR}/edit01/scrabble.ini')
         msg = '\n' + ''.join(f'{mov.move:2d} {mov.gcg_str}\n' for mov in State.ctx.game.moves)
