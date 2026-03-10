@@ -176,7 +176,9 @@ def admin_ins_challenge(game: Game, index: int, move_type: MoveType, event: Even
     if move_type == MoveType.CHALLENGE_BONUS:
         game.add_challenge_for(index=index)
     elif move_type == MoveType.WITHDRAW:
-        game.add_withdraw_for(index=index, img=game.moves[index].img)  # type: ignore
+        source_move = game.moves[index].previous_move or game.moves[index]
+        img = source_move.img.copy() if source_move.img is not None else None  # type: ignore[union-attr]
+        game.add_withdraw_for(index=index, img=img)  # type: ignore
     event_set(event=event)
 
 
