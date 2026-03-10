@@ -515,7 +515,9 @@ class Game:  # pylint: disable=too-many-public-methods
             return self
         player1, player2 = (self.moves[index].player, abs(self.moves[index].player - 1))
         played_time = self.moves[index - 1].played_time if index > 0 else (0, 0)
-        img = self.moves[index].img.copy() if self.moves[index].img is not None else None  # type: ignore[attr-defined,union-attr]
+        source_move = self.moves[index].previous_move or self.moves[index]
+        img = source_move.img.copy() if source_move.img is not None else None  # type: ignore[union-attr]
+
         return self.insert_moves_at( index,
                     [ MoveExchange(game=self, player=player1, played_time=played_time, img=img, previous_move=None),
                       MoveExchange(game=self, player=player2, played_time=played_time, img=img, previous_move=None), ],
