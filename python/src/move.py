@@ -229,7 +229,7 @@ class Move:  # pylint: disable=too-many-instance-attributes
     @property
     def mod_str(self) -> str:
         """modification string for gcg"""
-        return f' {chr(0x270F)}' if self.is_modified else ''  # ✏
+        return f'{chr(0x270F)}' if self.is_modified else ''  # ✏
 
     @property
     def player_name(self) -> str:

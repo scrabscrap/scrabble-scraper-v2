@@ -122,6 +122,7 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
         new_tiles = create_new_tiles(isvertical=isvertical, coord=coord, word=word, previous_board=previous_board)  # type: ignore
         logger.debug(f'new tiles {index=} {new_tiles=}')
         game.change_move_at(index, movetype=movetype, new_tiles=new_tiles)
+        game.moves[index].is_modified = True
     elif movetype == MoveType.EXCHANGE:
         logger.debug(f'exchange {index=}')
         game.change_move_at(index=index, movetype=movetype)
