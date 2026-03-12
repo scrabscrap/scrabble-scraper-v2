@@ -131,19 +131,27 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
         return
     for i in range(index + 1, len(game.moves)):
         current_move = game.moves[i]
+        if current_move.is_modified:
+            logger.info(f'repair #{i}: type {current_move.type} edited move - skipping')
+            continue
         if current_move.type in (MoveType.REGULAR, MoveType.EXCHANGE, MoveType.UNKNOWN):
             prev_board = game.moves[i - 1].board
-            if current_move.img is not None and current_move.img.shape[:2][0] >= 800 and current_move.img.shape[:2][1] >= 800:
-                new_board = reapply_image_processing(prev_board, current_move.img)  # pyright: ignore[reportArgumentType]
-                new_tiles = {i: new_board[i] for i in new_board.keys() - prev_board.keys()}
-            else:
-                new_tiles = current_move.new_tiles
+            # prefer reprocessing a sufficiently large image
+            new_tiles = current_move.new_tiles
+            img = current_move.img
+            if img is not None:
+                new_board = reapply_image_processing(prev_board, img)  # pyright: ignore[reportArgumentType]
+                new_tiles = {c: new_board[c] for c in new_board.keys() - prev_board.keys()}
+
             if new_tiles:
                 game.change_move_at(index=i, movetype=MoveType.REGULAR, new_tiles=new_tiles)
+                logger.info(f'repair #{i}: type {current_move.type} as REGULAR with {new_tiles}')
             else:
-                game.change_move_at(index=i, movetype=current_move.type)
-            logger.info(f'repair #{i}: type {current_move.type} with {new_tiles}')
-        else:  # if game.moves[i].type in (MoveType.WITHDRAW, MoveType.CHALLENGE_BONUS):
+                movetype = MoveType.EXCHANGE if current_move.type == MoveType.REGULAR else current_move.type
+                game.change_move_at(index=i, movetype=movetype)
+                logger.info(f'repair #{i}: type {current_move.type} as {movetype}')
+        else:
+            # other move types: just recalc score/type
             game.change_move_at(index=i, movetype=current_move.type)
             logger.info(f'repair #{i}: type {current_move.type} recalc score')
     game.write_json_from(index=index, write_mode=[JSON_FLAG, IMAGE_FLAG])

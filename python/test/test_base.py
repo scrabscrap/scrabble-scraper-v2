@@ -69,7 +69,7 @@ class BaseTestClass(unittest.TestCase):
         def side_effect(*args, **kwargs):
             logging.info(f'simulate move #{i}')
             event.set()
-            return (np.zeros((1, 1)), new_board)
+            return None, new_board
 
         with patch('processing._image_processing', side_effect=side_effect) as _:
             button = move['button'].upper()
