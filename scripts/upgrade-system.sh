@@ -89,7 +89,8 @@ echo "####################################################################"
 echo "## create web-app                                                 ##"
 echo "####################################################################"
 cd "$ROOT_PATH/react"
-npm install
+npm prune
+npm ci
 npm run build
 
 # reinstall web-app
