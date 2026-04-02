@@ -701,8 +701,9 @@ class Game:  # pylint: disable=too-many-public-methods
                 game=self, player=move_to_change.player, played_time=move_to_change.played_time,
                 img=move_to_change.img, previous_move=move_to_change.previous_move, )  # fmt:off
         else:
+            move_to_change.setup_board()
             move_to_change.calculate_score()
-            logger.warning(f'calculate score due to unexpected move type {movetype}')
+            logger.warning(f'calculate score for move type {movetype}')
             return self
 
         self._update_technical_move_attributes()

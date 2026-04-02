@@ -132,6 +132,7 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
     for i in range(index + 1, len(game.moves)):
         current_move = game.moves[i]
         if current_move.is_modified:
+            current_move.setup_board()
             logger.info(f'repair #{i}: type {current_move.type} edited move - skipping')
             continue
         if current_move.type in (MoveType.REGULAR, MoveType.EXCHANGE, MoveType.UNKNOWN):
