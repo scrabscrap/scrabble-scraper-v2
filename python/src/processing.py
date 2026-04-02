@@ -87,27 +87,6 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
     The provided tiles(word) will be set on the board with a probability of 99% (MAX_TILE_PROB)
     """
 
-    def create_new_tiles(isvertical: bool, coord: tuple[int, int], word: str, previous_board: dict) -> dict:
-        (dcol, drow) = (0, 1) if isvertical else (1, 0)
-        new_tiles: BoardType = {}
-        current_coord = coord
-        for ch in word:  # only new chars
-            if current_coord not in previous_board:
-                if ch not in SCORES[config.board.language]:  # handle invalid ch
-                    logger.error(f'ignore invalid char {ch} in {word} at {current_coord}: replace with blank')
-                    new_tiles[current_coord] = Tile('_', BLANK_PROP)
-                else:
-                    new_tiles[current_coord] = Tile(ch, MAX_TILE_PROB)
-            current_coord = (current_coord[0] + dcol, current_coord[1] + drow)
-        return new_tiles
-
-    def reapply_image_processing(previous_board: BoardType, img: MatLike) -> BoardType:
-        warped_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        _, tiles_candidates = filter_image(img)  # find potential tiles on board
-        ignore_coords = set(previous_board.keys())
-        tiles_candidates = filter_candidates((7, 7), tiles_candidates | ignore_coords, ignore_coords)
-        return analyze(warped_gray, previous_board.copy(), tiles_candidates)  # analyze image
-
     if index < 0 or index >= len(game.moves):
         raise ValueError(f'Invalid index: {index}')
 
@@ -119,7 +98,7 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
             return
         m = game.moves[index]
         previous_board = m.previous_move.board if m.previous_move else {}
-        new_tiles = create_new_tiles(isvertical=isvertical, coord=coord, word=word, previous_board=previous_board)  # type: ignore
+        new_tiles = _create_new_tiles(isvertical=isvertical, coord=coord, word=word, previous_board=previous_board)  # type: ignore
         logger.debug(f'new tiles {index=} {new_tiles=}')
         game.change_move_at(index, movetype=movetype, new_tiles=new_tiles)
         game.moves[index].is_modified = True
@@ -129,34 +108,75 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
     else:
         event_set(event=event)
         return
-    for i in range(index + 1, len(game.moves)):
-        current_move = game.moves[i]
-        if current_move.is_modified:
-            current_move.setup_board()
-            logger.info(f'repair #{i}: type {current_move.type} edited move - skipping')
-            continue
-        if current_move.type in (MoveType.REGULAR, MoveType.EXCHANGE, MoveType.UNKNOWN):
-            prev_board = game.moves[i - 1].board
-            # prefer reprocessing a sufficiently large image
-            new_tiles = current_move.new_tiles
-            img = current_move.img
-            if img is not None:
-                new_board = reapply_image_processing(prev_board, img)  # pyright: ignore[reportArgumentType]
-                new_tiles = {c: new_board[c] for c in new_board.keys() - prev_board.keys()}
-
-            if new_tiles:
-                game.change_move_at(index=i, movetype=MoveType.REGULAR, new_tiles=new_tiles)
-                logger.info(f'repair #{i}: type {current_move.type} as REGULAR with {new_tiles}')
-            else:
-                movetype = MoveType.EXCHANGE if current_move.type == MoveType.REGULAR else current_move.type
-                game.change_move_at(index=i, movetype=movetype)
-                logger.info(f'repair #{i}: type {current_move.type} as {movetype}')
-        else:
-            # other move types: just recalc score/type
-            game.change_move_at(index=i, movetype=current_move.type)
-            logger.info(f'repair #{i}: type {current_move.type} recalc score')
+    _repair_following_moves(game, index)
     game.write_json_from(index=index, write_mode=[JSON_FLAG, IMAGE_FLAG])
     event_set(event=event)
+
+
+def _repair_following_moves(game, index):
+    for i in range(index + 1, len(game.moves)):
+        _repair_move(game, i)
+
+
+def _repair_move(game, i):
+    current_move = game.moves[i]
+
+    if current_move.is_modified:
+        current_move.setup_board()
+        logger.info(f'repair #{i}: type {current_move.type} edited move - skipping')
+        return
+
+    if current_move.type not in (MoveType.REGULAR, MoveType.EXCHANGE, MoveType.UNKNOWN):
+        # other move types: just recalc score/type
+        game.change_move_at(index=i, movetype=current_move.type)
+        logger.info(f'repair #{i}: type {current_move.type} recalc score')
+        return
+
+    prev_board = game.moves[i - 1].board
+    new_tiles = _get_new_tiles_for_move(current_move, prev_board)
+
+    if new_tiles:
+        game.change_move_at(index=i, movetype=MoveType.REGULAR, new_tiles=new_tiles)
+        logger.info(f'repair #{i}: type {current_move.type} as REGULAR with {new_tiles}')
+    else:
+        movetype = MoveType.EXCHANGE if current_move.type == MoveType.REGULAR else current_move.type
+        game.change_move_at(index=i, movetype=movetype)
+        logger.info(f'repair #{i}: type {current_move.type} as {movetype}')
+
+
+def _get_new_tiles_for_move(current_move, prev_board):
+    """Extract new tiles from image if available, otherwise use existing tiles"""
+    new_tiles = current_move.new_tiles
+
+    if current_move.img is None:
+        return new_tiles
+
+    # prefer reprocessing a sufficiently large image
+    new_board = _reapply_image_processing(prev_board, current_move.img)  # pyright: ignore[reportArgumentType]
+    return {c: new_board[c] for c in new_board.keys() - prev_board.keys()}
+
+
+def _create_new_tiles(isvertical: bool, coord: tuple[int, int], word: str, previous_board: dict) -> dict:
+    (dcol, drow) = (0, 1) if isvertical else (1, 0)
+    new_tiles: BoardType = {}
+    current_coord = coord
+    for ch in word:  # only new chars
+        if current_coord not in previous_board:
+            if ch not in SCORES[config.board.language]:  # handle invalid ch
+                logger.error(f'ignore invalid char {ch} in {word} at {current_coord}: replace with blank')
+                new_tiles[current_coord] = Tile('_', BLANK_PROP)
+            else:
+                new_tiles[current_coord] = Tile(ch, MAX_TILE_PROB)
+        current_coord = (current_coord[0] + dcol, current_coord[1] + drow)
+    return new_tiles
+
+
+def _reapply_image_processing(previous_board: BoardType, img: MatLike) -> BoardType:
+    warped_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, tiles_candidates = filter_image(img)  # find potential tiles on board
+    ignore_coords = set(previous_board.keys())
+    tiles_candidates = filter_candidates((7, 7), tiles_candidates | ignore_coords, ignore_coords)
+    return analyze(warped_gray, previous_board.copy(), tiles_candidates)  # analyze image
 
 
 @handle_exceptions
