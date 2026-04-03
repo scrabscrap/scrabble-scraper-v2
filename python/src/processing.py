@@ -29,13 +29,15 @@ from cv2.typing import MatLike
 from analyzer import BLANK_PROP, MAX_TILE_PROB, analyze, filter_candidates
 from config import SCORES, config
 from customboard import filter_image, warp_image
-from move import gcg_to_coord
+from move import Move, gcg_to_coord
 from scrabble import IMAGE_FLAG, JSON_FLAG, BoardType, Game, MoveType, Tile
 from utils.threadpool import Command
 from utils.upload import upload
 from utils.util import handle_exceptions, rotate_logs, runtime_measure, trace
 
 logger = logging.getLogger()
+
+BOARD_CENTER_COORD = (7, 7)
 
 
 def event_set(event: Event | None) -> None:
@@ -113,12 +115,12 @@ def admin_change_move(  # pylint: disable=too-many-arguments, too-many-positiona
     event_set(event=event)
 
 
-def _repair_following_moves(game, index):
+def _repair_following_moves(game: Game, index: int):
     for i in range(index + 1, len(game.moves)):
         _repair_move(game, i)
 
 
-def _repair_move(game, i):
+def _repair_move(game: Game, i: int):
     current_move = game.moves[i]
 
     if current_move.is_modified:
@@ -144,7 +146,7 @@ def _repair_move(game, i):
         logger.info(f'repair #{i}: type {current_move.type} as {movetype}')
 
 
-def _get_new_tiles_for_move(current_move, prev_board):
+def _get_new_tiles_for_move(current_move: Move, prev_board: BoardType):
     """Extract new tiles from image if available, otherwise use existing tiles"""
     new_tiles = current_move.new_tiles
 
@@ -156,8 +158,9 @@ def _get_new_tiles_for_move(current_move, prev_board):
     return {c: new_board[c] for c in new_board.keys() - prev_board.keys()}
 
 
-def _create_new_tiles(isvertical: bool, coord: tuple[int, int], word: str, previous_board: dict) -> dict:
-    (dcol, drow) = (0, 1) if isvertical else (1, 0)
+def _create_new_tiles(isvertical: bool, coord: tuple[int, int], word: str, previous_board: BoardType) -> dict:
+    directions = {True: (0, 1), False: (1, 0)}
+    dcol, drow = directions[isvertical]
     new_tiles: BoardType = {}
     current_coord = coord
     for ch in word:  # only new chars
@@ -175,7 +178,7 @@ def _reapply_image_processing(previous_board: BoardType, img: MatLike) -> BoardT
     warped_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     _, tiles_candidates = filter_image(img)  # find potential tiles on board
     ignore_coords = set(previous_board.keys())
-    tiles_candidates = filter_candidates((7, 7), tiles_candidates | ignore_coords, ignore_coords)
+    tiles_candidates = filter_candidates(BOARD_CENTER_COORD, tiles_candidates | ignore_coords, ignore_coords)
     return analyze(warped_gray, previous_board.copy(), tiles_candidates)  # analyze image
 
 
@@ -220,9 +223,9 @@ def _image_processing(game: Game, img: MatLike) -> tuple[MatLike, dict]:
         game.moves[-1].cleanup_invalid_blanks(tiles_candidates=tiles_candidates)
     ignore_coords = game.get_coords_to_ignore()
     tiles_candidates |= ignore_coords  # tiles_candidates must contain ignored_coords
-    tiles_candidates = filter_candidates((7, 7), tiles_candidates, ignore_coords)  # remove all tiles without path from (7,7)
-
-    board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # copy board for analyze
+    # remove all tiles without path from center
+    tiles_candidates = filter_candidates(BOARD_CENTER_COORD, tiles_candidates, ignore_coords)
+    board = game.moves[-1].board.copy() if game.moves else {}  # copy board for analyze
     return warped, analyze(warped_gray, board, tiles_candidates)  # analyze image
 
 
@@ -248,10 +251,12 @@ def _recalculate_score_on_tiles_change(game: Game, changed: BoardType) -> None:
 
     logger.info(f'changed tiles: {changed}')
     to_inspect = min(config.scrabble.verify_moves, len(game.moves))
+    changed_coords = set(changed.keys())
     must_recalculate = False
     for mov in game.moves[-to_inspect:]:
-        for coord in changed:
-            if coord in mov.new_tiles:
+        affected_coords = changed_coords & set(mov.new_tiles.keys())
+        if affected_coords:
+            for coord in affected_coords:
                 mov.new_tiles[coord] = changed[coord]
                 must_recalculate = True
         if must_recalculate:
@@ -275,7 +280,7 @@ def move(game: Game, img: MatLike, player: int, played_time: tuple[int, int], ev
 
     warped, board = _image_processing(game, img)
 
-    previous_board = game.moves[-1].board.copy() if len(game.moves) > 0 else {}  # get previous board information
+    previous_board = game.moves[-1].board.copy() if game.moves else {}  # get previous board information
     new_tiles, removed_tiles, changed_tiles = _move_processing(game, board, previous_board)
 
     if len(changed_tiles) > 0:  # fix previous moves
@@ -298,7 +303,7 @@ def check_resume(game: Game, image: MatLike, event: Event | None = None) -> None
         warped, _ = warp_image(image)
         _, tiles_candidates = filter_image(warped)
         intersection = set(last_move.new_tiles.keys()) & set(tiles_candidates)
-        if intersection == set():  #  empty set => tiles are removed
+        if not intersection:  #  empty set => tiles are removed
             valid_challenge(game, event)
             logger.info('automatic valid challenge after resume')
         # else: # uncomment if you want a invalid challenges as default on resume
