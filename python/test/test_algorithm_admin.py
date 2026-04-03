@@ -158,6 +158,36 @@ class AlgorithmAdminTestCase(BaseTestClass):
         self.assertEqual(score1, (64, 0), 'first score 64')
         self.assertEqual(score2, (60, 0), 'second score 60')  # ignore '.'
 
+    def test_148(self):
+        """edited successor move"""
+        # H4 FIRNS
+        # 5G V.TEN
+        data = [ { 'button': 'GREEN', 'score': (24, 0),
+                   'tiles': { (3, 7): Tile('F', 75), (4, 7): Tile('I', 75), (5, 7): Tile('R', 75),
+                              (6, 7): Tile('N', 75), (7, 7): Tile('S', 75), },
+                 },
+                 { 'button': 'RED', 'score': (24, 18),
+                   'tiles': { (4, 6): Tile('V', 75), (4, 8): Tile('T', 75), (4, 9): Tile('E', 75), (4, 10): Tile('N', 75)},
+                 },
+                ]  # fmt:off
+        self.run_data(start_button='red', data=data)
+        game = State.ctx.game
+
+        # 1. edit the following move
+        move_number = 1
+        col = 4
+        row = 6
+        admin_change_move(game, move_number, MoveType.REGULAR, (col, row), True, word='VITENS')
+
+        # 2. edit previous move
+        move_number = 0
+        col = 3
+        row = 7
+        admin_change_move(game, move_number, MoveType.REGULAR, (col, row), False, word='FIRNSE')
+
+        logging.info(f'result of board {game.board_str()}')
+        self.assertEqual('E', game.moves[-1].board[(8, 7)].letter, 'Tile E expected')
+
 
 if __name__ == '__main__':
     unittest.main(module='test_algorithm_admin')
