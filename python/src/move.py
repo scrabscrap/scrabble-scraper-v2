@@ -504,7 +504,17 @@ class MoveLastRackBonus(Move):
             self.played_time = self.previous_move.played_time
 
     def calculate_points(self) -> tuple[int, bool]:
-        self.points = 0 if self.rack == '?' else sum(scores(c) for c in self.rack)
+        if self.rack_size[0] == 0:
+            self.player = 0
+        elif self.rack_size[1] == 0:
+            self.player = 1
+        else:
+            self.player = 0
+            self.points = 0
+            self.rack = '?'
+            return self.points, False
+        self.rack = ''.join(self.game.tiles_in_bag(index=self.move - 1))
+        self.points = sum(scores(c) for c in self.rack)
         return self.points, False
 
     @property
@@ -527,7 +537,17 @@ class MoveLastRackMalus(Move):
             self.played_time = self.previous_move.played_time
 
     def calculate_points(self) -> tuple[int, bool]:
-        self.points = 0 if self.rack == '?' else -sum(scores(c) for c in self.rack)
+        if self.rack_size[0] == 0:
+            self.player = 1
+        elif self.rack_size[1] == 0:
+            self.player = 0
+        else:
+            self.player = 1
+            self.points = 0
+            self.rack = '?'
+            return self.points, False
+        self.rack = ''.join(self.game.tiles_in_bag(index=self.move - 1))
+        self.points = -sum(scores(c) for c in self.rack)
         return self.points, False
 
     @property

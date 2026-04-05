@@ -682,24 +682,25 @@ class Game:  # pylint: disable=too-many-public-methods
             return self
 
         move_to_change = self.moves[index]
+        previous_move = self.moves[index - 1] if index > 0 else None
         if movetype == MoveType.REGULAR and new_tiles:
             try:
                 self.moves[index] = MoveRegular(
                     game=self, player=move_to_change.player, played_time=move_to_change.played_time,
-                    img=move_to_change.img, new_tiles=new_tiles, previous_move=move_to_change.previous_move, )  # fmt: off
+                    img=move_to_change.img, new_tiles=new_tiles, previous_move=previous_move, )  # fmt: off
             except NoMoveError:
                 self.moves[index] = MoveExchange(
                     game=self, player=move_to_change.player, played_time=move_to_change.played_time,
-                    img=move_to_change.img, previous_move=move_to_change.previous_move, )  # fmt:off
+                    img=move_to_change.img, previous_move=previous_move, )  # fmt:off
             except InvalidMoveError:
                 self.moves[index] = MoveUnknown(
                     game=self, player=move_to_change.player, played_time=move_to_change.played_time,
-                    img=move_to_change.img, new_tiles=new_tiles, previous_move=move_to_change.previous_move, )  # fmt: off
+                    img=move_to_change.img, new_tiles=new_tiles, previous_move=previous_move, )  # fmt: off
 
         elif movetype == MoveType.EXCHANGE:
             self.moves[index] = MoveExchange(
                 game=self, player=move_to_change.player, played_time=move_to_change.played_time,
-                img=move_to_change.img, previous_move=move_to_change.previous_move, )  # fmt:off
+                img=move_to_change.img, previous_move=previous_move, )  # fmt:off
         else:
             move_to_change.setup_board()
             move_to_change.calculate_score()
