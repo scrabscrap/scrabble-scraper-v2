@@ -34,7 +34,7 @@ from processing import (
     set_blankos,
 )
 from scrabble import MoveType
-from state import State
+from state import GameState, State
 from utils.threadpool import Command, command_queue
 
 logger = logging.getLogger()
@@ -156,12 +156,14 @@ def handle_btnmove(form, game, move_number):
         command_queue.put_nowait(
             Command(admin_change_move, game, move_number, MoveType.REGULAR, (col, row), vert, word, State.ctx.op_event)
         )
-        flash_and_log(f'edit move #{move_number}: {move_type}: {word}')
     elif move_type == MoveType.EXCHANGE.name:
         command_queue.put_nowait(Command(admin_change_move, game, move_number, MoveType.EXCHANGE, event=State.ctx.op_event))
-        flash_and_log(f'change move {move_number} to exchange')
     else:
         flash_and_log(f'change move {move_number} missing parameter {move_type=} {coord=} {word=}')
+        return
+    if State.ctx.current_state == GameState.EOG:
+        command_queue.put_nowait(Command(State.do_end_of_game))
+    flash_and_log(f'change move {move_number} to exchange')
 
 
 @admin_edit_bp.route('/moves', methods=['GET', 'POST'])
