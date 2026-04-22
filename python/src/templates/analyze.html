@@ -5,20 +5,18 @@
     <div class="card">
         <div class="card-header">Analyze Test</div>
         <div class="card-body">
-            <form action="/test_analyze" method="post">
-                <div class="row">
-                    <div class="col-md-4">
-                        <img class="img-fluid rounded border p-2" src="data:image/jpg;base64,{{img_data}}" />
-                    </div>
-                    <div class="col-8">
-                        <div id="logentry"
-                            class="font-monospace small overflow-auto border rounded p-2 d-flex flex-column-reverse"
-                            style="max-height: calc(96vh - 130px); font-size: 75%; white-space: pre-wrap;">
-                            {{log}}
-                        </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <img class="img-fluid rounded border p-2" src="data:image/jpg;base64,{{img_data}}" />
+                </div>
+                <div class="col-8">
+                    <div id="logentry"
+                        class="font-monospace small overflow-auto border rounded p-2 d-flex flex-column-reverse"
+                        style="max-height: calc(96vh - 130px); font-size: 75%; white-space: pre-wrap;">
+                        {{log}}
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

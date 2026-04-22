@@ -12,7 +12,7 @@
                     {% endif %}
                 </div>
                 <div class="card-body">
-                    <form action="/cam" method="post">
+                    <form action="{{ url_for('admin_settings.route_cam') }}" method="post">
                         <div class="row">
                             <div class="col-10">
                                 <img style="padding:5px; max-width: 45vw;max-height: calc(95vh - 50px);"
@@ -22,6 +22,11 @@
                                 <div class="row p-2">
                                     <button type="button" class="btn btn-primary" onclick="location.href='/cam'">
                                         <i class="bi-arrow-repeat"></i> Reload</button>
+                                </div>
+                                <div class="row p-2">
+                                    <button type="button" id="autoRefreshBtn" class="btn btn-info"
+                                        onclick="toggleAutoRefresh()">
+                                        <i class="bi-play"></i> Auto Refresh</button>
                                 </div>
                                 <div class="row p-2">
                                     <button type="submit" class="btn btn-secondary" name="btndelete" value="Delete">
@@ -45,10 +50,47 @@
             <div class="card">
                 <div class="card-header">Original</div>
                 <div class="card-body">
-                    <a href="/cam"><img src="data:image/jpg;base64,{{img_data}}" ismap /></a>
+                    <a href="{{ url_for('admin_settings.route_cam') }}"><img src="data:image/jpg;base64,{{img_data}}"
+                            ismap /></a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    let autoRefreshInterval = null;
+    let isAutoRefreshOn = false;
+
+    function toggleAutoRefresh() {
+        const btn = document.getElementById('autoRefreshBtn');
+        if (isAutoRefreshOn) {
+            // Stop auto refresh
+            clearInterval(autoRefreshInterval);
+            autoRefreshInterval = null;
+            isAutoRefreshOn = false;
+            localStorage.setItem('autoRefresh', 'false');
+            btn.innerHTML = '<i class="bi-play"></i> Auto Refresh';
+            btn.classList.remove('btn-warning');
+            btn.classList.add('btn-info');
+        } else {
+            // Start auto refresh
+            autoRefreshInterval = setInterval(() => {
+                location.reload();
+            }, 1000); // 1.0 seconds
+            isAutoRefreshOn = true;
+            localStorage.setItem('autoRefresh', 'true');
+            btn.innerHTML = '<i class="bi-stop"></i> Stop Refresh';
+            btn.classList.remove('btn-info');
+            btn.classList.add('btn-warning');
+        }
+    }
+    // Check if auto refresh was previously enabled
+    window.addEventListener('load', function () {
+        if (localStorage.getItem('autoRefresh') === 'true') {
+            toggleAutoRefresh();
+        }
+    });
+</script>
+
 {% endblock %}

@@ -16,7 +16,7 @@
                 <tbody>
                     {% for file in files %}
                     <tr>
-                        <td><a href="/download_games/{{ file }}">{{ file }}</a></td>
+                        <td><a href="{{ url_for('do_download_games') }}/{{ file }}">{{ file }}</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

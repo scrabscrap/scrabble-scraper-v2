@@ -22,7 +22,7 @@
 <body>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/">ScrabScrap</a>
+      <a class="navbar-brand" href="{{ url_for('route_index') }}">ScrabScrap</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -36,19 +36,23 @@
               <i class="bi-grid-3x3-gap" aria-hidden="true"></i> Game
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/moves"><i class="bi-pencil" aria-hidden="true"></i> Edit Moves</a>
+              <li><a class="dropdown-item" href="{{ url_for('admin_edit.route_moves') }}"><i class="bi-pencil"
+                    aria-hidden="true"></i> Edit Moves</a>
               </li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/button"><i class="bi-hand-index-thumb" aria-hidden="true"></i> Button
+              <li><a class="dropdown-item" href="{{ url_for('do_buttons') }}"><i class="bi-hand-index-thumb"
+                    aria-hidden="true"></i> Button
                   Control</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/end_game"><i class="bi-sign-stop" aria-hidden="true"></i> End Game</a>
+              <li><a class="dropdown-item" href="{{ url_for('do_end_game') }}"><i class="bi-sign-stop"
+                    aria-hidden="true"></i> End Game</a>
               </li>
-              <li><a class="dropdown-item" href="/new_game"><i class="bi-play-btn" aria-hidden="true"></i> Start new
+              <li><a class="dropdown-item" href="{{ url_for('do_new_game') }}"><i class="bi-play-btn"
+                    aria-hidden="true"></i> Start new
                   Game</a></li>
             </ul>
           </li>
@@ -57,7 +61,8 @@
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownCamera" role="button"
               data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-webcam" aria-hidden="true"></i> Camera</a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/cam"><i class="bi-aspect-ratio" aria-hidden="true"></i> Configure
+              <li><a class="dropdown-item" href="{{ url_for('admin_settings.route_cam') }}"><i class="bi-aspect-ratio"
+                    aria-hidden="true"></i> Configure
                   warp</a></li>
             </ul>
           </li>
@@ -68,15 +73,17 @@
               <i class="bi-gear-fill" aria-hidden="true"></i> Settings
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/settings"><i class="bi-gear" aria-hidden="true"></i> Settings</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('admin_settings.route_settings') }}"><i class="bi-gear"
+                    aria-hidden="true"></i> Settings</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/wifi"><i class="bi-wifi" aria-hidden="true"></i> Wifi</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('admin_settings.route_wifi') }}"><i class="bi-wifi"
+                    aria-hidden="true"></i> Wifi</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/upgrade_scrabscrap">
+              <li><a class="dropdown-item" href="{{ url_for('do_update_scrabscrap') }}">
                   <i class="bi-arrow-up-right-circle" aria-hidden="true"></i> Upgrade ScrabScrap</a></li>
             </ul>
           </li>
@@ -87,31 +94,38 @@
               <i class="bi-file-earmark-text" aria-hidden="true"></i> Logs
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/logs"><i class="bi-search" aria-hidden="true"></i> Log output</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('route_logs') }}"><i class="bi-search"
+                    aria-hidden="true"></i> Log output</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/loglevel"><i class="bi-gear" aria-hidden="true"></i> Log Settings</a>
+              <li><a class="dropdown-item" href="{{ url_for('admin_settings.route_loglevel') }}"><i class="bi-gear"
+                    aria-hidden="true"></i> Log Settings</a>
               </li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/log_sysinfo"><i class="bi-incognito" aria-hidden="true"></i> System
+              <li><a class="dropdown-item" href="{{ url_for('log_sysinfo') }}"><i class="bi-incognito"
+                    aria-hidden="true"></i> System
                   Info</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/download_logs"><i class="bi-download" aria-hidden="true"></i> Download
+              <li><a class="dropdown-item" href="{{ url_for('do_download_logs') }}"><i class="bi-download"
+                    aria-hidden="true"></i> Download
                   Logs</a></li>
-              <li><a class="dropdown-item" href="/download_games"><i class="bi-download" aria-hidden="true"></i>
+              <li><a class="dropdown-item" href="{{ url_for('do_download_games') }}"><i class="bi-download"
+                    aria-hidden="true"></i>
                   Download
                   web folder file(s)</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/delete_logs"><i class="bi-trash" aria-hidden="true"></i> Delete
+              <li><a class="dropdown-item" href="{{ url_for('do_delete_logs') }}"><i class="bi-trash"
+                    aria-hidden="true"></i> Delete
                   Logs</a></li>
-              <li><a class="dropdown-item" href="/delete_recording"><i class="bi-trash" aria-hidden="true"></i> Delete
+              <li><a class="dropdown-item" href="{{ url_for('do_delete_recording') }}"><i class="bi-trash"
+                    aria-hidden="true"></i> Delete
                   Recording(s)</a>
               </li>
             </ul>
@@ -123,24 +137,28 @@
               <i class="bi-card-checklist" aria-hidden="true"></i> Tests
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/test_led"><i class="bi-lightbulb" aria-hidden="true"></i> LED</a></li>
-              <li><a class="dropdown-item" href="/test_display"><i class="bi-display" aria-hidden="true"></i>
+              <li><a class="dropdown-item" href="{{ url_for('admin_test.do_test_led') }}"><i class="bi-lightbulb"
+                    aria-hidden="true"></i> LED</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('admin_test.do_test_display') }}"><i class="bi-display"
+                    aria-hidden="true"></i>
                   Display</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/test_upload"><i class="bi-upload" aria-hidden="true"></i> Upload</a>
+              <li><a class="dropdown-item" href="{{ url_for('admin_test.do_test_upload') }}"><i class="bi-upload"
+                    aria-hidden="true"></i> Upload</a>
               </li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/test_analyze"><i class="bi-ui-checks-grid" aria-hidden="true"></i>
+              <li><a class="dropdown-item" href="{{ url_for('admin_test.do_test_analyze') }}"><i
+                    class="bi-ui-checks-grid" aria-hidden="true"></i>
                   Analyze</a></li>
               {% if apiserver.simulator %}
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/simulator" target="simulator"><i class="bi-easel"
+              <li><a class="dropdown-item" href="{{ url_for('simulator') }}" target="simulator"><i class="bi-easel"
                     aria-hidden="true"></i> Simulator</a>
               </li>
               {% endif %}
@@ -154,43 +172,53 @@
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               {% if apiserver.tailscale %}
-              <li><a class="dropdown-item" href="/vpn/status"><i class="bi-question-circle" aria-hidden="true"></i>
+              <li><a class="dropdown-item" href="{{ url_for('do_vpn') }}/status"><i class="bi-question-circle"
+                    aria-hidden="true"></i>
                   Status
                   Tailscale</a>
               </li>
-              <li><a class="dropdown-item" href="/vpn/start"><i class="bi-toggle-on" aria-hidden="true"></i> Start
+              <li><a class="dropdown-item" href="{{ url_for('do_vpn') }}/start"><i class="bi-toggle-on"
+                    aria-hidden="true"></i> Start
                   Tailscale</a></li>
-              <li><a class="dropdown-item" href="/vpn/stop"><i class="bi-toggle-off" aria-hidden="true"></i> Stop
+              <li><a class="dropdown-item" href="{{ url_for('do_vpn') }}/stop"><i class="bi-toggle-off"
+                    aria-hidden="true"></i> Stop
                   Tailscale</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="/vpn/auth"><i class="bi-key" aria-hidden="true"></i> Reauth
+              <li><a class="dropdown-item" href="{{ url_for('do_vpn') }}/auth"><i class="bi-key" aria-hidden="true"></i>
+                  Reauth
                   Tailscale</a></li>
-              <li><a class="dropdown-item disabled" href="/vpn/install"><i class="bi-cart-plus" aria-hidden="true"></i>
+              <li><a class="dropdown-item disabled" href="{{ url_for('do_vpn') }}/install"><i class="bi-cart-plus"
+                    aria-hidden="true"></i>
                   Install
                   Tailscale</a></li>
-              <li><a class="dropdown-item" href="/vpn/uninstall"><i class="bi-cart-dash" aria-hidden="true"></i> Remove
+              <li><a class="dropdown-item" href="{{ url_for('do_vpn') }}/uninstall"><i class="bi-cart-dash"
+                    aria-hidden="true"></i> Remove
                   Tailscale</a></li>
               {% else %}
-              <li><a class="dropdown-item disabled" href="/vpn/status"><i class="bi-question-circle"
+              <li><a class="dropdown-item disabled" href="{{ url_for('do_vpn') }}/status"><i class="bi-question-circle"
                     aria-hidden="true"></i> Status
                   Tailscale</a>
               </li>
-              <li><a class="dropdown-item disabled" href="/vpn/start"><i class="bi-toggle-on" aria-hidden="true"></i>
+              <li><a class="dropdown-item disabled" href="{{ url_for('do_vpn') }}/start"><i class="bi-toggle-on"
+                    aria-hidden="true"></i>
                   Start Tailscale</a>
               </li>
-              <li><a class="dropdown-item disabled" href="/vpn/stop"><i class="bi-toggle-off" aria-hidden="true"></i>
+              <li><a class="dropdown-item disabled" href="{{ url_for('do_vpn') }}/stop"><i class="bi-toggle-off"
+                    aria-hidden="true"></i>
                   Stop Tailscale</a>
               </li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item disabled" href="/vpn/auth"><i class="bi-key" aria-hidden="true"></i> Reauth
+              <li><a class="dropdown-item disabled" href="{{ url_for('do_vpn') }}/auth"><i class="bi-key"
+                    aria-hidden="true"></i> Reauth
                   Tailscale</a></li>
-              <li><a class="dropdown-item" href="/vpn/install"><i class="bi-cart-plus" aria-hidden="true"></i> Install
+              <li><a class="dropdown-item" href="{{ url_for('do_vpn') }}/install"><i class="bi-cart-plus"
+                    aria-hidden="true"></i> Install
                   Tailscale</a></li>
-              <li><a class="dropdown-item disabled" href="/vpn/uninstall"><i class="bi-cart-dash"
+              <li><a class="dropdown-item disabled" href="{{ url_for('do_vpn') }}/uninstall"><i class="bi-cart-dash"
                     aria-hidden="true"></i> Remove
                   Tailscale</a></li>
               {% endif %}
@@ -199,8 +227,8 @@
 
           {% if apiserver.local_webapp %}
           <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="/webapp/index.html" target="webapp"><i class="bi-eye"
-                aria-hidden="true"></i>
+            <a class="nav-link" aria-current="page" href="{{ url_for('static_file', path='/index.html') }}"
+              target="webapp"><i class="bi-eye" aria-hidden="true"></i>
               Web-App</a>
           </li>
           {% endif %}
@@ -224,14 +252,16 @@
               <i class="bi-box-arrow-right" aria-hidden="true"></i> Exit
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li class="nav-item"><a class="nav-link" href="/restart"><i class="bi-arrow-repeat"
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('do_restart') }}"><i class="bi-arrow-repeat"
                     aria-hidden="true"></i> Restart
                   App</a></li>
-              <li class="nav-item"><a class="nav-link" href="/end"><i class="bi-box-arrow-right" aria-hidden="true"></i>
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('do_end') }}"><i class="bi-box-arrow-right"
+                    aria-hidden="true"></i>
                   End App</a></li>
-              <li class="nav-item"><a class="nav-link" href="/reboot"><i class="bi-bootstrap-reboot"
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('do_reboot') }}"><i class="bi-bootstrap-reboot"
                     aria-hidden="true"></i> Reboot</a>
-              <li class="nav-item"><a class="nav-link" href="/shutdown"><i class="bi-toggle-off" aria-hidden="true"></i>
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('do_shutdown') }}"><i class="bi-toggle-off"
+                    aria-hidden="true"></i>
                   Shutdown</a>
               </li>
             </ul>
