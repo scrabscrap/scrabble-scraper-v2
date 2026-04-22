@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+import subprocess
+
 from scrabblewatch import ScrabbleWatch  # pylint: disable=wrong-import-order
 
 # display fast boot message on display
@@ -76,15 +78,14 @@ def main() -> None:
             logger.exception('cleanup: pool.shutdown failed')
 
     def signal_alarm(signum, _) -> None:
-        import os
 
         logger.debug(f'Alarm handler called with signal {signum}')
         signal.alarm(0)
         _cleanup()
         if config.system.quit in ('reboot'):
-            os.system('sudo shutdown -r now')
+            subprocess.run(['sudo', 'shutdown', '-r', 'now'], check=True)
         elif config.system.quit in ('shutdown'):
-            os.system('sudo shutdown now')
+            subprocess.run(['sudo', 'shutdown', 'now'], check=True)
         elif config.system.quit in ('restart'):
             sys.exit(4)
         sys.exit(0)
