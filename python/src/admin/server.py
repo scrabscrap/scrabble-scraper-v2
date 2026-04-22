@@ -322,10 +322,12 @@ def do_download_games(req_path):
     base_path = config.path.web_dir.resolve()
     fullpath = (base_path / req_path).resolve()
     # validate path
-    if not str(fullpath).startswith(str(base_path)):
+    if not fullpath.is_relative_to(base_path):
+        logger.error(f'Path traversal attempted {fullpath}')
         return abort(404)
     # Return 404 if path doesn't exist
     if not fullpath.exists():
+        logger.error(f'path not exists{fullpath}')
         return abort(404)
     # Check if path is a file and serve
     if fullpath.is_file():
