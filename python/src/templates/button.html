@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-header">ScrabScrap</div>
                 <div class="card-body">
-                    <form action="/button" method="post">
+                    <form action="{{ url_for('do_buttons') }}" method="post">
                         <div class="row justify-content-center text-center py-2">
                             <div class="col-auto">
                                 <button type="submit" class="btn btn-success btn-circle btn-md" title="Move Green"

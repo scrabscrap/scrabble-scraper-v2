@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-header">Set Log-Level</div>
             <div class="card-body">
-                <form action="/loglevel" method="post">
+                <form action="{{ url_for('admin_settings.route_loglevel') }}" method="post">
                     <div class="row py-2">
                         <div>
                             <div class="form-check">

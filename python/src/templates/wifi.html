@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-header">Configured WiFi</div>
                 <div class="card-body">
-                    <form action="/wifi" method="post">
+                    <form action="{{ url_for('admin_settings.route_wifi') }}" method="post">
                         <div class="row p-2">
                             <select size="9" class="form-control" name="selectwifi">
                                 {% for wifi in wifi_configured %}
@@ -39,7 +39,7 @@
             <div class="card">
                 <div class="card-header">Add WiFi</div>
                 <div class="card-body">
-                    <form action="/wifi" method="post">
+                    <form action="{{ url_for('admin_settings.route_wifi') }}" method="post">
                         <div class="row p-2">
                             <select size="9" class="form-control" name="ssid" required>
                                 {% for wifi in wifi_list %}
