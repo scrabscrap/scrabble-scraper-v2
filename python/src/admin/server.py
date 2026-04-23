@@ -474,6 +474,28 @@ def game_status():
     )
 
 
+@app.errorhandler(404)
+def not_found(error):
+    logger.warning(f'404 from {request.remote_addr}')
+    return 'Not Found', 404
+
+
+@app.errorhandler(Exception)
+def handle_error(error):
+    logger.error(f'Unhandled exception: {error}')
+    return 'Internal Server Error', 500
+
+
+@app.after_request
+def set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    # response.headers['Content-Security-Policy'] = "default-src 'self'"
+    return response
+
+
 @sock.route('/ws_status')
 def echo(socket: Server):
     """websocket endpoint"""
