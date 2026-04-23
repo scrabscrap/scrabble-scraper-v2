@@ -58,7 +58,8 @@ class Upload:
         url = upload_config.server
         try:
             url = url if url.startswith(('http://', 'https://')) else f'https://{url}'
-            url += '' if url.endswith('/bin/scrabscrap.php') else '/bin/scrabscrap.php'
+            url = url.replace('http://', 'https://')  # force https
+            url = url if url.endswith('/bin/scrabscrap.php') else f'{url}/bin/scrabscrap.php'
             with requests.post(
                 url, data=data, files=files, timeout=50, auth=HTTPBasicAuth(upload_config.user, upload_config.password)
             ) as ret:
