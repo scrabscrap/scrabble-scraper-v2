@@ -31,6 +31,8 @@ from utils.threadpool import CommandWorker
 
 logger = logging.getLogger()
 
+UPLOAD_TIMEOUT = 20  # 20s for approx 400kb - 1MB (Image 400kb, json 20kb, optional Camera-Image 700kb) upload
+
 
 class Upload:
     """upload files - needs configured php script on server"""
@@ -38,6 +40,7 @@ class Upload:
     def __init__(self):
         self.upload_queue: queue.Queue | None = None
         self.upload_worker: CommandWorker | None = None
+        self.has_exception: bool = False
 
     def get_upload_queue(self) -> queue.Queue:
         """get upload command queue"""
@@ -61,19 +64,27 @@ class Upload:
             url = url.replace('http://', 'https://')  # force https
             url = url if url.endswith('/bin/scrabscrap.php') else f'{url}/bin/scrabscrap.php'
             with requests.post(
-                url, data=data, files=files, timeout=50, auth=HTTPBasicAuth(upload_config.user, upload_config.password)
+                url,
+                data=data,
+                files=files,
+                timeout=UPLOAD_TIMEOUT,
+                auth=HTTPBasicAuth(upload_config.user, upload_config.password),
             ) as ret:
-                logger.info(f'upload: response {ret.status_code}')
+                logger.info(f'http: response {ret.status_code}')
+                self.has_exception = False
                 if ret.status_code != 200:
-                    logger.warning('upload failed: %s %s', ret.status_code, ret.text)
+                    logger.warning('⚠️ http: upload failed %s %s', ret.status_code, ret.text)
                     return False
                 return True
         except requests.Timeout:
-            logger.exception(f'http: timeout while POST to {url}')
+            self.has_exception = True
+            logger.exception(f'❌ http: timeout while POST to {url}')
         except requests.ConnectionError:
-            logger.exception(f'http: connection error while POST to {url}')
+            self.has_exception = True
+            logger.exception(f'❌ http: connection error while POST to {url}')
         except Exception:
-            logger.exception(f'http: unexpected exception while POST to {url}')
+            self.has_exception = True
+            logger.exception(f'❌ http: unexpected exception while POST to {url}')
         finally:
             # Ensure we close any file handles that might have been passed in
             if files:
@@ -81,11 +92,16 @@ class Upload:
                     try:
                         fh.close()
                     except Exception:  # noqa: PERF203
-                        logger.debug('failed to close upload file handle', exc_info=True)
+                        logger.debug('http: failed to close upload file handle', exc_info=True)
         return False
 
     def upload_move(self, move: int) -> bool:
         """upload one move"""
+        if self.has_exception:
+            logger.warning(f'⚠️ http: skip upload {move=} due previous exception/timeout')
+            return False
+        logger.debug(f'http: upload {move=}')
+
         files = {
             f'image-{move}.jpg': Path(config.path.web_dir) / f'image-{move}.jpg',
             f'data-{move}.json': Path(config.path.web_dir) / f'data-{move}.json',
@@ -102,19 +118,19 @@ class Upload:
                 return False
             ok = self.upload(files=upload_files)
             if not ok:
-                logger.warning(f'upload_move: upload returned False for move={move} files={list(upload_files.keys())}')
+                logger.warning(f'⚠️ http: upload returned False for move={move} files={list(upload_files.keys())}')
             return ok
         finally:
             for f in upload_files.values():
                 try:
                     f.close()
                 except Exception:  # noqa: PERF203
-                    logger.debug('upload_move: failed closing file handle', exc_info=True)
+                    logger.debug('http: failed closing file handle', exc_info=True)
         return False
 
     def upload_status(self) -> bool:
         """upload status"""
-        logger.debug('start transfer status file status.json')
+        logger.debug('http: upload status.json, messages.log')
         files = {
             'status.json': Path(config.path.web_dir) / 'status.json',
             'messages.log': Path(config.path.log_dir) / 'messages.log',
@@ -127,7 +143,7 @@ class Upload:
             if upload_files:
                 return self.upload(files=upload_files)
         except OSError as oops:
-            logger.error(f'upload I/O error({oops.errno}): {oops.strerror}')
+            logger.error(f'❌ http: I/O error({oops.errno}): {oops.strerror}')
         return False
 
     def delete_files(self) -> bool:
@@ -138,6 +154,9 @@ class Upload:
     def zip_files(self, fname: str) -> bool:
         """create zip of current game on server"""
         logger.debug('http: zip files on server')
+        if self.has_exception:
+            logger.warning(f'⚠️ http: skip create zip files due previous exception/timeout {fname=}')
+            return False
         return self.upload(data={'zip': 'true', 'fname': fname})
 
 
@@ -160,7 +179,7 @@ class UploadConfig:
             with ini_path.open(encoding='utf-8') as config_file:
                 self.parser.read_file(config_file)
         except OSError as oops:
-            logger.exception(f'read ini-file failed {oops} (path={ini_path})')
+            logger.exception(f'❌ read ini-file failed {oops} (path={ini_path})')
         if self.SECTION not in self.parser.sections():
             self.parser.add_section(self.SECTION)
             self.store()
