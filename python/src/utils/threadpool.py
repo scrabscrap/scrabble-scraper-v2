@@ -49,19 +49,21 @@ class CommandWorker(threading.Thread):
         logger.warning('CommandWorker started')
         while True:
             try:
-                try:
-                    command = self.command_queue.get()  # wait for next command
-                    if command is None:
-                        logger.warning('CommandWorker received None, shutting down')  # Log shutdown
-                        continue  # never end worker thread
-                    command.execute()
-                    logger.debug(f'Command finished: {command.func.__name__} Queue: {self.command_queue.qsize()}')
-                except Exception as e:  # pylint: disable=broad-exception-caught
-                    logger.exception(f'unexpected exception in CommandWorker {e}')
-                finally:
-                    self.command_queue.task_done()
+                command = self.command_queue.get()  # wait for next command
+                if command is None:
+                    logger.warning('CommandWorker received None, shutting down')  # Log shutdown
+                    continue  # never end worker thread
+                command.execute()
+                logger.debug(f'Command finished: {command.func.__name__} Queue: {self.command_queue.qsize()}')
             except queue.Empty:  # continue with next entry
-                pass
+                continue
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                logger.exception(f'unexpected exception in CommandWorker {e}')
+            finally:
+                try:
+                    self.command_queue.task_done()
+                except ValueError as e:
+                    logger.warning(f'Error at task_done(): {e}')
 
 
 command_queue: queue.Queue = queue.Queue()
