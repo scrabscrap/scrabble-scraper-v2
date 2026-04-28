@@ -16,8 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+import logging
 import threading
 import time
+
+logger = logging.getLogger()
 
 
 class RepeatedTimer(threading.Timer):
@@ -27,5 +30,8 @@ class RepeatedTimer(threading.Timer):
         start_timer = time.time()
         to_wait = self.interval
         while not self.finished.wait(to_wait):
-            self.function(*self.args, **self.kwargs)
+            try:
+                self.function(*self.args, **self.kwargs)
+            except Exception as e:
+                logger.exception(f'Error in RepeatedTimer: {e}')
             to_wait = self.interval - ((time.time() - start_timer) % self.interval)
