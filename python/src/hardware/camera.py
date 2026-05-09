@@ -202,17 +202,22 @@ class CameraOpenCV(Camera):
         self.resolution = resolution or (config.video.width, config.video.height)
         self.framerate = framerate or config.video.fps
         self.wait = round(1 / self.framerate, 2)
-        # self.stream = cv2.VideoCapture(f'/dev/video{src}', cv2.CAP_V4L)
-        self.stream = cv2.VideoCapture(0)
+        self.stream = cv2.VideoCapture(src)
         if not self.stream.isOpened():
-            logger.error('CameraOpenCV can not open camera')
+            logger.error('❌ CameraOpenCV can not open camera')
         else:
             self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.resolution[0])
             self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
             self.stream.set(cv2.CAP_PROP_FPS, self.framerate)
-        self.frame = np.array([])
+        self.frame = np.zeros((self.resolution[1], self.resolution[0], 3), dtype=np.uint8)
         self.event: Event | None = None
         sleep(2)  # warm up camera
+        if self.stream.isOpened():
+            valid, frame = self.stream.read()
+            if valid:
+                self.frame = frame
+            else:
+                logger.error('❌ CameraOpenCV initial frame capture failed')
         atexit.register(self._atexit)  # cleanup on exit
 
     def log_camera_info(self) -> None:
