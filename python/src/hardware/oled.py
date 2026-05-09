@@ -48,7 +48,7 @@ def test_display(serial, device_cls):
         return device
     except Exception as e:  # pylint: disable=broad-exception-caught
         logging.basicConfig(filename=f'{config.path.log_dir}/messages.log', level=logging.INFO, force=True)
-        logging.getLogger().error(f' ❌ {device_cls.__class__.__name__} konnte nicht initialisiert werden: {e}')
+        logging.getLogger().error(f' ❌ {device_cls.__name__} konnte nicht initialisiert werden: {e}')
         return None
 
 
@@ -64,7 +64,7 @@ def detect_device(serial):
     device = test_display(serial, ssd1306)
     if device:
         logging.basicConfig(filename=f'{config.path.log_dir}/messages.log', level=logging.INFO, force=True)
-        logging.getLogger().info(' ✅ ssh1306 Display found!')
+        logging.getLogger().info(' ✅ ssd1306 Display found!')
         return device
 
     raise RuntimeError('OLED-Typ konnte nicht erkannt werden')
