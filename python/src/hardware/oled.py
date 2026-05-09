@@ -84,14 +84,23 @@ except (OSError, DeviceNotFoundError, RuntimeError) as e:
         logging.getLogger().error(f'error opening OLED 1 / OLED 2 {type(e).__name__}: {e}')
     raise RuntimeError('Error: OLED 1 / OLED 2 not available') from e
 
+logger = logging.getLogger()
+
 BLACK = 'black'
 WHITE = 'white'
 
 FONT_FAMILY = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
-FONT = ImageFont.truetype(FONT_FAMILY, 40)  # time
-FONT1 = ImageFont.truetype(FONT_FAMILY, 20)
-FONT2 = ImageFont.truetype(FONT_FAMILY, 14)  # only nickname
-FONT3 = ImageFont.truetype(FONT_FAMILY, 10)  # nickname and show score
+try:
+    FONT = ImageFont.truetype(FONT_FAMILY, 40)  # time
+    FONT1 = ImageFont.truetype(FONT_FAMILY, 20)
+    FONT2 = ImageFont.truetype(FONT_FAMILY, 14)  # only nickname
+    FONT3 = ImageFont.truetype(FONT_FAMILY, 10)  # nickname and show score
+except OSError:
+    logger.warning('OLED font not available; falling back to default font')
+    FONT = ImageFont.load_default(size=40)  # time
+    FONT1 = ImageFont.load_default(size=20)
+    FONT2 = ImageFont.load_default(size=14)  # only nickname
+    FONT3 = ImageFont.load_default(size=10)  # nickname and show score
 
 MIDDLE = (64, 44)
 IP_STR_COORD = (64, 3)
@@ -101,8 +110,6 @@ TIMER_STR_COORD = (128, 3)
 END_NICK_COORD = (2, 5)
 END_MSG_COORD = (2, 25)
 END_RACK = (124, 55)
-
-logger = logging.getLogger()
 
 
 class OLEDDisplay(Display):
