@@ -166,7 +166,11 @@ class CustomBoard:
         """calculate slice for image to extract one field"""
         px_col = int(OFFSET + (row * GRID_H))
         px_row = int(OFFSET + (col * GRID_W))
-        return (slice(px_col - border, px_col + GRID_H + border), slice(px_row - border, px_row + GRID_W + border))
+        start_row = max(0, px_col - border)
+        start_col = max(0, px_row - border)
+        end_row = min(800, px_col + GRID_H + border)
+        end_col = min(800, px_row + GRID_W + border)
+        return (slice(start_row, end_row), slice(start_col, end_col))
 
     @classmethod
     def create_board_masks(cls) -> tuple[MatLike, MatLike, MatLike, MatLike, MatLike]:
