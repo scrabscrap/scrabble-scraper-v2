@@ -137,8 +137,8 @@ class Upload:
             'status.json': Path(config.path.web_dir) / 'status.json',
             'messages.log': Path(config.path.log_dir) / 'messages.log',
         }
+        upload_files = {}
         try:
-            upload_files = {}
             for key, path in files.items():
                 if path.is_file():
                     upload_files[key] = path.open('rb')
@@ -146,6 +146,13 @@ class Upload:
                 return self.upload(files=upload_files)
         except OSError as oops:
             logger.error(f'❌ http: I/O error({oops.errno}): {oops.strerror}')
+        finally:
+            for f in upload_files.values():
+                try:
+                    f.close()
+                except Exception:  # noqa: PERF203
+                    logger.debug('❌ http: failed closing file handle', exc_info=True)
+
         return False
 
     def delete_files(self) -> bool:
