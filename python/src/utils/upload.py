@@ -58,7 +58,9 @@ class Upload:
             data = {'upload': 'true'}
         if upload_config.server is None:
             return False
-        url = upload_config.server
+        url = upload_config.server.strip()
+        if not url:  # empty server url
+            return False
         try:
             url = url if url.startswith(('http://', 'https://')) else f'https://{url}'
             url = url.replace('http://', 'https://')  # force https
