@@ -46,9 +46,8 @@ class Static:  # pylint: disable=too-few-public-methods
 
 def handle_exceptions(func: Callable[..., Any]):
     """
-    Decorator to handle common IndexError and ValueError exceptions
-    and call event_set after the function execution.
-    Assumes the decorated function accepts an 'event' keyword argument.
+    Decorator to handle common IndexError and ValueError exceptions.
+    Returns None when one of these exceptions occurs.
     """
 
     @functools.wraps(func)
