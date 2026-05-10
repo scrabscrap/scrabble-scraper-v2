@@ -112,7 +112,7 @@ class CustomBoard:
             threshold_center, _ = cv2.threshold(segment, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
             segment = gray_blur[int(OFFSET) : int(OFFSET) + (GRID_H * 14), int(OFFSET) : int(OFFSET) + (GRID_W * 14)]
-            threshold_board, _ = cv2.threshold(gray_blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            threshold_board, _ = cv2.threshold(segment, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
             diff = abs(threshold_board - threshold_center)
             alpha = min(diff / THRESHOLD_MAX_DIFF, 1.0)
