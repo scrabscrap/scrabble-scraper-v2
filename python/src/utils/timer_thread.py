@@ -35,3 +35,5 @@ class RepeatedTimer(threading.Timer):
             except Exception as e:
                 logger.exception(f'Error in RepeatedTimer: {e}')
             to_wait = self.interval - ((time.time() - start_timer) % self.interval)
+            if to_wait < 0:
+                to_wait = 0
