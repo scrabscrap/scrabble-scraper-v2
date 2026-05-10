@@ -213,7 +213,7 @@ class Game:  # pylint: disable=too-many-public-methods
 
     def board_str(self, index: int = -1) -> str:
         """Return the textual represention of the board"""
-        if index > len(self.moves):
+        if index >= len(self.moves):
             return ''
         return board_to_string(board=self.moves[index].board)
 
