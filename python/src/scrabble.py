@@ -622,7 +622,10 @@ class Game:  # pylint: disable=too-many-public-methods
 
     def replace_blank_with(self, coordinates: CoordType, char: str) -> Game:
         """replace blank at (coordinates) with (char)"""
-        char = char.strip().lower()[0]  # use only first char transform to lower
+        char_stripped = char.strip()
+        if not char_stripped:
+            raise ValueError('blank replacement char must not be empty')
+        char = char_stripped.lower()[0]  # use only first char transform to lower
         modified_indices = set()
         for i, m in enumerate(self.moves):
             updated = False
