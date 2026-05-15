@@ -20,7 +20,7 @@ export function Header() {
 
     function getLoadingIcon(usingWebSocket: boolean | null): string {
         if (usingWebSocket === null) return String.fromCodePoint(0x1F50E); // Lupe
-        if (usingWebSocket) return String.fromCodePoint(0x26A1); // Blitz
+        if (usingWebSocket) return String.fromCodePoint(0x130ca); // 𓃊
         return ' '; // String.fromCodePoint(0x1F4BE); // Diskette
     }
 
@@ -46,7 +46,7 @@ export function Header() {
                         <span className='text-muted' >
                             {timeString}&nbsp;({import.meta.env.VITE_APP_VERSION})
                         </span>
-                        <span>
+                        <span className='text-muted'>
                             &nbsp;{getLoadingIcon(usingWebSocket)}
                             <button className={buttonClass} title='Reload' aria-label="Reload"
                                 onClick={() => window.location.reload()}>
