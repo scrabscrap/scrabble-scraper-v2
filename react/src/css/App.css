@@ -33,7 +33,11 @@ body {
 }
 
 .monospace {
-      font-family: Menlo, source-code-pro, Monaco, Consolas, "Courier New", monospace;
+  font-family:  'Monaco', 'SFMono-Regular', 'Menlo', /* MacOS   */
+                'Consolas',                          /* Windows */
+                'Noto Mono',                         /* Linux   */
+                'Roboto Mono',                       /* Android */
+                monospace;
 }
 
 /* picture */
@@ -58,6 +62,7 @@ body {
   background-color: #F5F5F5;
   width: 25px;
   height: 25px;
+  font-family: Arial, 'Noto Sans', 'Liberation Sans', 'Segoe UI', 'Helvetica Neue', sans-serif;
   text-align: center;
   font-weight: bold;
   border-radius: 2px;
@@ -80,7 +85,11 @@ span.tile {
 }
 
 .moves {
-  font-family: "Lucida Console", Monaco, monospace;
+  font-family:  'Monaco', 'SFMono-Regular', 'Menlo', /* MacOS   */
+                'Consolas',                          /* Windows */
+                'Noto Mono',                         /* Linux   */
+                'Roboto Mono',                       /* Android */
+                monospace;
 }
 
 .table-move {
