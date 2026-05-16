@@ -42,6 +42,7 @@ from admin.edit import admin_edit_bp
 from admin.server_context import ctx
 from admin.settings import admin_settings_bp
 from config import config, version
+from customboard import warp_image
 from hardware.led import LED, LEDEnum
 from processing import event_set
 from scrabblewatch import ScrabbleWatch
@@ -507,9 +508,11 @@ def echo(socket: Server):
         json_data = State.ctx.game.get_json_data()
         _, (clock1, clock2), _ = ScrabbleWatch.status()
         try:
-            img = State.ctx.picture if State.ctx.picture is not None else None
+            img = None
             if State.ctx.game.moves and State.ctx.game.moves[-1].img is not None:
                 img = State.ctx.game.moves[-1].img
+            elif State.ctx.picture is not None:
+                img, _ = warp_image(State.ctx.picture)
             if img is not None:
                 _, im_buf_arr = cv2.imencode('.jpg', img)  # type: ignore
                 image_str = base64.b64encode(im_buf_arr).decode('utf-8')  # type: ignore
