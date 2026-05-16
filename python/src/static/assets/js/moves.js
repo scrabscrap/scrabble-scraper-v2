@@ -64,12 +64,12 @@ function buildRow(move, index) {
     else word = move.word
     row.dataset.id = index;
     row.innerHTML = `
-                <td>${index}</td>
+                <td class="edit-text">${index}</td>
                 <td><i class="${move.player == 0 ? 'bi-circle-fill text-success' : 'bi-circle-fill text-danger'}"></i></td>
                 <td class="coords edit-text" contenteditable="plaintext-only">${coord}</td>
                 <td class="letters edit-text" contenteditable="plaintext-only">${word}</td>
-                <td>${move.points}</td>
-                <td>${move.score[move.player]}</td>
+                <td class="edit-text">${move.points}</td>
+                <td class="edit-text">${move.score[move.player]}</td>
                 `;
     return row;
 }

@@ -10,8 +10,11 @@
     }
 
     .edit-text {
-        font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-            monospace;
+        font-family: 'Monaco', 'SFMono-Regular', 'Menlo', /* MacOS   */
+                     'Consolas',                          /* Windows */
+                     'Noto Mono',                         /* Linux   */
+                     'Roboto Mono',                       /* Android */
+                     monospace;
     }
 
     tr.selected td {
