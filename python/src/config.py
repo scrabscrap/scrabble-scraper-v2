@@ -99,6 +99,7 @@ DEFAULT = {
         'timeout_malus': '10',
         'verify_moves': '3',
         'show_score': 'False',
+        'competition_mode': 'False',
     },
     'output': {'upload_server': 'False', 'upload_modus': 'http'},
     'video': {'warp': 'True', 'width': '976', 'height': '976', 'fps': '25', 'rotate': 'True', 'warp_coordinates': ''},
@@ -213,7 +214,14 @@ class ScrabbleConfig:
     @property
     def show_score(self) -> bool:
         """Should the display show the current score?"""
-        return self.config.getboolean('scrabble', 'show_score', fallback=as_bool(DEFAULT['scrabble']['show_score']))
+        return not self.competition_mode and self.config.getboolean(
+            'scrabble', 'show_score', fallback=as_bool(DEFAULT['scrabble']['show_score'])
+        )
+
+    @property
+    def competition_mode(self) -> bool:
+        """Is the game running in competition mode?"""
+        return self.config.getboolean('scrabble', 'competition_mode', fallback=as_bool(DEFAULT['scrabble']['competition_mode']))
 
 
 @dataclass
