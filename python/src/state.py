@@ -156,6 +156,13 @@ class State(Static):
         return next_state
 
     @classmethod
+    def do_new_game_checked(cls) -> GameState:
+        """Starts a new game if not in competition mode"""
+        if not config.scrabble.competition_mode:
+            return cls.do_new_game()
+        return cls.ctx.current_state
+
+    @classmethod
     def do_new_game(cls) -> GameState:
         """Starts a new game"""
         LED.switch()
@@ -193,7 +200,10 @@ class State(Static):
                 )
             command_queue.join()  # wait for finishing tasks
         ScrabbleWatch.display.show_end_of_game(unknown_rack=has_unknown_rack())
-        LED.switch(blink={LEDEnum.yellow})
+        if not config.scrabble.competition_mode:
+            LED.switch(blink={LEDEnum.yellow})
+        else:
+            LED.switch()
         return cls.ctx.current_state
 
     @classmethod
@@ -299,9 +309,7 @@ class State(Static):
             ButtonEnum.REBOOT: lambda: State.do_reboot(),
         },
         GameState.EOG: {
-            ButtonEnum.GREEN: lambda: State.do_new_game(),
-            ButtonEnum.RED: lambda: State.do_new_game(),
-            ButtonEnum.YELLOW: lambda: State.do_new_game(),
+            ButtonEnum.YELLOW: lambda: State.do_new_game_checked(),
             ButtonEnum.REBOOT: lambda: State.do_reboot(),
             ButtonEnum.AP: lambda: State.do_accesspoint(),
         },

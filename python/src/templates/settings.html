@@ -12,6 +12,16 @@
                             <div class="card-header"><i class="bi-grid-3x3-gap"></i> Scrabble</div>
                             <div class="card-body">
                                 <div class="input-group">
+                                    <label class="col-sm-4 col-form-label" for="scrabble.competition_mode">
+                                        Competition
+                                    </label>
+                                    <div class="form-check form-switch py-2">
+                                        <input class="form-check-input" value="True" type="checkbox"
+                                            name="scrabble.competition_mode" id="scrabble.competition_mode"
+                                            {%if 'True'==cfg['scrabble.competition_mode'] %}checked {%endif %}>
+                                    </div>
+                                </div>
+                                <div class="input-group">
                                     <label class="col-sm-4 col-form-label" for="scrabble.show_score">
                                         Show Score
                                     </label>
