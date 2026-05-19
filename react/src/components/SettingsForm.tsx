@@ -44,7 +44,7 @@ export function SettingsForm() {
 
     return (
         <span>
-            <button className="btn btn-sm btn-link p-1" onClick={toggleShow} title="Settings" aria-label="Settings">
+            <button className="btn btn-sm btn-link p-1 text-white-50" onClick={toggleShow} title="Settings" aria-label="Settings">
                 &#x2699;
             </button>
             <div className={isOpen ? 'modal fade show d-block' : 'd-none'} tabIndex={-1}>
