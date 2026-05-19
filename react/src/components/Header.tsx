@@ -21,7 +21,7 @@ export function Header() {
     function getLoadingIcon(usingWebSocket: boolean | null): string {
         if (usingWebSocket === null) return String.fromCodePoint(0x1F50E); // Lupe
         if (usingWebSocket) return String.fromCodePoint(0x130ca); // 𓃊
-        return ' '; // String.fromCodePoint(0x1F4BE); // Diskette
+        return ''; // String.fromCodePoint(0x1F4BE); // Diskette
     }
 
     const items = Array.from(data.tournament).map((char: string, i: number) => (
@@ -31,7 +31,7 @@ export function Header() {
     ));
 
     const timeString = String(data.time).split('.')[0]; // cut off nano sec and date
-    const buttonClass = isStale ? 'btn btn-link text-danger p-1' : 'btn btn-link text-muted p-1';
+    const buttonClass = isStale ? 'btn btn-link text-danger p-1' : 'btn btn-link text-white-50 p-1';
 
     return (
         <div className='header bg-body'>
@@ -43,19 +43,18 @@ export function Header() {
                 </div>
                 <div className='row'>
                     <div className='justify-content-center text-center m-auto'>
-                        <span className='text-muted' >
-                            {timeString}&nbsp;({import.meta.env.VITE_APP_VERSION})
-                        </span>
-                        <span className='text-muted'>
-                            &nbsp;{getLoadingIcon(usingWebSocket)}
-                            <button className={buttonClass} title='Reload' aria-label="Reload"
-                                onClick={() => window.location.reload()}>
-                                &#x21BB;
-                            </button>
-                        </span>
-                        <SettingsForm />
-                        <div className='header-info-text' >
-                            ScrabScrap@GitHub&nbsp;{import.meta.env.VITE_APP_TAG}&nbsp;&copy;&nbsp;R&nbsp;Rohloff
+                        <div>
+                            <span className='text-white-50'>
+                                {timeString}&nbsp;&copy;&nbsp;R.Rohloff&nbsp;{getLoadingIcon(usingWebSocket)}
+                                <button className={buttonClass} title='Reload' aria-label="Reload"
+                                    onClick={() => window.location.reload()}>
+                                    &#x21BB;
+                                </button>
+                            </span>
+                            <SettingsForm />
+                        </div>
+                        <div className='header-info-text text-white-50' >
+                            ScrabScrap@GitHub&nbsp;{import.meta.env.VITE_APP_TAG}
                         </div>
                     </div>
                 </div>
