@@ -98,6 +98,53 @@ class ButtonTestCase(unittest.TestCase):
             f'red {LEDEnum.red.value} state nw {State.ctx.current_state}'
         )
 
+    def test_competition_mode(self):
+        """disable new game with button yellow"""
+        display_pause = 0.0
+
+        logger.info('competition_mode = true')
+        self.config_setter('scrabble', 'competition_mode', True)
+        self._press_button(self.pin_red)  # start Green, Disp0
+        assert State.ctx.current_state == GameState.S0
+        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (1, 0, 0)
+        time.sleep(display_pause)
+
+        self._press_button(self.pin_yellow)  # yellow
+        assert State.ctx.current_state == GameState.P0
+        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (0, 1, 0)
+        time.sleep(display_pause)
+
+        State.do_end_of_game()
+        assert State.ctx.current_state == GameState.EOG
+        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (0, 0, 0)
+
+        self._press_button(self.pin_yellow)  # ignore yellow
+        assert State.ctx.current_state == GameState.EOG
+        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (0, 0, 0)
+
+        logger.info('competition_mode = false')
+        self.config_setter('scrabble', 'competition_mode', False)
+        State.do_new_game()
+
+        self._press_button(self.pin_red)  # start Green, Disp0
+        assert State.ctx.current_state == GameState.S0
+        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (1, 0, 0)
+        time.sleep(display_pause)
+
+        self._press_button(self.pin_yellow)  # yellow
+        assert State.ctx.current_state == GameState.P0
+        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (0, 1, 0)
+        time.sleep(display_pause)
+
+        State.do_end_of_game()
+        assert State.ctx.current_state == GameState.EOG
+        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (0, 1, 0)
+
+        self._press_button(self.pin_yellow)  # ignore yellow
+        assert State.ctx.current_state == GameState.START
+        assert (LEDEnum.green.value, LEDEnum.yellow.value, LEDEnum.red.value) == (1, 0, 1)
+        logger.info('end test_competition_mode')
+
     def test_button_led(self):
         """Test LED"""
         display_pause = 0.0
