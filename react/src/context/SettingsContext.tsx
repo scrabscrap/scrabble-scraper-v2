@@ -43,11 +43,35 @@ function setCookie(name: string, value: string, days = 365) {
   document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`;
 }
 
+function parseBooleanParam(value: string | null): boolean | null {
+  if (value === null) return null;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true" || normalized === "1") return true;
+  if (normalized === "false" || normalized === "0") return false;
+  return null;
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+
+function getOverrideBoolean(name: string, fallback: boolean, alias?: string): boolean {
+  let override = parseBooleanParam(urlParams.get(name));
+  if (override === null && alias) {
+    override = parseBooleanParam(urlParams.get(alias));
+  }
+  return override === null ? fallback : override;
+}
+
+function isParamOverridden(name: string, alias?: string): boolean {
+  if (parseBooleanParam(urlParams.get(name)) !== null) return true;
+  if (alias && parseBooleanParam(urlParams.get(alias)) !== null) return true;
+  return false;
+}
+
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
   const [settings, setSettings] = useState({
-    OBS: getCookie("OBS") === "true",
-    THEME2020: getCookie("THEME2020") === "true",
-    OBSBANK: getCookie("OBSBANK") === "true",
+    OBS: getOverrideBoolean("OBS", getCookie("OBS") === "true"),
+    THEME2020: getOverrideBoolean("THEME2020", getCookie("THEME2020") === "true"),
+    OBSBANK: getOverrideBoolean("OBSBANK", getCookie("OBSBANK") === "true"),
     WS_AVAILABLE: false, // Default
   });
 
@@ -67,7 +91,11 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
   // Sync Settings -> Cookies
   useEffect(() => {
     Object.entries(settings).forEach(([key, value]) => {
-      if (key !== "WS_AVAILABLE") setCookie(key, String(value));
+      if (key === "WS_AVAILABLE") return;
+      if (key === "OBS" && isParamOverridden("OBS")) return;
+      if (key === "THEME2020" && isParamOverridden("THEME2020")) return;
+      if (key === "OBSBANK" && isParamOverridden("OBSBANK")) return;
+      setCookie(key, String(value));
     });
   }, [settings]);
 
