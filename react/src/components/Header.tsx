@@ -20,7 +20,7 @@ export function Header() {
 
     function getLoadingIcon(usingWebSocket: boolean | null): string {
         if (usingWebSocket === null) return String.fromCodePoint(0x1F50E); // Lupe
-        if (usingWebSocket) return String.fromCodePoint(0x130ca); // 𓃊
+        if (usingWebSocket) return String.fromCodePoint(0x260D); // ☍
         return ''; // String.fromCodePoint(0x1F4BE); // Diskette
     }
 
