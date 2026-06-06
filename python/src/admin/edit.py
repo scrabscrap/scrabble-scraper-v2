@@ -156,14 +156,16 @@ def handle_btnmove(form, game, move_number):
         command_queue.put_nowait(
             Command(admin_change_move, game, move_number, MoveType.REGULAR, (col, row), vert, word, State.ctx.op_event)
         )
+        flash_and_log(f'edited regular move {move_number}')
     elif move_type == MoveType.EXCHANGE.name:
         command_queue.put_nowait(Command(admin_change_move, game, move_number, MoveType.EXCHANGE, event=State.ctx.op_event))
+        flash_and_log(f'edited exchange move {move_number}')
     else:
         flash_and_log(f'change move {move_number} missing parameter {move_type=} {coord=} {word=}')
         return
     if State.ctx.current_state == GameState.EOG:
         command_queue.put_nowait(Command(State.do_end_of_game))
-    flash_and_log(f'change move {move_number} to exchange')
+        flash_and_log('do end of game')
 
 
 @admin_edit_bp.route('/moves', methods=['GET', 'POST'])
