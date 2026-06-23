@@ -44,6 +44,11 @@ fi
 
 cd "$PYTHONDIR"
 
+# check for internet
+if command -v nm-online &>/dev/null; then
+    nm-online -s -q --timeout=60
+fi
+
 while : ; do
     # kill running python processes 
     pkill -9 python 2> /dev/null
