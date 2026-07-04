@@ -292,7 +292,7 @@ class BoardConfig:
         """Pixel count threshold to detect tiles"""
         layout = self.layout
         return self.config.getint(
-            'board', f'{layout}.tiles_threshold', fallback=int(DEFAULT['board'][f'{layout}-tiles_threshold'])
+            'board', f'{layout}-tiles_threshold', fallback=int(DEFAULT['board'][f'{layout}-tiles_threshold'])
         )
 
     @property
@@ -305,7 +305,7 @@ class BoardConfig:
         """Use dynamic image thresholding?"""
         layout = self.layout
         return self.config.getboolean(
-            'board', f'{layout}.dynamic_threshold', fallback=as_bool(DEFAULT['board'][f'{layout}-dynamic_threshold'])
+            'board', f'{layout}-dynamic_threshold', fallback=as_bool(DEFAULT['board'][f'{layout}-dynamic_threshold'])
         )
 
     @property
