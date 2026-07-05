@@ -41,7 +41,7 @@ if git merge-base --is-ancestor origin/$BRANCH HEAD; then
 else
     git stash
     git checkout $BRANCH -f
-    git pull --autostash
+    git pull --autostash --rebase
 
     if command -v tailscale &> /dev/null; then
        sudo tailscale update --yes
