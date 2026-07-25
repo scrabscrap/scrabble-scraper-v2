@@ -54,7 +54,7 @@ def main() -> None:
     def log_exception_handler(exctype, value, tb):
         import traceback
 
-        logger.exception(''.join(traceback.format_exception(exctype, value, tb)))
+        logger.exception(''.join(traceback.format_exception(exctype, value, tb)))  # noqa: LOG004
         sys.__excepthook__(exctype, value, tb)  # calls default excepthook
 
     def _cleanup():
@@ -105,7 +105,7 @@ def main() -> None:
 
     def _on_future_done(f):
         if exc := f.exception():
-            logger.exception('camera update thread failed: %s', exc)
+            logger.exception('camera update thread failed: %s', exc)  # noqa: LOG004
 
     # start camera
     future_cam = pool.submit(camera.cam.update, Event())

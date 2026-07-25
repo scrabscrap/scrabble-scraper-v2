@@ -196,7 +196,7 @@ def main():
     def log_exception_handler(exctype, value, tb):
         import traceback
 
-        logger.exception(''.join(traceback.format_exception(exctype, value, tb)))
+        logger.exception(''.join(traceback.format_exception(exctype, value, tb)))  # noqa: LOG004
         sys.__excepthook__(exctype, value, tb)  # calls default excepthook
 
     logging.config.fileConfig(

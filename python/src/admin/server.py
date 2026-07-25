@@ -469,8 +469,10 @@ def game_status():
     jsonstr = State.ctx.game.json_str()
     image_str = f'web/image-{len(State.ctx.game.moves) - 1}.jpg' if State.ctx.game.moves else ''
     return (
-        f'{{"op": "{State.ctx.current_state.name}", "clock1": {clock1},"clock2": {clock2}, '
-        f'"image": "{image_str}", "status": {jsonstr}  }}',
+        (
+            f'{{"op": "{State.ctx.current_state.name}", "clock1": {clock1},"clock2": {clock2}, '
+            f'"image": "{image_str}", "status": {jsonstr}  }}'
+        ),
         201,
     )
 
